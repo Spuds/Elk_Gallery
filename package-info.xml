@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<!DOCTYPE package-info SYSTEM "http://www.simplemachines.org/xml/package-info">
+<package-info xmlns="http://www.simplemachines.org/xml/package-info" xmlns:smf="http://www.simplemachines.org/">
+	<id>Levertine:Gallery</id>
+	<name>Levertine Gallery</name>
+	<version>1.1.1</version>
+	<type>modification</type>
+
+	<install for="1.1 - 1.1.99">
+		<!-- readme files -->
+		<readme lang="english" parsebbc="true" type="file">readme/readme.english.txt</readme>
+
+		<!-- Dependencies -->
+		<require-dir name="levgal_src" destination="SOURCEDIR">Adding main source files</require-dir>
+		<require-dir name="levgal_tpl" destination="THEMEDIR">Adding main templates</require-dir>
+		<require-dir name="levgal_lng" destination="THEMEDIR/languages">Adding language files</require-dir>
+
+		<!-- Resources -->
+		<require-dir name="levgal_res" destination="THEMEDIR/">Adding CSS, JS, images</require-dir>
+
+		<!-- And the most important bit -->
+		<require-dir name="lgal_items" destination="BOARDDIR">Storage for files</require-dir>
+
+		<!-- Portal integration files -->
+		<require-dir name="other/tp-files" destination="BOARDDIR">TinyPortal integration files</require-dir>
+
+		<!-- Database -->
+		<database>install.php</database>
+
+		<!-- And on to the admin panel. -->
+		<redirect url="?action=admin;area=lgaldash" />
+	</install>
+
+	<uninstall  for="1.1 - 1.1.99">
+		<!-- Dependencies -->
+		<remove-dir name="SOURCEDIR/levgal_src">Removing main source files</remove-dir>
+		<remove-dir name="THEMEDIR/levgal_tpl">Removing main templates</remove-dir>
+		<remove-dir name="THEMEDIR/languages/levgal_lng">Removing language files</remove-dir>
+
+		<!-- Resources -->
+		<remove-dir name="THEMEDIR/levgal_res">Removing CSS, JS, images</remove-dir>
+
+		<!-- Database -->
+		<code>uninstall-required.php</code>
+		<database>uninstall-optional.php</database>
+	</uninstall>
+
+</package-info>

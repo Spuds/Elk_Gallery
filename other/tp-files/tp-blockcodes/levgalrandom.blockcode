@@ -1,0 +1,34 @@
+<info>
+Levertine Gallery - random items
+format: Boardmod
+</info>
+
+<name>
+Levertine Gallery - random items
+</name>
+
+<author>
+Arantor / Levertine.com
+</author>
+
+<version>
+1.0
+</version>
+
+<date>
+3 January 2015
+</date>
+
+<code>
+if (defined('LEVGAL_VERSION'))
+{
+	// Displaying rows and columns of items. For example 1 row of 4 items would be $columns = 4; and $rows = 1;
+	$columns = 4;
+	$rows = 4;
+	LevGal_Portal_TinyPortal::getRandomItems($columns, $rows);
+}
+</code>
+
+<description>
+Display random items from the Levertine Gallery (requires LevGal to be installed)
+</description>

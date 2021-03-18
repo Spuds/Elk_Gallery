@@ -1,0 +1,4 @@
+Order deny,allow
+Deny from all
+
+RemoveHandler .php .php3 .phtml .cgi .fcgi .pl .fpl .shtml

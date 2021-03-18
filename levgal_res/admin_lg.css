@@ -1,0 +1,211 @@
+dl.settings dd.main_width
+{
+	width: 100%;
+}
+
+dl.settings fieldset legend img, dl.settings a img
+{
+	margin: 0;
+}
+
+.groups_no_quota
+{
+	margin-top: 1em;
+}
+.groups_no_quota div
+{
+	margin: 0 1em;
+}
+
+.add_quota
+{
+	margin-top: 1.5em;
+}
+.add_quota_row td
+{
+	border-top: 1px solid lightgray;
+}
+.updating_quota_row td
+{
+	border-top: 1px solid lightgray;
+	border-bottom: 1px solid lightgray;
+}
+
+#max_image_size_setting
+{
+	margin-top: 3px;
+}
+
+#image_quota_table td.buttons
+{
+	width: 25%;
+}
+#image_quota_table td.image_size, #image_quota_table td.file_size
+{
+	vertical-align: top;
+}
+
+#image_changed, #audio_changed, #video_changed, #document_changed, #archive_changed, #generic_changed, #external_changed
+{
+	margin-top: 1em;
+	display: none;
+}
+.sortable
+{
+	padding: 0;
+	list-style-type: none;
+}
+.sortable li
+{
+	cursor: move;
+}
+.sortable li a
+{
+	cursor: pointer;
+}
+div.field_name
+{
+	width: 200px;
+}
+div.field_type
+{
+	width: 200px;
+}
+div.field_type .lgaladmin
+{
+	margin-bottom: -3px;
+}
+div.field_active
+{
+	width: 100px;
+}
+div.field_placement
+{
+	width: 250px;
+}
+#field_type_icon
+{
+	margin: 0 3px -3px 3px;
+}
+.lgaladmin
+{
+	width: 16px;
+	height: 16px;
+	display: inline-block;
+	background: url(admin_sprite.png) no-repeat 0 0;
+}
+.lgaladmin.ui_integer
+{
+	background-position: 0 0;
+}
+.lgaladmin.ui_float
+{
+	background-position: 0 -16px;
+}
+.lgaladmin.ui_text
+{
+	background-position: 0 -32px;
+}
+.lgaladmin.ui_largetext
+{
+	background-position: 0 -48px;
+}
+.lgaladmin.ui_select
+{
+	background-position: 0 -64px;
+}
+.lgaladmin.ui_radio
+{
+	background-position: 0 -80px;
+}
+.lgaladmin.ui_checkbox
+{
+	background-position: 0 -96px;
+}
+.lgaladmin.help
+{
+	background-position: -16px 0;
+}
+.lgaladmin.available
+{
+	background-position: -16px -16px;
+}
+.lgaladmin.warning
+{
+	background-position: -16px -32px;
+}
+.lgaladmin.notavailable
+{
+	background-position: -16px -48px;
+}
+.lgaladmin.ui_multiselect
+{
+	background-position: -16px -96px;
+}
+#album_list.ignoreboards
+{
+	width: 90%;
+}
+.graph_parent
+{
+	padding: 5px;
+}
+#stats_left, #stats_right
+{
+	width: 50%;
+	box-sizing: border-box;
+}
+#stats_left
+{
+	float: left;
+	clear: right;
+	padding: 0 5px 0 0;
+}
+#stats_right
+{
+	float: right;
+	margin: 0 0 5px 0;
+}
+.content.modbox
+{
+	height: 16em
+}
+#graph_legend .pie-legend
+{
+	list-style: none;
+	margin-top: 0;
+	padding: 3px;
+}
+#graph_legend .pie-legend li
+{
+	margin-bottom: 2px;
+}
+.pie-legend li span
+{
+	display: inline-block;
+	width: 13px;
+	height: 13px;
+	border-radius: 4px;
+	margin: 0 3px -1px 3px;
+}
+.lgal_admin_block, .modbox {
+	overflow: auto;
+	height: 210px;
+}
+.lgal_admin_block.news
+{
+	overflow-y: auto;
+}
+#lev_news
+{
+	font-size: 0.85em;
+}
+#lev_news dt
+{
+	border-bottom: 1px dashed #000;
+}
+#lev_news dd
+{
+	padding: 0;
+	margin: 0 0 1em 1.5em;
+}

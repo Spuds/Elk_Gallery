@@ -1,0 +1,707 @@
+/**
+ This is the CSS for Levertine Gallery (LTR)
+**/
+
+#album_sidebar {
+	float: right;
+	width: 200px;
+	margin-left: 15px;
+}
+
+#album_sidebar .album_owner {
+	height: 45px;
+	margin-bottom: 5px;
+}
+
+.user_avatar {
+	margin: 0 10px 0 0;
+	float: left;
+}
+
+.user_avatar, .comment_avatar {
+	width: 45px;
+	height: 45px;
+}
+
+.user_avatar img.avatar, .comment_avatar img.avatar {
+	max-width: 45px;
+	max-height: 45px;
+}
+
+#album_sidebar .user {
+	margin-top: 3px;
+	float: left;
+	min-width: 51%;
+	width: auto;
+	height: auto;
+}
+
+.posted_by {
+	font-weight: bold;
+}
+
+dl.album_details dt, dl.album_info dt {
+	font-weight: bold;
+}
+
+dl.album_info dt {
+	width: 75%;
+	float: left;
+}
+
+dl.album_details dd, dl.album_info dd {
+	margin-left: 10px;
+	margin-bottom: 10px;
+}
+
+.secondary_header {
+	margin-top: 0;
+	border-top-color: #CFCFCF;
+	border-bottom-color: #BBBBBB;
+	background: #EBEBEB linear-gradient(to bottom, #FAFAFA, #E4E4E4);
+	padding: 4px 10px 2px 10px;
+	font-size: 1.214em;
+	line-height: 1.8em;
+	border-radius: 2px 2px 0 0;
+}
+
+#item_main {
+	padding-right: 215px; /* width of #album_sidebar + padding */
+}
+
+#item_picture_container {
+	text-align: center;
+}
+
+#item_picture, #item_audio_container, #item_generic {
+	margin: 0 auto;
+	display: block;
+	text-align: center;
+}
+
+.has_lightbox {
+	cursor: zoom-in;
+}
+
+#item_desc {
+	margin: 25px 15px 5px 15px;
+}
+
+#lgal_cf_desc {
+	margin-top: 2em;
+	margin-bottom: 0;
+	padding-top: 1em;
+	clear: none;
+	border-top: 1px solid lightgray;
+}
+
+.item_likes, .item_tags {
+	margin-bottom: 2px;
+}
+
+.album_container {
+	text-align: center;
+	display: table;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.album_entry {
+	display: inline-block;
+	margin: 10px;
+}
+
+.album_featured {
+	display: inline-block;
+	margin: 10px;
+	width: 330px;
+}
+
+.album_thumb {
+	width: 65px;
+	height: 65px;
+	margin: 0 5px;
+}
+
+.album_featured .album_desc {
+	margin: 0 5px;
+}
+
+.album_hierarchy, .album_hierarchy ul {
+	list-style: none;
+}
+
+ul.album_hierarchy, ul.album_hierarchy ul {
+	padding: 0 0 0 40px;
+}
+
+.album_hierarchy.level_0 {
+	margin: 0;
+	padding: 0;
+	display: table;
+	width: 100%;
+}
+
+.album_hierarchy > .ui-sortable-handle {
+	cursor: move;
+}
+
+.album_hierarchy > .ui-sortable-handle a {
+	cursor: pointer;
+}
+
+.sortable_error {
+	background: #FBE3E4;
+}
+
+.placeholder {
+	outline: 1px dashed #4183C4;
+}
+
+.album_thumb img {
+	margin: 0 auto;
+	display: block;
+	max-width: 65px;
+	max-height: 65px;
+}
+
+.thumb_name {
+	font-size: 0.9em;
+	margin-bottom: 5px;
+	text-overflow: ellipsis;
+	width: 125px;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+.thumb_container {
+	width: 125px;
+	text-align: center;
+}
+
+.thumb_container a {
+	height: 125px;
+	display: block;
+}
+
+.thumb_container img {
+	margin: 0 auto;
+	display: block;
+	max-width: 125px;
+	max-height: 125px;
+	position: relative;
+	top: 50%;
+	-webkit-transform: translateY(-50%);
+	-ms-transform: translateY(-50%);
+	transform: translateY(-50%);
+}
+
+.album_thumbnail {
+	text-align: center;
+}
+
+.album_thumbnail img {
+	max-width: 125px;
+	max-height: 125px;
+}
+
+.comment {
+	display: table;
+	width: 100%;
+}
+
+.comment .centertext {
+	margin-bottom: 10px;
+}
+
+.comment_info {
+	display: table-cell;
+	width: 125px;
+	overflow: hidden;
+	vertical-align: top;
+	margin-right: 10px;
+}
+
+.comment_body {
+	display: table-cell;
+	vertical-align: top;
+	width: 90%;
+}
+
+.report_body, .mod_comment {
+	width: 80%;
+	height: 150px;
+	padding: 5px;
+}
+
+.mod_comment {
+	width: 100%;
+	height: 50px;
+}
+
+.comment_time {
+	font-size: 0.8em;
+	margin-bottom: 3px;
+	border-bottom: 1px solid #CCCCCC;
+}
+
+#thumbs_container {
+	height: 60px;
+}
+
+#thumbs_container img {
+	max-width: 60px;
+	max-height: 60px;
+	margin: 0 10px;
+}
+
+#upload_thumbnail {
+	margin: 0 2%;
+}
+
+#smileyBox_lgal_commentbox {
+	margin: 0.5em;
+}
+
+#bbcBox_lgal_commentbox {
+	padding: 0.75em 0.25em;
+}
+
+#bbcBox_lgal_commentbox div img {
+	margin: 0 1px 0 0;
+	vertical-align: top;
+}
+
+#bbcBox_lgal_commentbox select {
+	margin: 0 2px;
+}
+
+#bbcBox_lgal_commentbox div {
+	margin: 0.2em 0;
+	vertical-align: top;
+}
+
+.album_current {
+	padding-left: 1em;
+}
+
+.album_child {
+	padding-left: 2em;
+}
+
+/* Action buttons */
+ul.lgalactions {
+	margin: 0.9em 11px 0 0;
+	clear: right;
+	float: right;
+	text-align: right;
+	font: bold 0.85em arial, sans-serif;
+}
+
+ul.lgalactions li {
+	float: left;
+	display: inline;
+	margin: 0 0 0 11px;
+}
+
+ul.lgalactions li a {
+	padding: 0 0 0 20px;
+	display: block;
+	height: 20px;
+	line-height: 18px;
+	float: left;
+}
+
+ul.lgalactions li.lgal_open {
+	background: url(buttons/openreport.png) no-repeat 4px 3px;
+}
+
+ul.lgalactions li.lgal_close {
+	background: url(buttons/closereport.png) no-repeat 4px 3px;
+}
+
+ul.lgalactions li.lgal_flag {
+	background: url(buttons/flag.png) no-repeat 4px 3px;
+}
+
+ul.lgalactions li.lgal_browse {
+	background: url(buttons/browse.png) no-repeat 4px 3px;
+}
+
+ul.lgalactions li.lgal_approve {
+	background: url(buttons/approve.png) no-repeat 4px 3px;
+}
+
+ul.lgalactions li.lgal_edit {
+	background: url(buttons/edit.png) no-repeat 4px 3px;
+}
+
+ul.lgalactions li.lgal_delete {
+	background: url(buttons/delete.png) no-repeat 4px 3px;
+}
+
+.sidebar_actions {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.sidebar_actions li {
+	list-style: none;
+	padding: 0;
+	margin: 5px 0;
+}
+
+.sidebar_actions li .lgalicon {
+	margin: 0 5px -2px 5px;
+}
+
+.lgal_share input {
+	display: inline-block;
+	width: 125px;
+	margin-right: -1px;
+}
+
+.lgal_share span.copy {
+	margin-bottom: -1px;
+	cursor: pointer;
+}
+
+#browse_button {
+	float: none;
+	margin-left: 0;
+	margin-right: 0;
+}
+
+#upload_type_file {
+	min-height: 20px;
+	overflow: visible;
+	position: absolute;
+	width: 45%;
+}
+
+#progressbar, #total_progressbar {
+	display: none;
+	float: left;
+	width: 200px;
+	margin-top: 6px;
+	border-color: transparent;
+}
+
+#progresspc, #total_progresspc {
+	display: none;
+	float: left;
+	margin-top: 6px;
+}
+
+td.status #progressbar {
+	width: 180px;
+}
+
+td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progresspc {
+	margin-top: 0;
+	display: block;
+}
+
+#dragdroptarget {
+	height: 100px;
+	border: 1px dashed lightgrey;
+}
+
+#file_queue th {
+	white-space: pre;
+}
+
+#file_queue tr.content td {
+	height: 20px;
+}
+
+/* Audio/video player */
+.mejs__audio, .mejs__video {
+	margin: 10px auto;
+}
+
+.mejs__button > button {
+	font-size: 2em !important;
+}
+
+/* Delete page */
+.delete_desc, .delete_ays {
+	margin: 1em 10%;
+}
+
+/* Move page */
+.move_desc, .move_button {
+	margin: 1em 10%;
+}
+
+.move_desc select {
+	margin: 0 10px;
+}
+
+/* Moderation area */
+.mod_report_thumbnail {
+	width: 150px;
+	text-align: center;
+}
+
+.mod_report_thumbnail img {
+	max-width: 125px;
+	max-height: 125px;
+}
+
+/* Search area */
+#member_container div {
+	float: left;
+	margin: 2px 10px;
+}
+
+#member_container div a {
+	font-weight: normal;
+}
+
+/* Sprite icons */
+.lgalicon {
+	width: 16px;
+	height: 16px;
+	display: inline-block;
+	background: url(sprite.png) no-repeat 0 0;
+	padding: 0;
+}
+
+.lgalicon.feed {
+	background-position: 0 0;
+}
+
+.lgalicon.comments {
+	background-position: -16px 0;
+}
+
+.lgalicon.views {
+	background-position: -32px 0;
+}
+
+.lgalicon.bookmark {
+	background-position: -48px 0;
+}
+
+.lgalicon.unbookmark {
+	background-position: -64px 0;
+}
+
+.lgalicon.deleteitem {
+	background-position: -80px 0;
+}
+
+.lgalicon.additem, .lgalicon.addbulk {
+	background-position: -96px 0;
+}
+
+.lgalicon.feature_album {
+	background-position: -112px 0;
+}
+
+.lgalicon.chart {
+	background-position: -128px 0;
+}
+
+.lgalicon.edititem {
+	background-position: -144px 0;
+}
+
+.lgalicon.copy {
+	background-position: -160px 0;
+}
+
+.lgalicon.stats {
+	background-position: 0 -16px;
+}
+
+.lgalicon.markseen {
+	background-position: -16px -16px;
+}
+
+.lgalicon.new {
+	background-position: -32px -16px;
+}
+
+.lgalicon.download {
+	background-position: -48px -16px;
+}
+
+.lgalicon.like {
+	background-position: -64px -16px;
+}
+
+.lgalicon.unnotify {
+	background-position: -80px -16px;
+}
+
+.lgalicon.notify {
+	background-position: -96px -16px;
+}
+
+.lgalicon.unfeature_album {
+	background-position: -112px -16px;
+}
+
+.lgalicon.trophy {
+	background-position: -128px -16px;
+}
+
+.lgalicon.alb_parent {
+	background-position: -144px -16px;
+}
+
+/* -160px -16px is the RTL equivalent of alb_child */
+.lgalicon.flag {
+	background-position: 0 -32px;
+}
+
+.lgalicon.unapproved {
+	background-position: -16px -32px;
+	margin-left: 5px;
+	margin-right: 5px;
+}
+
+.lgalprofile_summary .lgalicon.unapproved {
+	margin: 0;
+}
+
+.lgalicon.moderate {
+	background-position: -32px -32px;
+}
+
+.lgalicon.approveitem, .lgalicon.moveitem, .lgalicon.gotoitem {
+	background-position: -48px -32px;
+}
+
+.lgalicon.album, .lgalicon.setthumbnail {
+	background-position: -64px -32px;
+}
+
+.lgalicon.deletealbum {
+	background-position: -80px -32px;
+}
+
+.lgalicon.addalbum, .lgalicon.approvealbum {
+	background-position: -96px -32px;
+}
+
+.lgalicon.editalbum {
+	background-position: -112px -32px;
+}
+
+.lgalicon.options {
+	background-position: -128px -32px;
+}
+
+.lgalicon.alb_child {
+	background-position: -144px -32px;
+}
+
+/* -160px -32px is the RTL equivalent of alb_parent */
+.lgalicon.facebook {
+	background-position: 0 -48px;
+}
+
+.lgalicon.twitter {
+	background-position: -16px -48px;
+}
+
+.lgalicon.tumblr {
+	background-position: -32px -48px;
+}
+
+.lgalicon.reddit {
+	background-position: -48px -48px;
+}
+
+.lgalicon.stumbleupon {
+	background-position: -80px -48px;
+}
+
+.lgalicon.pinterest {
+	background-position: -96px -48px;
+}
+
+.lgalicon.featured {
+	background-position: -112px -48px;
+}
+
+.lgalicon.search {
+	background-position: -128px -48px;
+}
+
+.lgalicon.tag {
+	background-position: -144px -48px;
+}
+
+/* Mimic table appearance */
+.dz-table {
+	display: table;
+	width: 100%;
+}
+
+.dz-table .file-row {
+	display: table-row;
+}
+
+.dz-table .file-row > div {
+	display: table-cell;
+	vertical-align: top;
+	border-top: 1px solid #ddd;
+	padding: 8px;
+}
+
+#dz-name {
+	width: 60%;
+}
+
+/* The total progress gets shown by event listeners */
+#total-progress {
+	opacity: 0;
+	transition: opacity 0.3s linear;
+}
+
+/* Hide the progress bar when finished */
+#previews .file-row.dz-success .progress {
+	opacity: 0;
+	transition: opacity 0.3s linear;
+}
+
+/* Hide the begin button initially */
+#begin_button {
+	display: none;
+}
+
+.progress {
+	background-image: linear-gradient(to bottom, #EBEBEB 0, #F5F5F5 100%);
+	background-repeat: repeat-x;
+	overflow: hidden;
+	height: 20px;
+	margin-bottom: 10px;
+	background-color: #F5F5F5;
+	border-radius: 4px;
+	box-shadow: inset 0 1px 2px rgba(0, 0, 0, .1);
+}
+
+.progress-bar-success {
+	background-image: linear-gradient(to bottom, #5CB85C 0, #449D44 100%);
+	background-repeat: repeat-x;
+}
+
+.progress-bar {
+	background-image: linear-gradient(to bottom, #428BCA 0, #3071A9 100%);
+	background-repeat: repeat-x;
+	float: left;
+	width: 0;
+	height: 100%;
+	font-size: 1em;
+	line-height: 20px;
+	color: #FFFFFF;
+	text-align: center;
+	background-color: #428BCA;
+	box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .15);
+	transition: width .6s ease;
+}

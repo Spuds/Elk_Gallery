@@ -1,0 +1,61 @@
+/**
+ This is the CSS for Levertine Gallery (RTL variations)
+**/
+
+#album_sidebar
+{
+	float: left;
+	margin-left: 0px;
+	margin-right: 15px;
+}
+#item_main
+{
+	padding-left: 215px; /* to reverse what's in main.css for the same */
+	padding-right: 0;
+}
+dl.album_details dd
+{
+	margin-left: 0;
+	margin-right: 10px;
+}
+.user_avatar
+{
+	margin: 0 0 0 10px;
+	float: right;
+}
+
+ul.album_hierarchy, ul.album_hierarchy ul
+{
+	padding: 0 40px 0 0;
+}
+
+ul.lgalactions
+{
+	margin: 0.9em 0 0 11px;
+	clear: left;
+	float: left;
+	text-align: left;
+}
+ul.lgalactions li
+{
+	float: left;
+	margin: 0 11px 0 0;
+}
+ul.lgalactions li a
+{
+	padding: 0 20px 0 0;
+	float: left;
+}
+
+.lgalicon.alb_child
+{
+	background-position: -160px -16px;
+}
+.lgalicon.alb_parent
+{
+	background-position: -160px -32px;
+}
+dl.album_details dt
+{
+	float: right;
+}
