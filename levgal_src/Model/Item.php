@@ -53,9 +53,9 @@ class LevGal_Model_Item extends LevGal_Model_File
 		if ($db->num_rows($request) > 0)
 		{
 			$this->current_item = $db->fetch_assoc($request);
-			censorText($this->current_item['item_name']);
+			censor($this->current_item['item_name']);
 			$this->current_item['description_raw'] = $this->current_item['description'];
-			censorText($this->current_item['description']);
+			censor($this->current_item['description']);
 			$this->current_item['description'] = !empty($this->current_item['description']) ? parse_bbc($this->current_item['description'], true, 'lgal_item_' . $this->current_item['id_item']) : '';
 			$this->current_item['meta'] = !empty($this->current_item['meta']) ? @unserialize($this->current_item['meta']) : array();
 			$this->current_item['item_url'] = $scripturl . '?media/item/' . (!empty($this->current_item['item_slug']) ? $this->current_item['item_slug'] . '.' . $itemId : $itemId) . '/';
@@ -689,7 +689,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 				}
 			}
 
-			censorText($row['comment']);
+			censor($row['comment']);
 			if (!empty($row['id_author']))
 			{
 				$members[] = $row['id_author'];

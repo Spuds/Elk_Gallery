@@ -51,8 +51,8 @@ class LevGal_Model_External_MetaCafe
 			'external_url' => 'http://www.metacafe.com/watch/' . $this->meta['id'] . '/',
 			'video_id' => $this->meta['id'],
 			'markup' => '
-	<iframe src="http://www.metacafe.com/embed/' . $this->meta['id'] . '/" width="540" height="304" allowFullScreen frameborder="0" style="margin: 0 auto; display:block"></iframe>
-	<div class="centertext ext_link"><a href="http://www.metacafe.com/watch/' . $this->meta['id'] . '/">' . $txt['lgal_view_metacafe'] . '</a></div>',
+	<iframe src="https://www.metacafe.com/embed/' . $this->meta['id'] . '/" width="540" height="304" allowFullScreen frameborder="0" style="margin: 0 auto; display:block"></iframe>
+	<div class="centertext ext_link"><a href="https://www.metacafe.com/watch/' . $this->meta['id'] . '/">' . $txt['lgal_view_metacafe'] . '</a></div>',
 		);
 	}
 
@@ -61,11 +61,11 @@ class LevGal_Model_External_MetaCafe
 		require_once(SUBSDIR . '/Package.subs.php');
 
 		// This is a bit complicated, but essentially we can look up the thumbnail from the OpenGraph tags.
-		if ($page = fetch_web_data('http://www.metacafe.com/watch/' . $this->meta['id'] . '/'))
+		if ($page = fetch_web_data('https://www.metacafe.com/watch/' . $this->meta['id'] . '/'))
 		{
 			if (preg_match('~<meta property="og:image" content="([^"]+)"( /)?>~i', $page, $match) && !empty($match[1]))
 			{
-				if ($thumbnail_data = $exturl->fetchURL($match[1]))
+				if ($thumbnail_data = fetch_web_data($match[1]))
 				{
 					return array('data' => $thumbnail_data, 'image_mime' => 'image/jpeg');
 				}

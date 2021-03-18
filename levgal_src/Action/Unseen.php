@@ -78,7 +78,7 @@ class LevGal_Action_Unseen extends LevGal_Action_Abstract
 
 	public function actionMarkseen()
 	{
-		global $scripturl;
+		global $scripturl, $context;
 
 		list (, $album_id) = $this->getSlugAndId();
 		if (!empty($album_id))

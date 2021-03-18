@@ -115,5 +115,5 @@ abstract class LevGal_Action_Abstract
 		$context['sub_template'] = $sub_template;
 	}
 
-	abstract function actionIndex();
+	public abstract function actionIndex();
 }

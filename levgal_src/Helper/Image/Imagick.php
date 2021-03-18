@@ -119,7 +119,7 @@ class LevGal_Helper_Image_Imagick
 	public function resizeImageToMax($max_dimension, $dest_file, $format = 'jpg')
 	{
 		// Nothing to do, can we save ourselves some hassle?
-		if ($this->width <= $max_dimension & $this->height <= $max_dimension)
+		if ($this->width <= $max_dimension && $this->height <= $max_dimension)
 		{
 			if (!empty($this->source_file) && !empty($this->source_type) && $format == $this->source_type)
 			{

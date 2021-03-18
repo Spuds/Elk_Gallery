@@ -932,7 +932,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 
 		if (!$this->album_obj->isEditable())
 		{
-			LevGal_Http_Error::fatalError('cannot_lgal_edit_album');
+			LevGal_Helper_Http::fatalError('cannot_lgal_edit_album');
 		}
 
 		$context['page_title'] = sprintf($txt['lgal_editing_album'], $context['album_details']['album_name']);

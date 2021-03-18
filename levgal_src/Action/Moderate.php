@@ -200,7 +200,7 @@ class LevGal_Action_Moderate extends LevGal_Action_Abstract
 					// If we're here, we're able to see the item and approve it.
 					$context['comments'][$id_comment]['actions']['browse'] = array('url' => $comment['comment_url'], 'title' => $txt['levgal_comment_browse']);
 					$context['comments'][$id_comment]['actions']['approve'] = array('url' => $comment['comment_url'] . 'approve_unapproved/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'title' => $txt['levgal_comment_approve']);
-					if (allowedTo('lgal_delete_comment_any') || (allowedTo('lgal_delete_comment_own') && $row['id_member'] == $user_info['id']) || (!empty($modSettings['lgal_selfmod_delete_comment']) && $row['item_poster'] == $user_info['id']))
+					if (allowedTo('lgal_delete_comment_any') || (allowedTo('lgal_delete_comment_own') && $comment['id_member'] == $user_info['id']) || (!empty($modSettings['lgal_selfmod_delete_comment']) && $comment['item_poster'] == $user_info['id']))
 					{
 						$context['comments'][$id_comment]['actions']['delete'] = array('url' => $comment['comment_url'] . 'delete_unapproved/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'title' => $txt['levgal_comment_delete']);
 					}

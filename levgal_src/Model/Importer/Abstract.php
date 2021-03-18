@@ -68,7 +68,8 @@ abstract class LevGal_Model_Importer_Abstract
 	public function importMaintenance()
 	{
 		require_once(SOURCEDIR . '/levgal_src/ManageLevGal-Maint.php');
-		levgal_maint_recount('', false);
+		$maintance = new ManageLevGalMaint_Controller();
+		$maintance->levgal_maint_recount('', false);
 
 		return array(true, 1);
 	}

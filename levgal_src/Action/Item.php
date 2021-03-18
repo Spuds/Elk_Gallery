@@ -226,9 +226,9 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 			}
 		}
 
-		if (!empty($this_page) && $this_page > 1)
+		if (!empty($context['this_page']) && $context['this_page'] > 1)
 		{
-			$context['canonical_url'] .= 'page-' . $this_page . '/';
+			$context['canonical_url'] .= 'page-' . $context['this_page'] . '/';
 		}
 
 		$context['display_comment_reply'] = $this->item_obj->canReceiveComments();

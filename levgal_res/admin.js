@@ -11,10 +11,9 @@ function toggleContainers(name)
 // Use to close fieldsets selection areas, expandable on click
 function closeFieldsets()
 {
-	let thisLegends = document.getElementsByTagName("legend"),
-		i;
+	let thisLegends = document.getElementsByTagName("legend");
 
-	for (i = 0, n = thisLegends.length; i < n; i++)
+	for (var i = 0, n = thisLegends.length; i < n; i++)
 	{
 		thisLegends[i].nextElementSibling.style.display = 'none';
 	}
@@ -23,8 +22,8 @@ function closeFieldsets()
 // Show and hide the overall areas based on enabled file types.
 function showHide(name)
 {
-	var thisvalue = document.getElementById('lgal_enable_' + name).checked;
-	var elements = document.querySelectorAll('.container_' + name);
+	let thisvalue = document.getElementById('lgal_enable_' + name).checked,
+		elements = document.querySelectorAll('.container_' + name);
 	for (var i = 0, n = elements.length; i < n; i++)
 	{
 		elements[i].style.display = thisvalue ? '' : 'none';
@@ -33,10 +32,10 @@ function showHide(name)
 
 function groups_no_quota(quota_type)
 {
-	var groups_no_quota_list = [];
+	let groups_no_quota_list = [];
 	for (group in groupList)
 	{
-		var this_group = ~~group;
+		let this_group = ~~group;
 		// Discard craziness and people who can manage the gallery.
 		if (in_array(this_group, managers))
 		{

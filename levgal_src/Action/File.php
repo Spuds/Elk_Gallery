@@ -22,11 +22,11 @@ class LevGal_Action_File extends LevGal_Action_Abstract
 	private $is_downloading = false;
 	/** @var string */
 	private $viewtype = 'raw';
-	/** @var bool */
+	/** @var \LevGal_Model_File */
 	private $file_model = false;
 	/** @var bool */
 	private $file_details = false;
-	/** @var bool */
+	/** @var mixed */
 	private $file_paths = false;
 	/** @var int */
 	private $file_start = 0;
@@ -58,15 +58,6 @@ class LevGal_Action_File extends LevGal_Action_Abstract
 		if ($context['item_details']['item_slug'] != $this->item_slug)
 		{
 			LevGal_Helper_Http::hardRedirect($context['item_details']['item_url'] . (empty($_GET['sub']) ? '' : $_GET['sub'] . '/'));
-		}
-
-		// Before we go any further we might want this.
-		if (!function_exists('header_remove'))
-		{
-			function header_remove($name)
-			{
-				header($name . ':');
-			}
 		}
 	}
 
@@ -365,18 +356,13 @@ class LevGal_Action_File extends LevGal_Action_Abstract
 		$segment_size = 8192; // 8KB segment size seems to be best for actually serving files.
 		$file_name = $this->file_paths[$this->viewtype];
 		$actual_end = $this->file_end + 1;
-		$apache = function_exists('apache_reset_timeout');
 
 		if ($file_handle = @fopen($file_name, 'rb'))
 		{
 			fseek($file_handle, $this->file_start);
 			while (!feof($file_handle) && ($current_pos < $actual_end) && (connection_status() == CONNECTION_NORMAL))
 			{
-				@set_time_limit(10);
-				if ($apache)
-				{
-					@apache_reset_timeout();
-				}
+				detectServer()->setTimeLimit(10);
 				$chunk = @fread($file_handle, min($segment_size, $actual_end - $current_pos));
 				echo $chunk;
 				$current_pos += strlen($chunk);

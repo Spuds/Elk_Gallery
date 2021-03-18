@@ -12,7 +12,7 @@
  */
 class LevGal_Model_Album
 {
-	/** @var bool  */
+	/** @var mixed  */
 	private $current_album = false;
 	/** @var int  */
 	const LOCKED_ITEMS = 1;
@@ -747,7 +747,7 @@ class LevGal_Model_Album
 
 		if ($item['approved'])
 		{
-			// If it's approved, it's aeasy, anyone that can see the album is on the list of possible candidates.
+			// If it's approved, it's easy, anyone that can see the album is on the list of possible candidates.
 			$members = $this->usersCanSeeAlbum($members);
 		}
 		else
@@ -756,6 +756,7 @@ class LevGal_Model_Album
 			$groupModel = new LevGal_Model_Group();
 			$groups = $groupModel->allowedTo('lgal_manage');
 			$groups = array_merge($groups, $groupModel->allowedTo('lgal_approve_item'));
+			$album = $item_obj->getParentAlbum();
 
 			// If it's a group owner, we can bolt that on easily enough.
 			if (!empty($modSettings['lgal_selfmod_approve_item']) && !empty($album['owner_cache']['group']))

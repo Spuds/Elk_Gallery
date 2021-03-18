@@ -73,7 +73,6 @@ class LevGal_Model_Group
 			'id' => 'mg.id_group',
 		);
 
-		$details = array();
 		$request = $db->query('', '
 			SELECT 
 			    id_group, group_name, online_color, {raw:stars_column} AS stars
@@ -140,7 +139,8 @@ class LevGal_Model_Group
 		}
 
 		$request = $db->query('', '
-			SELECT id_member, id_group, additional_groups
+			SELECT 
+				id_member, id_group, additional_groups
 			FROM {db_prefix}members
 			WHERE id_member IN ({array_int:users})',
 			array(
@@ -205,7 +205,8 @@ class LevGal_Model_Group
 		$group_ids = (array) $group_ids;
 
 		$request = $db->query('', '
-			SELECT id_album, owner_cache
+			SELECT 
+				id_album, owner_cache
 			FROM {db_prefix}lgal_albums
 			ORDER BY null');
 		while ($row = $db->fetch_assoc($request))

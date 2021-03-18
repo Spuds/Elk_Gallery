@@ -7,6 +7,8 @@
  * @version 1.0 / elkarte
  */
 
+use BBC\ParserWrapper;
+
 /**
  * This file deals with the richtext editor widget since we will need this in several
  * places and it's better to reuse.
@@ -98,7 +100,8 @@ class LevGal_Helper_Richtext
 		{
 			require_once(SUBSDIR . '/Editor.subs.php');
 
-			$_REQUEST[$this->form_var] = html_to_bbc($_REQUEST[$this->form_var]);
+			$bbc_converter = new Html_2_BBC($_REQUEST[$this->form_var]);
+			$_REQUEST[$this->form_var] = $bbc_converter->get_bbc();
 			$_REQUEST[$this->form_var] = un_htmlspecialchars($_REQUEST[$this->form_var]);
 			$_POST[$this->form_var] = $_REQUEST[$this->form_var];
 		}
@@ -119,7 +122,9 @@ class LevGal_Helper_Richtext
 		$this->sanitized = Util::htmlspecialchars($_POST[$this->form_var], ENT_QUOTES);
 		preparsecode($this->sanitized);
 
-		return !(Util::htmltrim(strip_tags(parse_bbc($this->sanitized, false), '<img>')) === '' && (!allowedTo('admin_forum') || strpos($this->sanitized, '[html]') === false));
+		$parser = ParserWrapper::instance();
+
+		return !(Util::htmltrim(strip_tags($parser->parseMessage($this->sanitized, false), '<img>')) === '' && (!allowedTo('admin_forum') || strpos($this->sanitized, '[html]') === false));
 	}
 
 	public function getForDB()
@@ -132,7 +137,7 @@ class LevGal_Helper_Richtext
 		require_once(SUBSDIR . '/Post.subs.php');
 		$comment = $comment ?? $this->sanitized;
 		$comment = un_preparsecode($comment);
-		censorText($comment);
+		censor($comment);
 
 		return str_replace(array('"', '<', '>', '&nbsp;'), array('&quot;', '&lt;', '&gt;', ' '), $comment);
 	}
