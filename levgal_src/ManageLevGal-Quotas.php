@@ -141,6 +141,11 @@ class ManageLevGalQuotas_Controller extends Action_Controller
 		$changed = array();
 		foreach ($context['quotas'] as $quota_type => $quota)
 		{
+			if (empty($quota))
+			{
+				continue;
+			}
+
 			foreach ($quota as $k => $quota_rule)
 			{
 				$quota_groups = $quota_rule[0];
