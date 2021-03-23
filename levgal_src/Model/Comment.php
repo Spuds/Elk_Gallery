@@ -113,7 +113,7 @@ class LevGal_Model_Comment
 	{
 		global $user_info;
 
-		return !empty($this->current_comment['id_member']) && $this->current_comment['id_member'] == $user_info['id'];
+		return !empty($this->current_comment['id_author']) && $this->current_comment['id_author'] == $user_info['id'];
 	}
 
 	public function isApproved()
