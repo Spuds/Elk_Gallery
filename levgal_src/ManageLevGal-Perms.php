@@ -2,7 +2,7 @@
 /**
  * @package Levertine Gallery
  * @copyright 2014 Peter Spicer (levertine.com)
- * @license proprietary
+ * @license LGPL (v3)
  *
  * @version 1.0 / elkarte
  */
@@ -15,7 +15,6 @@ class ManageLevGalPerms_Controller extends Action_Controller
 	public function pre_dispatch()
 	{
 		Templates::instance()->load('Admin');
-		loadJavascriptFile('admin.js', ['subdir' => 'levgal_res']);
 
 		parent::pre_dispatch();
 	}

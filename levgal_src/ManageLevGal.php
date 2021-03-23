@@ -2,7 +2,7 @@
 /**
  * @package Levertine Gallery
  * @copyright 2014-2015 Peter Spicer (levertine.com)
- * @license proprietary
+ * @license LGPL (v3)
  *
  * @version 1.1.1 / elkarte
  */
@@ -98,8 +98,13 @@ function levgal_admin_bootstrap(&$admin_areas)
 		loadLanguage('levgal_lng/LevGal-Portals');
 	}
 
-	add_integration_function('integrate_load_permissions', 'levgal_admin_permissions', false);
-	add_integration_function('integrate_redirect', 'LevGal_Model_Group::redirectForDeletion', false);
+	// Admin function need some extra help
+	loadCSSFile('admin_lg.css', ['subdir' => 'levgal_res', 'stale' => LEVGAL_VERSION]);
+	loadJavascriptFile('admin_lg.js', ['subdir' => 'levgal_res', 'stale' => LEVGAL_VERSION]);
+	addInlineJavascript('closeFieldsets();', true);
+
+	add_integration_function('integrate_load_permissions', 'levgal_admin_permissions', '',false);
+	add_integration_function('integrate_redirect', 'LevGal_Model_Group::redirectForDeletion', '',false);
 }
 
 /**
@@ -192,9 +197,6 @@ function levgal_adminSettings($return_config = false)
 	// Things we need.
 	loadTemplate('Admin');
 	loadTemplate('levgal_tpl/ManageLevGal');
-	loadCSSFile('admin_lg.css', ['subdir' => 'levgal_res', 'stale' => LEVGAL_VERSION]);
-	loadJavascriptFile('admin.js', ['subdir' => 'levgal_res', 'stale' => LEVGAL_VERSION]);
-	addInlineJavascript('closeFieldsets();', true);
 
 	$context['sub_template'] = 'show_settings';
 	$context['page_title'] = $txt['levgal_settings'];

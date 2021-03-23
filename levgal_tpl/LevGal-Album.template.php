@@ -27,6 +27,8 @@ function template_main_album_display()
 
 	if (!empty($context['album_family']))
 	{
+		$title = '';
+		$link='';
 		echo '
 			<div class="album_container">';
 		foreach ($context['album_family'] as $owner_type => $owners)
@@ -293,7 +295,8 @@ function template_add_single_item()
 						<dt class="clear_left">', $txt['lgal_item_slug'], '</dt>
 						<dd>
 							<span class="smalltext">', $scripturl, '?media/item/</span><input type="text" id="item_slug" name="item_slug" tabindex="', $context['tabindex']++, '" size="20" maxlength="40" class="input_text" value="', $context['item_slug'], '" /><span class="smalltext">.x/</span>
-						</dd>';
+						</dd>
+						<div>', $txt['lgal_item_name_and_slug_auto'], '</div>';
 	if ($context['user']['is_guest'])
 	{
 		echo '

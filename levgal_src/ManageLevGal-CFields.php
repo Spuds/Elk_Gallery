@@ -2,7 +2,7 @@
 /**
  * @package Levertine Gallery
  * @copyright 2014-2015 Peter Spicer (levertine.com)
- * @license proprietary
+ * @license LGPL (v3)
  *
  * @version 1.1.0 / elkarte
  */
@@ -16,8 +16,6 @@ class ManageLevGalCFields_Controller extends Action_Controller
 	{
 		loadLanguage('levgal_lng/ManageLevGal-CFields');
 		Templates::instance()->load('levgal_tpl/ManageLevGal-CFields');
-		loadCSSFile('admin_lg.css', ['stale' => LEVGAL_VERSION, 'subdir' => 'levgal_res']);
-		loadJavascriptFile('admin.js', ['subdir' => 'levgal_res']);
 
 		parent::pre_dispatch();
 	}

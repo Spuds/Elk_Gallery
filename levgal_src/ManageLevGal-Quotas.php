@@ -2,7 +2,7 @@
 /**
  * @package Levertine Gallery
  * @copyright 2014-2015 Peter Spicer (levertine.com)
- * @license proprietary
+ * @license LGPL (v3)
  *
  * @version 1.1.1 / elkarte
  */
@@ -17,8 +17,6 @@ class ManageLevGalQuotas_Controller extends Action_Controller
 		Templates::instance()->load('levgal_tpl/ManageLevGal-Quotas');
 		Templates::instance()->load('Admin');
 		loadLanguage('levgal_lng/ManageLevGal-Quotas');
-		loadCSSFile('admin_lg.css', ['stale' => LEVGAL_VERSION, 'subdir' => 'levgal_res']);
-		loadJavascriptFile('admin.js', ['subdir' => 'levgal_res']);
 
 		parent::pre_dispatch();
 	}
@@ -171,7 +169,7 @@ class ManageLevGalQuotas_Controller extends Action_Controller
 		}
 	}
 
-	function levgal_save_quotas($config_vars, $settingsForm)
+	public function levgal_save_quotas($config_vars, $settingsForm)
 	{
 		global $context;
 
