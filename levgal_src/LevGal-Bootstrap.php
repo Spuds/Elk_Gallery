@@ -2,7 +2,7 @@
 /**
  * @package Levertine Gallery
  * @copyright 2014-2015 Peter Spicer (levertine.com)
- * @license proprietary
+ * @license LGPL (v3)
  *
  * @version 1.1.1 / elkarte
  */
@@ -31,7 +31,7 @@ class LevGal_Bootstrap
 		// No querystring (e.g. index.php) or querystring isn't ?media it's nothing to do with us.
 		if (ELK === 'SSI' || empty($_SERVER['QUERY_STRING']) || strpos($_SERVER['QUERY_STRING'], 'media') !== 0)
 		{
-		return;
+			return;
 		}
 
 		self::parseURL();

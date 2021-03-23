@@ -2,7 +2,7 @@
 /**
  * @package Levertine Gallery
  * @copyright 2014 Peter Spicer (levertine.com)
- * @license proprietary
+ * @license LGPL (v3)
  *
  * @version 1.0 / elkarte
  */
@@ -10,7 +10,6 @@
 /**
  * This file deals with the foundations of the gallery.
  */
-
 class LevGal_Controller extends Action_Controller
 {
 	public function action_index()

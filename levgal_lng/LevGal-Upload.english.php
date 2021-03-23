@@ -2,7 +2,7 @@
 /**
  * @package Levertine Gallery
  * @copyright 2014 Peter Spicer (levertine.com)
- * @license proprietary
+ * @license LGPL (v3)
  *
  * @version 1.0
  * @package levgal
@@ -29,6 +29,7 @@ $txt['lgal_allowed_format_generic'] = '<em><b>Others</b></em>: %1$s';
 $txt['lgal_allowed_external'] = 'You can add items from: %1$s';
 
 // Single uploading:
+$txt['lgal_item_name_and_slug_auto'] = 'Item name / slug will be created when you add a file, or you may enter a custom one.';
 $txt['lgal_item_press_browse'] = 'To upload, press the browse button - ';
 $txt['lgal_item_drag_here'] = 'Drag a file here to upload, or click to select one.';
 $txt['lgal_item_browse'] = 'Browse...';

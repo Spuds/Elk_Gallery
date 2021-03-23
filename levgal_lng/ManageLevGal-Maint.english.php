@@ -2,7 +2,7 @@
 /**
  * @package Levertine Gallery
  * @copyright 2014-2015 Peter Spicer (levertine.com)
- * @license proprietary
+ * @license LGPL (v3)
  *
  * @version 1.1.0
  * @package levgal
