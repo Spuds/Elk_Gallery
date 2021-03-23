@@ -12,7 +12,7 @@
  */
 class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 {
-	const ITEMS_PER_STEP = 20;
+	const ITEMS_PER_STEP = 5;
 	const COMMENTS_PER_STEP = 50;
 
 	public function isValid()
@@ -311,27 +311,30 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 		}
 		$db->free_result($request);
 
-		if (empty($_SESSION['lgalimport']['items']))
+		if (empty($_SESSION['lgalimport']['items']) || $substep === 0)
 		{
 			$_SESSION['lgalimport']['items'] = 0;
 		}
-		$_SESSION['lgalimport']['items'] += $this->insertItems($files_to_import);
+		$_SESSION['lgalimport']['items'] += $this->insertItems($files_to_import);;
 
 		return array($substep + 1 == $substeps, $substeps);
 	}
 
 	public function countComments()
 	{
+		global $db_prefix;
+
 		$db = database();
+		$dbTable = db_table();
 
 		static $count = null;
 
-		if ($count === null)
+		if ($count === null && $dbTable->table_exists($db_prefix . 'aeva_comments'))
 		{
 			// This is deliberately not a simple select; there is no point selecting any comment
 			// where the item doesn't exist.
 			$request = $db->query('', '
-				SELECT 
+				SELECT
 				    COUNT(ac.id_comment)
 				FROM {db_prefix}aeva_comments AS ac
 					INNER JOIN {db_prefix}aeva_media AS am ON (ac.id_media = am.id_media)');
@@ -472,11 +475,14 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 
 	public function countCustomfields()
 	{
+		global $db_prefix;
+
 		$db = database();
+		$dbTable = db_table();
 
 		static $count = null;
 
-		if ($count === null)
+		if ($count === null && $dbTable->table_exists($db_prefix . 'aeva_fields'))
 		{
 			$request = $db->query('', '
 				SELECT 
