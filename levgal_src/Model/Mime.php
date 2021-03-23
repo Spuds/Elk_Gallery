@@ -16,8 +16,6 @@ class LevGal_Model_Mime
 	private $filepath;
 	/** @var string */
 	private $filename;
-	/** @var  MAGIC */
-	private $magic_file;
 
 	public function __construct($filepath, $filename)
 	{
@@ -36,7 +34,7 @@ class LevGal_Model_Mime
 		// FInfo if it's available.
 		if (function_exists('finfo_file'))
 		{
-			$finfo = @finfo_open(FILEINFO_MIME, $this->magic_file);
+			$finfo = @finfo_open(FILEINFO_MIME);
 			if ($finfo)
 			{
 				$type = finfo_file($finfo, $this->filepath);
