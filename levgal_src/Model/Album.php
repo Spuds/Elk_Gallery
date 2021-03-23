@@ -554,7 +554,7 @@ class LevGal_Model_Album
 		}
 
 		// OK, so access is determined by one or more groups. We now need to figure out which of these users may be in which of these groups.
-		if ($this->current_album['perms']['type'] === 'groups')
+		if ($this->current_album['perms']['type'] === 'custom')
 		{
 			// First, let a list of all gallery managers.
 			require_once(SUBSDIR . '/Members.subs.php');
@@ -776,15 +776,18 @@ class LevGal_Model_Album
 
 		if (!empty($members))
 		{
-			$email = new LevGal_Helper_Email('newitem');
-			$email->addReplacement('ITEMNAME', $item['item_name']);
-			$email->addReplacement('POSTERNAME', $item['poster_name']);
-			$email->addReplacement('ITEMLINK', $item['item_url']);
-			$email->addReplacement('UNSUBSCRIBELINK', $this->current_album['album_url'] . 'notify/');
-
-			// Now to get the members.
-			$email->getMemberDetails($members);
-			$email->sendEmails();
+			$notifier = \Notifications::instance();
+			$notifier->add(new Notifications_Task(
+				'lgnew',
+				$item_id,
+				$item['id_member'],
+				array(
+					'id_members' => $members,
+					'subject' => $item['item_name'],
+					'url' => $item['item_url'],
+					'status' => 'new',
+				)
+			));
 		}
 	}
 

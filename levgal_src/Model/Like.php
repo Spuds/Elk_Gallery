@@ -31,7 +31,7 @@ class LevGal_Model_Like
 		if (($temp = cache_get_data($cache_key, $cache_ttl)) === null)
 		{
 			$request = $db->query('', '
-				SELECT 
+				SELECT
 					mem.id_member, mem.real_name
 				FROM {db_prefix}lgal_likes AS l
 					INNER JOIN {db_prefix}members AS mem ON (l.id_member = mem.id_member)
@@ -67,7 +67,36 @@ class LevGal_Model_Like
 		);
 
 		call_integration_hook('integrate_lgal_like_item', array($id_item));
+		$this->likeMention($id_ite);
 		$this->clearCacheByItems($id_item);
+	}
+
+	public function likeMention($itemID)
+	{
+		global $modSettings, $user_info;
+
+		if (empty($itemID) || empty($modSettings['mentions_enabled']))
+		{
+			return;
+		}
+
+		$itemModel = LevGal_Bootstrap::getModel('LevGal_Model_Item');
+		$item_details = $itemModel->getItemInfoById($itemID);
+
+		// Lets add in a mention to the member that just had their item liked
+		$notifier = \Notifications::instance();
+		$notifier->add(new Notifications_Task(
+			'lglike',
+			$itemID,
+			$user_info['id'],
+			array(
+				'id_members' => $item_details['id_member'],
+				'subject' => $item_details['item_name'],
+				'status' => $item_details['approved'] ? 'new' : 'unapproved')
+			));
+
+		// Need to call send this now as an ajax event and will not follow normal flow
+		$notifier->send();
 	}
 
 	public function unlikeItem($id_item)
@@ -115,7 +144,8 @@ class LevGal_Model_Like
 		$items = array();
 
 		$request = $db->query('', '
-			SELECT id_item
+			SELECT 
+				id_item
 			FROM {db_prefix}lgal_likes
 			WHERE id_member IN ({array_int:members})',
 			array(

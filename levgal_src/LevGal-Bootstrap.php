@@ -100,6 +100,7 @@ class LevGal_Bootstrap
 			'additional_bbc' => 'LevGal_Bootstrap::hookBbcCodes',
 			'delete_member' => 'LevGal_Model_Member::deleteMember',
 			'delete_membergroups' => 'LevGal_Model_Group::deleteGroup',
+			'action_mentions_before' => 'LevGal_Bootstrap::hookLanguage',
 		);
 
 		foreach ($hooks as $point => $callable)
@@ -230,8 +231,6 @@ class LevGal_Bootstrap
 			// This replacement needs to be done *before* HttpReq has been called
 			$_SERVER['QUERY_STRING'] = str_replace('action=dlattach;media', 'action=media', $_SERVER['QUERY_STRING']);
 			$_SERVER['REQUEST_URI'] = $boardurl . '/index.php?' . $_SERVER['QUERY_STRING'];
-			//var_dump($_SERVER['QUERY_STRING']);die;
-			//string(50) "action=media;sa=file;item=ac-wires3.4;sub=download"
 		}
 	}
 
@@ -242,6 +241,11 @@ class LevGal_Bootstrap
 	public static function addHtmlHeader($header)
 	{
 		LevGal_Bootstrap::$header .= $header;
+	}
+
+	public static function hookLanguage()
+	{
+		loadLanguage('levgal_lng/LevGal');
 	}
 
 	/**

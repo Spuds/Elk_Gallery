@@ -16,9 +16,9 @@ class LevGal_Model_Item extends LevGal_Model_File
 {
 	/** @var int  */
 	const SEEN_THRESHOLD = 120;
-	/** @var bool  */
+	/** @var int|bool  */
 	protected $current_item = false;
-	/** @var bool  */
+	/** @var int|bool  */
 	protected $current_album = false;
 
 	public function getItemInfoById($itemId)
@@ -26,6 +26,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 		global $scripturl;
 
 		$db = database();
+		$itemId = (int) $itemId;
 
 		// It's a uint, anything like this can disappear.
 		if ($itemId <= 0)
@@ -34,7 +35,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 		}
 
 		// This can be called multiple times, potentially, for the same item.
-		if (!empty($this->current_item['id_item']) && $itemId = $this->current_item['id_item'])
+		if (!empty($this->current_item['id_item']) && $itemId === $this->current_item['id_item'])
 		{
 			return $this->current_item;
 		}
@@ -56,6 +57,8 @@ class LevGal_Model_Item extends LevGal_Model_File
 		{
 			$parser = ParserWrapper::instance();
 			$this->current_item = $db->fetch_assoc($request);
+			$this->current_item['id_item'] = (int) $this->current_item['id_item'];
+			$this->current_item['id_album'] = (int) $this->current_item['id_album'];
 			censor($this->current_item['item_name']);
 			$this->current_item['description_raw'] = $this->current_item['description'];
 			censor($this->current_item['description']);
@@ -605,7 +608,8 @@ class LevGal_Model_Item extends LevGal_Model_File
 		$comments = !empty($_SESSION['lgal_comments']) ? $_SESSION['lgal_comments'] : array();
 
 		$request = $db->query('', '
-			SELECT COUNT(id_comment)
+			SELECT 
+				COUNT(id_comment)
 			FROM {db_prefix}lgal_comments
 			WHERE id_item = {int:id_item}
 				AND (approved = {int:approved}' . (!empty($comments) ? '
@@ -661,7 +665,8 @@ class LevGal_Model_Item extends LevGal_Model_File
 		}
 
 		$request = $db->query('', '
-			SELECT lc.id_comment, lc.id_author, IFNULL(mem.real_name, lc.author_name) AS author_name,
+			SELECT 
+			    lc.id_comment, lc.id_author, IFNULL(mem.real_name, lc.author_name) AS author_name,
 				lc.author_email, lc.author_ip, lc.comment, lc.approved, lc.time_added, lc.modified_name, lc.modified_time
 			FROM {db_prefix}lgal_comments AS lc
 				LEFT JOIN {db_prefix}members AS mem ON (lc.id_author = mem.id_member)
@@ -682,10 +687,12 @@ class LevGal_Model_Item extends LevGal_Model_File
 		while ($row = $db->fetch_assoc($request))
 		{
 			$id_comment = array_shift($row);
-			// Comment unapproved = visible to admins/managers, people with approval, item owners who can moderate, and lastly themselves.
+			// Comment unapproved = visible to admins/managers, people with approval, item owners
+			// who can moderate, and lastly themselves.
 			if (empty($row['approved']))
 			{
-				// Guests will never see unapproved comments except ones in their session. Failing that, anyone who is a manager/admin or approver will have approval permission.
+				// Guests will never see unapproved comments except ones in their session. Failing that,
+				// anyone who is a manager/admin or approver will have approval permission.
 				if (($user_info['is_guest'] && !in_array($id_comment, $session_comments)) || (!$perm_cache['lgal_approve_comment'] && (!$perm_cache['lgal_selfmod_approve_comment'] || !$this->isOwnedByUser()) && ($row['id_author'] != $user_info['id'])))
 				{
 					continue;
@@ -837,15 +844,18 @@ class LevGal_Model_Item extends LevGal_Model_File
 
 		if (!empty($members))
 		{
-			$email = new LevGal_Helper_Email('newcomment');
-			$email->addReplacement('ITEMNAME', $this->current_item['item_name']);
-			$email->addReplacement('POSTERNAME', $comment['author_name']);
-			$email->addReplacement('COMMENTLINK', $comment_obj->getCommentURL());
-			$email->addReplacement('UNSUBSCRIBELINK', $this->current_item['item_url'] . 'notify/');
-
-			// Now to get the members.
-			$email->getMemberDetails($members);
-			$email->sendEmails();
+			$notifier = \Notifications::instance();
+			$notifier->add(new Notifications_Task(
+				'lgcomment',
+				$comment_id,
+				$comment['id_author'],
+				array(
+					'id_members' => $members,
+					'subject' => $this->current_item['item_name'],
+					'url' => $comment_obj->getCommentURL(),
+					'status' => 'new',
+				)
+			));
 		}
 	}
 
