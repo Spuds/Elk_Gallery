@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<!DOCTYPE package-info SYSTEM "http://www.simplemachines.org/xml/package-info">
-<package-info xmlns="http://www.simplemachines.org/xml/package-info" xmlns:smf="http://www.simplemachines.org/">
+<!DOCTYPE package-info SYSTEM "https://www.elkarte.net/site/package-info">
+<package-info xmlns="https://www.elkarte.net/site/package-info" xmlns:elk="https://www.elkarte.net/">
 	<id>Levertine:Gallery</id>
 	<name>Levertine Gallery</name>
 	<version>1.1.1</version>
@@ -17,6 +17,9 @@
 
 		<!-- Resources -->
 		<require-dir name="levgal_res" destination="THEMEDIR/">Adding CSS, JS, images</require-dir>
+
+		<!-- Notifications -->
+		<require-dir name="other/MentionType" destination="SUBSDIR/">Adding Likes and Notifications</require-dir>
 
 		<!-- And the most important bit -->
 		<require-dir name="lgal_items" destination="BOARDDIR">Storage for files</require-dir>
@@ -39,6 +42,11 @@
 
 		<!-- Resources -->
 		<remove-dir name="THEMEDIR/levgal_res">Removing CSS, JS, images</remove-dir>
+
+		<!-- Notifications -->
+		<remove-file name="SUBSDIR/MentionType/LgcommentMention.php">Notifications</remove-file>
+		<remove-file name="SUBSDIR/MentionType/LglikeMention.php" />
+		<remove-file name="SUBSDIR/MentionType/LgnewMention.php" />
 
 		<!-- Database -->
 		<code>uninstall-required.php</code>
