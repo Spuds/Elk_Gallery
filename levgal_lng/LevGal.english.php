@@ -124,6 +124,7 @@ $txt['levgal_album_slug'] = 'Album slug:';
 $txt['levgal_set_album_featured'] = 'Mark this album as a featured album?';
 $txt['levgal_album_lock_for_items'] = 'Allow new items in this album?';
 $txt['levgal_album_lock_for_comments'] = 'Allow new comments to the items in this album?';
+$txt['levgal_album_added_new'] = 'Added: %1$s to Album: %2$s';
 
 $txt['levgal_guests'] = 'Guests';
 $txt['levgal_registered_members'] = 'Registered Members';
@@ -137,6 +138,7 @@ $txt['levgal_comment_approve'] = 'Approve';
 $txt['levgal_comment_edit'] = 'Edit';
 $txt['levgal_comment_delete'] = 'Delete';
 $txt['levgal_comment_flag'] = 'Report';
+$txt['levgal_comment_on'] = 'Commented On:';
 
 $txt['levgal_add_comment'] = 'Add comment';
 $txt['levgal_edit_comment'] = 'Edit comment';
@@ -216,6 +218,12 @@ $txt['lgal_liked_you'] = 'you';
 $txt['lgal_liked_none'] = 'no-one yet';
 $txt['lgal_like_this'] = 'like this?';
 $txt['lgal_unlike_this'] = 'unlike this?';
+$txt['lgal_liked_your'] = 'Liked your item:';
+
+// Tab titles in the Notification/Mention area
+$txt['mentions_type_lglike'] = 'Media Likes';
+$txt['mentions_type_lgcomment'] = 'Media Comments';
+$txt['mentions_type_lgnew'] = 'Media New Items';
 
 $txt['lgal_tagged_as'] = 'Tagged as:';
 

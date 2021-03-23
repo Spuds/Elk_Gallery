@@ -131,6 +131,11 @@ $txt['lgal_selfmod_delete_comment'] = 'Users can delete others\' comments on the
 $txt['lgal_selfmod_lock_comment'] = 'Users can lock their items from being commented upon';
 $txt['lgal_media_prefix'] = '[Media] %1$s';
 
+// ACP Media notification Settings
+$txt['setting_lglike'] = 'Gallery Likes';
+$txt['setting_lgcomment'] = 'Gallery Comments';
+$txt['setting_lgnew'] = 'Gallery New Items';
+
 // Quotas; the rest is in ManageLevGal-Quotas.language.php
 $txt['levgal_quotas'] = 'Media Quotas and File Types';
 

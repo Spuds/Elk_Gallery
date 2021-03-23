@@ -19,6 +19,11 @@ $txt['levgal_no_albums'] = 'This member has no albums that are available to you.
 $txt['levgal_latest_items_user'] = 'Items recently uploaded by %1$s';
 $txt['levgal_albums_user'] = 'Albums owned by %1$s';
 
+// Media Notifications
+$txt['notify_type_lglike'] = 'Notify when someone likes one of your Media Items';
+$txt['notify_type_lgcomment'] = 'Notify when someone comments on watched Media Items';
+$txt['notify_type_lgnew'] = 'Notify when someone adds new items to watched Media Albums';
+
 // Media Items area
 $txt['levgal_profile_items'] = 'Media Items';
 $txt['levgal_profile_items_desc'] = 'This area shows you all the media items you have added to the media gallery.';
