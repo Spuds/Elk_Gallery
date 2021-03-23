@@ -50,7 +50,6 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 	{
 		global $context, $txt, $user_info, $modSettings;
 
-		// Shag-alicious warning baby
 		if ($this->item_obj->isMature() && $this->item_obj->hidingMature())
 		{
 			return $this->actionMature();

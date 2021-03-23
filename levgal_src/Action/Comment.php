@@ -112,12 +112,12 @@ class LevGal_Action_Comment extends LevGal_Action_Abstract
 		// But do we have permission to approve it?
 		if (!allowedTo('lgal_manage'))
 		{
-		// Maybe the user can approve it by way of it being their item?
+			// Maybe the user can approve it by way of it being their item?
 			if (empty($modSettings['lgal_selfmod_approve_comment']) || !$this->comment_obj->itemIsOwnedByUser())
 			{
-			loadLanguage('levgal_lng/LevGal-Errors');
-			isAllowedTo('lgal_approve_comment');
-		}
+				loadLanguage('levgal_lng/LevGal-Errors');
+				isAllowedTo('lgal_approve_comment');
+			}
 		}
 
 		// Now session check.
@@ -135,15 +135,14 @@ class LevGal_Action_Comment extends LevGal_Action_Abstract
 		{
 			if (!allowedTo('lgal_edit_comment_any') && (!allowedTo('lgal_edit_comment_own') || !$this->comment_obj->isOwnedByUser()))
 			{
-			// Maybe the user can be a moderator of sorts?
-			$item = $this->comment_obj->getParentItem();
-			if (empty($modSettings['lgal_selfmod_edit_comment']) || !$item->isOwnedByUser())
+				// Maybe the user can be a moderator of sorts?
+				if (empty($modSettings['lgal_selfmod_edit_comment']) || !$this->comment_obj->isOwnedByUser())
 				{
 					loadLanguage('levgal_lng/LevGal-Errors');
 					is_not_guest($txt['cannot_lgal_edit_comment']);
 					LevGal_Helper_Http::fatalError('cannot_lgal_edit_comment');
 				}
-		}
+			}
 		}
 
 		// So now we're setting up for editing.
@@ -262,9 +261,8 @@ class LevGal_Action_Comment extends LevGal_Action_Abstract
 		{
 			if (!allowedTo('lgal_delete_comment_any') && (!allowedTo('lgal_delete_comment_own') || !$this->comment_obj->isOwnedByUser()))
 			{
-			// Maybe the user can be a moderator of sorts?
-			$item = $this->comment_obj->getParentItem();
-			if (empty($modSettings['lgal_selfmod_delete_comment']) || !$item->isOwnedByUser())
+				// Maybe the user can be a moderator of sorts?
+				if (empty($modSettings['lgal_selfmod_delete_comment']) || !$this->comment_obj->isOwnedByUser())
 				{
 					loadLanguage('levgal_lng/LevGal-Errors');
 					is_not_guest($txt['cannot_lgal_delete_comment']);

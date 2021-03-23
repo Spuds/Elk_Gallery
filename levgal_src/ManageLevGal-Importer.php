@@ -82,7 +82,9 @@ function levgal_adminImport()
 		else
 		{
 			$steps = array_keys($context['importer_supports']);
-			$step = (int) $_POST['step'] - 1; // $_POST['step'] will be 0 for the first 'step' but its first actual step is 1 - and our array is zero-bounded at this point, so let's fix that.
+			// $_POST['step'] will be 0 for the first 'step' but its first actual step is 1 - and our
+			// array is zero-bounded at this point, so let's fix that.
+			$step = (int) $_POST['step'] - 1;
 
 			if (!isset($steps[$step]))
 			{
@@ -128,10 +130,9 @@ function levgal_adminImport()
 			$substep = isset($_POST['substep']) ? (int) $_POST['substep'] : 0;
 			$method = 'import' . ucfirst($steps[$step]);
 			list ($step_complete, $total_substeps) = $context['importer']->$method($substep);
-
 			// So whatever happens we're going back to the whole thing of the not-done template, which is lotsafun.
 			loadTemplate('Admin');
-			$context['continue_countdown'] = 3;
+			$context['continue_countdown'] = 2;
 			$context['continue_get_data'] = '?action=admin;area=lgalimport';
 			$context['continue_post_data'] = '
 	<input type="hidden" name="importer" value="' . $_POST['importer'] . '" />
