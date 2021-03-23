@@ -32,7 +32,7 @@ class LevGal_Model_Metadata
 			require_once(SOURCEDIR . '/levgal_src/library/getid3/getid3.php');
 			$getID3 = new getID3;
 			$id3 = $getID3->analyze($this->file);
-			getid3_lib::CopyTagsToComments($id3);
+			$getID3->CopyTagsToComments($id3);
 
 			// Some of these we can get ready HTML formatted.
 			$meta_id3['raw_id3'] = $id3;
