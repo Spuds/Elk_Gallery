@@ -95,18 +95,13 @@ function template_display_album_list($list)
 	foreach ($context[$list] as $album)
 	{
 		echo '
-				<div class="album_featured">
-					<div class="well">';
-		echo '
-						<div class="floatleft album_thumb">
-							<img src="', $album['thumbnail_url'], '" alt="" />
-						</div>
-						<div class="floatleft album_desc lefttext">
-							', empty($album['featured']) ? '' : '<span class="lgalicon featured"></span> ', '<a href="', $album['album_url'], '">', $album['album_name'], '</a><br />
-							<span class="lgalicon album"></span> ', LevGal_Helper_Format::numstring('lgal_items', $album['num_items']), '
-						</div>
-						<br class="clear" />';
-		echo '
+				<div class="album_featured well">
+					<div class="floatleft album_thumb">
+						<img src="', $album['thumbnail_url'], '" alt="" />
+					</div>
+					<div class="album_desc lefttext">
+						', empty($album['featured']) ? '' : '<span class="lgalicon featured"></span> ', '<a href="', $album['album_url'], '">', $album['album_name'], '</a><br />
+						<span class="lgalicon album"></span> ', LevGal_Helper_Format::numstring('lgal_items', $album['num_items']), '
 					</div>
 				</div>';
 	}
@@ -401,16 +396,13 @@ function template_album_list_main()
 			foreach ($context['sidebar']['members']['items'] as $member)
 			{
 				echo '
-				<div class="album_featured">
-					<div class="well">
-						<div class="floatleft album_thumb">
-							', empty($memberContext[$member['id']]['avatar']['image']) ? '' : $memberContext[$member['id']]['avatar']['image'], '
-						</div>
-						<div class="floatleft album_desc lefttext">
-							<a href="', $member['url'], '">', $member['title'], '</a><br />
-							<span class="lgalicon album"></span> ', LevGal_Helper_Format::numstring('lgal_albums', $member['count']), '
-						</div>
-						<br class="clear" />
+				<div class="album_featured well">
+					<div class="floatleft album_thumb">
+						', empty($memberContext[$member['id']]['avatar']['image']) ? '' : $memberContext[$member['id']]['avatar']['image'], '
+					</div>
+					<div class="album_desc lefttext">
+						<a href="', $member['url'], '">', $member['title'], '</a><br />
+						<span class="lgalicon album"></span> ', LevGal_Helper_Format::numstring('lgal_albums', $member['count']), '
 					</div>
 				</div>';
 			}
@@ -428,16 +420,13 @@ function template_album_list_main()
 			foreach ($context['sidebar']['groups']['items'] as $group)
 			{
 				echo '
-				<div class="album_featured">
-					<div class="well">
-						<div class="floatleft album_thumb">
-							<img src="', $settings['default_theme_url'], '/levgal_res/albums/folder-image.png" alt="" />
-						</div>
-						<div class="floatleft album_desc lefttext">
-							<a href="', $group['url'], '">', $group['title'], '</a><br />
-							<span class="lgalicon album"></span> ', LevGal_Helper_Format::numstring('lgal_albums', $group['count']), '
-						</div>
-						<br class="clear" />
+				<div class="album_featured well">
+					<div class="floatleft album_thumb">
+						<img src="', $settings['default_theme_url'], '/levgal_res/albums/folder-image.png" alt="" />
+					</div>
+					<div class="album_desc lefttext">
+						<a href="', $group['url'], '">', $group['title'], '</a><br />
+						<span class="lgalicon album"></span> ', LevGal_Helper_Format::numstring('lgal_albums', $group['count']), '
 					</div>
 				</div>';
 			}

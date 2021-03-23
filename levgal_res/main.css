@@ -111,16 +111,22 @@ dl.album_details dd, dl.album_info dd {
 	margin: 10px;
 }
 
+.album_container > .album_featured {
+	min-width: 250px;
+}
+
 .album_featured {
 	display: inline-block;
-	margin: 10px;
-	width: 330px;
+	margin: 8px;
+	padding: 8px 4px;
+	width: 30%;
+	min-width: 200px;
 }
 
 .album_thumb {
 	width: 65px;
 	height: 65px;
-	margin: 0 5px;
+	margin: 0 10px;
 }
 
 .album_featured .album_desc {
@@ -371,6 +377,10 @@ ul.lgalactions li.lgal_delete {
 	float: none;
 	margin-left: 0;
 	margin-right: 0;
+}
+
+#upload_container {
+	min-height: 220px;
 }
 
 #upload_type_file {

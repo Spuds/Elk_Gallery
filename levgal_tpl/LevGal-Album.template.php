@@ -36,8 +36,7 @@ function template_main_album_display()
 			foreach ($owners as $owner => $albums)
 			{
 				echo '
-			<div class="album_featured">
-				<div class="well">';
+			<div class="album_featured well">';
 
 				if ($owner_type === 'member' && $owner == 0)
 				{
@@ -46,18 +45,18 @@ function template_main_album_display()
 				}
 				elseif ($owner_type === 'member')
 				{
-					$title = sprintf($txt['lgal_albums_owned_someone'], $memberContext[$owner]['link']);
+					$title = sprintf($txt['lgal_albums_owned_someone'], '<br />' . $memberContext[$owner]['link']);
 					$link = '?media/albumlist/' . $owner . '/member/';
 				}
 				elseif ($owner_type === 'group')
 				{
-					$title = sprintf($txt['lgal_albums_owned_someone'], $context['album_owner']['group_details'][$owner]['color_name']);
+					$title = sprintf($txt['lgal_albums_owned_someone'], '<br />' . $context['album_owner']['group_details'][$owner]['color_name']);
 					$link = '?media/albumlist/' . $owner . '/group/';
 				}
 
 				echo '
-					<strong>', $title, '</strong>
-					<div class="album_family lefttext">';
+				<strong>', $title, '</strong>
+				<div class="album_family lefttext">';
 
 				$done_album = false;
 				foreach ($albums as $id_album => $album)
@@ -65,31 +64,30 @@ function template_main_album_display()
 					if ($id_album == $context['album_details']['id_album'])
 					{
 						echo '
-					<div class="album_current">
-						<span class="lgalicon album"></span> <em>', $album['album_name'], '</em>
-					</div>';
+				<div class="album_current">
+					<span class="lgalicon album"></span> <em>', $album['album_name'], '</em>
+				</div>';
 						$done_album = true;
 					}
 					elseif (!$done_album)
 					{
 						echo '
-					<div class="album_parent">
-						<span class="lgalicon alb_parent"></span> <a href="', $album['album_url'], '">', $album['album_name'], '</a>
-					</div>';
+				<div class="album_parent">
+					<span class="lgalicon alb_parent"></span> <a href="', $album['album_url'], '">', $album['album_name'], '</a>
+				</div>';
 					}
 					else
 					{
 						echo '
-					<div class="album_child">
-						<span class="lgalicon alb_child"></span> <a href="', $album['album_url'], '">', $album['album_name'], '</a>
-					</div>';
+				<div class="album_child">
+					<span class="lgalicon alb_child"></span> <a href="', $album['album_url'], '">', $album['album_name'], '</a>
+				</div>';
 					}
 				}
 
 				echo '
-					</div>
-					<div class="righttext">', sprintf($txt['lgal_see_more'], $scripturl . $link), '</div>
 				</div>
+				<div class="righttext">', sprintf($txt['lgal_see_more'], $scripturl . $link), '</div>
 			</div>';
 			}
 		}

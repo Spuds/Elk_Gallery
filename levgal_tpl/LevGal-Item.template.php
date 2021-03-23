@@ -188,16 +188,16 @@ function template_main_item_navigation()
 	if (!empty($context['prev_next']['previous']))
 	{
 		echo '
-				<p class="lefttext">
+				<span class="lefttext" style="display: block;">
 					<a href="', $context['prev_next']['previous']['item_url'], '" title="', $context['prev_next']['previous']['item_name'], '"><i class="icon i-chevron-circle-left"></i>', $txt['lgal_previous'], '</a>
-				</p>';
+				</span>';
 	}
 	if (!empty($context['prev_next']['next']))
 	{
 		echo '
-				<p class="righttext">
+				<span class="righttext" style="display: block;">
 					<a href="', $context['prev_next']['next']['item_url'], '" title="', $context['prev_next']['next']['item_name'], '">', $txt['lgal_next'], '<i class="icon i-chevron-circle-right"></i></a>
-				</p>';
+				</span>';
 	}
 
 	echo '
@@ -441,7 +441,7 @@ function template_main_item_comments()
 	{
 		echo '
 				<div class="', $comment['approved'] ? 'content' : 'approvebg', ' comment">
-					<div class="content" id="comment-', $id_comment, '">';
+					<div id="comment-', $id_comment, '">';
 
 		if (!empty($comment['reported']))
 		{
@@ -487,9 +487,9 @@ function template_main_item_comments()
 			template_action_strip($comment['options']);
 		}
 
-		echo '
-						<br class="clear" />
-					</div>';
+		echo '		</div>
+					<br class="clear" />
+				</div>';
 	}
 
 	if (!empty($context['display_comment_reply']) && $context['display_comment_reply'] !== 'no')
@@ -692,20 +692,26 @@ function template_item_generic()
 {
 	global $context;
 
+	$viewInline = isset($context['item_actions']['actions']['download'][1]) ?? '';
+
 	// So, there might be a preview image, or there might only be a thumbnail.
 	// But one or other might be a generic icon fallback.
 	if (!empty($context['item_display']['urls']['preview']) && (empty($context['item_display']['urls']['generic']['preview']) || !empty($context['item_display']['urls']['generic']['thumb'])))
 	{
 		echo '
 					<div>
-						<img id="item_generic" class="generic_preview" src="', $context['item_display']['urls']['preview'], '" alt="" />
+						<a href="' . (!empty($viewInline) ? substr($context['item_actions']['actions']['download'][1], 0 , -10) : '') . '">
+							<img id="item_generic" class="generic_preview" src="', $context['item_display']['urls']['preview'], '" alt="" />
+						</a>
 					</div>';
 	}
 	else
 	{
 		echo '
 					<div>
-						<img id="item_generic" class="generic_thumb" src="', $context['item_display']['urls']['thumb'], '" alt="" />
+						<a href="' . (!empty($viewInline) ? substr($context['item_actions']['actions']['download'][1], 0 , -10) : '') . '">
+							<img id="item_generic" class="generic_thumb" src="', $context['item_display']['urls']['thumb'], '" alt="" />
+						</a>
 					</div>';
 	}
 }
@@ -913,7 +919,7 @@ function template_edit_item()
 	if ($context['editing'] === 'file')
 	{
 		echo '
-					<dl class="settings">
+					<dl class="settings" style="min-height: 11em;">
 						<dt>
 							<div>', $txt['lgal_item_want_to_add_file'], ':</div>
 							<div id="allowed_type_file">';
