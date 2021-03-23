@@ -69,7 +69,8 @@ abstract class LevGal_Model_Importer_Abstract
 	{
 		require_once(SOURCEDIR . '/levgal_src/ManageLevGal-Maint.php');
 		$maintance = new ManageLevGalMaint_Controller();
-		$maintance->levgal_maint_recount('', false);
+		$maintance->pre_dispatch();
+		$maintance->action_levgal_maint_recount('', false);
 
 		return array(true, 1);
 	}
@@ -217,6 +218,7 @@ abstract class LevGal_Model_Importer_Abstract
 
 		foreach ($items as $id_item => $item)
 		{
+			detectServer()->setTimeLimit(300);
 			$new_item = array(
 				'id_item' => $id_item,
 				'id_album' => $item['id_album'],
@@ -289,6 +291,7 @@ abstract class LevGal_Model_Importer_Abstract
 							$meta['meta']['thumb_uploaded'] = true;
 						}
 					}
+
 					if (!empty($meta['meta']))
 					{
 						$new_item['meta'] = serialize($meta['meta']);
@@ -373,7 +376,7 @@ abstract class LevGal_Model_Importer_Abstract
 				$searchModel->createItemEntries($search_rows);
 			}
 
-			return $item_count;
+			return (int) $item_count;
 		}
 
 		return 0;
