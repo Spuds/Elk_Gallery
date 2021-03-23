@@ -2,10 +2,12 @@
 /**
  * @package Levertine Gallery
  * @copyright 2014-2015 Peter Spicer (levertine.com)
- * @license proprietary
+ * @license LGPL (v3)
  *
  * @version 1.1.1 / elkarte
  */
+
+use BBC\ParserWrapper;
 
 /**
  * This file deals with custom fields.
@@ -51,13 +53,15 @@ class LevGal_Model_Custom
 					field_config, field_pos, active, can_search, default_val, placement
 				FROM {db_prefix}lgal_custom_field
 				WHERE active = 1
-				ORDER BY field_pos, id_field');
+				ORDER BY field_pos, id_field'
+			);
+			$parser = ParserWrapper::instance();
 			while ($row = $db->fetch_assoc($request))
 			{
 				$row['field_options'] = !empty($row['field_options']) ? explode(',', $row['field_options']) : array();
 				$row['field_config'] = !empty($row['field_config']) ? unserialize($row['field_config']) : array();
 				$row['description_raw'] = $row['description'];
-				$row['description'] = parse_bbc($row['description']);
+				$row['description'] = $parser->parseMessage($row['description'], false);
 				if (!empty($row['field_config']['all_albums']) || (!empty($row['field_config']['albums']) && in_array($album, $row['field_config']['albums'])))
 				{
 					$temp[$row['id_field']] = $row;
@@ -96,6 +100,7 @@ class LevGal_Model_Custom
 				'fields' => array_keys($fields),
 			)
 		);
+		$parser = ParserWrapper::instance();
 		while ($row = $db->fetch_assoc($request))
 		{
 			$values[$row['id_field']]['raw'] = $row['value'];
@@ -106,14 +111,14 @@ class LevGal_Model_Custom
 				{
 					foreach ($row['value'] as $k => $v)
 					{
-						$row['value'][$k] = parse_bbc($v);
+						$row['value'][$k] = $parser->parseMessage($v, false);
 					}
 				}
 				$values[$row['id_field']]['display'] = implode(', ', $row['value']);
 			}
 			else
 			{
-				$values[$row['id_field']]['display'] = !empty($fields[$row['id_field']]['field_config']['bbc']) ? parse_bbc($row['value']) : $row['value'];
+				$values[$row['id_field']]['display'] = !empty($fields[$row['id_field']]['field_config']['bbc']) ? $parser->parseMessage($row['value'], false) : $row['value'];
 			}
 		}
 		$db->free_result($request);
@@ -648,6 +653,8 @@ class LevGal_Model_Custom
 			return;
 		}
 
+		$parser = ParserWrapper::instance();
+
 		echo '
 						<dl class="settings">';
 
@@ -700,14 +707,14 @@ class LevGal_Model_Custom
 					foreach ($field['field_options'] as $key => $option)
 					{
 						echo '
-								<label><input type="checkbox" class="input_check" tabindex="', $context['tabindex'], '" name="field_', $id_field, '[]" value="', ($key + 1), '"', in_array($option, $values) ? ' checked="checked"' : '', ' /> ', $bbc ? parse_bbc($option) : $option, '</label><br />';
+								<label><input type="checkbox" class="input_check" tabindex="', $context['tabindex'], '" name="field_', $id_field, '[]" value="', ($key + 1), '"', in_array($option, $values) ? ' checked="checked"' : '', ' /> ', $bbc ? $parser->parseMessage($option, false) : $option, '</label><br />';
 					}
 					break;
 				case 'radio':
 					foreach ($field['field_options'] as $key => $option)
 					{
 						echo '
-								<label><input type="radio" class="input_radio" tabindex="', $context['tabindex'], '" name="field_', $id_field, '" value="', ($key + 1), '"', $option == $field['value'] ? ' checked="checked"' : '', ' /> ', $bbc ? parse_bbc($option) : $option, '</label><br />';
+								<label><input type="radio" class="input_radio" tabindex="', $context['tabindex'], '" name="field_', $id_field, '" value="', ($key + 1), '"', $option == $field['value'] ? ' checked="checked"' : '', ' /> ', $bbc ? $parser->parseMessage($option, false) : $option, '</label><br />';
 					}
 					break;
 				case 'checkbox':

@@ -2,10 +2,12 @@
 /**
  * @package Levertine Gallery
  * @copyright 2014-2015 Peter Spicer (levertine.com)
- * @license proprietary
+ * @license LGPL (v3)
  *
  * @version 1.1.0 / elkarte
  */
+
+use BBC\ParserWrapper;
 
 /**
  * This file deals with getting information about items in bulk.
@@ -164,9 +166,10 @@ class LevGal_Model_ItemList
 		{
 			$item_list[$item_id] = '';
 		}
+		$parser = ParserWrapper::instance();
 		while ($row = $db->fetch_assoc($request))
 		{
-			$item_list[$row['id_item']] = !empty($row['description']) ? ($parse_bbc ? parse_bbc($row['description'], true, 'lgal_item_' . $row['id_item']) : $row['description']) : '';
+			$item_list[$row['id_item']] = !empty($row['description']) ? ($parse_bbc ? $parser->parseMessage($row['description'], true) : $row['description']) : '';
 		}
 		$db->free_result($request);
 

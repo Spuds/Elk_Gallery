@@ -1,13 +1,10 @@
-Thank you for purchasing Levertine Gallery.
+Thank you for trying Levertine Gallery.
 
 [b]License[/b]
 
-You purchased Levertine Gallery. Please don't copy it and give it to anyone else - I'm trusting you here.
-Hundreds and hundreds of hours of time went into making Levertine Gallery, and I think it's only fair to 
-see something for all the time invested in it.
-
-If you have any questions, please contact Levertine.com who will be able to assist you.
-
+GNU LESSER GENERAL PUBLIC LICENSE
+Version 3, 29 June 2007
+A copy of the license is included with this package
 
 [b]Disclaimer[/b]
 
@@ -21,3 +18,11 @@ loss of use, data, or profits; or business interruption) however caused and
 on any theory of liability, whether in contract, strict liability, or tort
 (including negligence or otherwise) arising in any way out of the use of this
 software, even if advised of the possibility of such damage.
+
+[b]Historical[/b]
+
+You purchased Levertine Gallery. Please don't copy it and give it to anyone else - I'm trusting you here.
+Hundreds and hundreds of hours of time went into making Levertine Gallery, and I think it's only fair to 
+see something for all the time invested in it.
+
+If you have any questions, please contact Levertine.com who will be able to assist you.

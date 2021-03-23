@@ -2,10 +2,12 @@
 /**
  * @package Levertine Gallery
  * @copyright 2014 Peter Spicer (levertine.com)
- * @license proprietary
+ * @license LGPL (v3)
  *
  * @version 1.0 / elkarte
  */
+
+use BBC\ParserWrapper;
 
 /**
  * This file deals with getting information about the moderation area.
@@ -161,6 +163,7 @@ class LevGal_Model_Moderate
 			)
 		);
 		$comments = array();
+		$parser = ParserWrapper::instance();
 		while ($row = $db->fetch_assoc($request))
 		{
 			$comments[$row['id_comment']] = array(
@@ -172,7 +175,7 @@ class LevGal_Model_Moderate
 				'item_url' => $scripturl . '?media/item/' . (!empty($row['item_slug']) ? $row['item_slug'] . '.' . $row['id_item'] : $row['id_item']) . '/',
 				'time_added' => $row['time_added'],
 				'time_added_format' => LevGal_Helper_Format::time($row['time_added']),
-				'comment_body' => parse_bbc($row['comment'], true, 'lgal_' . $row['id_item'] . '_c' . $row['id_comment']),
+				'comment_body' => $parser->parseMessage($row['comment'], true),
 			);
 		}
 		$db->free_result($request);
@@ -348,6 +351,7 @@ class LevGal_Model_Moderate
 				'closed_state' => $state === 'open' ? 0 : 1,
 			)
 		);
+		$parser = ParserWrapper::instance();
 		while ($row = $db->fetch_assoc($request))
 		{
 			$reports[$row['id_report']] = array(
@@ -358,7 +362,7 @@ class LevGal_Model_Moderate
 				'item_url' => $scripturl . '?media/item/' . (!empty($row['item_slug']) ? $row['item_slug'] . '.' . $row['id_item'] : $row['id_item']) . '/',
 				'album_name' => $row['album_name'],
 				'album_url' => $scripturl . '?media/album/' . (!empty($row['album_slug']) ? $row['album_slug'] . '.' . $row['id_album'] : $row['id_album']) . '/',
-				'comment' => parse_bbc($row['comment'], true, 'lgal_' . $row['id_item'] . '_c' . $row['comment']),
+				'comment' => $parser->parseMessage($row['comment'], true),
 				'comment_time' => $row['comment_time'],
 				'comment_time_format' => LevGal_Helper_Format::time($row['comment_time']),
 				'time_started' => $row['time_started'],

@@ -2,10 +2,12 @@
 /**
  * @package Levertine Gallery
  * @copyright 2014 Peter Spicer (levertine.com)
- * @license proprietary
+ * @license LGPL (v3)
  *
  * @version 1.0 / elkarte
  */
+
+use BBC\ParserWrapper;
 
 /**
  * This file deals with reporting items and comments.
@@ -46,10 +48,11 @@ class LevGal_Model_Report
 		);
 		if ($db->num_rows($request))
 		{
+			$parser = ParserWrapper::instance();
 			$this->current_report = $db->fetch_assoc($request);
 			if (!empty($this->current_report['body']))
 			{
-				$this->current_report['body'] = parse_bbc($this->current_report['body'], true);
+				$this->current_report['body'] = $parser->parseMessage($this->current_report['body'], true);
 			}
 			$this->current_report['report_url'] = $scripturl . '?media/moderate/' . $id_report . '/report/';
 			$this->current_report['item_url'] = $scripturl . '?media/item/' . (!empty($this->current_report['item_slug']) ? $this->current_report['item_slug'] . '.' . $this->current_report['id_item'] : $this->current_report['id_item']) . '/';

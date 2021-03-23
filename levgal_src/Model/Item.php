@@ -2,10 +2,12 @@
 /**
  * @package Levertine Gallery
  * @copyright 2014-2015 Peter Spicer (levertine.com)
- * @license proprietary
+ * @license LGPL (v3)
  *
  * @version 1.1.1 / elkarte
  */
+
+use BBC\ParserWrapper;
 
 /**
  * This file deals with file internals.
@@ -52,11 +54,12 @@ class LevGal_Model_Item extends LevGal_Model_File
 
 		if ($db->num_rows($request) > 0)
 		{
+			$parser = ParserWrapper::instance();
 			$this->current_item = $db->fetch_assoc($request);
 			censor($this->current_item['item_name']);
 			$this->current_item['description_raw'] = $this->current_item['description'];
 			censor($this->current_item['description']);
-			$this->current_item['description'] = !empty($this->current_item['description']) ? parse_bbc($this->current_item['description'], true, 'lgal_item_' . $this->current_item['id_item']) : '';
+			$this->current_item['description'] = !empty($this->current_item['description']) ? $parser->parseMessage($this->current_item['description'], true) : '';
 			$this->current_item['meta'] = !empty($this->current_item['meta']) ? @unserialize($this->current_item['meta']) : array();
 			$this->current_item['item_url'] = $scripturl . '?media/item/' . (!empty($this->current_item['item_slug']) ? $this->current_item['item_slug'] . '.' . $itemId : $itemId) . '/';
 			foreach (array('time_added', 'time_updated') as $item)
@@ -675,7 +678,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 			)
 		);
 		$members = array();
-
+		$parser = ParserWrapper::instance();
 		while ($row = $db->fetch_assoc($request))
 		{
 			$id_comment = array_shift($row);
@@ -703,7 +706,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 				'modified_name' => $row['modified_name'],
 				'modified_time' => $row['modified_time'],
 				'modified_time_format' => LevGal_Helper_Format::time($row['modified_time']),
-				'comment' => parse_bbc($row['comment'], true, 'lgal_' . $this->current_item['id_item'] . '_c' . $id_comment),
+				'comment' => $parser->parseMessage($row['comment'], true),
 				'approved' => !empty($row['approved']),
 				'time_added' => $row['time_added'],
 				'time_added_format' => LevGal_Helper_Format::time($row['time_added']),

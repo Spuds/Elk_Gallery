@@ -120,7 +120,7 @@ function template_quota_container($type)
 								</legend>
 								<div id="', $type, '_quota_container"></div>
 							</fieldset>
-							<div class="centertext" id="', $type, '_changed">', $txt['levgal_changes_not_saved'], '</div>
+							<div class="infobox" id="', $type, '_changed">', $txt['levgal_changes_not_saved'], '</div>
 						</dd>';
 }
 
@@ -168,6 +168,6 @@ function template_callback_levgal_quotas_external()
 
 	echo '
 						<dd class="container_external main_width">
-							<div class="centertext" id="external_changed">', $txt['levgal_changes_not_saved'], '</div>
+							<div class="infobox" id="external_changed">', $txt['levgal_changes_not_saved'], '</div>
 						</dd>';
 }

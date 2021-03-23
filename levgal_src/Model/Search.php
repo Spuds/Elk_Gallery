@@ -2,10 +2,12 @@
 /**
  * @package Levertine Gallery
  * @copyright 2014 Peter Spicer (levertine.com)
- * @license proprietary
+ * @license LGPL (v3)
  *
  * @version 1.0 / elkarte
  */
+
+use BBC\ParserWrapper;
 
 /**
  * This file deals with getting information into and out of the search indexes.
@@ -53,8 +55,9 @@ class LevGal_Model_Search
 		$current_value = !empty($modSettings['fixLongWords']) ? $modSettings['fixLongWords'] : 0;
 		$modSettings['fixLongWords'] = 0;
 
+		$parser = ParserWrapper::instance();
 		$description = preg_replace('~\s+~', ' ', preg_replace('~\<br(\s*)?/?\>~i', ' ', $description));
-		$description = strip_tags(parse_bbc($description, true));
+		$description = strip_tags($parser->parseMessage($description, true));
 
 		$modSettings['fixLongWords'] = $current_value;
 
