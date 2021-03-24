@@ -39,7 +39,8 @@ class LevGal_Action_File extends LevGal_Action_Abstract
 	{
 		global $context;
 
-		// We do NOT want to call the parent constructor in this case because we don't need it.
+		// This means we load useful resources.
+		parent::__construct();
 
 		// Attempt to get something useful.
 		list ($this->item_slug, $this->item_id) = $this->getSlugAndId();
