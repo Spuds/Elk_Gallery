@@ -129,13 +129,15 @@ function template_levgal_credits()
 	echo '
 	<div id="admincenter">';
 
+	$icon = ['developers' => 'cat_img_config', 'components' => 'cat_img_database', 'images' => 'cat_img_attachments', 'translators' => 'cat_img_write', 'people' => 'cat_img_star'];
+
 	foreach ($context['levgal_credits'] as $credit_cat => $credits)
 	{
 		echo '
-		<h2 class="secondary_header hdicon cat_img_config">',
+		<h2 class="secondary_header hdicon ' . $icon[$credit_cat] . '">',
 			$txt['levgal_credits_' . $credit_cat . '_title'], '
 		</h2>
-		<div class="roundframe">
+		<div class="well">
 			<dl>
 				<dt>', $txt['levgal_credits_' . $credit_cat . '_desc'], '</dt>';
 
