@@ -12,14 +12,17 @@
  */
 abstract class LevGal_Action_Abstract
 {
+	/** @var HttpReq */
+	public $req;
+
 	public function getNumericId()
 	{
-		return empty($_GET['item']) ? 0 : (int) $_GET['item'];
+		return $this->req->getQuery('item', 'intval', 0);
 	}
 
 	public function getSlugAndId()
 	{
-		$item = empty($_GET['item']) ? '0' : $_GET['item'];
+		$item = $this->req->getQuery('item', 'trim', '0');
 
 		if (preg_match('~^\d+$~', $item))
 		{
@@ -36,6 +39,8 @@ abstract class LevGal_Action_Abstract
 	public function __construct()
 	{
 		$this->loadResources();
+
+		$this->req = HttpReq::instance();
 	}
 
 	public function loadResources()
