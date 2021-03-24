@@ -271,7 +271,7 @@ class LevGal_Model_Album
 			'group' => array(),
 		);
 
-		// Load members who own this group. This is easy since it basically piggybacks SMF's own.
+		// Load members who own this group.
 		if (!empty($this->current_album['owner_cache']['member']))
 		{
 			// This one is rather easy.

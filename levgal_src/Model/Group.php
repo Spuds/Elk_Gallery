@@ -8,7 +8,7 @@
  */
 
 /**
- * This file deals with getting group information since SMF has no suitable shared code.
+ * This file deals with getting group information.
  */
 class LevGal_Model_Group
 {
@@ -176,8 +176,8 @@ class LevGal_Model_Group
 		}
 
 		// We need to perform actions when deleting a group, namely cleaning up their presence in the hierarchies.
-		// SMF 2.0 does not contain a hook for deletion of a membergroup, so we have to improvise by adding a hook at redirection,
-		// since after deletion is a redirection back to the membergroups index, and check if the redirection came from deletion.
+		// After deletion is a redirection back to the membergroups index, and check if the redirection came from deletion.
+		// @todo check if there a hook for deletion of a membergroup
 		if (!isset($_POST['delete']) || empty($_REQUEST['group']) || !is_numeric($_REQUEST['group']) || strpos($setLocation, 'area=membergroups') === false)
 		{
 			return;

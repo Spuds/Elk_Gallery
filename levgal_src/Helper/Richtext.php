@@ -76,7 +76,6 @@ class LevGal_Helper_Richtext
 	{
 		global $context, $txt;
 
-		// We would use SMF's template_control_richedit_buttons if it weren't useless to us and not customisable.
 		$editor_context = &$context['controls']['richedit'][$this->form_var];
 
 		echo '

@@ -367,7 +367,8 @@ class LevGal_Model_Metadata_Exif
 		{
 			if (in_array($tag, array('XPTitle', 'XPComment', 'XPAuthor', 'XPKeywords', 'XPSubject')))
 			{
-				$data = $this->parseUCS2toEntity($data); // These are all UCS-2 fields added by Windows Explorer.
+				// These are all UCS-2 fields added by Windows Explorer.
+				$data = $this->parseUCS2toEntity($data);
 			}
 		}
 		if ($type == LevGal_Model_Metadata_ExifTag::TYPE_ASCII)
@@ -443,9 +444,8 @@ class LevGal_Model_Metadata_Exif
 
 	protected function parseUCS2toEntity($data)
 	{
-		// We are going to be parsing this into ASCII with entities, which is the only way we can handle it in all encodings SMF supports.
+		// We are going to be parsing this into ASCII with entities, which is the only way we can handle it in all encodings.
 		// We can assume the endianness is LE because this *should* be Windows XP+ only, which is LE only.
-
 		$result = '';
 		for ($i = 0, $n = strlen($data); $i < $n; $i += 2)
 		{
