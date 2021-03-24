@@ -160,7 +160,7 @@ function template_levgal_profile_notify()
 							<th scope="col" class="lefttext">
 								', $txt['lgal_posted_in'], '
 							</th>
-							<th style="width: 4%;">
+							<th scope="col" class="centertext" style="width: 4%;">
 								<input type="checkbox" class="input_check" onclick="invertAll(this, this.form);">
 							</th>
 						</tr>
@@ -224,7 +224,7 @@ function template_levgal_profile_notify()
 							<th scope="col" class="lefttext">
 								', $txt['levgal_profile_notify_albums'], '
 							</th>
-							<th scope="col" style="width: 4%;">
+							<th scope="col" class="centertext" style="width: 4%;">
 								<input type="checkbox" class="input_check" onclick="invertAll(this, this.form);">
 							</th>
 						</tr>
