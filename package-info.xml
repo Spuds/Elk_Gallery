@@ -6,7 +6,7 @@
 	<version>1.1.1</version>
 	<type>modification</type>
 
-	<install for="1.1 - 1.1.99">
+	<install for="1.1.7 - 1.1.99">
 		<!-- readme files -->
 		<readme lang="english" parsebbc="true" type="file">readme/readme.english.txt</readme>
 
