@@ -33,7 +33,8 @@ class LevGal_Model_Notify
 			// Non-current user's isn't, loadMemberData(..., ..., 'profile') doesn't load everything with *, but only the columns it knows are there.
 			// So we have to go get this ourselves.
 			$request = $db->query('', '
-				SELECT lgal_notify
+				SELECT 
+					lgal_notify
 				FROM {db_prefix}members
 				WHERE id_member = {int:id_member}',
 				array(
@@ -45,6 +46,21 @@ class LevGal_Model_Notify
 		}
 
 		return $value;
+	}
+
+	public function getSiteEnableNotifications()
+	{
+		global $modSettings;
+
+		$enabledNotifications = ['comments' => false, 'newitem' => false];
+		if (!empty($modSettings['enabled_mentions']))
+		{
+			$check = explode(',', $modSettings['enabled_mentions']);
+			$enabledNotifications['lgcomment'] = in_array('lgcomment', $check);
+			$enabledNotifications['lgnew'] = in_array('lgnew', $check);
+		}
+
+		return $enabledNotifications;
 	}
 
 	public function getNotifyAlbumsForUser($user)

@@ -120,12 +120,14 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 			'items' => !empty($context['album_details']['num_unapproved_items']) && (allowedTo(array('lgal_manage', 'lgal_approve_item')) || ($this->album_obj->isOwnedByUser() && !empty($modSettings['lgal_selfmod_approve_item']))) ? $context['album_details']['num_unapproved_items'] : 0,
 			'comments' => !empty($context['album_details']['num_unapproved_comments']) ? $context['album_details']['num_unapproved_comments'] : 0,
 		);
-		// Comments are a lot complicated: we can only show them comments if they could approve them - or failing that, the number of comments on their items that are unapproved.
+		// Comments are a lot complicated: we can only show them comments if they could approve them
+		// - or failing that, the number of comments on their items that are unapproved.
 		if (!empty($context['can_see_unapproved']['comments']))
 		{
 			if (!allowedTo(array('lgal_manage', 'lgal_approve_comment')))
 			{
-				// So they don't have actual permission (and thus could see it normally, but they might have self-mod permission, in which case we need comments on their items only.
+				// So they don't have actual permission (and thus could see it normally, but they
+				// might have self-mod permission, in which case we need comments on their items only.
 				$context['can_see_unapproved']['comments'] = empty($modSettings['lgal_selfmod_approve_comment']) ? 0 : $this->album_obj->getUnapprovedCommentsOnUserItems($context['user']['id']);
 			}
 		}
@@ -161,9 +163,11 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		{
 			// Notifications
 			$notify = new LevGal_Model_Notify();
-			$action = $notify->getNotifyAlbumStatus($this->album_id, $context['user']['id']) ? 'unnotify' : 'notify';
-			$context['album_actions']['actions'][$action] = array($txt['lgal_' . $action], $album['url'] . $action . '/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'title' => $txt['lgal_' . $action . '_album_desc']);
-
+			if (!empty($notify->getSiteEnableNotifications()['lgnew']))
+			{
+				$action = $notify->getNotifyAlbumStatus($this->album_id, $context['user']['id']) ? 'unnotify' : 'notify';
+				$context['album_actions']['actions'][$action] = array($txt['lgal_' . $action], $album['url'] . $action . '/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'title' => $txt['lgal_' . $action . '_album_desc']);
+			}
 			// Marking seen
 			$context['album_actions']['actions']['markseen'] = array($txt['lgal_mark_album_seen'], $album['url'] . 'markseen/' . $context['session_var'] . '=' . $context['session_id'] . '/');
 		}
@@ -831,28 +835,15 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 			$notify = new LevGal_Model_Notify();
 			$method = $type === 'notify' ? 'setNotifyAlbum' : 'unsetNotifyAlbum';
 			$notify->$method($this->album_id, $context['user']['id']);
-			redirectexit($context['album_details']['album_url']);
 		}
+
 		// Round 2: accepting via POST form from media/album/blah.1/notify/
-		elseif (checkSession('post', '', false) === '' && (!empty($_POST['notify_yes']) || !empty($_POST['notify_no'])))
+		if (checkSession('post', '', false) === '' && (!empty($_POST['notify_yes']) || !empty($_POST['notify_no'])))
 		{
 			$notify = new LevGal_Model_Notify();
 			$method = !empty($_POST['notify_yes']) ? 'setNotifyAlbum' : 'unsetNotifyAlbum';
 			$notify->$method($this->album_id, $context['user']['id']);
 			redirectexit($context['album_details']['album_url']);
-		}
-		// Round 3: sending them to the post form (e.g. from notification mail)
-		else
-		{
-			$context['page_title'] = sprintf($txt['lgal_notify_album_title'], $context['album_details']['album_name']);
-			$album = $this->album_obj->getLinkTreeDetails();
-
-			$this->addLinkTree($txt['levgal'], '?media/');
-			$this->addLinkTree($album['name'], $album['url']);
-
-			$this->setTemplate('LevGal-Album', 'notify_album');
-			$context['form_url'] = $album['url'] . 'notify/';
-			$context['canonical_url'] = $album['url'] . 'notify/';
 		}
 	}
 

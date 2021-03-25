@@ -258,16 +258,12 @@ class LevGalProfile_Controller extends Action_Controller
 		$context['album_notifications'] = $notifyModel->getNotifyAlbumsForUser($memID);
 		$context['item_notifications'] = $notifyModel->getNotifyItemsForUser($memID);
 
+		// Lastly has the admin enabled notifications in these areas
+		$context['enabled_media_notifications'] = $notifyModel->getSiteEnableNotifications();
+
 		if (isset($_GET['save']))
 		{
 			checkSession();
-
-			// First, opting in/out of emails.
-			if (isset($_POST['notify_options']))
-			{
-				$value = !empty($_POST['notify_options']) ? 1 : 0;
-				updateMemberData($memID, array('lgal_notify' => $value));
-			}
 
 			$things = array();
 			foreach (array('item', 'album') as $type)

@@ -125,24 +125,97 @@ function template_levgal_profile_notify()
 			<h3 class="secondary_header">
 				<span class="lgalicon notify"></span> ', $txt['levgal_profile_notify'], '<span>
 			</h3>
-			<p class="infobox">', $context['notify_desc'], '</p>';
+			<p class="description">', $context['notify_desc'], '</p>';
 
 	// Option(s)
-	echo '
-			<div class="content">
-				<form action="', $scripturl, '?action=profile;area=medianotify;u=', $context['id_member'], ';save" method="post" accept-charset="UTF-8">
-					<label>
-						<input type="hidden" name="notify_options" value="0" />
-						<input type="checkbox" name="notify_options"', empty($context['notify_options']) ? '' : ' checked="checked"', ' value="1" class="input_check" />
-						', $txt['levgal_profile_notify_email'], '
-					</label>
-					<div>
-						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-						<input type="submit" class="button_submit floatright" name="notify_prefs" value="', $txt['levgal_profile_prefs_update'], '" />
-					</div>
-					<br class="clear" />
-				</form>
+	if (empty($context['enabled_media_notifications']))
+	{
+		echo '
+			<div class="warningbox">',
+				$txt['levgal_profile_notify_none'], '
 			</div>';
+		return;
+	}
+
+	echo '
+			<div class="infobox">',
+				sprintf($txt['levgal_profile_notify_email'], $scripturl . '?action=profile;area=notification'), '
+			</div>';
+
+	// Item List
+	if (empty($context['enabled_media_notifications']['lgcomment']))
+	{
+		echo '
+			<div class="infobox">',
+				$txt['levgal_profile_notify_comment_none'], '
+			</div>';
+	}
+	else
+	{
+		template_item_notification_list();
+	}
+
+	// Album list
+	if (empty($context['enabled_media_notifications']['lgnew']))
+	{
+		echo '
+			<div class="infobox">',
+				$txt['levgal_profile_notify_album_none'], '
+			</div>';
+	}
+	else
+	{
+		template_album_notification_list();
+	}
+}
+
+function template_levgal_profile_prefs()
+{
+	global $context, $txt, $options, $scripturl;
+
+	echo '
+			<h3 class="secondary_header">
+				<span class="lgalicon options"></span> ', $txt['levgal_profile_prefs'], '
+			</h3>
+			<p class="infobox">', $txt['levgal_profile_prefs_desc'], '</p>';
+
+	echo '
+			<form action="', $scripturl, '?action=profile;u=', $context['user']['id'], ';area=mediaprefs" method="post" accept-charset="UTF-8">
+				<div class="content">
+					<dl class="settings">';
+
+	foreach ($context['preferences'] as $pref)
+	{
+		echo '
+						<dt>', $txt['levgal_pref_' . $pref[1]], empty($txt['levgal_pref_' . $pref[1] . '_note']) ? '' : '<div class="smalltext">' . $txt['levgal_pref_' . $pref[1] . '_note'] . '</div>', '</dt>
+						<dd>';
+		switch ($pref[0])
+		{
+			case 'check':
+				echo '
+							<input type="checkbox" name="', $pref[1], '" value="1"', empty($options[$pref[1]]) ? '' : ' checked="checked"', ' class="input_check" />';
+				break;
+			case 'select':
+				break;
+		}
+		echo '
+						</dd>';
+	}
+
+	echo '
+					</dl>
+					<hr class="clear">
+					<div class="submitbutton">
+						<input type="submit" name="save" value="', $txt['levgal_profile_prefs_update'], '" class="button_submit">
+						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					</div>
+				</div>
+			</form>';
+}
+
+function template_item_notification_list()
+{
+	global $context, $txt, $scripturl;
 
 	// Item notifications
 	echo '
@@ -202,17 +275,20 @@ function template_levgal_profile_notify()
 	if (!empty($context['item_notifications']))
 	{
 		echo '
-				<div class="flow_auto">
-					<div class="submitbutton">
-						<div class="additional_row">
-							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-							<input type="submit" class="button_submit" name="edit_notify_item" value="', $txt['lgal_unnotify'], '" />
-						</div>
+				<div class="submitbutton">
+					<div class="additional_row">
+						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+						<input type="submit" name="edit_notify_item" value="', $txt['lgal_unnotify'], '" />
 					</div>
 				</div>';
 	}
 	echo '
 			</form>';
+}
+
+function template_album_notification_list()
+{
+	global $context, $txt, $scripturl;
 
 	// And now album notifications
 	echo '
@@ -261,61 +337,14 @@ function template_levgal_profile_notify()
 	if (!empty($context['album_notifications']))
 	{
 		echo '
-				<div class="flow_auto">
-					<div class="submitbutton">
-						<div class="additional_row">
-							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-							<input type="submit" class="button_submit" name="edit_notify_album" value="', $txt['lgal_unnotify'], '" />
-						</div>
+				<div class="submitbutton">
+					<div class="additional_row">
+						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+						<input type="submit" name="edit_notify_album" value="', $txt['lgal_unnotify'], '" />
 					</div>
 				</div>';
 	}
 
 	echo '
-			</form>
-			<br class="clear" />';
-}
-
-function template_levgal_profile_prefs()
-{
-	global $context, $txt, $options, $scripturl;
-
-	echo '
-			<h3 class="secondary_header">
-				<span class="lgalicon options"></span> ', $txt['levgal_profile_prefs'], '
-			</h3>
-			<p class="infobox">', $txt['levgal_profile_prefs_desc'], '</p>';
-
-	echo '
-			<form action="', $scripturl, '?action=profile;u=', $context['user']['id'], ';area=mediaprefs" method="post" accept-charset="UTF-8">
-				<div class="content">
-					<dl class="settings">';
-
-	foreach ($context['preferences'] as $pref)
-	{
-		echo '
-						<dt>', $txt['levgal_pref_' . $pref[1]], empty($txt['levgal_pref_' . $pref[1] . '_note']) ? '' : '<div class="smalltext">' . $txt['levgal_pref_' . $pref[1] . '_note'] . '</div>', '</dt>
-						<dd>';
-		switch ($pref[0])
-		{
-			case 'check':
-				echo '
-							<input type="checkbox" name="', $pref[1], '" value="1"', empty($options[$pref[1]]) ? '' : ' checked="checked"', ' class="input_check" />';
-				break;
-			case 'select':
-				break;
-		}
-		echo '
-						</dd>';
-	}
-
-	echo '
-					</dl>
-					<hr class="clear">
-					<div class="submitbutton">
-						<input type="submit" name="save" value="', $txt['levgal_profile_prefs_update'], '" class="button_submit">
-						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-					</div>
-				</div>
 			</form>';
 }

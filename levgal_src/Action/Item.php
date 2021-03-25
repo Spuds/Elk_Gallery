@@ -12,9 +12,9 @@
  */
 class LevGal_Action_Item extends LevGal_Action_Abstract
 {
-	/** @var bool  */
+	/** @var bool */
 	private $item_id;
-	/** @var bool  */
+	/** @var bool */
 	private $item_slug;
 	/** @var \LevGal_Model_Item */
 	private $item_obj;
@@ -113,9 +113,11 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 
 			// Notifications
 			$notify = new LevGal_Model_Notify();
-			$action = $notify->getNotifyItemStatus($this->item_id, $user_info['id']) ? 'unnotify' : 'notify';
-			$context['item_actions']['actions'][$action] = array($txt['lgal_' . $action], $item['url'] . $action . '/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'title' => $txt['lgal_' . $action . '_item_desc']);
-
+			if (!empty($notify->getSiteEnableNotifications()['lgcomment']))
+			{
+				$action = $notify->getNotifyItemStatus($this->item_id, $user_info['id']) ? 'unnotify' : 'notify';
+				$context['item_actions']['actions'][$action] = array($txt['lgal_' . $action], $item['url'] . $action . '/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'title' => $txt['lgal_' . $action . '_item_desc']);
+			}
 			// The Download button is only for members to try to curtail bandwidth shenanigans.
 			if (!empty($context['item_display']['urls']['download']))
 			{
