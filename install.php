@@ -535,7 +535,7 @@ $rows[] = array(
 		1,
 		'd',
 		0,
-		'levgal',
+		'levgal_maintenance',
 	),
 	'keys' => array('task'),
 );

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package Levertine Gallery
  * @copyright 2014-2015 Peter Spicer (levertine.com)
@@ -7,23 +8,29 @@
  * @version 1.0.2 / elkarte
  */
 
+namespace ElkArte\sources\subs\ScheduledTask;
+
 /**
- * This file deals with the scheduled maintenance that needs to be run.
+ * Run various Levertine maintance functions.
+ *
+ * @package ScheduledTasks
  */
-class LevGal_Helper_Scheduled
+class Levgal_Maintenance implements Scheduled_Task_Interface
 {
-	public static function execute()
+	/**
+	 * Auto optimize the gallery.
+	 */
+	public function run()
 	{
-		self::pruneTempUploads();
-		self::pruneSearchResults();
-		self::checkPortals();
+		$this->pruneTempUploads();
+		$this->pruneSearchResults();
 
 		return true;
 	}
 
-	protected static function pruneTempUploads()
+	private function pruneTempUploads()
 	{
-		$gal_dir = LevGal_Bootstrap::getGalleryDir();
+		$gal_dir = \LevGal_Bootstrap::getGalleryDir();
 
 		// Kick anything more than 6 hours old.
 		$most_recent = time() - (6 * 60 * 60);
@@ -48,24 +55,11 @@ class LevGal_Helper_Scheduled
 		}
 	}
 
-	protected static function pruneSearchResults()
+	private function pruneSearchResults()
 	{
+		// Anything older than 12 hrs
 		$most_recent = time() - (12 * 60 * 60);
-		$search = new LevGal_Model_Search();
+		$search = new \LevGal_Model_Search();
 		$search->deleteSearchesBeforeTimestamp($most_recent);
-	}
-
-	public static function checkPortals()
-	{
-		// TinyPortal doesn't require a check for this, since it uses separate blockcode.
-		foreach (array('SimplePortal') as $portal)
-		{
-			$class = 'LevGal_Portal_' . $portal;
-			$instance = new $class();
-			if ($instance->isPortalInstalled())
-			{
-				$instance->ensureInstalled();
-			}
-		}
 	}
 }

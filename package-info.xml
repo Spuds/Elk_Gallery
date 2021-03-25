@@ -21,6 +21,9 @@
 		<!-- Notifications -->
 		<require-dir name="other/MentionType" destination="SUBSDIR/">Adding Likes and Notifications</require-dir>
 
+		<!-- Scheduled Tasks -->
+		<require-dir name="other/ScheduledTask" destination="SUBSDIR/">Adding Scheduled Tasks</require-dir>
+
 		<!-- And the most important bit -->
 		<require-dir name="lgal_items" destination="BOARDDIR">Storage for files</require-dir>
 
@@ -47,6 +50,9 @@
 		<remove-file name="SUBSDIR/MentionType/LgcommentMention.php">Notifications</remove-file>
 		<remove-file name="SUBSDIR/MentionType/LglikeMention.php" />
 		<remove-file name="SUBSDIR/MentionType/LgnewMention.php" />
+
+		<!-- Scheduled Task -->
+		<remove-file name="SUBSDIR/ScheduledTask/LevgalMaintenance.php">Scheduled Task</remove-file>
 
 		<!-- Database -->
 		<code>uninstall-required.php</code>

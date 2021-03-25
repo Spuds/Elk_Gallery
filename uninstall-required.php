@@ -10,9 +10,10 @@
 /**
  * This script removes all the extraneous data if the user requests it be removed on uninstall.
  *
- * NOTE: This script is meant to run using the <samp><code></code></samp> elements of our package-info.xml
- * file. This is because certain items in the database and within ElkArte will need to be removed regardless
- * of whether the user wants to keep data or not, for example Levertine Gallery hooks need to be deactivated.
+ * NOTE: This script is meant to run using the <samp><code></code></samp> elements of our
+ * package-info.xml file. This is because certain items in the database and within ElkArte will
+ * need to be removed regardless of whether the user wants to keep data or not, for example
+ * Levertine Gallery hooks need to be deactivated.
  *
  * @package levgal
  * @since 1.0
@@ -22,11 +23,10 @@
  * Before attempting to execute, this file attempts to load SSI.php to enable access to the database functions.
 */
 
-// If we have found SSI.php and we are outside of SMF, then we are running standalone.
+// If we have found SSI.php and we are outside of ElkArte, then we are running standalone.
 if (file_exists(dirname(__FILE__) . '/SSI.php') && !defined('ELK'))
 {
 	require_once(dirname(__FILE__) . '/SSI.php');
-	db_extend('packages');
 }
 // If we are outside ELK and can't find SSI.php, then throw an error
 elseif (!defined('ELK'))
@@ -60,7 +60,7 @@ $request = $db->query('', '
 	FROM {db_prefix}scheduled_tasks
 	WHERE task = {string:levgal}',
 	array(
-		'levgal' => 'levgal',
+		'levgal' => 'levgal_maintenance',
 	)
 );
 if ($row =$db->fetch_assoc($request))
@@ -120,8 +120,6 @@ if (matchTable('{db_prefix}tp_blocks'))
 	);
 }
 
-// This is functionally equivalent to LevGal_Helper_Database::matchTable but we can't use
-// that during uninstallation *sadface*
 function matchTable($table_name)
 {
 	global $db_prefix;

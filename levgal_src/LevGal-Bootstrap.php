@@ -26,7 +26,6 @@ class LevGal_Bootstrap
 		self::setDefaults();
 		self::defineAutoload();
 		self::defineHooks();
-		self::defineNonAutoLoadable();
 
 		// No querystring (e.g. index.php) or querystring isn't ?media it's nothing to do with us.
 		if (ELK === 'SSI' || empty($_SERVER['QUERY_STRING']) || strpos($_SERVER['QUERY_STRING'], 'media') !== 0)
@@ -140,16 +139,6 @@ class LevGal_Bootstrap
 		// Allow the gallery to be first in autoloader checking, else ElkArte will throw
 		// an error before we get to look.
 		spl_autoload_register(array('LevGal_Bootstrap', 'autoloader'), false, true);
-	}
-
-	public static function defineNonAutoLoadable()
-	{
-		// This is truly unpleasant but it's the only way to make these work without
-		// randomly just declaring a function in a class definition.
-		eval('
-			function scheduled_levgal() { return LevGal_Helper_Scheduled::execute(); }
-			function sp_levgal($parameters, $id, $return = false) { return LevGal_Portal_SimplePortal::portal($parameters, $id, $return); }
-		');
 	}
 
 	public static function autoloader($class)
