@@ -696,7 +696,7 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 		}
 
 		// Sorry, no spaces, dots, or anything else but letters allowed.
-		// Largely similar to how old time SMF generates its encrypted filenames but with a
+		// Largely similar to how old SMF generates its encrypted filenames but with a
 		// few Aeva-specific quirks.
 		$clean_name = preg_replace(array('/\s/', '/[^\w_\.-]/'), array('_', ''), $clean_name);
 		$ext = $this->getAevaExtension($filename);

@@ -8,7 +8,7 @@
  */
 
 /**
- * This file deals with certain member-related activities that ElkArte will need us to perform.
+ * This file deals with certain member-related activities that SMF will need us to perform.
  */
 class LevGal_Model_Member
 {

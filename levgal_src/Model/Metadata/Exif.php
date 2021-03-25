@@ -444,8 +444,9 @@ class LevGal_Model_Metadata_Exif
 
 	protected function parseUCS2toEntity($data)
 	{
-		// We are going to be parsing this into ASCII with entities, which is the only way we can handle it in all encodings.
+		// We are going to be parsing this into ASCII with entities, which is the only way we can handle it in all encodings SMF supports.
 		// We can assume the endianness is LE because this *should* be Windows XP+ only, which is LE only.
+
 		$result = '';
 		for ($i = 0, $n = strlen($data); $i < $n; $i += 2)
 		{

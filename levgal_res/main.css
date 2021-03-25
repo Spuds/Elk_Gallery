@@ -346,6 +346,10 @@ ul.lgalactions li.lgal_delete {
 	background: url(buttons/delete.png) no-repeat 4px 3px;
 }
 
+#privacy_custom > label > img, #configure_owner_group > label > img {
+	margin: 0;
+}
+
 .sidebar_actions {
 	list-style: none;
 	padding: 0;

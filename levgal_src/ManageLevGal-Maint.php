@@ -171,7 +171,7 @@ class ManageLevGalMaint_Controller extends Action_Controller
 		$context['step'] = isset($_REQUEST['step'], $context['steps'][$_REQUEST['step']])
 			? (int) $_REQUEST['step'] : 0;
 
-		// We are setting up for the not-done template.
+		// We are setting up for the not-done template SMF provides so we don't have do it ourselves.
 		Templates::instance()->load('Admin');
 		$context['continue_countdown'] = 3;
 		$context['continue_get_data'] = '?action=admin;area=lgalmaint;activity=rebuildsearch;' . $context['session_var'] . '=' . $context['session_id'];
@@ -358,7 +358,7 @@ class ManageLevGalMaint_Controller extends Action_Controller
 			}
 		}
 
-		// We are setting up for the not-done template.
+		// We are setting up for the not-done template SMF provides so we don't have do it ourselves.
 		Templates::instance()->load('Admin');
 		$context['continue_countdown'] = 3;
 		$context['continue_get_data'] = '?action=admin;area=lgalmaint;activity=rebuildthumbs;' . $context['session_var'] . '=' . $context['session_id'];
