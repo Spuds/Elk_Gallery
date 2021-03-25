@@ -152,9 +152,6 @@ class ManageLevGalDash_Controller extends Action_Controller
 		$context['latest_version'] = '';
 		$context['latest_news'] = array();
 		$context['news_loaded'] = true;
-
-		// Check portaly things.
-		LevGal_Helper_Scheduled::checkPortals();
 	}
 
 	public function levgal_adminDash_modlog()

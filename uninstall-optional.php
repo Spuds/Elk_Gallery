@@ -31,7 +31,7 @@ if (file_exists(dirname(__FILE__) . '/SSI.php') && !defined('ELK'))
 	require_once(dirname(__FILE__) . '/SSI.php');
 	db_extend('packages');
 }
-// If we are outside ElkAtre and can't find SSI.php, then throw an error
+// If we are outside ElkArte and can't find SSI.php, then throw an error
 elseif (!defined('ELK'))
 {
 	die('<b>Error:</b> Cannot uninstall - please verify you put this file in the same place as ElkArte\'s SSI.php.');
@@ -169,8 +169,6 @@ if (!empty($preferences))
 	);
 }
 
-// This is functionally equivalent to LevGal_Helper_Database::matchTable but we can't use that during
-// uninstallation *sadface* And because it might not be available...
 if (!function_exists('matchTable'))
 {
 	function matchTable($table_name)
@@ -189,17 +187,4 @@ if (!function_exists('matchTable'))
 
 		return in_array(str_replace('{db_prefix}', $real_prefix, $table_name), $table_list);
 	}
-}
-
-// Remove portals
-// -> SimplePortal
-if (matchTable('{db_prefix}sp_functions'))
-{
-	$db->query('', '
-		DELETE FROM {db_prefix}sp_blocks
-		WHERE type = {string:sp_levgal}',
-		array(
-			'sp_levgal' => 'sp_levgal',
-		)
-	);
 }
