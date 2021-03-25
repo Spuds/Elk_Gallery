@@ -140,6 +140,7 @@ class LevGal_Helper_Image_Imagick
 
 			if ($format === 'jpg')
 			{
+				$new_image->setImageProperty('jpeg:sampling-factor', '4:2:0');
 				$new_image->borderImage('white', 0, 0);
 				$new_image->setCompression(Imagick::COMPRESSION_JPEG);
 				$new_image->setCompressionQuality($this->compression['jpg']);
