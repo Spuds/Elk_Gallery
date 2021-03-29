@@ -26,7 +26,7 @@ $txt['levgal_importer_smfpacks'] = 'SMFPacks Multimedia Gallery (1.x)';
 $txt['levgal_not_found_import'] = '(not found, cannot import)';
 $txt['levgal_begin_import'] = 'Begin import!';
 $txt['levgal_import_supports'] = 'This importer supports the following galleries to import from:';
-$txt['levgal_no_valid_importer'] = 'Unfortunately none of these could be found as having been installed into this ElkArte forum before, which is how this importer works - you would uninstall the other gallery (remembering to make sure "Remove all data associated with this installation" is NOT TICKED), install Levertine Gallery and come to this page, and Levertine Gallery should detect your installation.';
+$txt['levgal_no_valid_importer'] = 'Unfortunately none of these could be found as having been installed into this SMF forum before, which is how this importer works - you would uninstall the other gallery (remembering to make sure "Remove all data associated with this installation" is NOT TICKED), install Levertine Gallery and come to this page, and Levertine Gallery should detect your installation.';
 $txt['levgal_importer_album_fallback'] = 'Album %1$s';
 $txt['levgal_importer_cfield_fallback'] = 'Custom Field %1$s';
 

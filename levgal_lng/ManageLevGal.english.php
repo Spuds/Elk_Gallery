@@ -16,8 +16,8 @@
 $txt['levgal_admin_js'] = 'The administration of Levertine Gallery really requires your browser to support JavaScript in order to function.';
 
 // Scheduled tasks.
-$txt['scheduled_task_levgal'] = 'Levertine Gallery maintenance';
-$txt['scheduled_task_desc_levgal'] = 'This carries out essential daily maintenance for the gallery, and *should not* be disabled.';
+$txt['scheduled_task_levgal_maintenance'] = 'Levertine Gallery maintenance';
+$txt['scheduled_task_desc_levgal_maintenance'] = 'This carries out essential daily maintenance for the gallery, and *should not* be disabled.';
 
 // General admin stuff
 $txt['levgal_admindash'] = 'Media Dashboard';
