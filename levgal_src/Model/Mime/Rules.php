@@ -45,7 +45,7 @@ class LevGal_Model_Mime_Rules
 				$mime_type = $this->getFromExtension();
 				if ($mime_type !== 'application/octet-stream')
 				{
-					$mime_type = $mime_type;
+					$mime_type = $this->mime;
 				}
 				break;
 			case 'video/quicktime':
