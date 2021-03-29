@@ -13,6 +13,11 @@
 	margin-bottom: 5px;
 }
 
+.album_details {
+	overflow: auto;
+	max-height: 50em;
+}
+
 .user_avatar {
 	margin: 0 10px 0 0;
 	float: left;
@@ -97,6 +102,20 @@ dl.album_details dd, dl.album_info dd {
 
 .item_likes, .item_tags {
 	margin-bottom: 2px;
+}
+
+.item_link {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	word-wrap: normal;
+	text-align: center;
+}
+
+.item_image {
+	display: inline-block;
+	margin: 0 1em;
+	vertical-align: bottom;
 }
 
 .album_container {
@@ -483,94 +502,29 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 	padding: 0;
 }
 
-.lgalicon.feed {
-	background-position: 0 0;
-}
-
-.lgalicon.comments {
-	background-position: -16px 0;
-}
-
-.lgalicon.views {
-	background-position: -32px 0;
-}
-
-.lgalicon.bookmark {
-	background-position: -48px 0;
-}
-
-.lgalicon.unbookmark {
-	background-position: -64px 0;
-}
-
-.lgalicon.deleteitem {
-	background-position: -80px 0;
-}
-
-.lgalicon.additem, .lgalicon.addbulk {
-	background-position: -96px 0;
-}
-
-.lgalicon.feature_album {
-	background-position: -112px 0;
-}
-
-.lgalicon.chart {
-	background-position: -128px 0;
-}
-
-.lgalicon.edititem {
-	background-position: -144px 0;
-}
-
-.lgalicon.copy {
-	background-position: -160px 0;
-}
-
-.lgalicon.stats {
-	background-position: 0 -16px;
-}
-
-.lgalicon.markseen {
-	background-position: -16px -16px;
-}
-
-.lgalicon.new {
-	background-position: -32px -16px;
-}
-
-.lgalicon.download {
-	background-position: -48px -16px;
-}
-
-.lgalicon.like {
-	background-position: -64px -16px;
-}
-
-.lgalicon.unnotify {
-	background-position: -80px -16px;
-}
-
-.lgalicon.notify {
-	background-position: -96px -16px;
-}
-
-.lgalicon.unfeature_album {
-	background-position: -112px -16px;
-}
-
-.lgalicon.trophy {
-	background-position: -128px -16px;
-}
-
-.lgalicon.alb_parent {
-	background-position: -144px -16px;
-}
-
+.lgalicon.feed {background-position: 0 0;}
+.lgalicon.comments {background-position: -16px 0;}
+.lgalicon.views {background-position: -32px 0;}
+.lgalicon.bookmark {background-position: -48px 0;}
+.lgalicon.unbookmark {background-position: -64px 0;}
+.lgalicon.deleteitem {background-position: -80px 0;}
+.lgalicon.additem, .lgalicon.addbulk {background-position: -96px 0;}
+.lgalicon.feature_album {background-position: -112px 0;}
+.lgalicon.chart {background-position: -128px 0;}
+.lgalicon.edititem {background-position: -144px 0;}
+.lgalicon.copy {background-position: -160px 0;}
+.lgalicon.stats {background-position: 0 -16px;}
+.lgalicon.markseen {background-position: -16px -16px;}
+.lgalicon.new {background-position: -32px -16px;}
+.lgalicon.download {background-position: -48px -16px;}
+.lgalicon.like {background-position: -64px -16px;}
+.lgalicon.unnotify {background-position: -80px -16px;}
+.lgalicon.notify {background-position: -96px -16px;}
+.lgalicon.unfeature_album {background-position: -112px -16px;}
+.lgalicon.trophy {background-position: -128px -16px;}
+.lgalicon.alb_parent {background-position: -144px -16px;}
 /* -160px -16px is the RTL equivalent of alb_child */
-.lgalicon.flag {
-	background-position: 0 -32px;
-}
+.lgalicon.flag {background-position: 0 -32px;}
 
 .lgalicon.unapproved {
 	background-position: -16px -32px;
@@ -582,76 +536,26 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 	margin: 0;
 }
 
-.lgalicon.moderate {
-	background-position: -32px -32px;
-}
-
-.lgalicon.approveitem, .lgalicon.moveitem, .lgalicon.gotoitem {
-	background-position: -48px -32px;
-}
-
-.lgalicon.album, .lgalicon.setthumbnail {
-	background-position: -64px -32px;
-}
-
-.lgalicon.deletealbum {
-	background-position: -80px -32px;
-}
-
-.lgalicon.addalbum, .lgalicon.approvealbum {
-	background-position: -96px -32px;
-}
-
-.lgalicon.editalbum {
-	background-position: -112px -32px;
-}
-
-.lgalicon.options {
-	background-position: -128px -32px;
-}
-
-.lgalicon.alb_child {
-	background-position: -144px -32px;
-}
-
+.lgalicon.moderate {background-position: -32px -32px;}
+.lgalicon.approveitem, .lgalicon.moveitem, .lgalicon.gotoitem {background-position: -48px -32px;}
+.lgalicon.album, .lgalicon.setthumbnail {background-position: -64px -32px;}
+.lgalicon.deletealbum {background-position: -80px -32px;}
+.lgalicon.addalbum, .lgalicon.approvealbum {background-position: -96px -32px;}
+.lgalicon.editalbum {background-position: -112px -32px;}
+.lgalicon.options {background-position: -128px -32px;}
+.lgalicon.alb_child {background-position: -144px -32px;}
 /* -160px -32px is the RTL equivalent of alb_parent */
-.lgalicon.facebook {
-	background-position: 0 -48px;
-}
+.lgalicon.facebook {background-position: 0 -48px;}
+.lgalicon.twitter {background-position: -16px -48px;}
+.lgalicon.tumblr {background-position: -32px -48px;}
+.lgalicon.reddit {background-position: -48px -48px;}
+.lgalicon.stumbleupon {background-position: -80px -48px;}
+.lgalicon.pinterest {background-position: -96px -48px;}
+.lgalicon.featured {background-position: -112px -48px;}
+.lgalicon.search {background-position: -128px -48px;}
+.lgalicon.tag {background-position: -144px -48px;}
 
-.lgalicon.twitter {
-	background-position: -16px -48px;
-}
-
-.lgalicon.tumblr {
-	background-position: -32px -48px;
-}
-
-.lgalicon.reddit {
-	background-position: -48px -48px;
-}
-
-.lgalicon.stumbleupon {
-	background-position: -80px -48px;
-}
-
-.lgalicon.pinterest {
-	background-position: -96px -48px;
-}
-
-.lgalicon.featured {
-	background-position: -112px -48px;
-}
-
-.lgalicon.search {
-	background-position: -128px -48px;
-}
-
-.lgalicon.tag {
-	background-position: -144px -48px;
-}
-
-/* Mimic table appearance */
+/* Mimic table appearance for dropzone areas */
 .dz-table {
 	display: table;
 	width: 100%;
@@ -718,4 +622,13 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 	background-color: #428BCA;
 	box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .15);
 	transition: width .6s ease;
+}
+
+/** Video iframe embeds */
+.base_iframe {
+	border: none;
+	width: 480px;
+	height: 270px;
+	margin: 0 auto;
+	display: block;
 }
