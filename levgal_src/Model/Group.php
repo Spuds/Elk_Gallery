@@ -8,7 +8,7 @@
  */
 
 /**
- * This file deals with getting group information.
+ * This file deals with getting group information since SMF has no suitable shared code.
  */
 class LevGal_Model_Group
 {
@@ -16,31 +16,28 @@ class LevGal_Model_Group
 	{
 		$db = database();
 
+		$groups = (array) $groups;
 		if (empty($groups))
 		{
 			return array();
 		}
 
-		$groups = (array) $groups;
-
 		$orders = array(
-			'name' => 'mg.group_name',
-			'id' => 'mg.id_group',
+			'name' => 'group_name',
+			'id' => 'id_group',
 		);
 
 		$request = $db->query('', '
 			SELECT 
 				id_group, group_name, online_color, {raw:stars_column} AS stars
 			FROM {db_prefix}membergroups AS mg
-			WHERE id_group IN ({array_int:groups})
-			ORDER BY {raw:order}',
+			WHERE id_group IN ({array_int:groups})',
 			array(
 				'groups' => $groups,
-				'order' => $orders[$order] ?? $orders['name'],
 				'stars_column' => 'icons',
 			)
 		);
-		$details = $this->processQueryResult($request);
+		$details = $this->processQueryResult($request, $orders[$order] ?? $orders['name']);
 		$db->free_result($request);
 
 		return $details;
@@ -69,23 +66,20 @@ class LevGal_Model_Group
 		}
 
 		$orders = array(
-			'name' => 'mg.group_name',
-			'id' => 'mg.id_group',
+			'name' => 'group_name',
+			'id' => 'id_group',
 		);
 
 		$request = $db->query('', '
 			SELECT 
-			    id_group, group_name, online_color, {raw:stars_column} AS stars
+			    id_group, group_name, online_color, icons AS stars
 			FROM {db_prefix}membergroups AS mg
-			WHERE ' . implode(' AND ', $sql_clauses) . '
-			ORDER BY {raw:order}',
+			WHERE ' . implode(' AND ', $sql_clauses),
 			array(
-				'order' => $orders[$order] ?? $orders['name'],
 				'match_groups' => !empty($criteria['match_groups']) ? $criteria['match_groups'] : array(),
-				'stars_column' =>'icons',
 			)
 		);
-		$details = $this->processQueryResult($request);
+		$details = $this->processQueryResult($request, $orders[$order] ?? $orders['name']);
 		$db->free_result($request);
 
 		return $details;
@@ -99,13 +93,23 @@ class LevGal_Model_Group
 		), 'name');
 	}
 
-	private function processQueryResult($request)
+	private function processQueryResult($request, $sort)
 	{
-		global $context, $settings;
+		global $context, $settings, $txt;
 
 		$db = database();
 
-		$details = array();
+		// Include Default Registered Members
+		$details = array(
+			0 => array(
+				'id_group' => 0,
+				'group_name' => $txt['levgal_registered_members'],
+				'online_color' => '',
+				'color_name' => $txt['levgal_registered_members'],
+				'stars' => '',
+			)
+		);
+
 		while ($row = $db->fetch_assoc($request))
 		{
 			$id_group = array_shift($row);
@@ -114,6 +118,9 @@ class LevGal_Model_Group
 			$row['stars'] = str_repeat('<img src="' . str_replace('$language', $context['user']['language'], isset($stars[1]) ? $settings['images_url'] . '/group_icons/' . $stars[1] : '') . '" alt="*" />', empty($stars[0]) || empty($stars[1]) ? 0 : $stars[0]);
 			$details[$id_group] = $row;
 		}
+
+		$sortBy = array_column($details, $sort);
+		array_multisort($sortBy, SORT_ASC, SORT_STRING, $details);
 
 		return $details;
 	}
@@ -175,9 +182,11 @@ class LevGal_Model_Group
 			return;
 		}
 
-		// We need to perform actions when deleting a group, namely cleaning up their presence in the hierarchies.
-		// After deletion is a redirection back to the membergroups index, and check if the redirection came from deletion.
-		// @todo check if there a hook for deletion of a membergroup
+		// We need to perform actions when deleting a group, namely cleaning up their presence in the
+		// hierarchies.
+		// @todo does ElkArte contain a hook for deletion of a membergroup?
+		// so we have to improvise by adding a hook at redirection, since after deletion is a redirection
+		// back to the membergroups index, and check if the redirection came from deletion.
 		if (!isset($_POST['delete']) || empty($_REQUEST['group']) || !is_numeric($_REQUEST['group']) || strpos($setLocation, 'area=membergroups') === false)
 		{
 			return;
@@ -256,7 +265,8 @@ class LevGal_Model_Group
 				)
 			);
 
-			// Step 3. For those where we just deleted the only owner, put something in the hierarchy for them - and make room if we have to.
+			// Step 3. For those where we just deleted the only owner, put something in the hierarchy for them - and make room
+			// if we have to.
 			// Remember: these are now 'site albums', which are owned by member 0.
 			if (!empty($only_owner))
 			{

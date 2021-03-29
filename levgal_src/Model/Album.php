@@ -86,7 +86,7 @@ class LevGal_Model_Album
 	}
 
 	// This isn't pretty but it means we can reuse all the exciting other methods without having
-	// to expressly requery anything.
+	// to expressly re-query anything.
 	public function buildFromSurrogate($details)
 	{
 		$this->current_album = $details;
@@ -213,6 +213,7 @@ class LevGal_Model_Album
 		{
 			return true;
 		}
+
 		// If it's a group album and the member is a member of the group, they can see it.
 		if (!empty($this->current_album['owner_cache']['group']) && count(array_intersect($user_info['groups'], $this->current_album['owner_cache']['group'])) > 0)
 		{
@@ -256,7 +257,9 @@ class LevGal_Model_Album
 
 	public function canUploadItems()
 	{
-		return !$this->isLockedForItems() && (allowedTo(array('lgal_additem_any', 'lgal_manage')) || (allowedTo('lgal_additem_own') && $this->isOwnedByUser()));
+		return !$this->isLockedForItems()
+			&& (allowedTo(array('lgal_additem_any', 'lgal_manage'))
+				|| (allowedTo('lgal_additem_own') && $this->isOwnedByUser()));
 	}
 
 	public function loadOwnerData()
@@ -271,7 +274,7 @@ class LevGal_Model_Album
 			'group' => array(),
 		);
 
-		// Load members who own this group.
+		// Load members who own this group. This is easy since it basically piggybacks ElkArte's own.
 		if (!empty($this->current_album['owner_cache']['member']))
 		{
 			// This one is rather easy.
@@ -469,7 +472,8 @@ class LevGal_Model_Album
 
 		if (!empty($get_description) && !empty($items))
 		{
-			// While we could technically do it above, it isn't recommended due to screwing around with order predicating.
+			// While we could technically do it above, it isn't recommended due to screwing around
+			// with order predicating.
 			$item_list = LevGal_Bootstrap::getModel('LevGal_Model_ItemList');
 			$item_ids = array_keys($items);
 			$descriptions = $item_list->getItemDescriptionsById($item_ids, true);
@@ -1345,7 +1349,7 @@ class LevGal_Model_Album
 
 	public function getAllowableOwnershipGroups()
 	{
-		global $user_info;
+		global $user_info, $txt;
 		static $cache = null;
 
 		if ($cache !== null)
@@ -1353,9 +1357,19 @@ class LevGal_Model_Album
 			return $cache;
 		}
 
-		$groups = array();
+		// Include Default Registered Members
+		$groups = array(
+			0 => array(
+				'id_group' => 0,
+				'group_name' => $txt['levgal_registered_members'],
+				'online_color' => '',
+				'color_name' => $txt['levgal_registered_members'],
+				'stars' => '',
+			)
+		);
 
-		// Since group ownership is an option, we need to get the group listing that you might want to bestow it upon.
+		// Since group ownership is an option, we need to get the group listing that you
+		// might want to bestow it upon.
 		$opts = array(
 			'exclude_moderator' => true,
 			'exclude_postcount' => true,

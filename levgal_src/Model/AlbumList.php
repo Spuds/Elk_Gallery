@@ -49,7 +49,8 @@ class LevGal_Model_AlbumList
 		$cache_key = 'lgal_album_owned_' . $user_info['id'];
 		$cache_ttl = 420;
 
-		// This is pretty ugly but short of building everything with an instance of Model_Album with a surrogate... bleh.
+		// This is pretty ugly but short of building everything with an instance of
+		// Model_Album with a surrogate... bleh.
 		if (($temp = cache_get_data($cache_key, $cache_ttl)) === null)
 		{
 			$temp = array();
@@ -108,7 +109,8 @@ class LevGal_Model_AlbumList
 					SELECT 
 					    id_album
 					FROM {db_prefix}lgal_albums
-					ORDER BY id_album');
+					ORDER BY id_album'
+				);
 				while ($row = $db->fetch_assoc($request))
 				{
 					$temp[] = (int) $row['id_album'];
@@ -129,7 +131,8 @@ class LevGal_Model_AlbumList
 				SELECT 
 				    id_album, approved, owner_cache, perms
 				FROM {db_prefix}lgal_albums
-				ORDER BY null');
+				ORDER BY null'
+			);
 			while ($row = $db->fetch_assoc($request))
 			{
 				$row['owner_cache'] = @unserialize($row['owner_cache']);
@@ -145,7 +148,6 @@ class LevGal_Model_AlbumList
 				if (empty($row['approved']) && !allowedTo('lgal_approve_album'))
 				{
 					if ((!empty($row['owner_cache']['member']) && !in_array($user_info['id'], $row['owner_cache']['member'])) || (!empty($row['owner_cache']['group']) && count(array_intersect($row['owner_cache']['group'], $user_info['groups'])) == 0))
-
 					{
 						continue;
 					}
@@ -170,8 +172,8 @@ class LevGal_Model_AlbumList
 						if (count(array_intersect($groups, $row['perms']['groups'])) > 0)
 						{
 							$temp[] = $row['id_album'];
-							break;
 						}
+						break;
 					// Just the owners (and managers but we already checked them) falling through from custom.
 					case 'justme':
 						if (empty($user_info['is_guest']))
@@ -249,7 +251,6 @@ class LevGal_Model_AlbumList
 			$hierarchy[$album_id] = $row;
 		}
 		$db->free_result($request);
-
 		if (empty($hierarchy))
 		{
 			return array();
@@ -359,7 +360,7 @@ class LevGal_Model_AlbumList
 
 	public function getAlbumHierarchyByOwners()
 	{
-		global $context, $settings;
+		global $context, $settings, $txt;
 
 		$db = database();
 
@@ -413,7 +414,8 @@ class LevGal_Model_AlbumList
 		// Second, the same for group-owned albums.
 		$request = $db->query('', '
 			SELECT 
-				log.id_group, mg.group_name, mg.online_color, mg.{raw:stars_column} AS stars, COUNT(log.id_album) AS albums
+				log.id_group, mg.group_name, mg.online_color, mg.{raw:stars_column} AS stars,
+				COUNT(log.id_album) AS albums
 			FROM {db_prefix}lgal_owner_group AS log
 				LEFT JOIN {db_prefix}membergroups AS mg ON (log.id_group = mg.id_group)' . ($album_list === true ? '' : '
 			WHERE log.id_album IN ({array_int:album_list})') . '
@@ -429,9 +431,10 @@ class LevGal_Model_AlbumList
 			$stars = !empty($row['stars']) ? explode('#', $row['stars']) : array(0, '');
 			$stars = str_repeat('<img src="' . str_replace('$language', $context['user']['language'], isset($stars[1]) ? $settings['images_url'] . '/group_icons/' . $stars[1] : '') . '" alt="*" />', empty($stars[0]) || empty($stars[1]) ? 0 : $stars[0]);
 
+			// Account for Default Registered Members
 			$hierarchies['groups'][$row['id_group']] = array(
-				'name' => $row['group_name'],
-				'color_name' => !empty($row['online_color']) ? '<span style="color: ' . $row['online_color'] . '">' . $row['group_name'] . '</span>' : $row['group_name'],
+				'name' => $row['group_name'] ?? $txt['levgal_registered_members'],
+				'color_name' => !empty($row['online_color']) ? '<span style="color: ' . $row['online_color'] . '">' . $row['group_name'] . '</span>' : ($row['group_name'] ?? $txt['levgal_registered_members']),
 				'stars' => $stars,
 				'count' => $row['albums'],
 			);
