@@ -12,9 +12,9 @@
  */
 class LevGal_Action_Album extends LevGal_Action_Abstract
 {
-	/** @var bool  */
+	/** @var bool|int  */
 	private $album_id;
-	/** @var bool  */
+	/** @var bool|string  */
 	private $album_slug;
 	/** @var \LevGal_Model_Album  */
 	private $album_obj;
@@ -1143,9 +1143,12 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 						$image = new LevGal_Helper_Image();
 						if ($ext = $image->loadImageFromFile($_FILES['thumbnail']['tmp_name']))
 						{
+							global $modSettings;
+
+							$thumbMax = $modSettings['attachmentThumbWidth'] ?: 125;
 							$gal_path = LevGal_Bootstrap::getGalleryDir();
 							$upload_path = $gal_path . '/album_' . $context['album_details']['id_album'] . '_' . $context['user']['id'];
-							$image->resizeToNewFile(125, $upload_path, $ext);
+							$image->resizeToNewFile($thumbMax, $upload_path, $ext);
 						}
 					}
 				}
