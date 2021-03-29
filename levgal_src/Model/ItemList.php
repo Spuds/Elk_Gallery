@@ -31,14 +31,14 @@ class LevGal_Model_ItemList
 
 		$db = database();
 
+		if ($items === '')
+		{
+			return array();
+		}
+
 		if (!is_array($items))
 		{
 			$items = array($items);
-		}
-
-		if (empty($items))
-		{
-			return array();
 		}
 
 		if (allowedTo('lgal_manage') || !empty($bypass_check))
@@ -78,7 +78,8 @@ class LevGal_Model_ItemList
 		$request = $db->query('', '
 			SELECT 
 				id_item, li.id_album, mem.id_member, IFNULL(mem.real_name, li.poster_name) AS poster_name,
-				item_name, item_slug, mime_type, li.mature, li.num_views, li.num_comments, ' . (allowedTo('lgal_manage') ? 'li.num_comments + li.num_unapproved_comments AS total_comments' : 'li.num_comments AS total_comments') . ',
+				item_name, item_slug, mime_type, li.mature, li.num_views, li.num_comments,
+				 ' . (allowedTo('lgal_manage') ? 'li.num_comments + li.num_unapproved_comments AS total_comments' : 'li.num_comments AS total_comments') . ',
 				li.filehash, li.width, li.height, li.extension, li.time_added, la.album_name, la.album_slug, li.approved
 			FROM {db_prefix}lgal_items AS li
 				LEFT JOIN {db_prefix}members AS mem ON (li.id_member = mem.id_member)
@@ -104,6 +105,7 @@ class LevGal_Model_ItemList
 				'item_url' => $item_urls['item'],
 				'thumbnail' => $item_urls['thumb'],
 				'preview' => $item_urls['preview'],
+				'item_base' => $item_urls['raw'],
 				'album_url' => $scripturl . '?media/album/' . (!empty($row['album_slug']) ? $row['album_slug'] . '.' . $row['id_album'] : $row['id_album']) . '/',
 				'item_type' => $itemModel->getItemType(),
 			);
