@@ -53,7 +53,7 @@ class LevGal_Model_External_DailyMotion
 			'external_url' => 'http://www.dailymotion.com/video/' . $this->meta['id'],
 			'video_id' => $this->meta['id'],
 			'markup' => '
-	<iframe frameborder="0" width="480" height="270" src="//www.dailymotion.com/embed/video/' . $this->meta['id'] . '?title=0" webkitallowfullscreen mozallowfullscreen allowfullscreen style="margin: 0 auto; display:block"></iframe>
+	<iframe class="base_iframe" src="//www.dailymotion.com/embed/video/' . $this->meta['id'] . '?title=0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
 	<div class="centertext ext_link"><a href="http://www.dailymotion.com/video/' . $this->meta['id'] . '">' . $txt['lgal_view_dailymotion'] . '</a></div>',
 		);
 	}

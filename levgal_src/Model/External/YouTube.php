@@ -57,7 +57,7 @@ class LevGal_Model_External_YouTube
 			'external_url' => 'https://www.youtube.com/watch?v=' . $this->meta['id'],
 			'video_id' => $this->meta['id'],
 			'markup' => '
-	<iframe width="560" height="315" src="//www.youtube-nocookie.com/embed/' . $this->meta['id'] . '?wmode=transparent" frameborder="0" allowfullscreen style="margin: 0 auto; display:block"></iframe>
+	<iframe class="base_iframe" style="width: 560px; height: 315px" src="//www.youtube-nocookie.com/embed/' . $this->meta['id'] . '?wmode=transparent" allowfullscreen></iframe>
 	<div class="centertext ext_link"><a href="https://www.youtube.com/watch?v=' . $this->meta['id'] . '">' . $txt['lgal_view_youtube'] . '</a></div>',
 		);
 	}
