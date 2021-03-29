@@ -58,7 +58,11 @@ $txt['levgal_profile_notify_albums'] = 'Album Notifications:';
 $txt['levgal_profile_notify_albums_none'] = 'No albums are set to send notifications.';
 $txt['levgal_profile_notify_items'] = 'Item Notifications:';
 $txt['levgal_profile_notify_items_none'] = 'No items are set to send notifications.';
-$txt['levgal_profile_notify_email'] = 'Send me an email for albums and items that I have requested notifications for.';
+$txt['levgal_profile_notify_email'] = 'Choose how you would like to receive notifications, for the albums and items that you have requested, by using the settings under the <a href="%1$s"><strong>Profile Notifications</strong></a> area.';
+$txt['levgal_profile_notify_none'] = 'The admin has not enable Media notifications.';
+$txt['levgal_profile_notify_comment_none'] = 'Comment notifications have not been enabled.';
+$txt['levgal_profile_notify_album_none'] = 'Album notifications have not been enabled.';
+
 
 // Media Preferences
 $txt['levgal_profile_prefs'] = 'Media Preferences';

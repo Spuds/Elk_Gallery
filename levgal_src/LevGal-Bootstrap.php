@@ -14,6 +14,7 @@ use BBC\Codes;
  */
 class LevGal_Bootstrap
 {
+	/** @var string */
 	public static $header = '';
 
 	/**
@@ -100,6 +101,9 @@ class LevGal_Bootstrap
 			'delete_member' => 'LevGal_Model_Member::deleteMember',
 			'delete_membergroups' => 'LevGal_Model_Group::deleteGroup',
 			'action_mentions_before' => 'LevGal_Bootstrap::hookLanguage',
+			'mailist_pre_parsebbc' => 'LevGal_Bootstrap::hookPreParsebbc',
+			'mailist_pre_markdown' => 'LevGal_Bootstrap::hookPreMarkdown',
+			'mailist_pre_sig_parsebbc' => 'LevGal_Bootstrap::hookPreSig',
 		);
 
 		foreach ($hooks as $point => $callable)
@@ -166,6 +170,7 @@ class LevGal_Bootstrap
 
 		// If it is, this is really just about us silently converting it internally to
 		// suit ElkArte's other stuff
+		//http://192.168.99.90/entegra/index.php?media/albumlist/0/group/
 		$possible_routes = array(
 			'~^media/?$~i' => 'action=media',
 			// The file item is special because we want to pre-empt a lot of ElkArte behaviour
@@ -536,15 +541,21 @@ class LevGal_Bootstrap
 	}
 
 	/**
-	 * This declares the media bbcode item.
+	 * This declares the media bbcode items
+	 *
+	 * We define two bbcodes:
+	 * [media]1[/media] for simple thumbnail+link
+	 * [media optionalOptions id=1]description[/media] for more complex embedding with description and stuff
+	 * optionalOptions:
+	 *  - align=left|right|center
+	 *  - type=thumbnail|preview
 	 *
 	 * @param mixed $codes
 	 */
 	public static function hookBbcCodes(&$codes)
 	{
-		// We define two bbcodes:
-		// [media]1[/media] for simple thumbnail+link
-		// [media someoptions id=1]description[/media] for more complex embedding with description and stuff
+		loadCSSFile('main.css', ['stale' => LEVGAL_VERSION, 'subdir' => 'levgal_res']);
+
 		$codes[] = array(
 			Codes::ATTR_TAG => 'media',
 			Codes::ATTR_LENGTH => 5,
@@ -558,20 +569,21 @@ class LevGal_Bootstrap
 					return null;
 				}
 
-				if (empty($context['lgal_embeds']))
-				{
-					$context['lgal_embeds'] = new LevGal_Model_Embed();
-				}
-
-				loadLanguage('levgal_lng/LevGal');
-
 				$data = trim($data);
 				if ($data === (string)(int) $data && allowedTo('lgal_view'))
 				{
-					$context['lgal_embeds']->addSimple((int) $data);
+					if (empty($context['lgal_embeds']))
+					{
+						$context['lgal_embeds'] = new LevGal_Model_Embed();
+					}
+
+					$count = $context['lgal_embeds']->setId($data);
+					$context['lgal_embeds']->addSimple();
+					$tag[Codes::ATTR_CONTENT] =	'!<lgalmediasimple: ' . $count . '>';
 				}
 				else
 				{
+					loadLanguage('levgal_lng/LevGal');
 					$tag[Codes::ATTR_CONTENT] = '<img src="' . $settings['default_theme_url'] . '/levgal_res/icons/_invalid.png" alt="' . $txt['lgal_bbc_no_item'] . '" title="' . $txt['lgal_bbc_no_item'] . '" />';
 				}
 			},
@@ -692,5 +704,48 @@ class LevGal_Bootstrap
 		global $modSettings;
 
 		return strtr($modSettings['lgal_dir'], array('$boarddir' => BOARDDIR));
+	}
+
+	/**
+	 * Used to interact with the message before its sent to parse_bbc as part  of mail functions
+	 */
+	public static function hookPreParseBBC(&$message)
+	{
+		global $txt, $user_info;
+
+		loadLanguage('levgal_lng/LevGal');
+
+		// A scheduled task like daily digest, can't render/geturl Media items as we don't know
+		// or want to lookup, those permissions.
+		if (empty($user_info))
+		{
+			// Replace the [media][/media] tag
+			$message = preg_replace('~\[media.*?\].*?\[\/media\]~s', '[ ' . $txt['levgal_email_photo_gallery'] . ' ]', $message);
+		}
+	}
+
+	/**
+	 * Used to interact with the message after parse_bbc but before html2md.  We need to PBE render
+	 * the Media html tags !<lgalmediasimple> !<lgalmediacomplex> with our MD response, simply replace the
+	 * tags with the urls to the image
+	 */
+	public static function hookPreMarkdown(&$message)
+	{
+		global $context;
+
+		if (!empty($context['lgal_embeds']))
+		{
+			$context['lgal_embeds']->processPBE($message);
+		}
+	}
+
+	/**
+	 * Used to interact with the signature before its sent to parse_bbc as part
+	 * of PBE mail functions
+	 */
+	public static function hookPreSig(&$signature)
+	{
+		// Remove Media tags in signatures
+		$signature = preg_replace('~\[media.*?\].*?\[/media]~s', '', $signature);
 	}
 }

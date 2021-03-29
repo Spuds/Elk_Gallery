@@ -12,7 +12,7 @@
  */
 class LevGal_Model_Embed
 {
-	/** @var array[]  */
+	/** @var array[] */
 	private $embed;
 	/** @var attay[] */
 	private $item_list;
@@ -22,7 +22,7 @@ class LevGal_Model_Embed
 	private $align;
 	/** @var int */
 	private $id;
-	/** @var int  */
+	/** @var int */
 	private static $count = 1;
 
 	public function __construct()
@@ -33,10 +33,13 @@ class LevGal_Model_Embed
 		);
 	}
 
-	public function addSimple($id_item)
+	public function addSimple()
 	{
-		$this->embed['simple'][$id_item] = true;
-		$this->item_list[$id_item] = true;
+		$this->item_list[$this->id] = true;
+		$this->embed['simple'][self::$count++] = array(
+			'id_msg' => $this->getMsg(),
+			'id' => $this->id,
+		);
 	}
 
 	public function addComplex($description)
@@ -47,7 +50,15 @@ class LevGal_Model_Embed
 			'align' => $this->align,
 			'type' => $this->type,
 			'description' => trim($description),
+			'id_msg' => $this->getMsg(),
 		);
+	}
+
+	public function getMsg()
+	{
+		global $context;
+
+		return (int) $context['id_msg'] ?? 0;
 	}
 
 	public function getCount()
@@ -78,40 +89,126 @@ class LevGal_Model_Embed
 
 	public function processBuffer(&$buffer)
 	{
-		global $txt, $settings;
+		// First, load the items.
+		$items = $this->getItems();
+
+		foreach (['simple', 'complex'] as $type)
+		{
+			foreach ($this->embed[$type] as $counter => $item)
+			{
+				// Look for !<lgalmediasimple: and !<lgalmediacomplex: tags
+				$search = '!<lgalmedia' . $type . ': ' . $counter . '>';
+				if (isset($items[$item['id']]))
+				{
+					// Union the item array (id, id_msg) with the LevGal_Model_ItemList results
+					$item = $item + $items[$item['id']];
+					$method = $type . 'Template';
+					$buffer = str_replace($search, $this->$method($counter, $item), $buffer);
+				}
+				else
+				{
+					$buffer = str_replace($search, $this->invalidTemplate(), $buffer);
+				}
+			}
+		}
+	}
+
+	public function processPBE(&$buffer)
+	{
+		global $txt;
 
 		// First, load the items.
+		$items = $this->getItems();
+
+		foreach (['simple', 'complex'] as $type)
+		{
+			foreach ($this->embed[$type] as $counter => $item)
+			{
+				$search = '!<lgalmedia' . $type . ': ' . $counter . '>';
+				if (isset($items[$item['id']]))
+				{
+					$item = $item + $items[$item['id']];
+					$buffer = str_replace($search, '<a href="' . $item['item_url'] . '">' . $item['item_name'] . '</a>', $buffer);
+				}
+				else
+				{
+					$buffer = str_replace($search, $txt['levgal_email_photo_missing'], $buffer);
+				}
+			}
+		}
+	}
+
+	private function simpleTemplate($counter, $item)
+	{
+		global $txt;
+
+		if ($item['item_type'] === 'image')
+		{
+			// For lightbox functionality, we need unique id's and message groupings for group navigation
+			return '
+			<figure class="item_image">
+				<a href="' . $item['item_base'] . '" id="link_' . $counter . 'm" data-lightboximage="' . $counter . 'm" data-lightboxmessage="' . $item['id_msg'] . '">
+					<img class="bbc_image has_lightbox" src="' . $item['thumbnail'] . '" alt="' . $item['item_name'] . '" title="' . $item['item_name'] . '" />
+				</a>
+				<figcaption class="item_link">
+					<a class="linkbutton" href="' . $item['item_url'] . '">
+						<em class="smalltext">' . $txt['lgal_item_info'] . '</em>
+					</a>
+				</figcaption>
+			</figure>';
+		}
+
+		return '
+		<a href="' . $item['item_url'] . '" class="bbc_link">
+			<img src="' . $item['thumbnail'] . '" class="bbc_img" alt="' . $item['item_name'] . '" title="' . $item['item_name'] . '" />
+		</a>';
+	}
+
+	private function complexTemplate($counter, $item)
+	{
+		$caption = !empty($item['description']) ? $item['description'] : $item['item_name'];
+		$align = $item['align'] === 'center' ? '<figure class="centertext">' : '<figure style="text-align:' . $item['align'] . '">';
+		$using = $item['type'] === 'preview' ? $item['preview'] : $item['thumbnail'];
+
+		if ($item['item_type'] === 'image')
+		{
+			// Lightbox if its a thumb, otherwise a link
+			return
+				$align . ($item['type'] === 'preview'
+				? '<a class="bbc_link" href="' . $item['item_url'] . '">'
+				: '<a href="' . $item['item_base'] . '" id="link_' . $counter . 'm" data-lightboximage="' . $counter . 'm" data-lightboxmessage="' . $item['id_msg'] . '">') . '
+					<img class="bbc_img' . ($item['type'] === 'preview' ? '' : ' has_lightbox') . '" src="' . $using . '" alt="' . $item['item_name'] . '" title="' . $item['item_name'] . '" />
+				</a>
+				<figcaption>
+					<a class="bbc_link" href="' . $item['item_url'] . '" >' . $caption . '</a>
+				</figcaption>
+			</figure>';
+		}
+
+		return
+			$align . '
+				<a href="' . $item['item_url'] . '" class="bbc_link">
+					<img class="bbc_img" src="' . $using . '" alt="' . $item['item_name'] . '" title="' . $item['item_name'] . '" />
+				</a>
+				<figcaption>
+					<a class="bbc_link" href="' . $item['item_url'] . '" >' . $caption . '</a>
+				</figcaption>	
+			</figure>';
+	}
+
+	private function invalidTemplate()
+	{
+		global $settings, $txt;
+
+		return '
+		<img class="bbc_img" src="' . $settings['default_theme_url'] . '/levgal_res/icons/_invalid.png" alt="' . $txt['lgal_bbc_no_item'] . '" title="' . $txt['lgal_bbc_no_item'] . '" />';
+	}
+
+	public function getItems()
+	{
+		// Load the items we need to render
 		$itemModel = new LevGal_Model_ItemList();
-		$items = $itemModel->getItemsById(array_keys($this->item_list));
 
-		foreach (array_keys($this->embed['simple']) as $id_item)
-		{
-			$search = '!<lgalmediasimple: ' . $id_item . '>';
-			if (isset($items[$id_item]))
-			{
-				$buffer = str_replace($search, '<a href="' . $items[$id_item]['item_url'] . '" class="bbc_link"><img src="' . $items[$id_item]['thumbnail'] . '" alt="' . $items[$id_item]['item_name'] . '" title="' . $items[$id_item]['item_name'] . '" class="bbc_img" /></a>', $buffer);
-			}
-			else
-			{
-				$buffer = str_replace($search, '<img src="' . $settings['default_theme_url'] . '/levgal_res/icons/_invalid.png" alt="' . $txt['lgal_bbc_no_item'] . '" title="' . $txt['lgal_bbc_no_item'] . '" class="bbc_img" />', $buffer);
-			}
-		}
-
-		foreach ($this->embed['complex'] as $counter => $item)
-		{
-			$search = '!<lgalmediacomplex: ' . $counter . '>';
-			if (isset($items[$item['id']]))
-			{
-				$caption = !empty($item['description']) ? $item['description'] : $items[$item['id']]['item_name'];
-				$align = $item['align'] === 'center' ? '<div class="centertext">' : '<div style="text-align:' . $item['align'] . '">';
-				$using = $item['type'] === 'preview' ? $items[$item['id']]['preview'] : $items[$item['id']]['thumbnail'];
-
-				$buffer = str_replace($search, $align . '<a href="' . $items[$item['id']]['item_url'] . '" class="bbc_link"><img src="' . $using . '" alt="' . $items[$item['id']]['item_name'] . '" title="' . $items[$item['id']]['item_name'] . '" class="bbc_img" /></a><br /><a href="' . $items[$item['id']]['item_url'] . '" class="bbc_link">' . $caption . '</a></div>', $buffer);
-			}
-			else
-			{
-				$buffer = str_replace($search, '<img src="' . $settings['default_theme_url'] . '/levgal_res/icons/_invalid.png" alt="' . $txt['lgal_bbc_no_item'] . '" title="' . $txt['lgal_bbc_no_item'] . '" class="bbc_img" />', $buffer);
-			}
-		}
+		return $itemModel->getItemsById(array_keys($this->item_list));
 	}
 }

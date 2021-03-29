@@ -314,3 +314,7 @@ $txt['lgal_bbc_disabled'] = '(the [media] bbcode has been turned off)';
 
 $txt['field_required'] = ' (required)';
 $txt['field_select'] = '(select from the choice below)';
+
+// For email messages
+$txt['levgal_email_photo_gallery'] = 'Media Photo';
+$txt['levgal_email_photo_missing'] = 'Gallery Item not found';
