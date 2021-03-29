@@ -12,6 +12,7 @@
  */
 class LevGal_Helper_Verify
 {
+	/** @var int */
 	private $id;
 
 	public function __construct($id)

@@ -41,7 +41,8 @@ class LevGal_Controller extends Action_Controller
 		$action = 'Home';
 		if (!empty($_GET['sa']))
 		{
-			// Check it's valid and attempt to load it. Remember we can't load the abstract class, better not do that.
+			// Check it's valid and attempt to load it. Remember we can't load the abstract class,
+			// better not do that.
 			if (preg_match('~^[a-z]+$~i', $_GET['sa']) && strtolower($_GET['sa']) !== 'abstract')
 			{
 				$action = ucfirst(strtolower($_GET['sa']));
@@ -59,6 +60,7 @@ class LevGal_Controller extends Action_Controller
 			$handler = new $class();
 			$sub_action = isset($_GET['sub']) && preg_match('~^[a-z_]+$~i', $_GET['sub']) ? ucfirst(strtolower($_GET['sub'])) : 'Index';
 			$method = 'action' . $sub_action;
+
 			if (method_exists($handler, $method))
 			{
 				$handler->$method();

@@ -26,7 +26,6 @@ class LevGal_Action_Albumlist extends LevGal_Action_Abstract
 		$this->addLinkTree($txt['levgal'], '?media/');
 		$this->addLinkTree($txt['lgal_albums_list'], '?media/albumlist/');
 		$context['canonical_url'] = $scripturl . '?media/albumlist/';
-
 		$this->getSidebar('site');
 
 		// There's only one site item here, it needs to be highlighted.
@@ -38,7 +37,6 @@ class LevGal_Action_Albumlist extends LevGal_Action_Abstract
 
 			$context['sidebar']['site']['items'][0]['active'] = true;
 			$this->setTemplate('LevGal', 'album_list_main');
-
 			$context['album_actions'] = array();
 			if (allowedTo('lgal_manage') && count($context['hierarchy']) >= 2)
 			{
@@ -49,14 +47,16 @@ class LevGal_Action_Albumlist extends LevGal_Action_Abstract
 		{
 			$context['page_title'] = $txt['lgal_albums_list'];
 
-			// So, let's see: are there any items we can display for users or groups? If not, just throw them to an error page.
+			// So, let's see: are there any items we can display for users or groups? If not, just
+			// throw them to an error page.
 			if (empty($context['album_owners']['members']) && empty($context['album_owners']['groups']))
 			{
 				$this->setTemplate('LevGal', 'album_list_none');
 			}
 			else
 			{
-				// If there's something to load, load it. Groups already have their data loaded, but members didn't to save a query most loads.
+				// If there's something to load, load it. Groups already have their data loaded,
+				// but members didn't to save a query most loads.
 				if (!empty($context['album_owners']['members']))
 				{
 					$loaded = loadMemberData(array_keys($context['album_owners']['members']));

@@ -7,7 +7,6 @@
  * @version 1.0 / elkarte
  */
 
-
 /**
  * This file deals with getting information about the gallery as a whole from a statistical point of view.
  */

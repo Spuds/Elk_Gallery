@@ -12,12 +12,19 @@
  */
 class LevGal_Helper_Feed
 {
+	/** @var string */
 	public $title = '';
+	/** @var string */
 	public $subtitle = '';
+	/** @var string */
 	public $id = '';
+	/** @var string */
 	public $alternateUrl = '';
+	/** @var string */
 	public $selfUrl = '';
+	/** @var array */
 	private $entries;
+	/** @var int */
 	private $updated = 0;
 
 	public function __construct()

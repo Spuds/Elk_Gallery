@@ -76,7 +76,7 @@ class LevGal_Model_Importer_SGP extends LevGal_Model_Importer_Abstract
 			// There is a special 'redirect' category that redirects to the user categories.
 			$request = $db->query('', '
 				SELECT 
-				       	COUNT(id_cat)
+					COUNT(id_cat)
 				FROM {db_prefix}gallery_cat
 				WHERE redirect = 0');
 			$row = $db->fetch_row($request);
@@ -85,7 +85,7 @@ class LevGal_Model_Importer_SGP extends LevGal_Model_Importer_Abstract
 
 			$request = $db->query('', '
 				SELECT 
-				    COUNT(user_id_cat)
+					COUNT(user_id_cat)
 				FROM {db_prefix}gallery_usercat');
 			$row = $db->fetch_row($request);
 			$db->free_result($request);
@@ -110,7 +110,7 @@ class LevGal_Model_Importer_SGP extends LevGal_Model_Importer_Abstract
 			$temp_hierarchy = array();
 			$request = $db->query('', '
 				SELECT 
-				    id_cat AS id_album, title AS album_name, id_parent, image, filename
+					id_cat AS id_album, title AS album_name, id_parent, image, filename
 				FROM {db_prefix}gallery_cat
 				WHERE redirect = 0
 				ORDER BY roworder');
@@ -170,7 +170,7 @@ class LevGal_Model_Importer_SGP extends LevGal_Model_Importer_Abstract
 
 			$request = $db->query('', '
 				SELECT 
-				    user_id_cat AS id_album, title AS album_name, id_member, id_parent, image, filename
+					user_id_cat AS id_album, title AS album_name, id_member, id_parent, image, filename
 				FROM {db_prefix}gallery_usercat
 				ORDER BY id_member, roworder');
 			while ($row = $db->fetch_assoc($request))
@@ -239,7 +239,7 @@ class LevGal_Model_Importer_SGP extends LevGal_Model_Importer_Abstract
 		{
 			$request = $db->query('', '
 				SELECT 
-				    COUNT(id_picture)
+					COUNT(id_picture)
 				FROM {db_prefix}gallery_pic');
 			list ($count) = $db->fetch_row($request);
 			$db->free_result($request);

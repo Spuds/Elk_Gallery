@@ -25,7 +25,7 @@ class ManageLevGalQuotas_Controller extends Action_Controller
 	{
 		global $context, $txt, $scripturl;
 
-		// Just a single action, and we will be great at doing
+		// Just a single action, and we will be great at doing it
 		$subActions = array(
 			'quota' => [$this, 'action_levgal_adminQuotas', 'permissions' => 'admin_forum']
 		);

@@ -12,9 +12,9 @@
  */
 class LevGal_Action_Comment extends LevGal_Action_Abstract
 {
-	/** @var int  */
+	/** @var int */
 	private $comment_id;
-	/** @var \LevGal_Model_Comment  */
+	/** @var \LevGal_Model_Comment */
 	private $comment_obj;
 
 	public function __construct()

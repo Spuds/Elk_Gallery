@@ -8,7 +8,8 @@
  */
 
 /**
- * This file provides the tag cloud pages, site/?media/tag/cloud/ and the list of items per tag site/?media/tag/my-tag.1/.
+ * This file provides the tag cloud pages, site/?media/tag/cloud/ and the list of
+ * items per tag site/?media/tag/my-tag.1/.
  */
 class LevGal_Action_Tag extends LevGal_Action_Abstract
 {

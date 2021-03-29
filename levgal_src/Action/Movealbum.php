@@ -8,7 +8,8 @@
  */
 
 /**
- * This file provides the functionality for moving albums around inside user/group hierarchies, site/?media/movealbum/site/ or site/?media/movealbum/x/member/.
+ * This file provides the functionality for moving albums around inside user/group
+ * hierarchies, site/?media/movealbum/site/ or site/?media/movealbum/x/member/.
  */
 class LevGal_Action_Movealbum extends LevGal_Action_Abstract
 {

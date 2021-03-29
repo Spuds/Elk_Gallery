@@ -60,7 +60,8 @@ class LevGal_Model_Importer_SGL extends LevGal_Model_Importer_Abstract
 		if ($count === null)
 		{
 			$request = $db->query('', '
-				SELECT COUNT(id_cat)
+				SELECT 
+				    COUNT(id_cat)
 				FROM {db_prefix}gallery_cat');
 			list ($count) = $db->fetch_row($request);
 			$db->free_result($request);
@@ -81,7 +82,8 @@ class LevGal_Model_Importer_SGL extends LevGal_Model_Importer_Abstract
 		$albums_to_insert = array();
 
 		$request = $db->query('', '
-			SELECT id_cat AS id_album, title AS album_name, roworder
+			SELECT 
+			    id_cat AS id_album, title AS album_name, roworder
 			FROM {db_prefix}gallery_cat
 			ORDER BY roworder');
 		while ($row = $db->fetch_assoc($request))
@@ -126,7 +128,8 @@ class LevGal_Model_Importer_SGL extends LevGal_Model_Importer_Abstract
 		if ($count === null)
 		{
 			$request = $db->query('', '
-				SELECT COUNT(id_picture)
+				SELECT 
+				    COUNT(id_picture)
 				FROM {db_prefix}gallery_pic');
 			list ($count) = $db->fetch_row($request);
 			$db->free_result($request);
@@ -150,7 +153,8 @@ class LevGal_Model_Importer_SGL extends LevGal_Model_Importer_Abstract
 		$gal_path = $this->getSGLSetting('gallery_path');
 
 		$request = $db->query('', '
-			SELECT gp.id_picture AS id_item, gp.id_cat AS id_album, IFNULL(mem.id_member, 0) AS id_member,
+			SELECT 
+				gp.id_picture AS id_item, gp.id_cat AS id_album, IFNULL(mem.id_member, 0) AS id_member,
 				mem.real_name AS poster_name, gp.title AS item_name, gp.date AS time_added, gp.approved, gp.filename,
 				gp.allowcomments, gp.description, gp.views AS num_views
 			FROM {db_prefix}gallery_pic AS gp
@@ -205,7 +209,8 @@ class LevGal_Model_Importer_SGL extends LevGal_Model_Importer_Abstract
 			// This is deliberately not a simple select; there is no point selecting any comment
 			// where the item doesn't exist.
 			$request = $db->query('', '
-				SELECT COUNT(gc.id_comment)
+				SELECT 
+				    COUNT(gc.id_comment)
 				FROM {db_prefix}gallery_comment AS gc
 					INNER JOIN {db_prefix}gallery_pic AS gp ON (gc.id_picture = gp.id_picture)');
 			list ($count) = $db->fetch_row($request);
@@ -229,7 +234,8 @@ class LevGal_Model_Importer_SGL extends LevGal_Model_Importer_Abstract
 		$comments_to_import = array();
 
 		$request = $db->query('', '
-			SELECT gc.id_comment AS id_comment, gc.id_picture AS id_item, IFNULL(mem.id_member, 0) AS id_author,
+			SELECT 
+				gc.id_comment AS id_comment, gc.id_picture AS id_item, IFNULL(mem.id_member, 0) AS id_author,
 				mem.real_name AS author_name, mem.email_address AS author_email, mem.member_ip AS author_ip,
 				gc.comment, gc.approved, gc.date AS time_added
 			FROM {db_prefix}gallery_comment AS gc
@@ -278,7 +284,8 @@ class LevGal_Model_Importer_SGL extends LevGal_Model_Importer_Abstract
 		}
 
 		$request = $db->query('', '
-			SELECT gp.id_picture AS id_item, gp.keywords
+			SELECT 
+				gp.id_picture AS id_item, gp.keywords
 			FROM {db_prefix}gallery_pic AS gp
 				INNER JOIN {db_prefix}lgal_items AS li ON (gp.id_picture = li.id_item)
 			ORDER BY gp.id_picture
