@@ -47,11 +47,14 @@ class LevGal_Model_Thumbnail
 
 	public function generateThumbnails()
 	{
+		global $modSettings;
+
+		$thumbMax = $modSettings['attachmentThumbWidth'] ?: 125;
 		$preview_path = str_replace('.dat', '_preview_' . $this->ext . '.dat', $this->file);
 		$thumb_path = str_replace('.dat', '_thumb_' . $this->ext . '.dat', $this->file);
 
 		$this->image->resizeToNewFile(500, $preview_path, $this->ext);
-		$this->image->resizeToNewFile(125, $thumb_path, $this->ext);
+		$this->image->resizeToNewFile($thumbMax, $thumb_path, $this->ext);
 
 		return true;
 	}

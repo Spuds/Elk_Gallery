@@ -206,11 +206,13 @@ abstract class LevGal_Model_Importer_Abstract
 	protected function insertItems($items)
 	{
 		global $txt;
+		global $modSettings;
 
 		$db = database();
 
 		$insert_rows = array();
 		$search_rows = array();
+		$thumbMax = $modSettings['attachmentThumbWidth'] ?: 125;
 
 		$uploadModel = new LevGal_Model_Upload();
 		$itemModel = new LevGal_Model_Item();
@@ -287,7 +289,7 @@ abstract class LevGal_Model_Importer_Abstract
 						$ext = $image->loadImageFromFile($item['import_thumb']);
 						if ($ext)
 						{
-							$image->resizeToNewFile(125, $base_file . '_thumb_' . $ext . '.dat', $ext);
+							$image->resizeToNewFile($thumbMax, $base_file . '_thumb_' . $ext . '.dat', $ext);
 							$meta['meta']['thumb_uploaded'] = true;
 						}
 					}
@@ -327,7 +329,7 @@ abstract class LevGal_Model_Importer_Abstract
 					$ext = $image->loadImageFromFile($item['import_thumb']);
 					if ($ext)
 					{
-						$image->resizeToNewFile(125, $base_file . '_thumb_' . $ext . '.dat', $ext);
+						$image->resizeToNewFile($thumbMax, $base_file . '_thumb_' . $ext . '.dat', $ext);
 						$item['external_data']['thumb_uploaded'] = true;
 					}
 				}
@@ -338,7 +340,7 @@ abstract class LevGal_Model_Importer_Abstract
 					$image = new LevGal_Helper_Image();
 					$image->loadImageFromString($item['external_thumbnail']['data']);
 					$ext = $item['external_thumbnail']['image_mime'] === 'image/png' ? 'png' : 'jpg';
-					$image->resizeToNewFile(125, $base_file . '_thumb_' . $ext . '.dat', $ext);
+					$image->resizeToNewFile($thumbMax, $base_file . '_thumb_' . $ext . '.dat', $ext);
 				}
 
 				$new_item['meta'] = serialize($item['external_data']);
