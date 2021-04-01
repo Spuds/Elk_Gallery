@@ -32,8 +32,8 @@ class LevGal_Action_Home extends LevGal_Action_Abstract
 
 		// The main area is fairly dull.
 		$itemList = LevGal_Bootstrap::getModel('LevGal_Model_ItemList');
-		$context['latest_items'] = $itemList->getLatestItems(4);
-		$context['random_items'] = $itemList->getRandomItems(4);
+		$context['latest_items'] = $itemList->getLatestItems(10);
+		$context['random_items'] = $itemList->getRandomItems(10);
 
 		// Sidebar not much better.
 		$statsModel = LevGal_Bootstrap::getModel('LevGal_Model_Stats');
