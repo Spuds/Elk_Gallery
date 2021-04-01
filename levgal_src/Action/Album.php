@@ -12,11 +12,11 @@
  */
 class LevGal_Action_Album extends LevGal_Action_Abstract
 {
-	/** @var bool|int  */
+	/** @var bool|int */
 	private $album_id;
-	/** @var bool|string  */
+	/** @var bool|string */
 	private $album_slug;
-	/** @var \LevGal_Model_Album  */
+	/** @var \LevGal_Model_Album */
 	private $album_obj;
 
 	public function __construct()
@@ -394,6 +394,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 			}
 		}
 
+		unset($_SESSION['lgal_async']);
 		$context['description_box']->createEditor(array(
 			'value' => $context['description_box']->getForForm($context['description']),
 			'labels' => array(
@@ -469,56 +470,64 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 				'quotas' => $uploadModel->getAllQuotas(),
 			);
 		}
-
-		// When we receive an upload and the file is done, we call this function AJAXively and return some JSON.
-		if (isset($_POST['save']))
+		// Housekeeping, clean up session when displaying the file form and NOT saving
+		if (!isset($_POST['save']))
 		{
-			if (($error = checkSession('post', '', false)) !== '')
+			unset($_SESSION['lgal_async']);
+
+			return;
+		}
+		// When we receive an upload and the file is done, we call this function AJAXively
+		// and return some JSON.
+		if (($error = checkSession('post', '', false)) !== '')
+		{
+			LevGal_Helper_Http::jsonResponse(array(
+					'error' => 'session_timeout',
+					'fatal' => true,
+					'session' => $error . ': ' . $context['session_var'] . '=' . $context['session_id'])
+			);
+		}
+
+		$context['item_name'] = LevGal_Helper_Sanitiser::sanitiseThingNameFromPost('async_filename');
+		// We don't want the extension in the item name.
+		$pos = strrpos($context['item_name'], '.');
+		if ($pos !== false)
+		{
+			$context['item_name'] = substr($context['item_name'], 0, $pos);
+		}
+		$context['item_slug'] = LevGal_Helper_Sanitiser::sanitiseSlug($context['item_name']);
+
+		$context['upload_type'] = !empty($context['allowed_formats']) ? 'file' : 'link';
+
+		if (!$this->album_obj->isLockedForComments())
+		{
+			$context['new_options'] = array(
+				'enable_comments' => array(
+					'value' => true,
+				),
+			);
+			$_POST['enable_comments'] = true;
+		}
+
+		$context['errors'] = array();
+
+		$itemID = $this->processNewItem();
+		if (!empty($itemID) && empty($context['errors']))
+		{
+			$itemModel = LevGal_Bootstrap::getModel('LevGal_Model_Item');
+			$item_details = $itemModel->getItemInfoById($itemID);
+
+			// Does anyone else want notifications?
+			if (!$context['requires_approval'])
 			{
-				LevGal_Helper_Http::jsonResponse(array('error' => 'session_timeout', 'fatal' => true, 'session' => $error . ': ' . $context['session_var'] . '=' . $context['session_id']));
+				$this->album_obj->notifyItem($itemID, $itemModel);
 			}
 
-			$context['item_name'] = LevGal_Helper_Sanitiser::sanitiseThingNameFromPost('async_filename');
-			// We don't want the extension in the item name.
-			$pos = strrpos($context['item_name'], '.');
-			if ($pos !== false)
-			{
-				$context['item_name'] = substr($context['item_name'], 0, $pos);
-			}
-			$context['item_slug'] = LevGal_Helper_Sanitiser::sanitiseSlug($context['item_name']);
-
-			$context['upload_type'] = !empty($context['allowed_formats']) ? 'file' : 'link';
-
-			if (!$this->album_obj->isLockedForComments())
-			{
-				$context['new_options'] = array(
-					'enable_comments' => array(
-						'value' => true,
-					),
-				);
-				$_POST['enable_comments'] = true;
-			}
-
-			$context['errors'] = array();
-
-			$itemID = $this->processNewItem();
-			if (!empty($itemID) && empty($context['errors']))
-			{
-				$itemModel = LevGal_Bootstrap::getModel('LevGal_Model_Item');
-				$item_details = $itemModel->getItemInfoById($itemID);
-
-				// Does anyone else want notifications?
-				if (!$context['requires_approval'])
-				{
-					$this->album_obj->notifyItem($itemID, $itemModel);
-				}
-
-				LevGal_Helper_Http::jsonResponse(array('async' => $context['async_id'], 'url' => $item_details['item_url']), 200);
-			}
-			else
-			{
-				LevGal_Helper_Http::jsonResponse(array('error' => array_keys($context['errors'])));
-			}
+			LevGal_Helper_Http::jsonResponse(array('async' => $context['async_id'], 'url' => $item_details['item_url']), 200);
+		}
+		else
+		{
+			LevGal_Helper_Http::jsonResponse(array('error' => array_keys($context['errors'])));
 		}
 	}
 
@@ -835,6 +844,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 			$notify = new LevGal_Model_Notify();
 			$method = $type === 'notify' ? 'setNotifyAlbum' : 'unsetNotifyAlbum';
 			$notify->$method($this->album_id, $context['user']['id']);
+			redirectexit($context['album_details']['album_url']);
 		}
 
 		// Round 2: accepting via POST form from media/album/blah.1/notify/
@@ -845,6 +855,8 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 			$notify->$method($this->album_id, $context['user']['id']);
 			redirectexit($context['album_details']['album_url']);
 		}
+
+		redirectexit($context['album_details']['album_url']);
 	}
 
 	public function actionFeature()
@@ -991,21 +1003,26 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 			'no_change' => 'no_change',
 			'upload' => 'upload',
 			'folder_colours' => array(
-				'folder-red.png' => 'color_red',
-				'folder-orange.png' => 'color_orange',
-				'folder-yellow.png' => 'color_yellow',
-				'folder-green.png' => 'color_green',
-				'folder-cyan.png' => 'color_cyan',
-				'folder.png' => 'color_blue',
-				'folder-violet.png' => 'color_violet',
-				'folder-brown.png' => 'color_brown',
-				'folder-black.png' => 'color_black',
+				'folder-red.svg' => 'color_red',
+				'folder-orange.svg' => 'color_orange',
+				'folder-yellow.svg' => 'color_yellow',
+				'folder-green.svg' => 'color_green',
+				'folder-cyan.svg' => 'color_cyan',
+				'folder-grey.svg' => 'color_grey',
+				'folder-magenta.svg' => 'color_magenta',
+				'folder.svg' => 'color_blue',
+				'folder-violet.svg' => 'color_violet',
+				'folder-brown.svg' => 'color_brown',
+				'folder-black.svg' => 'color_black',
 			),
 			'folder_icons' => array(
-				'folder-image.png' => 'icon_picture',
-				'folder-documents.png' => 'icon_documents',
-				'folder-sound.png' => 'icon_audio',
-				'folder-video.png' => 'icon_video',
+				'folder-image.svg' => 'icon_picture',
+				'folder-documents.svg' => 'icon_documents',
+				'folder-sound.svg' => 'icon_audio',
+				'folder-video.svg' => 'icon_video',
+				'folder-remote.svg' => 'icon_remote',
+				'folder-home.svg' => 'icon_home',
+				'folder-favorites.svg' => 'icon-favorites',
 			),
 		);
 

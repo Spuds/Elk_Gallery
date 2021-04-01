@@ -12,9 +12,6 @@ function template_main_album_view()
 {
 	template_main_album_sidebar();
 	template_main_album_display();
-
-	echo '
-		<br class="clear" />';
 }
 
 function template_main_album_display()
@@ -36,7 +33,7 @@ function template_main_album_display()
 			foreach ($owners as $owner => $albums)
 			{
 				echo '
-			<div class="album_featured well">';
+			<div class="well">';
 
 				if ($owner_type === 'member' && $owner == 0)
 				{
@@ -66,26 +63,29 @@ function template_main_album_display()
 						echo '
 				<div class="album_current">
 					<span class="lgalicon album"></span> <em>', $album['album_name'], '</em>
-				</div>';
+				</div>
+				<ul style="columns: 3">';
 						$done_album = true;
 					}
 					elseif (!$done_album)
 					{
 						echo '
-				<div class="album_parent">
-					<span class="lgalicon alb_parent"></span> <a href="', $album['album_url'], '">', $album['album_name'], '</a>
-				</div>';
+					<div class="album_parent">
+						<span class="lgalicon alb_parent"></span> <a href="', $album['album_url'], '">', $album['album_name'], '</a>
+					</div>
+					';
 					}
 					else
 					{
 						echo '
-				<div class="album_child">
-					<span class="lgalicon alb_child"></span> <a href="', $album['album_url'], '">', $album['album_name'], '</a>
-				</div>';
+					<li class="album_child">
+						<span class="lgalicon alb_child"></span> <a href="', $album['album_url'], '">', $album['album_name'], '</a>
+					</li>';
 					}
 				}
 
 				echo '
+				</ul>
 				</div>
 				<div class="righttext">', sprintf($txt['lgal_see_more'], $scripturl . $link), '</div>
 			</div>';
@@ -116,9 +116,10 @@ function template_main_album_display()
 	if (empty($context['album_items']))
 	{
 		echo '
-			<div class="content centertext">
+			<br>
+			<h4 class="secondary_header centertext">
 				', $txt['lgal_empty_album'], '
-			</div>';
+			</h4>';
 	}
 	else
 	{
@@ -158,8 +159,7 @@ function template_main_album_sidebar()
 				<div class="album_owner">
 					<span class="user_avatar">', $memberContext[$user]['avatar']['image'], '</span>
 					<span class="user">', $memberContext[$user]['link'], '</span><br />
-					<span class="user">', sprintf($txt['lgal_see_more'], $scripturl . '?media/albumlist/' . $user . '/member/'), '</span>
-					<br class="clear" />
+					<span class="user smalltext">', sprintf($txt['lgal_see_more'], $scripturl . '?media/albumlist/' . $user . '/member/'), '</span>
 				</div>';
 		}
 	}
@@ -469,7 +469,7 @@ function template_add_single_item()
 		{
 			if (updateSlug)
 			{
-				let mystr = get_charsafe_value(itemName);
+				let mystr = itemName.value;
 
 				mystr = mystr.replace(/\'/g, "");
 				itemSlug.value = url_slug(mystr, {}).substring(0, 50);
@@ -484,7 +484,6 @@ function template_add_single_item()
 		
 		let uploader = new Dropzone("#dragdropcontainer", {
 			url: "' . $context['album_details']['album_url'] . 'async/",
-			params: {"' . $context['session_var'] . '": "' . $context['session_id'] . '"},
 			lgal_quota: ' . (empty($context['quota_data']) ? '{}' : json_encode($context['quota_data'])) . ',
 			maxFiles: 1,
 			paramName: defaults.paramName,
@@ -514,6 +513,11 @@ function template_add_single_item()
 				});
 				this.on("success", function (file, response)
 				{
+					// chunked is not returning the response
+					if (response === "" && typeof file.xhr.response !== "undefined")
+					{
+						response = JSON.parse(file.xhr.response);
+					}
 					if (typeof response.async !== "undefined")
 					{
 						let container = document.getElementById("display_container"),
@@ -524,6 +528,10 @@ function template_add_single_item()
 						container.innerHTML = conhtml;
 					}
 					submittable = true;
+				});
+				this.on("sending", function(file, xhr, formData) 
+      			{
+      				formData.append("' . $context['session_var'] . '", "' . $context['session_id']  . '");
 				});
 				this.on("error", function (file, msg, xhr)
 				{
@@ -639,7 +647,7 @@ function template_add_bulk_items()
 						</div>
 					</div>					
 					<input type="button" value="' . $txt['lgal_begin_upload'] . '" id="begin_button" class="right_submit" onclick="return beginUpload();" />
-				</div>
+				</div>			
 			</form>';
 
 	$lang = array(
@@ -681,9 +689,8 @@ function template_add_bulk_items()
 
 		let uploader = new Dropzone("#dragdropcontainer", {
 			url: "' . $context['album_details']['album_url'] . 'async/",
-			params: {"' . $context['session_var'] . '": "' . $context['session_id'] . '"},
 			lgal_quota: ' . (empty($context['quota_data']) ? '{}' : json_encode($context['quota_data'])) . ',
-			maxFiles: 250,
+			maxFiles: 150,
 			paramName: defaults.paramName,
 			chunking: defaults.chunking,
 			retryChunks: defaults.retryChunks,
@@ -707,7 +714,7 @@ function template_add_bulk_items()
 						document.getElementById("begin_button").style.display = "block";
 					}
 				});
-				this.on("removedfile", function(file)
+				this.on("removedfile", function()
 				{
 					fileCount = fileCount - 1;
 					if (fileCount === 0)
@@ -717,35 +724,60 @@ function template_add_bulk_items()
 				});
 			    this.on("totaluploadprogress", function(progress, totalBytes, totalBytesSent) 
 			    {
-			    	let byteProgress = "<span>(" + get_human_size(totalBytesSent) + " / " + get_human_size(totalBytes) + ")</span>";
-			    	document.querySelector("#total-progress .progress-bar").innerHTML = byteProgress;
-       				document.querySelector("#total-progress .progress-bar").style.width = progress + "%";
-      			});
-      			this.on("sending", function(file)
+			    	let fileSize = parseInt(uploader.getUploadingFiles()[0].size);
+			    	
+			    	// bugs in chunking
+			    	if (totalBytes < fileSize)
+			    		totalBytes = fileSize;
+			    	if (progress === 100 && fileSize > totalBytesSent)
+			    		progress = (totalBytesSent / fileSize) * 100;
+
+			    	let byteProgress = "<span>(" + get_human_size(totalBytesSent) + " / " + get_human_size(totalBytes) + ")</span>",
+			    	    current = document.querySelector("#total-progress .progress-bar").style.width;
+
+			    	current = parseInt(current.replace("%", ""));
+			    	if (progress > current)
+			    	{
+			    		document.querySelector("#total-progress .progress-bar").innerHTML = byteProgress;
+       					document.querySelector("#total-progress .progress-bar").style.width = progress + "%";
+       				}
+       			});
+      			this.on("sending", function(file, xhr, formData) 
       			{
-					document.getElementById("total-progress").style.opacity = "1";
+      				formData.append("' . $context['session_var'] . '", "' . $context['session_id']  . '");
+
+		      		document.getElementById("total-progress").style.opacity = "1";
 				});
 				this.on("success", function(file, response)
 				{
+					// chunked is not returning the response
+					if (response === "" && typeof file.xhr.response !== "undefined")
+					{
+						response = JSON.parse(file.xhr.response);
+					}
 					if (typeof response.async !== "undefined")
 					{
-						let el = file.previewElement.querySelectorAll(".button_submit");
+						let el = file.previewElement.querySelectorAll(".button_submit"),
+							spanProgress = "",
+							x = [];
+						
 						if (el.length)
 						{
-							fileCount = fileCount - 1;
-							let spanProgress = "<span id=\"async_" + response.async + "\">" + txt.processing + "</span>";
+							spanProgress = "<span id=\"async_" + response.async + "\">" + txt.processing + "</span>";
 							el[0].parentElement.innerHTML = spanProgress;
-							x = [];
-							x.push("save=1");
-							x.push("async_filename=" + file.name.php_urlencode());
-							x.push("async=" + response.async);
-							x.push("async_size=" + file.size);
-							x.push("' . $context['session_var'] . '=' . $context['session_id'] . '");
-							urls[file.upload.uuid] = { async: response.async, url: "" };
-							sendJSONDocument(elk_prepareScriptUrl(elk_scripturl) + ' . JavaScriptEscape(str_replace($scripturl . '?', '', $context['album_details']['album_url']) . 'addbulk/') . ', x.join("&"), onFileSend);
 						}
+						x.push("save=1");
+						x.push("async_filename=" + file.name.php_urlencode());
+						x.push("async=" + response.async);
+						x.push("async_size=" + file.size);
+						x.push("' . $context['session_var'] . '=' . $context['session_id'] . '");
+						urls[file.upload.uuid] = {async: response.async, url: ""};
+						sendJSONDocument(elk_prepareScriptUrl(elk_scripturl) + ' . JavaScriptEscape(str_replace($scripturl . '?', '', $context['album_details']['album_url']) . 'addbulk/') . ', x.join("&"), onFileSend);
 					}
-					this.processQueue();
+				});
+				this.on("complete", function()
+				{
+					uploader.processQueue();
 				});
 				this.on("error", function (file, msg, xhr)
 				{
@@ -770,7 +802,6 @@ function template_add_bulk_items()
 					done(result);
 					display_error(result, true);
 					this.removeFile(file);
-					return;
 				}
 				done();
 			}
@@ -956,10 +987,10 @@ function template_edit_album()
 		<script>
 		function update_thumbnail()
 		{
-			var value = document.getElementById("thumbnail_selector").value;
-			var current_thumbnail = document.getElementById("current_thumbnail");
-			var new_thumbnail_span = document.getElementById("new_thumbnail");
-			var upload_span = document.getElementById("upload_thumbnail");
+			let value = document.getElementById("thumbnail_selector").value,
+				current_thumbnail = document.getElementById("current_thumbnail"),
+				new_thumbnail_span = document.getElementById("new_thumbnail"),
+				upload_span = document.getElementById("upload_thumbnail");
 			if (value === "no_change")
 			{
 				current_thumbnail.style.display = "";
@@ -976,7 +1007,7 @@ function template_edit_album()
 			{
 				current_thumbnail.style.display = "none";
 				new_thumbnail_span.style.display = "";
-				new_thumbnail_span.innerHTML = \'<img src="\' + elk_default_theme_url + \'/levgal_res/albums/\' + value + \'" alt="" />\';
+				new_thumbnail_span.innerHTML = \'<img src="\' + elk_default_theme_url + \'/levgal_res/albums/\' + value + \'?"\' + performance.now() + \' alt="" />\';
 				upload_span.style.display = "none";
 			}
 		}

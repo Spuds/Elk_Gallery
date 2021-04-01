@@ -23,7 +23,7 @@ function template_main_item_view()
 	echo '
 	<script src="', $settings['default_theme_url'], '/levgal_res/clipboard/clipboard.min.js"></script>
 	<script>
-		let items = ["lgal_share_page", "lgal_share_simple_bbc", "lgal_share_complex_bbc"],
+		let items = ["lgal_share_simple_bbc", "lgal_share_complex_bbc", "lgal_share_page"],
 			el;
 		
 		for (let i = 0, n = items.length; i < n; i++)
@@ -301,13 +301,13 @@ function template_main_item_sidebar_meta()
 	global $context, $txt;
 
 	echo '
-			<h2 class="secondary_header panel_toggle">
+			<h3 class="secondary_header panel_toggle">
 				<span>
 					<span id="sidebar_meta_toggle" class="chevricon i-chevron-up hide" title="', $txt['hide'], '"></span>
 				</span>
 				<a href="#" id="sidebar_meta_toggle_link" >', $txt['exclude_these'], '</a>
-			</h2>
-			<div class="content" id="sidebar_meta_container" style="display:none;">
+			</h3>
+			<div class="content hide" id="sidebar_meta_container">
 				<dl class="album_details">';
 
 	if (!empty($context['item_display']['meta']))
@@ -373,16 +373,11 @@ function template_sidebar_share()
 
 	$poster_name = empty($memberContext[$context['item_owner']]['name']) ? empty($context['item_owner']) ? $txt['not_applicable'] : $context['item_owner'] : ($memberContext[$context['item_owner']]['name']);
 	echo '
-			<h2 class="secondary_header">
+			<h3 class="secondary_header">
 				', $txt['lgal_share'], '
-			</h2>
+			</h3>
 			<div class="content">
 				<dl class="album_details">
-					<dt>', $txt['lgal_share_page'], '</dt>
-					<dd id="lgal_share_page_container" class="lgal_share">
-						<input type="text" class="input_text" id="lgal_share_page" value="', $context['item_details']['item_url'], '" readonly="readonly" />
-						<span class="lgalicon copy" title="', $txt['lgal_copy_to_clipboard'], '"></span>
-					</dd>
 					<dt>', $txt['lgal_share_simple_bbc'], '</dt>
 					<dd id="lgal_share_simple_bbc_container" class="lgal_share">
 						<input type="text" class="input_text" id="lgal_share_simple_bbc" value="[media]', $context['item_details']['id_item'], '[/media]" readonly="readonly" />
@@ -391,6 +386,11 @@ function template_sidebar_share()
 					<dt>', $txt['lgal_share_complex_bbc'], '</dt>
 					<dd id="lgal_share_complex_bbc_container" class="lgal_share">
 						<input type="text" class="input_text" id="lgal_share_complex_bbc" value="', sprintf($txt['lgal_share_complex_bbc_entry'], $context['item_details']['id_item'], $context['item_details']['item_name'], $poster_name, $context['item_details']['time_added_format']), '" readonly="readonly" />
+						<span class="lgalicon copy" title="', $txt['lgal_copy_to_clipboard'], '"></span>
+					</dd>
+					<dt>', $txt['lgal_share_page'], '</dt>
+					<dd id="lgal_share_page_container" class="lgal_share">
+						<input type="text" class="input_text" id="lgal_share_page" value="', $context['item_details']['item_url'], '" readonly="readonly" />
 						<span class="lgalicon copy" title="', $txt['lgal_copy_to_clipboard'], '"></span>
 					</dd>';
 
@@ -986,7 +986,6 @@ function template_edit_item()
 			
 		let uploader = new Dropzone("#dragdropcontainer", {
 			url: "' . $context['album_details']['album_url'] . 'async/",
-			params: {"' . $context['session_var'] . '": "' . $context['session_id'] . '"},
 			lgal_quota: ' . (empty($context['quota_data']) ? '{}' : json_encode($context['quota_data'])) . ',
 			maxFiles: 1,
 			paramName: defaults.paramName,
@@ -1007,6 +1006,11 @@ function template_edit_item()
 				});
 				this.on("success", function (file, response)
 				{
+					// chunked is not returning the response
+					if (response === "" && typeof file.xhr.response !== "undefined")
+					{
+						response = JSON.parse(file.xhr.response);
+					}
 					if (typeof response.async !== "undefined")
 					{
 						let container = document.getElementById("display_container"),
@@ -1017,6 +1021,10 @@ function template_edit_item()
 						container.innerHTML = conhtml;
 					}
 					submittable = true;
+				});
+				this.on("sending", function(file, xhr, formData) 
+      			{
+      				formData.append("' . $context['session_var'] . '", "' . $context['session_id']  . '");
 				});
 				this.on("error", function (file, msg, xhr)
 				{

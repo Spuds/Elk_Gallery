@@ -389,10 +389,10 @@ class LevGal_Model_Upload
 	public function saveAsyncFile($filename)
 	{
 		// Check chunks.
-		if (isset($_POST['chunk'], $_POST['chunks']))
+		if (isset($_POST['dzchunkindex'], $_POST['dztotalchunkcount']))
 		{
-			$chunk = (int) $_POST['chunk'];
-			$chunks = (int) $_POST['chunks'];
+			$chunk = (int) $_POST['dzchunkindex'];
+			$chunks = (int) $_POST['dztotalchunkcount'];
 			if ($chunk < 0 || $chunks < 1 || $chunk >= $chunks)
 			{
 				return 'invalid';
@@ -415,7 +415,8 @@ class LevGal_Model_Upload
 			{
 				return 'over_quota';
 			}
-			$fileID = !empty($_SESSION['lgal_async']) ? max(array_keys($_SESSION['lgal_async'])) + 1 : 1;
+
+			$fileID = random_int(1000, 10000000);
 
 			// And whether we match the file type. We don't need to do these every chunk since we match chunks after this one.
 			$ext = $this->getExtension($filename);
@@ -467,25 +468,15 @@ class LevGal_Model_Upload
 		}
 
 		$success = false;
-		$out = @fopen($path . '/' . $local_file, $chunk == 0 ? 'wb' : 'ab');
-		if ($out && is_uploaded_file($_FILES['file']['tmp_name']))
+		$out = $path . '/' . $local_file;
+		$in = $_FILES['file']['tmp_name'];
+		if (is_uploaded_file($_FILES['file']['tmp_name']))
 		{
-			$in = @fopen($_FILES['file']['tmp_name'], 'rb');
-			if ($in)
+			if (file_put_contents($out, file_get_contents($in), LOCK_EX | FILE_APPEND) !== false)
 			{
-				while ($buffer = fread($in, 4096))
-				{
-					fwrite($out, $buffer);
-				}
 				$success = true;
 			}
 		}
-
-		if (isset($in))
-		{
-			@fclose($in);
-		}
-		@fclose($out);
 
 		if (!$success)
 		{
@@ -493,9 +484,10 @@ class LevGal_Model_Upload
 		}
 
 		// This the last chunk?
-		if ($chunks > 1 && $chunk == $chunks - 1)
+		if ($chunks > 1 && $chunk === $chunks - 1)
 		{
 			@rename($path . '/' . $local_file, $path . '/' . $local_full_file);
+			usleep(500000);
 		}
 
 		// Successful? Store details in session and return id.
@@ -521,6 +513,7 @@ class LevGal_Model_Upload
 		$path = LevGal_Bootstrap::getGalleryDir();
 		$user_ident = $this->getUserIdentifier();
 		$local_file = 'async_' . $user_ident . '_' . $fileID . '.dat';
+
 		if (isset($_SESSION['lgal_async'][$fileID]) && is_array($_SESSION['lgal_async'][$fileID]))
 		{
 			// The upload wasn't actually finished but they tried submitting anyway.
@@ -576,7 +569,10 @@ class LevGal_Model_Upload
 			}
 		}
 
-		if (isset($_SESSION['lgal_async'][$fileID]) && (basename($filename) == $_SESSION['lgal_async'][$fileID]) && @file_exists($path . '/' . $local_file) && @filesize($path . '/' . $local_file) == $size)
+		if (isset($_SESSION['lgal_async'][$fileID])
+			&& (basename($filename) == $_SESSION['lgal_async'][$fileID])
+			&& @file_exists($path . '/' . $local_file)
+			&& @filesize($path . '/' . $local_file) == $size)
 		{
 			return true;
 		}
@@ -604,7 +600,7 @@ class LevGal_Model_Upload
 		// And clean up in session.
 		if ($result)
 		{
-			unset ($_SESSION['lgal_async'][$fileID]);
+			//unset ($_SESSION['lgal_async'][$fileID]);
 		}
 
 		return $result ? $hash : false;
