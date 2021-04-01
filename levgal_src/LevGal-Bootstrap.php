@@ -543,12 +543,13 @@ class LevGal_Bootstrap
 	/**
 	 * This declares the media bbcode items
 	 *
-	 * We define two bbcodes:
+	 * We define three bbcodes:
 	 * [media]1[/media] for simple thumbnail+link
 	 * [media optionalOptions id=1]description[/media] for more complex embedding with description and stuff
 	 * optionalOptions:
-	 *  - align=left|right|center
+	 *  - align=left|right|center, left and right are floated
 	 *  - type=thumbnail|preview
+	 * [clear] a self closed tag which can be used to "end" any float
 	 *
 	 * @param mixed $codes
 	 */
@@ -639,6 +640,14 @@ class LevGal_Bootstrap
 			},
 			Codes::ATTR_BLOCK_LEVEL => true,
 		);
+		$codes[] = array(
+			Codes::ATTR_TAG => 'clear',
+			Codes::ATTR_TYPE => Codes::TYPE_CLOSED,
+			Codes::ATTR_CONTENT => '<div class="separator"></div>',
+			Codes::ATTR_BLOCK_LEVEL => true,
+			Codes::ATTR_AUTOLINK => false,
+			Codes::ATTR_LENGTH => 5,
+		);
 	}
 
 	/**
@@ -707,7 +716,7 @@ class LevGal_Bootstrap
 	}
 
 	/**
-	 * Used to interact with the message before its sent to parse_bbc as part  of mail functions
+	 * Used to interact with the message before its sent to parse_bbc as part of mail functions
 	 */
 	public static function hookPreParseBBC(&$message)
 	{
@@ -715,8 +724,8 @@ class LevGal_Bootstrap
 
 		loadLanguage('levgal_lng/LevGal');
 
-		// A scheduled task like daily digest, can't render/geturl Media items as we don't know
-		// or want to lookup, those permissions.
+		// A scheduled task like daily digest, we can't render/geturl Media items as we don't know
+		// (or want to lookup), those permissions.
 		if (empty($user_info))
 		{
 			// Replace the [media][/media] tag
@@ -725,9 +734,9 @@ class LevGal_Bootstrap
 	}
 
 	/**
-	 * Used to interact with the message after parse_bbc but before html2md.  We need to PBE render
-	 * the Media html tags !<lgalmediasimple> !<lgalmediacomplex> with our MD response, simply replace the
-	 * tags with the urls to the image
+	 * Used to interact with the message after parse_bbc but before html2md.  We need to render
+	 * the Media html tags !<lgalmediasimple> !<lgalmediacomplex> for our PBE MD response.  Here
+	 * it will simply replace the tags with the urls to the image
 	 */
 	public static function hookPreMarkdown(&$message)
 	{
