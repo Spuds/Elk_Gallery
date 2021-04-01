@@ -28,7 +28,7 @@ function addFileFilter(file, quota)
 
 			if (ext === 'png' || ext === 'jpeg' || ext === 'jpg')
 			{
-				var dimensions = this_quota.image.split('x');
+				let dimensions = this_quota.image.split('x');
 				if (file.width > dimensions[0] || file.height > dimensions[1])
 				{
 					return txt.upload_image_too_big;
@@ -40,15 +40,6 @@ function addFileFilter(file, quota)
 	{
 		return txt.not_allowed + ' (' + file.name + ')';
 	}
-
-	return;
-}
-
-function get_charsafe_value(el)
-{
-	var mystr = el.value;
-
-	return mystr;
 }
 
 function is_submittable()
@@ -77,13 +68,13 @@ function is_submittable()
 		// Courtesy comments to http://stackoverflow.com/questions/161738/what-is-the-best-regular-expression-to-check-if-a-string-is-a-valid-url#comment24355215_9284473
 		// Note that this presumes the URL will always have a schema - but if it doesn't
 		// (e.g. www.youtube.com/...), softly fix that here.
-		var url = document.getElementById('upload_url').value;
+		let url = document.getElementById('upload_url').value;
 		if (url.slice(0, 7) !== 'http://' && url.slice(0, 8) !== 'https://')
 		{
 			url = (url.slice(0, 2) === '//' ? 'http:' : 'http://') + url;
 		}
-		var re = /^(?:(?:https?):\/\/)(?:\S+(?::\S*)?@)?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.‌​\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[‌​6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1‌​,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00‌​a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u‌​00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/[^\s]*)?$/i;
-		var match = url.match(re);
+		let re = /^(?:(?:https?):\/\/)(?:\S+(?::\S*)?@)?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.‌​\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[‌​6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1‌​,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00‌​a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u‌​00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/[^\s]*)?$/i;
+		let match = url.match(re);
 		if (match === null)
 		{
 			display_error(txt.upload_no_link, !local_submittable);
@@ -121,16 +112,7 @@ function get_upload_defaults()
 		chunking: true,
 		retryChunks: true,
 		parallelUploads: 1,
-		chunkSize: 2500000,
-		functions: {
-			PostInit: function (up)
-			{
-				if (up.features.dragdrop)
-				{
-					document.getElementById("dragdropcontainer").style.display = "block";
-				}
-			}
-		}
+		chunkSize: 250000,
 	};
 }
 
@@ -156,18 +138,26 @@ function onFileSend(data)
 	{
 		if (urls[i].async === data.async && urls[i].url === "")
 		{
+			let el = document.getElementById('async_' + data.async);
+
+			fileCount = fileCount - 1;
 			urls[i].url = data.url;
-			var el = document.getElementById('async_' + data.async);
 			el.innerHTML = '<button class="button_submit"><span class="icon i-external-link"></span> <a href="' + urls[i].url + '" target="_blank">' + txt.view_item + '</a></button>';
 		}
 	}
 
 	if (fileCount === 0)
 	{
-		uploader.disable();
 		document.querySelector("#total-progress .progress-bar").innerHTML = txt.upload_complete;
 		document.querySelector(".dz-default.dz-message").innerHTML = txt.upload_complete;
 	}
+
+	/**
+	 * Seems some files can be "lost" in session.  We receive a valid async value from the initial upload (saveAsyncFile)
+	 * but the addBulk callback process (validateUpload) does not find it in the session array?  Race condition
+	 * somewhere? Disable it in on.complete and enabling it here fixes the issue at the expense of loosing speed and true async
+	 */
+	//uploader.processQueue();
 }
 
 function get_human_size(filesize)
@@ -177,12 +167,10 @@ function get_human_size(filesize)
 	{
 		return txt.size_kb.replace('%1$s', (filesize / 1024).toFixed(1));
 	}
-	else if (filesize < (1024 * 1024 * 1024))
+	if (filesize < (1024 * 1024 * 1024))
 	{
 		return txt.size_mb.replace('%1$s', (filesize / 1024 / 1024).toFixed(1));
 	}
-	else
-	{
-		return txt.size_gb.replace('%1$s', (filesize / 1024 / 1024 / 1024).toFixed(1));
-	}
+
+	return txt.size_gb.replace('%1$s', (filesize / 1024 / 1024 / 1024).toFixed(1));
 }
