@@ -27,12 +27,18 @@ $txt['lgal_thumbnail_icon_color_green'] = 'Green folder';
 $txt['lgal_thumbnail_icon_color_cyan'] = 'Cyan folder';
 $txt['lgal_thumbnail_icon_color_blue'] = 'Blue folder';
 $txt['lgal_thumbnail_icon_color_violet'] = 'Violet folder';
+$txt['lgal_thumbnail_icon_color_grey'] = 'Grey folder';
+$txt['lgal_thumbnail_icon_color_magenta'] = 'Magenta folder';
 $txt['lgal_thumbnail_icon_color_brown'] = 'Brown folder';
 $txt['lgal_thumbnail_icon_color_black'] = 'Black folder';
+
 $txt['lgal_thumbnail_icon_icon_picture'] = 'Folder with pictures';
 $txt['lgal_thumbnail_icon_icon_documents'] = 'Folder with documents';
 $txt['lgal_thumbnail_icon_icon_audio'] = 'Folder with audio';
 $txt['lgal_thumbnail_icon_icon_video'] = 'Folder with video';
+$txt['lgal_thumbnail_icon_icon_remote'] = 'Folder with web';
+$txt['lgal_thumbnail_icon_icon_home'] = 'Folder with home';
+$txt['lgal_thumbnail_icon_icon_favorites'] = 'Folder with star';
 
 $txt['levgal_album_ownership'] = 'Who owns this album?';
 $txt['levgal_album_ownership_site'] = 'The site, this album has no owner';
