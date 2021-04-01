@@ -10,7 +10,7 @@
 
 #album_sidebar .album_owner {
 	height: 45px;
-	margin-bottom: 5px;
+	margin-bottom: 10px;
 }
 
 .album_details {
@@ -105,24 +105,27 @@ dl.album_details dd, dl.album_info dd {
 }
 
 .item_link {
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	word-wrap: normal;
-	text-align: center;
+	margin-top: -30px;
+	opacity: 0.8;
+	width: 1px;
+}
+
+.item_link > a {
+	border-radius: 50%;
+	background: #FEFEFE;
+	padding: 2px 0 5px 0;
 }
 
 .item_image {
 	display: inline-block;
-	margin: 0 1em;
+	margin: 0 .5em 5px .5em;
 	vertical-align: bottom;
 }
 
 .album_container {
 	text-align: center;
 	display: table;
-	margin-left: auto;
-	margin-right: auto;
+	margin: 0 auto;
 }
 
 .album_entry {
@@ -131,7 +134,9 @@ dl.album_details dd, dl.album_info dd {
 }
 
 .album_container > .album_featured {
-	min-width: 250px;
+	width: 250px;
+	max-height: 90px;
+	overflow: auto;
 }
 
 .album_featured {
@@ -177,6 +182,20 @@ ul.album_hierarchy, ul.album_hierarchy ul {
 
 .sortable_error {
 	background: #FBE3E4;
+}
+
+.well > p {
+	padding: 0;
+}
+
+.sortable_album_thumb {
+	margin: 0 auto;
+	display: block;
+}
+
+.sortable_album_thumb > img {
+	max-width: 50px;
+	width: 50px;
 }
 
 .placeholder {
@@ -271,7 +290,8 @@ ul.album_hierarchy, ul.album_hierarchy ul {
 }
 
 #thumbs_container {
-	height: 60px;
+	width: 80px;
+	height: auto;
 }
 
 #thumbs_container img {
@@ -306,6 +326,10 @@ ul.album_hierarchy, ul.album_hierarchy ul {
 	vertical-align: top;
 }
 
+.album_family {
+	padding-top: 8px;
+}
+
 .album_current {
 	padding-left: 1em;
 }
@@ -337,33 +361,13 @@ ul.lgalactions li a {
 	float: left;
 }
 
-ul.lgalactions li.lgal_open {
-	background: url(buttons/openreport.png) no-repeat 4px 3px;
-}
-
-ul.lgalactions li.lgal_close {
-	background: url(buttons/closereport.png) no-repeat 4px 3px;
-}
-
-ul.lgalactions li.lgal_flag {
-	background: url(buttons/flag.png) no-repeat 4px 3px;
-}
-
-ul.lgalactions li.lgal_browse {
-	background: url(buttons/browse.png) no-repeat 4px 3px;
-}
-
-ul.lgalactions li.lgal_approve {
-	background: url(buttons/approve.png) no-repeat 4px 3px;
-}
-
-ul.lgalactions li.lgal_edit {
-	background: url(buttons/edit.png) no-repeat 4px 3px;
-}
-
-ul.lgalactions li.lgal_delete {
-	background: url(buttons/delete.png) no-repeat 4px 3px;
-}
+ul.lgalactions li.lgal_open {background: url(buttons/openreport.png) no-repeat 4px 3px;}
+ul.lgalactions li.lgal_close {background: url(buttons/closereport.png) no-repeat 4px 3px;}
+ul.lgalactions li.lgal_flag {background: url(buttons/flag.png) no-repeat 4px 3px;}
+ul.lgalactions li.lgal_browse {background: url(buttons/browse.png) no-repeat 4px 3px;}
+ul.lgalactions li.lgal_approve {background: url(buttons/approve.png) no-repeat 4px 3px;}
+ul.lgalactions li.lgal_edit {background: url(buttons/edit.png) no-repeat 4px 3px;}
+ul.lgalactions li.lgal_delete {background: url(buttons/delete.png) no-repeat 4px 3px;}
 
 #privacy_custom > label > img, #configure_owner_group > label > img {
 	margin: 0;
@@ -565,10 +569,14 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 	display: table-row;
 }
 
+.dz-table .file-row:first-child > div {
+	border-top: 1px solid #ddd;
+}
+
 .dz-table .file-row > div {
 	display: table-cell;
 	vertical-align: top;
-	border-top: 1px solid #ddd;
+	border-bottom: 1px solid #ddd;
 	padding: 8px;
 }
 
@@ -597,7 +605,7 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 	background-image: linear-gradient(to bottom, #EBEBEB 0, #F5F5F5 100%);
 	background-repeat: repeat-x;
 	overflow: hidden;
-	height: 20px;
+	height: 30px;
 	margin-bottom: 10px;
 	background-color: #F5F5F5;
 	border-radius: 4px;
@@ -616,7 +624,7 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 	width: 0;
 	height: 100%;
 	font-size: 1em;
-	line-height: 20px;
+	line-height: 30px;
 	color: #FFFFFF;
 	text-align: center;
 	background-color: #428BCA;
