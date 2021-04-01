@@ -55,6 +55,8 @@ function template_movealbum_js()
 		maxLevels: 100,
 		tabSize: 25,
 		revert: 150,
+		tolerance: "pointer",
+		toleranceElement: "> div",
 		update: function (event, ui) { $("#saveorder").show(); },
 		rtl: ', $context['right_to_left'] ? 'true' : 'false', '
 	});
