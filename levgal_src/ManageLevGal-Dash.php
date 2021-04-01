@@ -313,7 +313,7 @@ class ManageLevGalDash_Controller extends Action_Controller
 				'<a href="https://mediaelementjs.com/">MediaElement.js</a>, &copy; 2020 John Dyer, under the <a href="https://github.com/johndyer/mediaelement/">MIT License</a>',
 				'<a href="https://gist.github.com/sgmurphy/3095196">url_slug.js</a> &copy; 2012 Sean Murphy, under the <a href="http://creativecommons.org/publicdomain/zero/1.0/">CC0 license</a>',
 				'<a href="https://www.dropzonejs.com/">Dropzone.js</a> &copy; 2021 Matias Meno under the <a href="https://github.com/dropzone/dropzone/blob/main/LICENSE">MIT License</a>',
-				'<a href="https://lokeshdhakar.com/projects/lightbox2/">Lightbox2</a> &copy; 2020 Lokesh Dhakar, under the <a href="http://creativecommons.org/licenses/by/2.5/">CC-BY-2.5 License</a>',
+				'<a href="https://biati-digital.github.io/glightbox/">Glightbox</a> &copy; 2018 Biati Digital, under the <a href="https://github.com/biati-digital/glightbox/blob/master/license.md">MIT License</a>',
 				'<a href="https://github.com/ilikenwf/nestedSortable">nestedSortable</a> &copy; 2010-2016 Manuele J Sarfatti and <a href="https://github.com/ilikenwf/nestedSortable/graphs/contributors">others</a>, under the <a href="http://opensource.org/licenses/MIT">MIT License</a>',
 				'<a href="https://github.com/nnnick/Chart.js">Chart.js</a> &copy; 2013-2014 Nick Downie, under the <a href="https://github.com/nnnick/Chart.js/blob/master/LICENSE.md">MIT License</a>',
 				'<a href="https://github.com/lucaong/jQCloud">jQCloud</a> &copy; 2014-2017 Damien "Mistic" Sorel, under the <a href="https://github.com/mistic100/jQCloud/blob/master/LICENSE.txt">MIT License</a>',
@@ -322,7 +322,7 @@ class ManageLevGalDash_Controller extends Action_Controller
 			'images' => array(
 				'<a href="https://p.yusukekamiyamane.com/">Fugue Icons</a>, &copy; 2013 Yusuke Kamiyamane, under <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC-SA-3.0</a>',
 				'<a href="https://p.yusukekamiyamane.com/">Diagona Icons</a>, &copy; 2012 Yusuke Kamiyamane, under <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC-SA-3.0</a>',
-				'<a href="https://github.com/pasnox/oxygen-icons-png">Oxygen Icons</a>, &copy; 2011 Oxygen Team, under the LGPL',
+				'<a href="https://github.com/pasnox/oxygen-icons-png">Breeze Icons</a>, &copy; 2014 Uri Herrera and others, under the LGPL',
 				'<a href="https://www.fatcow.com/free-icons">FatCow-Farm Fresh Icons</a>, &copy; 2013 FatCow Web Hosting, under the <a href="http://creativecommons.org/licenses/by/3.0/">CC-BY-3.0</a>',
 			),
 			'translators' => array(
