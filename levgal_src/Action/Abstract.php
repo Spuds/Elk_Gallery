@@ -13,16 +13,16 @@
 abstract class LevGal_Action_Abstract
 {
 	/** @var HttpReq */
-	public $req;
+	public $_req;
 
 	public function getNumericId()
 	{
-		return $this->req->getQuery('item', 'intval', 0);
+		return $this->_req->getQuery('item', 'intval', 0);
 	}
 
 	public function getSlugAndId()
 	{
-		$item = $this->req->getQuery('item', 'trim', '0');
+		$item = $this->_req->getQuery('item', 'trim', '0');
 
 		if (preg_match('~^\d+$~', $item))
 		{
@@ -40,7 +40,7 @@ abstract class LevGal_Action_Abstract
 	{
 		$this->loadResources();
 
-		$this->req = HttpReq::instance();
+		$this->_req = HttpReq::instance();
 	}
 
 	public function loadResources()
@@ -56,7 +56,7 @@ abstract class LevGal_Action_Abstract
 		{
 			$stylesheets[] = 'rtl.css';
 		}
-		$this->addStyleSheets($stylesheets);
+		loadCSSFile($stylesheets, ['stale' => LEVGAL_VERSION, 'subdir' => 'levgal_res']);
 
 		// And our JS.
 		loadJavascriptFile('levgal.js', ['subdir' => 'levgal_res']);
@@ -104,7 +104,7 @@ abstract class LevGal_Action_Abstract
 	{
 		$stylesheets = $this->prepareResources($stylesheets);
 
-		loadCSSFile($stylesheets);
+		loadCSSFile($stylesheets, ['stale' => LEVGAL_VERSION, 'subdir' => 'levgal_res']);
 	}
 
 	public function setTemplate($base_template, $sub_template, $style_sheets = array())
