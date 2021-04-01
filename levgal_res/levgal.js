@@ -39,11 +39,9 @@ function switchUploadType(selected)
 // Because this is better than using jQuery. Based on sendXMLDocument.
 function sendJSONDocument(sUrl, sContent, funcCallback)
 {
-	if (!window.XMLHttpRequest)
-		return false;
+	var oSendDoc = new window.XMLHttpRequest(),
+		oCaller = this;
 
-	var oSendDoc = new window.XMLHttpRequest();
-	var oCaller = this;
 	if (typeof(funcCallback) !== 'undefined')
 	{
 		oSendDoc.onreadystatechange = function () {
