@@ -30,7 +30,7 @@ class LevGal_Helper_Feed
 	public function __construct()
 	{
 		// We need the functions for juggling tags.
-		require_once(SOURCEDIR . '/News.php');
+		require_once(CONTROLLERDIR . '/News.controller.php');
 
 		$this->entries = array();
 	}
@@ -43,7 +43,7 @@ class LevGal_Helper_Feed
 		$this->issueHeader();
 
 		echo '<?xml version="1.0" encoding="UTF-8"?' . '>
-<feed xmlns="http://www.w3.org/2005/Atom">
+<feed xmlns="https://www.w3.org/2005/Atom">
 	<title>', $this->title, '</title>';
 
 		if (!empty($this->subtitle))
@@ -59,10 +59,10 @@ class LevGal_Helper_Feed
 	<icon>', $boardurl, '/favicon.ico</icon>
 	<updated>', $this->getTimestamp($this->updated), '</updated>
 	<author>
-		<name>', $context['forum_name'], '</name>
+		<name>', strip_tags(un_htmlspecialchars($context['forum_name'])), '</name>
 		<uri>', $scripturl, '</uri>
 	</author>
-	<generator uri="http://levertine.com/products/levgal/" version="', LEVGAL_VERSION, '">Levertine Gallery</generator>';
+	<generator uri="https://www.elkarte.net" version="', LEVGAL_VERSION, '">Levertine Gallery</generator>';
 
 		foreach ($this->entries as $entry)
 		{

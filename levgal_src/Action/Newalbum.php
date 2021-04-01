@@ -68,7 +68,8 @@ class LevGal_Action_Newalbum extends LevGal_Action_Abstract
 		$context['album_name'] = '';
 		$context['album_slug'] = '';
 		$context['ownership'] = in_array('member', $context['ownership_opts']) ? 'member' : (in_array('group', $context['ownership_opts']) ? 'group' : 'site');
-		$context['primary_group'] = (int) $user_info['groups'][0]; // Take the user's primary group as default
+		// Take the user's primary group as default
+		$context['primary_group'] = (int) $user_info['groups'][0];
 		$context['ownership_group'] = $context['primary_group'];
 		$context['privacy'] = 'members';
 		$context['privacy_group'] = array($context['primary_group']);
@@ -144,8 +145,9 @@ class LevGal_Action_Newalbum extends LevGal_Action_Abstract
 		$album->setAlbumPrivacy($context['privacy'], $context['privacy_group']);
 
 		// Now, depending on a few things, we might have to change this album.
-		// $editable in this context means we will be able to edit it any time. If we can't do that, we need to allow the user the choice
-		// to edit it as a 'finalising' operation because of the two-stage thing we do. So if that's the case, we need to flag it as editable by owner.
+		// $editable in this context means we will be able to edit it any time. If we can't do that,
+		// we need to allow the user the choice to edit it as a 'finalising' operation because of
+		// the two-stage thing we do. So if that's the case, we need to flag it as editable by owner.
 		$editable = allowedTo(array('lgal_manage', 'lgal_edit_album_any', 'lgal_edit_album_own'));
 		if (!$editable)
 		{

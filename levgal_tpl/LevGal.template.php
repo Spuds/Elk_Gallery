@@ -156,6 +156,7 @@ function template_no_items()
 function template_item_list($list)
 {
 	global $context, $txt, $settings;
+
 	echo '
 			<div class="album_container">';
 
@@ -169,7 +170,9 @@ function template_item_list($list)
 			if (!empty($item['item_url']))
 			{
 				echo '
-						<div class="thumb_name"><a href="', $item['item_url'], '">', $item['item_name'], '</a></div>';
+						<div class="thumb_name">
+							<a href="', $item['item_url'], '">', $item['item_name'], '</a>
+						</div>';
 			}
 			else
 			{
@@ -191,13 +194,13 @@ function template_item_list($list)
 								<img src="', $item['thumbnail'], '" alt="', $item['item_name'], '" title="', $item['item_name'], '" />
 							</a>';
 		} else
-			{
-				$title = sprintf($txt['lgal_missing_item'], $item['item_name']);
-				echo '
+		{
+			$title = sprintf($txt['lgal_missing_item'], $item['item_name']);
+			echo '
 							<a href="#">
 								<img src="', $settings['default_theme_url'], '/levgal_res/icons/_invalid.png" alt="', $title, '" title="', $title, '" />
 							</a>';
-			}
+		}
 
 		echo '
 							<br />';
@@ -216,7 +219,6 @@ function template_item_list($list)
 	}
 
 	echo '
-				<br class="clear" />
 			</div>';
 }
 
@@ -311,40 +313,44 @@ function template_album_hierarchy($hierarchy)
 
 		echo '
 			<li id="album_', $id_album, '" class="album_hierarchy">
-				<div>
 					<div class="well">
-						<div class="floatleft album_thumb"><img src="', $album['thumbnail_url'], '" alt="" /></div>
-						<div class="lgal_profile_itemname floatleft"><a href="', $album['album_url'], '">', $album['album_name'], '</a></div>';
+						<p class="floatleft sortable_album_thumb">
+							<img src="', $album['thumbnail_url'], '" alt="" />
+						</p>
+						<p class="lgal_profile_itemname floatleft">
+							<a href="', $album['album_url'], '">', $album['album_name'], '</a>
+						</p>';
 
 		if (empty($album['approved']))
 		{
 			echo '
-						<div class="floatright">', $txt['lgal_unapproved_album'], '</div>';
+						<p class="floatright">', $txt['lgal_unapproved_album'], '</p>';
 		}
 
 		if (!empty($album['featured']))
 		{
 			echo '
-						<div class="lgal_profile_featured floatleft smalltext"><img src="', $settings['default_theme_url'], '/levgal_res/buttons/feature.png" alt="" /> ', $txt['levgal_featured_album'], '</div>';
+						<p class="lgal_profile_featured floatleft smalltext">
+							<img src="', $settings['default_theme_url'], '/levgal_res/buttons/feature.png" alt="" /> ', $txt['levgal_featured_album'], '
+						</p>';
 		}
 
 		echo '
 						<br />
-						<div class="lgal_profile_album_contents floatleft">
+						<p class="lgal_profile_album_contents floatleft">
 							<span class="lgalicon album"></span> ', LevGal_Helper_Format::numstring('lgal_items', $album['num_items']);
 
 		if (!empty($album['see_unapproved']))
 		{
 			echo ',
-							<span class="error">', $txt['lgal_unapproved'], ' ', LevGal_Helper_Format::numstring('lgal_items', $album['num_unapproved_items']), '</span>';
+							<span class="error">', $txt['lgal_unapproved'], ' [', LevGal_Helper_Format::numstring('lgal_items', $album['num_unapproved_items']), ']</span>';
 		}
 
 		echo '
-						</div>';
+						</p>';
 
 		echo '
 						<br class="clear" />
-					</div>
 				</div>';
 	}
 
@@ -457,11 +463,15 @@ function template_album_list_sidebar()
 				', $section['title'], '
 			</h3>
 			<div class="content">
-				<dl class="album_details">';
+				<dl class="album_details">
+				<dt></dt>';
 		foreach ($section['items'] as $item)
 		{
 			echo '
-					<dd><a href="', $item['url'], '">', empty($item['active']) ? $item['title'] : '<strong>' . $item['title'] . '</strong>', '</a> (', $item['count'], ')</dd>';
+					<dd>
+						<a href="', $item['url'], '">',
+							empty($item['active']) ? $item['title'] : '<strong>' . $item['title'] . '</strong>', '
+						</a> (', $item['count'], ')</dd>';
 		}
 		echo '
 				</dl>

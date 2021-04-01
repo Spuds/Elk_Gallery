@@ -30,8 +30,8 @@ class LevGal_Model_Notify
 		}
 		else
 		{
-			// Non-current user's isn't, loadMemberData(..., ..., 'profile') doesn't load everything with *, but only the columns it knows are there.
-			// So we have to go get this ourselves.
+			// Non-current user's isn't, loadMemberData(..., ..., 'profile') doesn't load everything with *, but only the
+			// columns it knows are there. So we have to go get this ourselves.
 			$request = $db->query('', '
 				SELECT 
 					lgal_notify

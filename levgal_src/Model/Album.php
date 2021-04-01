@@ -891,7 +891,9 @@ class LevGal_Model_Album
 		$db = database();
 
 		// There's a few things we need: current album, valid options.
-		if (empty($this->current_album) || !in_array($ownership_type, array('site', 'member', 'group')) || ($ownership_type !== 'site' && empty($ownership_data)))
+		if (empty($this->current_album)
+			|| !in_array($ownership_type, array('site', 'member', 'group'))
+			|| ($ownership_type === 'member' && empty($ownership_data)))
 		{
 			return false;
 		}

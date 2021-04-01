@@ -20,7 +20,7 @@ class LevGalProfile_Controller extends Action_Controller
 	 */
 	public function pre_dispatch()
 	{
-		loadCSSFile(['main.css', 'profile.css'], ['subdir' => 'levgal_res']);
+		loadCSSFile(['main.css', 'profile.css'], ['stale' => LEVGAL_VERSION, 'subdir' => 'levgal_res']);
 		loadTemplate('levgal_tpl/LevGal-Profile');
 		$this->memID = currentMemberID();
 	}

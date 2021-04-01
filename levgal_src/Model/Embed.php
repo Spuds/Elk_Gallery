@@ -58,7 +58,7 @@ class LevGal_Model_Embed
 	{
 		global $context;
 
-		return (int) $context['id_msg'] ?? 0;
+		return (int) empty($context['id_msg']) ? 0 : $context['id_msg'];
 	}
 
 	public function getCount()
@@ -151,8 +151,8 @@ class LevGal_Model_Embed
 					<img class="bbc_image has_lightbox" src="' . $item['thumbnail'] . '" alt="' . $item['item_name'] . '" title="' . $item['item_name'] . '" />
 				</a>
 				<figcaption class="item_link">
-					<a class="linkbutton" href="' . $item['item_url'] . '">
-						<em class="smalltext">' . $txt['lgal_item_info'] . '</em>
+					<a href="' . $item['item_url'] . '">
+						<i class="icon icon-big i-help" title="' . $txt['lgal_item_info'] . '"></i>
 					</a>
 				</figcaption>
 			</figure>';
@@ -167,7 +167,7 @@ class LevGal_Model_Embed
 	private function complexTemplate($counter, $item)
 	{
 		$caption = !empty($item['description']) ? $item['description'] : $item['item_name'];
-		$align = $item['align'] === 'center' ? '<figure class="centertext">' : '<figure style="text-align:' . $item['align'] . '">';
+		$align = $item['align'] === 'center' ? '<figure class="centertext">' : '<figure style="float:' . $item['align'] . '">';
 		$using = $item['type'] === 'preview' ? $item['preview'] : $item['thumbnail'];
 
 		if ($item['item_type'] === 'image')
@@ -179,7 +179,7 @@ class LevGal_Model_Embed
 				: '<a href="' . $item['item_base'] . '" id="link_' . $counter . 'm" data-lightboximage="' . $counter . 'm" data-lightboxmessage="' . $item['id_msg'] . '">') . '
 					<img class="bbc_img' . ($item['type'] === 'preview' ? '' : ' has_lightbox') . '" src="' . $using . '" alt="' . $item['item_name'] . '" title="' . $item['item_name'] . '" />
 				</a>
-				<figcaption>
+				<figcaption class="centertext">
 					<a class="bbc_link" href="' . $item['item_url'] . '" >' . $caption . '</a>
 				</figcaption>
 			</figure>';
