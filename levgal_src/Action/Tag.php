@@ -15,7 +15,7 @@ class LevGal_Action_Tag extends LevGal_Action_Abstract
 {
 	public function __construct()
 	{
-		global $context;
+		global $context, $txt;
 
 		parent::__construct();
 
@@ -25,7 +25,11 @@ class LevGal_Action_Tag extends LevGal_Action_Abstract
 		// We need us some tags.
 		if (empty($context['tags']))
 		{
-			LevGal_Helper_Http::fatalError('error_no_tags');
+			$context['tags'] = array(0 => array(
+				'name' => $txt['levgal_tagcloud_none'],
+				'url' => '',
+				'count' => 0)
+			);
 		}
 	}
 
