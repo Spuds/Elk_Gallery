@@ -135,7 +135,7 @@ dl.album_details dd, dl.album_info dd {
 
 .album_container > .album_featured {
 	width: 250px;
-	max-height: 90px;
+	max-height: 105px;
 	overflow: auto;
 }
 
@@ -154,7 +154,7 @@ dl.album_details dd, dl.album_info dd {
 }
 
 .album_featured .album_desc {
-	margin: 0 5px;
+	margin-top: 5px;
 }
 
 .album_hierarchy, .album_hierarchy ul {

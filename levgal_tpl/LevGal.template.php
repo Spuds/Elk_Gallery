@@ -101,7 +101,9 @@ function template_display_album_list($list)
 					</div>
 					<div class="album_desc lefttext">
 						', empty($album['featured']) ? '' : '<span class="lgalicon featured"></span> ', '<a href="', $album['album_url'], '">', $album['album_name'], '</a><br />
-						<span class="lgalicon album"></span> ', LevGal_Helper_Format::numstring('lgal_items', $album['num_items']), '
+					</div>
+					<div class="lefttext">
+						<span class="lgalicon album"></span> ', LevGal_Helper_Format::numstring('lgal_items', $album['num_items']), ' / ', LevGal_Helper_Format::numstring('lgal_albums', $album['album_count']), '
 					</div>
 				</div>';
 	}

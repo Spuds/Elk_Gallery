@@ -696,6 +696,8 @@ class LevGal_Model_AlbumList
 			// Looks weird but essentially means we get everything processed for us, like album and thumbnail URLs.
 			$albumModel->buildFromSurrogate($row);
 			$featured[$row['id_album']] = $albumModel->getAlbumById($row['id_album']);
+
+			$featured[$row['id_album']]['album_count'] = $albumModel->getAlbumFamily()['album_count'];
 		}
 		$db->free_result($request);
 

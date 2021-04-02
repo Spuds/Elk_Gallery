@@ -1317,14 +1317,17 @@ class LevGal_Model_Album
 		foreach ($this->current_album['owner_cache'] as $owner_type => $owners)
 		{
 			$owners = (array) $owners;
+			$child_albums = 0;
 			foreach ($owners as $owner)
 			{
 				$hierarchy = $albumList->getAlbumFamilyInHierarchy($owner_type, $owner, $this->current_album['id_album']);
 				if (!empty($hierarchy))
 				{
+					$child_albums += count(array_keys($hierarchy)) - 1;
 					$hierarchies[$owner_type][$owner] = $hierarchy;
 				}
 			}
+			$hierarchies['album_count'] = $child_albums;
 		}
 
 		return $hierarchies;
