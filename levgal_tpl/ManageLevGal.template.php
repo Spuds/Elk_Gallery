@@ -15,7 +15,7 @@ function template_levgal_dash()
 	if (!empty($context['out_of_date']))
 	{
 		echo '
-		<div class="errorbox" id="errors"><span class="lgaladmin notavailable"></span> ', sprintf($txt['levgal_out_of_date'], LEVGAL_VERSION, $context['latest_version']), '</div>';
+		<div class="errorbox" id="errors"></span> ', sprintf($txt['levgal_out_of_date'], LEVGAL_VERSION, $context['latest_version']), '</div>';
 	}
 
 	// Header area.

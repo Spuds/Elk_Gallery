@@ -136,15 +136,15 @@ class ManageLevGalDash_Controller extends Action_Controller
 		{
 			if ($state === false || !isset($versions[$handler]))
 			{
-				$context['support'][$handler] = '<span class="lgaladmin notavailable" title="' . $txt['levgal_support_notavailable'] . '"></span> ' . $txt['levgal_support_notavailable'];
+				$context['support'][$handler] = '<span class="lgaladmin i-close" title="' . $txt['levgal_support_notavailable'] . '"></span> ' . $txt['levgal_support_notavailable'];
 			}
 			elseif ($state === true)
 			{
-				$context['support'][$handler] = '<span class="lgaladmin available" title="' . $txt['levgal_support_available'] . '"></span> ' . $versions[$handler];
+				$context['support'][$handler] = '<span class="lgaladmin i-check" title="' . $txt['levgal_support_available'] . '"></span> ' . $versions[$handler];
 			}
 			else
 			{
-				$context['support'][$handler] = '<span class="lgaladmin warning" title="' . $txt['levgal_support_warning'] . '"></span> ' . $versions[$handler];
+				$context['support'][$handler] = '<span class="lgaladmin i-warning" title="' . $txt['levgal_support_warning'] . '"></span> ' . $versions[$handler];
 			}
 		}
 

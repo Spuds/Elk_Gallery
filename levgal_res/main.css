@@ -509,12 +509,12 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 	filter: invert(38%) sepia(1%) saturate(2044%) hue-rotate(354deg) brightness(87%) contrast(85%);
 }
 
-.lgalicon.unapproved {
+.lgalicon.i-unapproved {
 	margin-left: 5px;
 	margin-right: 5px;
 }
 
-.lgalprofile_summary .lgalicon.unapproved {
+.lgalprofile_summary .lgalicon.i-unapproved {
 	margin: 0;
 }
 
@@ -600,18 +600,7 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 	display: block;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
+/* Use these to change colors of SVG icons when starting from fill #000000 */
 .colorize-blue {
 	filter: invert(20%) sepia(68%) saturate(7230%) hue-rotate(200deg) brightness(89%) contrast(102%);
 }
@@ -644,12 +633,7 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 	filter: invert(47%) sepia(97%) saturate(3399%) hue-rotate(92deg) brightness(101%) contrast(104%);
 }
 
-
-
-
-
-
-
+/** SVG icons, some of these are copies from the core but with differed names, tad lazy yes */
 .i-bookmark::before, .i-unbookmark::before {
 	content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Cpath fill='%23000000' d='M6.75 0v36L18 24.75 29.25 36V0z'/%3E%3C/svg%3E");
 }
@@ -658,7 +642,7 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 	content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 41 36'%3E%3Cpath fill='%23000000' d='M7.875 4.5h-6.75C.506 4.5 0 5.006 0 5.625v24.75c0 .619.506 1.125 1.125 1.125h6.75C8.494 31.5 9 30.994 9 30.375V5.625C9 5.006 8.494 4.5 7.875 4.5zM6.75 11.25h-4.5V9h4.5v2.25zM19.125 4.5h-6.75c-.619 0-1.125.506-1.125 1.125v24.75c0 .619.506 1.125 1.125 1.125h6.75c.619 0 1.125-.506 1.125-1.125V5.625c0-.619-.506-1.125-1.125-1.125zM18 11.25h-4.5V9H18v2.25z'/%3E%3Cpath d='M26.898 6.24L20.87 9.277a1.127 1.127 0 00-.498 1.511l10.124 20.093c.278.553.958.777 1.511.498l6.028-3.037c.553-.278.777-.958.498-1.511L28.409 6.737a1.128 1.128 0 00-1.511-.499z'/%3E%3C/svg%3E");
 }
 
-.i-picture::before, .i-additem::before, .addbulk::before, .i-addbulk::before, .i-setthumbnail::before {
+.i-picture::before, .i-additem::before, .i-addbulk::before, .i-setthumbnail::before {
 	content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Cpath fill='%23000000' d='M29.25 31.5H6.75V27l6.75-11.25L22.746 27l6.504-4.5v9zM29.25 16.875a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0z'/%3E%3Cpath d='M32.267 8.053c-.781-1.065-1.869-2.31-3.065-3.505s-2.44-2.284-3.505-3.065C23.884.153 23.004 0 22.5 0H5.062A2.815 2.815 0 002.25 2.813v30.375a2.816 2.816 0 002.812 2.813h25.875a2.816 2.816 0 002.813-2.813V11.25c0-.504-.154-1.383-1.483-3.197zm-4.656-1.914A30.658 30.658 0 0130.163 9h-5.412V3.588a30.628 30.628 0 012.861 2.551zM31.5 33.188a.57.57 0 01-.563.563H5.062a.57.57 0 01-.563-.563V2.813a.57.57 0 01.563-.563H22.5v7.875c0 .621.504 1.125 1.125 1.125H31.5v21.938z'/%3E%3C/svg%3E");
 }
 
