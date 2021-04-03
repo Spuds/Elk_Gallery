@@ -322,7 +322,7 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 		if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest')
 		{
 			$action = empty($state) ? 'bookmark' : 'unbookmark';
-			LevGal_Helper_Http::jsonResponse(array('link' => '<a href="' . $context['item_details']['item_url'] . $action . '/' . $context['session_var'] . '=' . $context['session_id'] . '/" onclick="return handleBookmark(this)"><span class="lgalicon ' . $action . '"></span>' . $txt['lgal_' . $action . '_item'] . '</a>'), 200);
+			LevGal_Helper_Http::jsonResponse(array('link' => '<a href="' . $context['item_details']['item_url'] . $action . '/' . $context['session_var'] . '=' . $context['session_id'] . '/" onclick="return handleBookmark(this)"><span class="lgalicon i-' . $action . '"></span>' . $txt['lgal_' . $action . '_item'] . '</a>'), 200);
 		}
 		else
 		{

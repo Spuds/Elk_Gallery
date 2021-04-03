@@ -62,7 +62,7 @@ function template_main_album_display()
 					{
 						echo '
 				<div class="album_current">
-					<span class="lgalicon album"></span> <em>', $album['album_name'], '</em>
+					<span class="lgalicon i-album"></span> <em>', $album['album_name'], '</em>
 				</div>
 				<ul style="columns: 3">';
 						$done_album = true;
@@ -71,7 +71,7 @@ function template_main_album_display()
 					{
 						echo '
 					<div class="album_parent">
-						<span class="lgalicon alb_parent"></span> <a href="', $album['album_url'], '">', $album['album_name'], '</a>
+						<span class="lgalicon i-alb_parent"></span> <a href="', $album['album_url'], '">', $album['album_name'], '</a>
 					</div>
 					';
 					}
@@ -79,7 +79,7 @@ function template_main_album_display()
 					{
 						echo '
 					<li class="album_child">
-						<span class="lgalicon alb_child"></span> <a href="', $album['album_url'], '">', $album['album_name'], '</a>
+						<span class="lgalicon i-alb_child colorize-blue"></span> <a href="', $album['album_url'], '">', $album['album_name'], '</a>
 					</li>';
 					}
 				}
@@ -141,7 +141,7 @@ function template_main_album_sidebar()
 	// Information block.
 	echo '
 			<h3 class="secondary_header">
-				', $txt['lgal_album_info'], empty($modSettings['lgal_feed_enable_album']) ? '' : ' <a href="' . $context['album_details']['album_url'] . 'feed/"><span class="lgalicon feed"></span></a>', '
+				', $txt['lgal_album_info'], empty($modSettings['lgal_feed_enable_album']) ? '' : ' <a href="' . $context['album_details']['album_url'] . 'feed/"><span class="lgalicon i-rss"></span></a>', '
 			</h3>
 			<div class="content">
 				<div class="album_thumbnail">

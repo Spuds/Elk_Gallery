@@ -100,10 +100,10 @@ function template_display_album_list($list)
 						<img src="', $album['thumbnail_url'], '" alt="" />
 					</div>
 					<div class="album_desc lefttext">
-						', empty($album['featured']) ? '' : '<span class="lgalicon featured"></span> ', '<a href="', $album['album_url'], '">', $album['album_name'], '</a><br />
+						', empty($album['featured']) ? '' : '<span class="lgalicon i-star colorize-gold"></span> ', '<a href="', $album['album_url'], '">', $album['album_name'], '</a><br />
 					</div>
 					<div class="lefttext">
-						<span class="lgalicon album"></span> ', LevGal_Helper_Format::numstring('lgal_items', $album['num_items']), ' / ', LevGal_Helper_Format::numstring('lgal_albums', $album['album_count']), '
+						<span class="lgalicon i-album"></span> ', LevGal_Helper_Format::numstring('lgal_items', $album['num_items']), ' / ', LevGal_Helper_Format::numstring('lgal_albums', $album['album_count']), '
 					</div>
 				</div>';
 	}
@@ -209,12 +209,12 @@ function template_item_list($list)
 		if (empty($item['approved']))
 		{
 			echo '
-							<span class="lgalicon unapproved" title="', $txt['lgal_unapproved_item'], '"></span>';
+							<span class="lgalicon i-warning colorize-orange" title="', $txt['lgal_unapproved_item'], '"></span>';
 		}
 
 		echo '
-							<span class="lgalicon views"></span> ', comma_format($item['num_views']), '
-							<span class="lgalicon comments"></span> ', isset($item['total_comments']) ? comma_format($item['total_comments']) : comma_format($item['num_comments']), '
+							<span class="lgalicon i-view"></span> ', comma_format($item['num_views']), '
+							<span class="lgalicon i-comments"></span> ', isset($item['total_comments']) ? comma_format($item['total_comments']) : comma_format($item['num_comments']), '
 						</div>
 					</div>
 				</div>';
@@ -245,10 +245,12 @@ function template_sidebar_action_list($title, $action_list)
 
 		foreach ($actions as $id_action => $action)
 		{
+
+
 			echo '
 							<li id="sidebar_', $action_group, '_', $id_action, '">
 								<a href="', $action[1], '"', empty($action[2]) ? '' : ' class="new_win" target="_blank"', empty($action['title']) ? '' : ' title="' . $action['title'] . '"', empty($action['js']) ? '' : ' ' . $action['js'], '>
-									<span class="lgalicon ', $id_action, '"></span>', $action[0], '
+									<span class="lgalicon i-', colorize_actions($id_action), '"></span>', $action[0], '
 								</a>
 							</li>';
 		}
@@ -261,6 +263,35 @@ function template_sidebar_action_list($title, $action_list)
 	echo '
 				</dl>
 			</div>';
+}
+
+function colorize_actions($id_action)
+{
+	switch ($id_action)
+	{
+		case 'deletealbum':
+		case 'flag':
+		case 'deleteitem':
+		case 'unbookmark':
+		case 'unnotify':
+			$id_action .= ' colorize-red';
+			break;
+		case 'editalbum':
+		case 'edititem':
+		case 'moveitem':
+			$id_action .= ' colorize-dark-yellow';
+			break;
+		case 'feature_album':
+			$id_action .= ' colorize-gold';
+			break;
+		case 'additem':
+		case 'addbulk':
+		case 'setthumbnail':
+			$id_action .= ' colorize-green';
+			break;
+	}
+
+	return $id_action;
 }
 
 function template_action_strip($actions)
@@ -340,7 +371,7 @@ function template_album_hierarchy($hierarchy)
 		echo '
 						<br />
 						<p class="lgal_profile_album_contents floatleft">
-							<span class="lgalicon album"></span> ', LevGal_Helper_Format::numstring('lgal_items', $album['num_items']);
+							<span class="lgalicon i-album"></span> ', LevGal_Helper_Format::numstring('lgal_items', $album['num_items']);
 
 		if (!empty($album['see_unapproved']))
 		{
@@ -410,7 +441,7 @@ function template_album_list_main()
 					</div>
 					<div class="album_desc lefttext">
 						<a href="', $member['url'], '">', $member['title'], '</a><br />
-						<span class="lgalicon album"></span> ', LevGal_Helper_Format::numstring('lgal_albums', $member['count']), '
+						<span class="lgalicon i-album"></span> ', LevGal_Helper_Format::numstring('lgal_albums', $member['count']), '
 					</div>
 				</div>';
 			}
@@ -434,7 +465,7 @@ function template_album_list_main()
 					</div>
 					<div class="album_desc lefttext">
 						<a href="', $group['url'], '">', $group['title'], '</a><br />
-						<span class="lgalicon album"></span> ', LevGal_Helper_Format::numstring('lgal_albums', $group['count']), '
+						<span class="lgalicon i-album"></span> ', LevGal_Helper_Format::numstring('lgal_albums', $group['count']), '
 					</div>
 				</div>';
 			}

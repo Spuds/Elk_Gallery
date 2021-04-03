@@ -168,12 +168,12 @@ class LevGalProfile_Controller extends Action_Controller
 		}
 
 		$context['summary_items'] = array();
-		$context['summary_items'][] = '<span class="lgalicon album"></span> <a href="' . $scripturl . '?media/albumlist/' . $memID . '/">' . LevGal_Helper_Format::numstring('lgal_albums', $context['total_albums']) . '</a>';
-		$context['summary_items'][] = '<span class="lgalicon album"></span> <a href="' . $scripturl . '?action=profile;area=mediaitems;u=' . $memID . '">' . LevGal_Helper_Format::numstring('lgal_items', $context['total_items']) . '</a>';
+		$context['summary_items'][] = '<span class="lgalicon i-album"></span> <a href="' . $scripturl . '?media/albumlist/' . $memID . '/">' . LevGal_Helper_Format::numstring('lgal_albums', $context['total_albums']) . '</a>';
+		$context['summary_items'][] = '<span class="lgalicon i-album"></span> <a href="' . $scripturl . '?action=profile;area=mediaitems;u=' . $memID . '">' . LevGal_Helper_Format::numstring('lgal_items', $context['total_items']) . '</a>';
 
 		if (allowedTo(array('lgal_manage', 'lgal_approve_item')) && !empty($context['total_unapproved_items']))
 		{
-			$context['summary_items'][] = '<span class="lgalicon unapproved"></span> ' . $txt['lgal_unapproved'] . LevGal_Helper_Format::numstring('lgal_items', $context['total_unapproved_items']);
+			$context['summary_items'][] = '<span class="lgalicon i-warning colorize-orange"></span> ' . $txt['lgal_unapproved'] . LevGal_Helper_Format::numstring('lgal_items', $context['total_unapproved_items']);
 		}
 	}
 
@@ -187,7 +187,7 @@ class LevGalProfile_Controller extends Action_Controller
 		loadTemplate('levgal_tpl/LevGal');
 
 		$context[$context['profile_menu_name']]['tab_data'] = array(
-			'title' => '<span class="lgalicon album"></span> ' . $txt['levgal_profile_items'],
+			'title' => '<span class="lgalicon i-album"></span> ' . $txt['levgal_profile_items'],
 			'description' => '',
 			'tabs' => array(
 				'items' => array(

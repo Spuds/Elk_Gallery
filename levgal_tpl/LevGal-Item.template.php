@@ -134,7 +134,7 @@ function template_main_item_tags_likes()
 
 		echo '
 				<div class="item_tags">
-					<span class="lgalicon tag"></span> ', $txt['lgal_tagged_as'], '
+					<span class="lgalicon i-tag"></span> ', $txt['lgal_tagged_as'], '
 					', implode(', ', $tags), '
 				</div>';
 	}
@@ -147,7 +147,7 @@ function template_return_item_likers()
 {
 	global $context, $txt;
 
-	$result = '<span class="lgalicon like"></span> ' . $txt['lgal_likes'];
+	$result = '<span class="lgalicon i-thumbup"></span> ' . $txt['lgal_likes'];
 
 	// Then the people.
 	if ($context['currently_liking'])
@@ -188,14 +188,14 @@ function template_main_item_navigation()
 	if (!empty($context['prev_next']['previous']))
 	{
 		echo '
-				<span class="lefttext" style="display: block;">
+				<span class="lefttext" style="display: inline-block;width: 49.5%">
 					<a href="', $context['prev_next']['previous']['item_url'], '" title="', $context['prev_next']['previous']['item_name'], '"><i class="icon i-chevron-circle-left"></i>', $txt['lgal_previous'], '</a>
 				</span>';
 	}
 	if (!empty($context['prev_next']['next']))
 	{
 		echo '
-				<span class="righttext" style="display: block;">
+				<span class="righttext" style="display: inline-block;width: 49.5%">
 					<a href="', $context['prev_next']['next']['item_url'], '" title="', $context['prev_next']['next']['item_name'], '">', $txt['lgal_next'], '<i class="icon i-chevron-circle-right"></i></a>
 				</span>';
 	}
@@ -381,17 +381,17 @@ function template_sidebar_share()
 					<dt>', $txt['lgal_share_simple_bbc'], '</dt>
 					<dd id="lgal_share_simple_bbc_container" class="lgal_share">
 						<input type="text" class="input_text" id="lgal_share_simple_bbc" value="[media]', $context['item_details']['id_item'], '[/media]" readonly="readonly" />
-						<span class="lgalicon copy" title="', $txt['lgal_copy_to_clipboard'], '"></span>
+						<span class="lgalicon i-clipboard" title="', $txt['lgal_copy_to_clipboard'], '"></span>
 					</dd>
 					<dt>', $txt['lgal_share_complex_bbc'], '</dt>
 					<dd id="lgal_share_complex_bbc_container" class="lgal_share">
 						<input type="text" class="input_text" id="lgal_share_complex_bbc" value="', sprintf($txt['lgal_share_complex_bbc_entry'], $context['item_details']['id_item'], $context['item_details']['item_name'], $poster_name, $context['item_details']['time_added_format']), '" readonly="readonly" />
-						<span class="lgalicon copy" title="', $txt['lgal_copy_to_clipboard'], '"></span>
+						<span class="lgalicon i-clipboard" title="', $txt['lgal_copy_to_clipboard'], '"></span>
 					</dd>
 					<dt>', $txt['lgal_share_page'], '</dt>
 					<dd id="lgal_share_page_container" class="lgal_share">
 						<input type="text" class="input_text" id="lgal_share_page" value="', $context['item_details']['item_url'], '" readonly="readonly" />
-						<span class="lgalicon copy" title="', $txt['lgal_copy_to_clipboard'], '"></span>
+						<span class="lgalicon i-clipboard" title="', $txt['lgal_copy_to_clipboard'], '"></span>
 					</dd>';
 
 	if (!empty($context['social_icons']))
@@ -406,7 +406,11 @@ function template_sidebar_share()
 			foreach ($actions as $id_action => $action)
 			{
 				echo '
-							<li><a href="', $action[1], '"', empty($action[2]) ? '' : ' class="new_win" target="_blank"', empty($action['title']) ? '' : ' title="' . $action['title'] . '"', '><span class="lgalicon ', $id_action, '"></span>', $action[0], '</a></li>';
+							<li>
+								<a href="', $action[1], '"', empty($action[2]) ? '' : ' class="new_win" target="_blank"', empty($action['title']) ? '' : ' title="' . $action['title'] . '"', '>
+									<span class="lgalicon i-', $id_action, '"></span>', $action[0], '
+								</a>
+							</li>';
 			}
 
 			echo '
@@ -428,7 +432,7 @@ function template_main_item_comments()
 			<div id="item_comments">
 				<h2 class="secondary_header">', empty($modSettings['lgal_feed_enable_item'])
 					? ''
-					: '<a href="' . $context['item_details']['item_url'] . 'feed/"><span class="lgalicon feed"></span></a> ',
+					: '<a href="' . $context['item_details']['item_url'] . 'feed/"><span class="lgalicon i-rss"></span></a> ',
 					sprintf($txt['lgal_comments'], comma_format($context['num_comments'])), '
 				</h2>';
 	if (!empty($context['item_pageindex']))

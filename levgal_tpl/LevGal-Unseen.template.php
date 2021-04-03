@@ -78,7 +78,7 @@ function template_unseen_sidebar()
 			foreach ($actions as $id_action => $action)
 			{
 				echo '
-							<li><a href="', $action[1], '"><span class="lgalicon ', $id_action, '"></span>', $action[0], '</a></li>';
+							<li><a href="', $action[1], '"><span class="lgalicon i-', $id_action, '"></span>', $action[0], '</a></li>';
 			}
 
 			echo '

@@ -14,7 +14,7 @@ function template_levgal_profile_summary()
 
 	echo '
 			<h3 class="secondary_header">
-				<span class="lgalicon album"></span> ', $txt['levgal_profile_summary'], '
+				<span class="lgalicon i-album"></span> ', $txt['levgal_profile_summary'], '
 			</h3>
 			</div>
 			<p class="infobox">', $txt['levgal_profile_summary_desc'], '</p>
@@ -87,7 +87,7 @@ function template_levgal_profile_bookmarks()
 
 	echo '
 			<h3 class="secondary_header">
-				<span class="lgalicon bookmark"></span> ', $txt['levgal_profile_bookmarks'], '
+				<span class="lgalicon i-bookmark"></span> ', $txt['levgal_profile_bookmarks'], '
 			</h3>
 			<p class="infobox">', $context['bookmarks_desc'], '</p>';
 
@@ -106,10 +106,10 @@ function template_levgal_profile_bookmarks()
 					<div class="innerframe">
 						<div class="lgal_profile_thumbnail floatleft"><img src="', $bookmark['item_thumbnail'], '" /></div>
 						<div class="lgal_profile_itemname floatleft"><a href="', $bookmark['item_url'], '">', $bookmark['item_name'], '</a></div>
-						<div class="lgal_profile_bookmarked floatright"><span class="lgalicon bookmark"></span> ', sprintf($txt['levgal_profile_bookmarks_item_bookmarked'], $bookmark['bookmark_timestamp_format']), '</div>
+						<div class="lgal_profile_bookmarked floatright"><span class="lgalicon i-bookmark"></span> ', sprintf($txt['levgal_profile_bookmarks_item_bookmarked'], $bookmark['bookmark_timestamp_format']), '</div>
 						<br />
-						<div class="lgal_profile_added floatleft"><span class="lgalicon additem"></span> ', sprintf($txt['levgal_profile_bookmarks_item_added'], $bookmark['poster_link'], $bookmark['item_added_format']), '</div>
-						<div class="lgal_profile_stats floatright clear_right"><span class="lgalicon views"></span> ', $bookmark['num_views'], ' <span class="lgalicon comments"></span> ', $bookmark['num_comments'], '</div>
+						<div class="lgal_profile_added floatleft"><span class="lgalicon i-additem"></span> ', sprintf($txt['levgal_profile_bookmarks_item_added'], $bookmark['poster_link'], $bookmark['item_added_format']), '</div>
+						<div class="lgal_profile_stats floatright clear_right"><span class="lgalicon i-view"></span> ', $bookmark['num_views'], ' <span class="lgalicon i-comments"></span> ', $bookmark['num_comments'], '</div>
 						<br class="clear" />
 					</div>
 				</div>';
@@ -123,7 +123,7 @@ function template_levgal_profile_notify()
 
 	echo '
 			<h3 class="secondary_header">
-				<span class="lgalicon notify"></span> ', $txt['levgal_profile_notify'], '<span>
+				<span class="lgalicon i-notify"></span> ', $txt['levgal_profile_notify'], '<span>
 			</h3>
 			<p class="description">', $context['notify_desc'], '</p>';
 
@@ -175,7 +175,7 @@ function template_levgal_profile_prefs()
 
 	echo '
 			<h3 class="secondary_header">
-				<span class="lgalicon options"></span> ', $txt['levgal_profile_prefs'], '
+				<span class="lgalicon i-options"></span> ', $txt['levgal_profile_prefs'], '
 			</h3>
 			<p class="infobox">', $txt['levgal_profile_prefs_desc'], '</p>';
 
