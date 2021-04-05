@@ -32,8 +32,8 @@ class Levgal_Maintenance implements Scheduled_Task_Interface
 	{
 		$gal_dir = \LevGal_Bootstrap::getGalleryDir();
 
-		// Kick anything more than 6 hours old.
-		$most_recent = time() - (6 * 60 * 60);
+		// Kick anything more than 2 hours old.
+		$most_recent = time() - (2 * 60 * 60);
 
 		foreach (scandir($gal_dir) as $file)
 		{
@@ -57,8 +57,8 @@ class Levgal_Maintenance implements Scheduled_Task_Interface
 
 	private function pruneSearchResults()
 	{
-		// Anything older than 12 hrs
-		$most_recent = time() - (12 * 60 * 60);
+		// Anything older than 4 hrs
+		$most_recent = time() - (4 * 60 * 60);
 		$search = new \LevGal_Model_Search();
 		$search->deleteSearchesBeforeTimestamp($most_recent);
 	}
