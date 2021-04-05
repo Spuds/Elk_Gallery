@@ -68,6 +68,7 @@ class LevGal_Helper_Image_GD
 			imagedestroy($this->image);
 		}
 
+		require_once(SUBSDIR . '/Attachments.subs.php');
 		$imageinfo = elk_getimagesize($file, false);
 		if (empty($imageinfo))
 		{
@@ -130,7 +131,7 @@ class LevGal_Helper_Image_GD
 	public function resizeImageToMax($max_dimension, $dest_file, $format = 'jpg')
 	{
 		// This is kind of expensive so let's try to buy ourselves some more time.
-		@set_time_limit(30);
+		detectServer()->setTimeLimit(30);
 
 		$imgfunc = $format === 'jpg' ? 'imagejpeg' : 'imagepng';
 		// Nothing to do, can we save ourselves some hassle?
@@ -167,31 +168,7 @@ class LevGal_Helper_Image_GD
 
 	public function flip($direction)
 	{
-		$src_x = 0;
-		$src_y = 0;
-		$src_width = $this->width;
-		$src_height = $this->height;
-
-		$directions = str_split($direction);
-		// This is pretty nifty actually. We can abuse the imagecopy function to do a flip for
-		// us when PHP < 5.5 doesn't offer it for us otherwise.
-		if (in_array('x', $directions))
-		{
-			$src_x = $this->width - 1;
-			$src_width = -$this->width;
-		}
-		if (in_array('y', $directions))
-		{
-			$src_y = $this->height - 1;
-			$src_height = -$this->height;
-		}
-
-		$new_image = imagecreatetruecolor($this->width, $this->height);
-		imagealphablending($new_image, false);
-		imagesavealpha($new_image, true);
-		imagecopyresampled($new_image, $this->image, 0, 0, $src_x, $src_y, $this->width, $this->height, $src_width, $src_height);
-		$this->image = $new_image;
+		imageflip($this->image, $direction === 'y' ? IMG_FLIP_VERTICAL : IMG_FLIP_HORIZONTAL);
 		list ($this->width, $this->height) = $this->getImageSize();
-		imagedestroy($new_image);
 	}
 }

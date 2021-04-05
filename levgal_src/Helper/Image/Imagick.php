@@ -166,12 +166,11 @@ class LevGal_Helper_Image_Imagick
 
 	public function flip($direction)
 	{
-		$directions = str_split($direction);
-		if (in_array('x', $directions))
+		if ($direction === 'x')
 		{
 			$this->image->flopImage();
 		}
-		if (in_array('y', $directions))
+		if ($direction === 'y')
 		{
 			$this->image->flipImage();
 		}
