@@ -490,6 +490,7 @@ function template_add_single_item()
 			chunking: defaults.chunking,
 			retryChunks: defaults.retryChunks,
 			parallelUploads: defaults.parallelUploads,
+			parallelChunkUploads: defaults.parallelChunkUploads,
 			chunkSize: defaults.chunkSize,
 		 	dictDefaultMessage: txt.item_drag_here,
 		  	dictFallbackMessage: txt.browser_not_supported,
@@ -513,20 +514,12 @@ function template_add_single_item()
 				});
 				this.on("success", function (file, response)
 				{
-					// chunked is not returning the response
-					if (response === "" && typeof file.xhr.response !== "undefined")
-					{
-						response = JSON.parse(file.xhr.response);
-					}
-					if (typeof response.async !== "undefined")
-					{
-						let container = document.getElementById("display_container"),
-							conhtml = container.innerHTML;
-						conhtml += \'<input type="hidden" name="async" value="\' + response.async + \'" />\';
-						conhtml += \'<input type="hidden" name="async_size" value="\' + file.size + \'" />\';
-						conhtml += \'<input type="hidden" name="async_filename" value="\' + encodeURIComponent(file.name) + \'" />\';
-						container.innerHTML = conhtml;
-					}
+					let container = document.getElementById("display_container"),
+						conhtml = container.innerHTML;
+					conhtml += \'<input type="hidden" name="async" value="\' + response.async + \'" />\';
+					conhtml += \'<input type="hidden" name="async_size" value="\' + file.size + \'" />\';
+					conhtml += \'<input type="hidden" name="async_filename" value="\' + encodeURIComponent(file.name) + \'" />\';
+					container.innerHTML = conhtml;
 					submittable = true;
 				});
 				this.on("sending", function(file, xhr, formData) 
@@ -563,10 +556,36 @@ function template_add_single_item()
 				{
 					done(result);
 					display_error(result, true);
-					setTimeout(() => {  this.removeFile(file); }, 7000);
+					setTimeout(() => {this.removeFile(file);}, 7000);
 					return;
 				}
 				done();
+			},
+			chunksUploaded: function(file, done)
+			{
+				// All chunks have been uploaded, now merge them for the file
+				$.ajax({
+					type: "POST",
+					url: elk_prepareScriptUrl(elk_scripturl) + ' . JavaScriptEscape(str_replace($scripturl . '?', '', $context['album_details']['album_url']) . 'chunked/') . ',
+					data: {
+						async_chunks: file.upload.chunks.length,
+						async_filename: file.name.php_urlencode(),
+						async: file.upload.uuid,
+						' . $context['session_var'] . ': "' . $context['session_id'] . '"
+					},
+					success: function () {
+						done();
+					},
+					error: function (xhr) {
+						data = xhr.responseJSON;
+						file.accepted = false;
+						submittable = false;
+						display_error(data.error, true);
+						document.querySelector("[data-dz-errormessage]").innerHTML = data.error;
+						document.getElementsByClassName("dz-preview")[0].classList.add("dz-error");
+						document.getElementsByClassName("dz-progress")[0].classList.add("hide");
+					}
+    			});
 			}
 		})
 		</script>';
@@ -621,17 +640,17 @@ function template_add_bulk_items()
 									<img data-dz-thumbnail />
 								</span>
 							</div>
-							<div id="dz-name">
+							<div class="dz-name">
 								<p class="name" data-dz-name></p>
 								<strong class="error" data-dz-errormessage></strong>
 							</div>
-							<div id="dz-size">
+							<div class="dz-size">
 								<p class="size" data-dz-size></p>
 								<div class="progress active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
 									<div class="progress-bar progress-bar-success" style="width:0%;" data-dz-uploadprogress></div>
 								</div>
 							</div>
-							<div id="dz-remove">
+							<div class="dz-remove">
 								<p>
 									<button data-dz-remove class="button_submit">
 										<i class="icon i-delete"></i>
@@ -690,11 +709,12 @@ function template_add_bulk_items()
 		let uploader = new Dropzone("#dragdropcontainer", {
 			url: "' . $context['album_details']['album_url'] . 'async/",
 			lgal_quota: ' . (empty($context['quota_data']) ? '{}' : json_encode($context['quota_data'])) . ',
-			maxFiles: 150,
+			maxFiles: 250,
 			paramName: defaults.paramName,
 			chunking: defaults.chunking,
 			retryChunks: defaults.retryChunks,
 			parallelUploads: defaults.parallelUploads,
+			parallelChunkUploads: defaults.parallelChunkUploads,
 			chunkSize: defaults.chunkSize,
 			dictDefaultMessage: txt.item_drag_here,
 		  	dictFallbackMessage: txt.browser_not_supported,
@@ -724,14 +744,6 @@ function template_add_bulk_items()
 				});
 			    this.on("totaluploadprogress", function(progress, totalBytes, totalBytesSent) 
 			    {
-			    	let fileSize = parseInt(uploader.getUploadingFiles()[0].size);
-			    	
-			    	// bugs in chunking
-			    	if (totalBytes < fileSize)
-			    		totalBytes = fileSize;
-			    	if (progress === 100 && fileSize > totalBytesSent)
-			    		progress = (totalBytesSent / fileSize) * 100;
-
 			    	let byteProgress = "<span>(" + get_human_size(totalBytesSent) + " / " + get_human_size(totalBytes) + ")</span>",
 			    	    current = document.querySelector("#total-progress .progress-bar").style.width;
 
@@ -745,35 +757,43 @@ function template_add_bulk_items()
       			this.on("sending", function(file, xhr, formData) 
       			{
       				formData.append("' . $context['session_var'] . '", "' . $context['session_id']  . '");
+      				formData.append("async", file.upload.uuid);
 
 		      		document.getElementById("total-progress").style.opacity = "1";
+	      		
 				});
 				this.on("success", function(file, response)
 				{
-					// chunked is not returning the response
-					if (response === "" && typeof file.xhr.response !== "undefined")
-					{
-						response = JSON.parse(file.xhr.response);
-					}
-					if (typeof response.async !== "undefined")
-					{
-						let el = file.previewElement.querySelectorAll(".button_submit"),
-							spanProgress = "",
-							x = [];
-						
-						if (el.length)
-						{
-							spanProgress = "<span id=\"async_" + response.async + "\">" + txt.processing + "</span>";
-							el[0].parentElement.innerHTML = spanProgress;
+					$.ajax({
+						type: "POST",
+						url: elk_prepareScriptUrl(elk_scripturl) + ' . JavaScriptEscape(str_replace($scripturl . '?', '', $context['album_details']['album_url']) . 'addbulk/') . ',
+						data: {
+							save: 1,
+							async_chunks: typeof file.upload.chunks !== "undefined" ? file.upload.chunks.length : 1,
+							async_filename: file.name.php_urlencode(),
+							async: response.async,
+							async_size: file.size,
+							' . $context['session_var'] . ': "' . $context['session_id'] . '"
+						},
+						beforeSend: function() {
+							let el = file.previewElement.querySelectorAll(".button_submit"),
+								spanProgress = "";
+					
+							if (el.length)
+							{
+								spanProgress = "<span id=\"async_" + response.async + "\">" + txt.processing + "</span>";
+								el[0].parentElement.innerHTML = spanProgress;
+							}
+						},
+						success: function (xhr) {
+							urls[file.upload.uuid] = {async: response.async, url: ""};
+							onFileSend(xhr);
+						},
+						error: function (xhr) {
+							file.accepted = false;
+							onFileSend(xhr);
 						}
-						x.push("save=1");
-						x.push("async_filename=" + file.name.php_urlencode());
-						x.push("async=" + response.async);
-						x.push("async_size=" + file.size);
-						x.push("' . $context['session_var'] . '=' . $context['session_id'] . '");
-						urls[file.upload.uuid] = {async: response.async, url: ""};
-						sendJSONDocument(elk_prepareScriptUrl(elk_scripturl) + ' . JavaScriptEscape(str_replace($scripturl . '?', '', $context['album_details']['album_url']) . 'addbulk/') . ', x.join("&"), onFileSend);
-					}
+					})
 				});
 				this.on("complete", function()
 				{
@@ -781,6 +801,7 @@ function template_add_bulk_items()
 				});
 				this.on("error", function (file, msg, xhr)
 				{
+					console.log(msg);
 					msg = typeof msg !== "undefined" ? msg : txt.upload_failed;
 					let response = {"error": msg, "fatal": false};
 					if (typeof xhr !== "undefined")
@@ -804,8 +825,31 @@ function template_add_bulk_items()
 					this.removeFile(file);
 				}
 				done();
+			},
+			chunksUploaded: function(file, done)
+			{
+				// All chunks have been uploaded, now merge all chunks for the currentFile
+				$.ajax({
+					type: "POST",
+					url: elk_prepareScriptUrl(elk_scripturl) + ' . JavaScriptEscape(str_replace($scripturl . '?', '', $context['album_details']['album_url']) . 'chunked/') . ',
+					data: {
+						async_chunks: file.upload.chunks.length,
+						async_filename: file.name.php_urlencode(),
+						async: file.upload.uuid,
+						' . $context['session_var'] . ': "' . $context['session_id'] . '"
+					},
+					success: function (dummy, dummy, xhr) {
+						onChunkComplete(xhr);
+						done();
+					},
+					error: function (xhr) {
+						file.accepted = false;
+						onChunkComplete(xhr);
+						done();
+					}
+    			});
 			}
-		});
+		})
 	</script>';
 }
 

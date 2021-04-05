@@ -18,6 +18,8 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 	private $album_slug;
 	/** @var \LevGal_Model_Album */
 	private $album_obj;
+	/** @var string[] */
+	private $uploadErrors;
 
 	public function __construct()
 	{
@@ -44,6 +46,9 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		{
 			LevGal_Helper_Http::hardRedirect($context['album_details']['album_url'] . (!empty($_GET['sub']) ? $_GET['sub'] . '/' : ''));
 		}
+
+		// Known processing responses
+		$this->uploadErrors = ['not_allowed', 'invalid', 'over_quota', 'not_writable', 'not_found'];
 	}
 
 	public function actionIndex()
@@ -194,6 +199,47 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		}
 	}
 
+	public function actionChunked()
+	{
+		$uploadModel = new LevGal_Model_Upload();
+
+		// Before we go any further...
+		$uploadModel->assertGalleryWritable();
+
+		if (checkSession('post', '', false) !== '')
+		{
+			LevGal_Helper_Http::jsonResponse(array(
+				'error' => 'session_timeout',
+				'fatal' => true)
+			);
+		}
+
+		$filename = !empty($_POST['async_filename']) ? rawurldecode($_POST['async_filename']) : '';
+		$fileID = $_POST['async'] ?? 0;
+		$chunks = (int) $_POST['async_chunks'] ?? 0;
+
+		$result = $uploadModel->combineChunks($fileID, $chunks, $filename);
+
+		// Some error?
+		if ($result['code'] !== '')
+		{
+			LevGal_Helper_Http::jsonResponse(array(
+				'error' => $result['error'],
+				'code' => $result['code'],
+				'fatal' => true,
+				'async' => $result['id'],
+				'filename' => $filename,
+			));
+		}
+		else
+		{
+			LevGal_Helper_Http::jsonResponse(array(
+				'Combined' => 1,
+				'async' => $result['id']
+			), 200);
+		}
+	}
+
 	public function actionAsync()
 	{
 		global $txt;
@@ -219,20 +265,24 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 
 		$filename = isset($_REQUEST['name']) ? $_REQUEST['name'] : $_FILES['file']['name'];
 		$uploadModel = new LevGal_Model_Upload();
-		$id = $uploadModel->saveAsyncFile($filename);
+		$result = $uploadModel->saveAsyncFile($filename);
 
-		if (!is_numeric($id))
+		// Some error?
+		if ($result['code'] !== '')
 		{
-			if ($id === 'over_quota')
-			{
-				loadLanguage('levgal_lng/LevGal-Errors');
-				$txt['lgal_async_over_quota'] = sprintf($txt['levgal_gallery_over_quota'], LevGal_Helper_Format::filesize($uploadModel->getGalleryQuota()));
-			}
-			LevGal_Helper_Http::jsonResponse(array('error' => isset($txt['lgal_async_' . $id]) ? $txt['lgal_async_' . $id] : $id, 'fatal' => true));
+			LevGal_Helper_Http::jsonResponse(array(
+				'error' => $result['error'],
+				'code' => $result['code'],
+				'fatal' => true,
+				'async' => $result['id']
+			));
 		}
 		else
 		{
-			LevGal_Helper_Http::jsonResponse(array('OK' => 1, 'async' => $id), 200);
+			LevGal_Helper_Http::jsonResponse(array(
+				'OK' => 1,
+				'async' => $result['id']
+			), 200);
 		}
 	}
 
@@ -473,7 +523,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		// Housekeeping, clean up session when displaying the file form and NOT saving
 		if (!isset($_POST['save']))
 		{
-			unset($_SESSION['lgal_async']);
+			//unset($_SESSION['lgal_async']);
 
 			return;
 		}
@@ -482,9 +532,9 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		if (($error = checkSession('post', '', false)) !== '')
 		{
 			LevGal_Helper_Http::jsonResponse(array(
-					'error' => 'session_timeout',
-					'fatal' => true,
-					'session' => $error . ': ' . $context['session_var'] . '=' . $context['session_id'])
+				'error' => 'session_timeout',
+				'fatal' => true,
+				'session' => $error . ': ' . $context['session_var'] . '=' . $context['session_id'])
 			);
 		}
 
@@ -523,11 +573,17 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 				$this->album_obj->notifyItem($itemID, $itemModel);
 			}
 
-			LevGal_Helper_Http::jsonResponse(array('async' => $context['async_id'], 'url' => $item_details['item_url']), 200);
+			LevGal_Helper_Http::jsonResponse(array(
+				'async' => $context['async_id'],
+				'url' => $item_details['item_url']
+			), 200);
 		}
 		else
 		{
-			LevGal_Helper_Http::jsonResponse(array('error' => array_keys($context['errors'])));
+			LevGal_Helper_Http::jsonResponse(array(
+				'async' => $context['async_id'],
+				'error' => array_keys($context['errors']))
+			);
 		}
 	}
 
@@ -550,7 +606,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		{
 			// Grab the file details. These we need.
 			$context['filename'] = !empty($_POST['async_filename']) ? rawurldecode($_POST['async_filename']) : '';
-			$context['async_id'] = isset($_POST['async']) && (int) $_POST['async'] > 0 ? (int) $_POST['async'] : 0;
+			$context['async_id'] = $_POST['async'] ?? 0;
 			$context['async_size'] = isset($_POST['async_size']) && (int) $_POST['async_size'] > 0 ? (int) $_POST['async_size'] : 0;
 			if (empty($context['filename']) || empty($context['async_id']) || empty($context['async_size']))
 			{

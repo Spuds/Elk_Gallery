@@ -28,11 +28,11 @@ function template_main_item_view()
 		
 		for (let i = 0, n = items.length; i < n; i++)
 		{
-			el = document.querySelector("#" + items[i] + "_container span.copy");
+			el = document.querySelector("#" + items[i] + "_container span.i-clipboard");
 			el.setAttribute("data-clipboard-target", "#" + items[i]);
 		}
 		
-		new ClipboardJS(".copy", {
+		new ClipboardJS(".i-clipboard", {
    			text: function(trigger) {
         		return trigger.setAttribute("title", "', $txt['lgal_copyied_to_clipboard'], '");
     		}
@@ -923,9 +923,9 @@ function template_edit_item()
 	if ($context['editing'] === 'file')
 	{
 		echo '
-					<dl class="settings" style="min-height: 11em;">
+					<dl class="settings" style="min-height: 225px;">
 						<dt>
-							<div>', $txt['lgal_item_want_to_add_file'], ':</div>
+							<div>', $txt['lgal_item_want_to_edit_file'], ':</div>
 							<div id="allowed_type_file">';
 		$display = array();
 		foreach ($context['allowed_formats'] as $type => $formats)
@@ -963,7 +963,7 @@ function template_edit_item()
 
 		echo '
 							</div>
-							<input type="hidden" name="upload_type" value="file" />
+							<input type="hidden" id="upload_type" name="upload_type" value="file" />
 						</dd>
 					</dl>
 					<hr />';
@@ -996,6 +996,7 @@ function template_edit_item()
 			chunking: defaults.chunking,
 			retryChunks: defaults.retryChunks,
 			parallelUploads: defaults.parallelUploads,
+			parallelChunkUploads: defaults.parallelChunkUploads,
 			chunkSize: defaults.chunkSize,
 		 	dictDefaultMessage: txt.item_drag_here,
 		  	dictFallbackMessage: txt.browser_not_supported,
@@ -1010,20 +1011,12 @@ function template_edit_item()
 				});
 				this.on("success", function (file, response)
 				{
-					// chunked is not returning the response
-					if (response === "" && typeof file.xhr.response !== "undefined")
-					{
-						response = JSON.parse(file.xhr.response);
-					}
-					if (typeof response.async !== "undefined")
-					{
-						let container = document.getElementById("display_container"),
-							conhtml = container.innerHTML;
-						conhtml += \'<input type="hidden" name="async" value="\' + response.async + \'" />\';
-						conhtml += \'<input type="hidden" name="async_size" value="\' + file.size + \'" />\';
-						conhtml += \'<input type="hidden" name="async_filename" value="\' + encodeURIComponent(file.name) + \'" />\';
-						container.innerHTML = conhtml;
-					}
+					let container = document.getElementById("display_container"),
+						conhtml = container.innerHTML;
+					conhtml += \'<input type="hidden" name="async" value="\' + response.async + \'" />\';
+					conhtml += \'<input type="hidden" name="async_size" value="\' + file.size + \'" />\';
+					conhtml += \'<input type="hidden" name="async_filename" value="\' + encodeURIComponent(file.name) + \'" />\';
+					container.innerHTML = conhtml;
 					submittable = true;
 				});
 				this.on("sending", function(file, xhr, formData) 
@@ -1054,10 +1047,39 @@ function template_edit_item()
 				{
 					done(result);
 					display_error(result, true);
-					setTimeout(() => {  this.removeFile(file); }, 7000);
+					setTimeout(() => {this.removeFile(file);}, 7000);
 					return;
 				}
 				done();
+			},
+			chunksUploaded: function(file, done)
+			{
+				// All chunks have been uploaded, now merge them for the file
+				$.ajax({
+					type: "POST",
+					url: elk_prepareScriptUrl(elk_scripturl) + ' . JavaScriptEscape(str_replace($scripturl . '?', '', $context['album_details']['album_url']) . 'chunked/') . ',
+					data: {
+						async_chunks: file.upload.chunks.length,
+						async_filename: file.name.php_urlencode(),
+						async: file.upload.uuid,
+						' . $context['session_var'] . ': "' . $context['session_id'] . '"
+					},
+					success: function () {
+						done();
+					},
+					error: function (xhr) {
+						data = xhr.responseJSON;
+						file.accepted = false;
+						submittable = false;
+						
+						display_error(data.error, true);
+						document.querySelector("[data-dz-errormessage]").innerHTML = data.error;
+						document.getElementsByClassName("dz-preview")[0].classList.add("dz-error");
+						document.getElementsByClassName("dz-progress")[0].classList.add("hide");
+						
+						uploader.disable();
+					}
+    			});
 			}
 		})
 		</script>';
@@ -1076,7 +1098,7 @@ function template_edit_item()
 								<div id="upload_type_link">
 									<input type="text" name="upload_url" id="upload_url" class="input_text" value="', $context['edit_url'], '" style="width: 95%;" />
 								</div>
-								<input type="hidden" name="upload_type" value="link" />
+								<input type="hidden" id="upload_type" name="upload_type" value="link" />
 							</dd>
 						</dl>
 						<hr />';

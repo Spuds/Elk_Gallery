@@ -970,7 +970,7 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 			{
 				// Grab the file details. These we need.
 				$context['filename'] = empty($_POST['async_filename']) ? '' : rawurldecode($_POST['async_filename']);
-				$context['async_id'] = isset($_POST['async']) && (int) $_POST['async'] > 0 ? (int) $_POST['async'] : 0;
+				$context['async_id'] = $_POST['async'] ?? 0;
 				$context['async_size'] = isset($_POST['async_size']) && (int) $_POST['async_size'] > 0 ? (int) $_POST['async_size'] : 0;
 				if (!empty($context['filename']) || !empty($context['async_id']) || !empty($context['async_size']))
 				{
@@ -1206,7 +1206,7 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 				'post_button' => $txt['lgal_edit_item_title'],
 			),
 			'js' => array(
-				//'post_button' => 'return is_submittable() && submitThisOnce(this);',
+				'post_button' => 'return is_submittable() && submitThisOnce(this);',
 			),
 		));
 	}

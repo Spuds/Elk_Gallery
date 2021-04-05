@@ -386,142 +386,174 @@ class LevGal_Model_Upload
 		return !empty($user_info['id']) ? $user_info['id'] : preg_replace('~[^0-9a-z]~i', '', $context['session_id']);
 	}
 
+	public function errorAsyncFile($code, $fileID)
+	{
+		global $txt;
+
+		loadLanguage('levgal_lng/LevGal');
+		loadLanguage('levgal_lng/LevGal-Errors');
+
+		if ($code === 'over_quota')
+		{
+			$uploadModel = new LevGal_Model_Upload();
+			$txt['lgal_async_over_quota'] = sprintf($txt['levgal_gallery_over_quota'], LevGal_Helper_Format::filesize($uploadModel->getGalleryQuota()));
+		}
+		$error = isset($txt['lgal_async_' . $code]) ? $txt['lgal_async_' . $code] : $code;
+
+		// Clean up
+		unset($_SESSION['lgal_async'][$fileID]);
+		$path = LevGal_Bootstrap::getGalleryDir();
+		$user_ident = $this->getUserIdentifier();
+		$in = $path . '/async_' . $user_ident . '_' . $fileID . '*.dat';
+		$iterator = new GlobIterator($in, FilesystemIterator::SKIP_DOTS | FilesystemIterator::KEY_AS_FILENAME);
+		foreach ($iterator as $file)
+		{
+			@unlink($file->getPathname());
+		}
+
+		return ['error' => $error, 'code' => $code, 'id' => $fileID];
+	}
+
+	public function validateAsyncFile($filename, $fileID)
+	{
+		// For the first (or only) one, check we're under quota.
+		if (!allowedTo('lgal_manage') && !$this->isGalleryUnderQuota())
+		{
+			return $this->errorAsyncFile( 'over_quota', $fileID);
+		}
+
+		// And whether we match the file type. We don't need to do these every chunk
+		// since we match chunks after this one.
+		$ext = $this->getExtension($filename);
+		$formats = $this->getAllFileFormats();
+		if (!in_array($ext, $formats))
+		{
+			return $this->errorAsyncFile( 'not_allowed', $fileID);
+		}
+
+		// Now, is it within quota for this user? Sadly things like file size and image size
+		// can't be done here because we don't get the right data, but we do get stuff that is useful.
+		$map = $this->getFormatMap();
+		$all_quotas = $this->getAllQuotas();
+		$this_quota = $map[$ext] ?? '';
+		if (empty($all_quotas[$this_quota]))
+		{
+			// Theoretically allowed as an upload format but not for this particular user.
+			return $this->errorAsyncFile( 'not_allowed', $fileID);
+		}
+
+		return true;
+	}
+
 	public function saveAsyncFile($filename)
 	{
-		// Check chunks.
+		$chunk = 0;
+		$chunks = 1;
+
+		// Check if this is chunked
 		if (isset($_POST['dzchunkindex'], $_POST['dztotalchunkcount']))
 		{
 			$chunk = (int) $_POST['dzchunkindex'];
 			$chunks = (int) $_POST['dztotalchunkcount'];
 			if ($chunk < 0 || $chunks < 1 || $chunk >= $chunks)
 			{
-				return 'invalid';
+				return $this->errorAsyncFile('invalid', 0);
 			}
 		}
-		else
+
+		// We must be given the uuid
+		if (!isset($_POST['dzuuid']) && !isset($_POST['async']))
 		{
-			$chunk = 0;
-			$chunks = 1;
+			return $this->errorAsyncFile('invalid', 0);
 		}
 
-		// Check file types.
 		$filename = $this->sanitizeFilename($filename);
+		$fileID = $_POST['dzuuid'] ?? $_POST['async'];
 
-		// If we're not chunking, or we're on the first one, we're assigning it by way of new id.
-		if ($chunks == 1 || $chunk == 0)
+		// If we're not chunking, or we're on the first one, validate
+		if ($chunks === 1 || ($chunks > 1 && $chunk === 0))
 		{
-			// For the first (or only) one, check we're under quota.
-			if (!allowedTo('lgal_manage') && !$this->isGalleryUnderQuota())
+			// Check file types, quotas, permissions
+			if ($result = $this->validateAsyncFile($filename, $fileID) !== true)
 			{
-				return 'over_quota';
-			}
-
-			$fileID = random_int(1000, 10000000);
-
-			// And whether we match the file type. We don't need to do these every chunk since we match chunks after this one.
-			$ext = $this->getExtension($filename);
-			$formats = $this->getAllFileFormats();
-
-			if (!in_array($ext, $formats))
-			{
-				return 'not_allowed';
-			}
-
-			// Now, is it within quota for this user? Sadly things like file size and image size can't be done here
-			// because we don't get the right data, but we do get stuff that is useful.
-			$map = $this->getFormatMap();
-			$all_quotas = $this->getAllQuotas();
-			$this_quota = $map[$ext] ?? '';
-			if (empty($all_quotas[$this_quota]))
-			{
-				return 'not_allowed'; // Theoretically allowed as an upload format but not for this particular user.
-			}
-		}
-		else
-		{
-			$fileID = false;
-
-			$basename = basename($filename);
-			// So we're hunting for it in session. Match by name, total chunks and last chunk number.
-			foreach ($_SESSION['lgal_async'] as $this_fileID => $file)
-			{
-				if (is_array($file) && $file[2] == $basename && $file[1] == $chunks && $file[0] == $chunk - 1)
-				{
-					$fileID = $this_fileID;
-					break;
-				}
-			}
-			if ($fileID === false)
-			{
-				return 'invalid';
+				return $result;
 			}
 		}
 
 		$path = LevGal_Bootstrap::getGalleryDir();
 		$user_ident = $this->getUserIdentifier();
-		$local_file = 'async_' . $user_ident . '_' . $fileID . ($chunks > 1 ? '_part' : '') . '.dat';
-		$local_full_file = 'async_' . $user_ident . '_' . $fileID . '.dat';
-
+		$local_file = 'async_' . $user_ident . '_' . $fileID . ($chunks > 1 ? '_part_' . $chunk : '') . '.dat';
 		if (!is_writable($path))
 		{
-			return 'not_writable';
+			return $this->errorAsyncFile( 'not_writable', $fileID);
 		}
 
-		$success = false;
 		$out = $path . '/' . $local_file;
 		$in = $_FILES['file']['tmp_name'];
-		if (is_uploaded_file($_FILES['file']['tmp_name']))
-		{
-			if (file_put_contents($out, file_get_contents($in), LOCK_EX | FILE_APPEND) !== false)
-			{
-				$success = true;
-			}
-		}
-
+		@move_uploaded_file($in, $out);
+		$success = file_exists($out) ;
 		if (!$success)
 		{
-			return 'not_found';
+			return $this->errorAsyncFile( 'not_found', $fileID);
 		}
 
-		// This the last chunk?
-		if ($chunks > 1 && $chunk === $chunks - 1)
-		{
-			@rename($path . '/' . $local_file, $path . '/' . $local_full_file);
-			usleep(500000);
-		}
-
-		// Successful? Store details in session and return id.
-		@unlink($_FILES['file']['tmp_name']);
-		if ($chunks > 1 && $chunk < $chunks - 1)
-		{
-			$_SESSION['lgal_async'][$fileID] = array($chunk, $chunks, basename($filename));
-		}
-		else
+		// Successful? Store details in session and return id. Chunked files will do this during combineChunks
+		// when we know if all the parts made it
+		if ($chunks === 1)
 		{
 			$_SESSION['lgal_async'][$fileID] = basename($filename);
+
+			// My test setup? My local server, Bug in the code?  Other? If you send many small files, validateUpload()
+			// will fail due to  $_SESSION['lgal_async'][$fileID] not being set?
+			usleep(200000);
 		}
 
-		return $fileID;
+		return ['id' => $fileID, 'code' => ''];
+	}
+
+	public function combineChunks($fileID, $chunks, $filename)
+	{
+		$path = LevGal_Bootstrap::getGalleryDir();
+		$user_ident = $this->getUserIdentifier();
+		$in = $path . '/async_' . $user_ident . '_' . $fileID . '_part_*.dat';
+
+		// Check that all chunks do exist
+		$iterator = new GlobIterator($in, FilesystemIterator::SKIP_DOTS | FilesystemIterator::KEY_AS_FILENAME);
+		if (!$iterator->count() || $iterator->count() !== $chunks)
+		{
+			return $this->errorAsyncFile( 'not_found', $fileID);
+		}
+
+		// Combine the chunks in the correct order
+		$success = true;
+		$out = $path . '/async_' . $user_ident . '_' . $fileID . '.dat';
+		for ($i = 0; $i < $chunks; $i++)
+		{
+			$in = $path . '/async_' . $user_ident . '_' . $fileID . '_part_' . $i . '.dat';
+			$success &= file_put_contents($out, file_get_contents($in), LOCK_EX | FILE_APPEND) !== false;
+			@unlink($in);
+		}
+
+		// Often success feels empty!
+		if (empty($success))
+		{
+			return $this->errorAsyncFile( 'not_found', $fileID);
+		}
+
+		// Mark it as done
+		$_SESSION['lgal_async'][$fileID] = basename($filename);
+
+		return ['id' => $fileID, 'code' => ''];
 	}
 
 	public function validateUpload($fileID, $size, $filename)
 	{
 		// This is hardly bullet proof but we'll see.
-		$fileID = (int) $fileID;
 		$size = (int) $size;
 
 		$path = LevGal_Bootstrap::getGalleryDir();
 		$user_ident = $this->getUserIdentifier();
 		$local_file = 'async_' . $user_ident . '_' . $fileID . '.dat';
-
-		if (isset($_SESSION['lgal_async'][$fileID]) && is_array($_SESSION['lgal_async'][$fileID]))
-		{
-			// The upload wasn't actually finished but they tried submitting anyway.
-			@unlink($path . '/' . $local_file);
-
-			return 'async_invalid';
-		}
-
 		$filename = $this->sanitizeFilename($filename);
 
 		// Are we under quota?
@@ -598,10 +630,7 @@ class LevGal_Model_Upload
 		$result = @rename($path . '/' . $local_file, $path . '/files/' . $hash[0] . '/' . $hash[0] . $hash[1] . '/' . $destFile);
 
 		// And clean up in session.
-		if ($result)
-		{
-			//unset ($_SESSION['lgal_async'][$fileID]);
-		}
+		unset ($_SESSION['lgal_async'][$fileID]);
 
 		return $result ? $hash : false;
 	}

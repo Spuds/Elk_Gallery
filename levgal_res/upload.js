@@ -45,23 +45,24 @@ function addFileFilter(file, quota)
 function is_submittable()
 {
 	var local_submittable = true;
-	if (document.getElementById('item_name').value.trim() === '')
+
+	item = document.getElementById('item_name');
+	if (item !== null && item.value.trim() === '')
 	{
 		display_error(txt.upload_no_title, false);
 		local_submittable = false;
 	}
 
-	if (document.getElementById('upload_type').value === 'file')
+	let type = document.getElementById('upload_type')
+	if (type !== null && type.value === 'file')
 	{
 		if (local_submittable && submittable)
 		{
 			return true;
 		}
-		else
-		{
-			display_error(txt.upload_no_file, !local_submittable);
-			return false;
-		}
+
+		display_error(txt.upload_no_file, !local_submittable);
+		return false;
 	}
 	else
 	{
@@ -112,7 +113,8 @@ function get_upload_defaults()
 		chunking: true,
 		retryChunks: true,
 		parallelUploads: 1,
-		chunkSize: 250000,
+		chunkSize: 200000,
+		parallelChunkUploads: true,
 	};
 }
 
@@ -127,13 +129,44 @@ function beginUpload()
 	return false;
 }
 
-function onFileSend(data)
+function onChunkComplete(data)
 {
-	if (!data)
+	if (typeof data === 'undefined')
 	{
 		return false;
 	}
 
+	// This is less than ideal, but chunking does not update the template with uuid, so we
+	// have to search by name, which is not necessarily unique
+	data = data.responseJSON;
+	if (typeof data.error !== 'undefined')
+	{
+		let myNames = document.getElementsByClassName('name'),
+			el = null;
+		for (let i = 0; i < myNames.length; i++)
+		{
+			if (myNames[i].innerHTML === data.filename)
+			{
+				el = myNames[i].nextElementSibling;
+				break;
+			}
+		}
+
+		if (el !== null && typeof data.error !== 'undefined')
+		{
+			el.innerHTML = '<span class="error">' + txt.error_occurred + ': ' + data.error + '</span>';
+		}
+	}
+
+	return true;
+}
+
+function onFileSend(data)
+{
+	if (typeof data === 'undefined')
+	{
+		return false;
+	}
 	for (var i in urls)
 	{
 		if (urls[i].async === data.async && urls[i].url === "")
@@ -142,7 +175,13 @@ function onFileSend(data)
 
 			fileCount = fileCount - 1;
 			urls[i].url = data.url;
-			el.innerHTML = '<button class="button_submit"><span class="icon i-external-link"></span> <a href="' + urls[i].url + '" target="_blank">' + txt.view_item + '</a></button>';
+
+			if (typeof data.error !== 'undefined')
+			{
+				el.innerHTML = '<span class="error">' + txt.error_occurred + ': ' + data.error + '</span>';
+			}
+			else
+				el.innerHTML = '<button class="button_submit"><span class="icon i-external-link"></span> <a href="' + urls[i].url + '" target="_blank">' + txt.view_item + '</a></button>';
 		}
 	}
 
@@ -151,13 +190,6 @@ function onFileSend(data)
 		document.querySelector("#total-progress .progress-bar").innerHTML = txt.upload_complete;
 		document.querySelector(".dz-default.dz-message").innerHTML = txt.upload_complete;
 	}
-
-	/**
-	 * Seems some files can be "lost" in session.  We receive a valid async value from the initial upload (saveAsyncFile)
-	 * but the addBulk callback process (validateUpload) does not find it in the session array?  Race condition
-	 * somewhere? Disable it in on.complete and enabling it here fixes the issue at the expense of loosing speed and true async
-	 */
-	//uploader.processQueue();
 }
 
 function get_human_size(filesize)
