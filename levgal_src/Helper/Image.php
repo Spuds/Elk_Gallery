@@ -117,7 +117,7 @@ class LevGal_Helper_Image
 			4 => array('flip' => 'y'),
 			5 => array('rotate' => 90, 'flip' => 'x'),
 			6 => array('rotate' => 90),
-			7 => array('rotate' => 270, 'flip' => 'y'),
+			7 => array('rotate' => 270, 'flip' => 'x'),
 			8 => array('rotate' => 270),
 		);
 		if (isset($transforms[$current_orientation]))
