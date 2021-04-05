@@ -39,7 +39,7 @@ function switchUploadType(selected)
 // Because this is better than using jQuery. Based on sendXMLDocument.
 function sendJSONDocument(sUrl, sContent, funcCallback)
 {
-	var oSendDoc = new window.XMLHttpRequest(),
+	let oSendDoc = new window.XMLHttpRequest(),
 		oCaller = this;
 
 	if (typeof(funcCallback) !== 'undefined')
@@ -56,7 +56,10 @@ function sendJSONDocument(sUrl, sContent, funcCallback)
 			}
 			else
 			{
-				funcCallback.call(oCaller, false);
+				if (typeof oSendDoc.response !== "undefined")
+					funcCallback.call(oCaller, JSON.parse(oSendDoc.response));
+				else
+					funcCallback.call(oCaller, false);
 			}
 		};
 	}
@@ -77,11 +80,11 @@ function handleLike(link)
 	{
 		ajax_indicator(true);
 		sendJSONDocument(link.href, '', function (data) {
-			ajax_indicator(false);
 			if (data)
 			{
 				document.getElementById("item_likes").innerHTML = data.likes;
 			}
+			ajax_indicator(false);
 			return false;
 		});
 		return false;
@@ -94,7 +97,6 @@ function handleBookmark(link)
 	{
 		ajax_indicator(true);
 		sendJSONDocument(link.href, '', function (data) {
-			ajax_indicator(false);
 			if (data)
 			{
 				var el = document.querySelectorAll("#sidebar_actions_bookmark, #sidebar_actions_unbookmark");
@@ -103,6 +105,7 @@ function handleBookmark(link)
 					el[i].innerHTML = data.link;
 				}
 			}
+			ajax_indicator(false);
 			return false;
 		});
 		return false;
