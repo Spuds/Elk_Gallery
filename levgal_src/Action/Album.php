@@ -263,7 +263,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 			LevGal_Helper_Http::jsonResponse(array('error' => 'session_timeout', 'fatal' => true));
 		}
 
-		$filename = isset($_REQUEST['name']) ? $_REQUEST['name'] : $_FILES['file']['name'];
+		$filename = $_POST['async_filename'] ?? $_FILES['file']['name'];
 		$uploadModel = new LevGal_Model_Upload();
 		$result = $uploadModel->saveAsyncFile($filename);
 
@@ -444,7 +444,6 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 			}
 		}
 
-		unset($_SESSION['lgal_async']);
 		$context['description_box']->createEditor(array(
 			'value' => $context['description_box']->getForForm($context['description']),
 			'labels' => array(
@@ -520,16 +519,13 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 				'quotas' => $uploadModel->getAllQuotas(),
 			);
 		}
-		// Housekeeping, clean up session when displaying the file form and NOT saving
 		if (!isset($_POST['save']))
 		{
-			//unset($_SESSION['lgal_async']);
-
 			return;
 		}
 		// When we receive an upload and the file is done, we call this function AJAXively
 		// and return some JSON.
-		if (($error = checkSession('post', '', false)) !== '')
+		if (isset($_POST['save']) && ($error = checkSession('post', '', false)) !== '')
 		{
 			LevGal_Helper_Http::jsonResponse(array(
 				'error' => 'session_timeout',

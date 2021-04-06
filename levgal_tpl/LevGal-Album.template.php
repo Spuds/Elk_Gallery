@@ -569,7 +569,7 @@ function template_add_single_item()
 					url: elk_prepareScriptUrl(elk_scripturl) + ' . JavaScriptEscape(str_replace($scripturl . '?', '', $context['album_details']['album_url']) . 'chunked/') . ',
 					data: {
 						async_chunks: file.upload.chunks.length,
-						async_filename: file.name.php_urlencode(),
+						async_filename: encodeURIComponent(file.name),
 						async: file.upload.uuid,
 						' . $context['session_var'] . ': "' . $context['session_id'] . '"
 					},
@@ -756,12 +756,15 @@ function template_add_bulk_items()
        			});
       			this.on("sending", function(file, xhr, formData) 
       			{
-      				formData.append("' . $context['session_var'] . '", "' . $context['session_id']  . '");
-      				formData.append("async", file.upload.uuid);
+      				if (sessionStorage.getItem(file.upload.uuid) === file.name)
+					{
+      					formData.append("' . $context['session_var'] . '", "' . $context['session_id'] . '");
+      					formData.append("async", file.upload.uuid);
+      					formData.append("async_filename", encodeURIComponent(file.name));
+      				}
 
 		      		document.getElementById("total-progress").style.opacity = "1";
-	      		
-				});
+	      		});
 				this.on("success", function(file, response)
 				{
 					$.ajax({
@@ -769,8 +772,7 @@ function template_add_bulk_items()
 						url: elk_prepareScriptUrl(elk_scripturl) + ' . JavaScriptEscape(str_replace($scripturl . '?', '', $context['album_details']['album_url']) . 'addbulk/') . ',
 						data: {
 							save: 1,
-							async_chunks: typeof file.upload.chunks !== "undefined" ? file.upload.chunks.length : 1,
-							async_filename: file.name.php_urlencode(),
+							async_filename: encodeURIComponent(file.name),
 							async: response.async,
 							async_size: file.size,
 							' . $context['session_var'] . ': "' . $context['session_id'] . '"
@@ -795,13 +797,14 @@ function template_add_bulk_items()
 						}
 					})
 				});
-				this.on("complete", function()
+				this.on("complete", function(file)
 				{
 					uploader.processQueue();
+					sessionStorage.removeItem(file.upload.uuid);
+
 				});
 				this.on("error", function (file, msg, xhr)
 				{
-					console.log(msg);
 					msg = typeof msg !== "undefined" ? msg : txt.upload_failed;
 					let response = {"error": msg, "fatal": false};
 					if (typeof xhr !== "undefined")
@@ -824,6 +827,7 @@ function template_add_bulk_items()
 					display_error(result, true);
 					this.removeFile(file);
 				}
+				sessionStorage.setItem(file.upload.uuid, file.name);
 				done();
 			},
 			chunksUploaded: function(file, done)
@@ -834,7 +838,7 @@ function template_add_bulk_items()
 					url: elk_prepareScriptUrl(elk_scripturl) + ' . JavaScriptEscape(str_replace($scripturl . '?', '', $context['album_details']['album_url']) . 'chunked/') . ',
 					data: {
 						async_chunks: file.upload.chunks.length,
-						async_filename: file.name.php_urlencode(),
+						async_filename: encodeURIComponent(file.name),
 						async: file.upload.uuid,
 						' . $context['session_var'] . ': "' . $context['session_id'] . '"
 					},

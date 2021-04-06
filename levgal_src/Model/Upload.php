@@ -361,7 +361,7 @@ class LevGal_Model_Upload
 
 	public function getFileHash($filename)
 	{
-		return sha1(md5($filename . time()) . mt_rand());
+		return hash('sha1', hash('md5', $filename . time()) . mt_rand());
 	}
 
 	public function baseFile($id, $filename, $hash)
@@ -401,7 +401,6 @@ class LevGal_Model_Upload
 		$error = isset($txt['lgal_async_' . $code]) ? $txt['lgal_async_' . $code] : $code;
 
 		// Clean up
-		unset($_SESSION['lgal_async'][$fileID]);
 		$path = LevGal_Bootstrap::getGalleryDir();
 		$user_ident = $this->getUserIdentifier();
 		$in = $path . '/async_' . $user_ident . '_' . $fileID . '*.dat';
@@ -481,13 +480,13 @@ class LevGal_Model_Upload
 		}
 
 		$path = LevGal_Bootstrap::getGalleryDir();
-		$user_ident = $this->getUserIdentifier();
-		$local_file = 'async_' . $user_ident . '_' . $fileID . ($chunks > 1 ? '_part_' . $chunk : '') . '.dat';
 		if (!is_writable($path))
 		{
 			return $this->errorAsyncFile( 'not_writable', $fileID);
 		}
 
+		$user_ident = $this->getUserIdentifier();
+		$local_file = 'async_' . $user_ident . '_' . $fileID . ($chunks > 1 ? '_part_' . $chunk : '') . '.dat';
 		$out = $path . '/' . $local_file;
 		$in = $_FILES['file']['tmp_name'];
 		@move_uploaded_file($in, $out);
@@ -495,17 +494,6 @@ class LevGal_Model_Upload
 		if (!$success)
 		{
 			return $this->errorAsyncFile( 'not_found', $fileID);
-		}
-
-		// Successful? Store details in session and return id. Chunked files will do this during combineChunks
-		// when we know if all the parts made it
-		if ($chunks === 1)
-		{
-			$_SESSION['lgal_async'][$fileID] = basename($filename);
-
-			// My test setup? My local server, Bug in the code?  Other? If you send many small files, validateUpload()
-			// will fail due to  $_SESSION['lgal_async'][$fileID] not being set?
-			usleep(200000);
 		}
 
 		return ['id' => $fileID, 'code' => ''];
@@ -534,14 +522,11 @@ class LevGal_Model_Upload
 			@unlink($in);
 		}
 
-		// Often success feels empty!
+		// Often success feels empty
 		if (empty($success))
 		{
 			return $this->errorAsyncFile( 'not_found', $fileID);
 		}
-
-		// Mark it as done
-		$_SESSION['lgal_async'][$fileID] = basename($filename);
 
 		return ['id' => $fileID, 'code' => ''];
 	}
@@ -601,10 +586,8 @@ class LevGal_Model_Upload
 			}
 		}
 
-		if (isset($_SESSION['lgal_async'][$fileID])
-			&& (basename($filename) == $_SESSION['lgal_async'][$fileID])
-			&& @file_exists($path . '/' . $local_file)
-			&& @filesize($path . '/' . $local_file) == $size)
+		if (@file_exists($path . '/' . $local_file)
+			&& @filesize($path . '/' . $local_file) === $size)
 		{
 			return true;
 		}
@@ -628,9 +611,6 @@ class LevGal_Model_Upload
 		$this->file_model->makePath($hash);
 
 		$result = @rename($path . '/' . $local_file, $path . '/files/' . $hash[0] . '/' . $hash[0] . $hash[1] . '/' . $destFile);
-
-		// And clean up in session.
-		unset ($_SESSION['lgal_async'][$fileID]);
 
 		return $result ? $hash : false;
 	}
