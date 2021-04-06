@@ -34,6 +34,7 @@ $txt['lgal_item_press_browse'] = 'To upload, press the browse button - ';
 $txt['lgal_item_drag_here'] = 'Drag a file here to upload, or click to select one.';
 $txt['lgal_item_browse'] = 'Browse...';
 $txt['lgal_item_want_to_add_file'] = 'I want to add a file';
+$txt['lgal_item_want_to_edit_file'] = 'I want to change the file';
 $txt['lgal_item_want_to_add_link'] = 'I want to link to a website';
 
 // Bulk uploading:
