@@ -783,7 +783,7 @@ function template_add_bulk_items()
 					
 							if (el.length)
 							{
-								spanProgress = "<span id=\"async_" + response.async + "\">" + txt.processing + "</span>";
+								spanProgress = "<span id=\"async_" + response.async + "\"><i class=\"icon icon-spin i-spinner\"></i>" + txt.processing + "</span>";
 								el[0].parentElement.innerHTML = spanProgress;
 							}
 						},
@@ -801,7 +801,6 @@ function template_add_bulk_items()
 				{
 					uploader.processQueue();
 					sessionStorage.removeItem(file.upload.uuid);
-
 				});
 				this.on("error", function (file, msg, xhr)
 				{
