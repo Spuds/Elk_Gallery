@@ -245,8 +245,6 @@ function template_sidebar_action_list($title, $action_list)
 
 		foreach ($actions as $id_action => $action)
 		{
-
-
 			echo '
 							<li id="sidebar_', $action_group, '_', $id_action, '">
 								<a href="', $action[1], '"', empty($action[2]) ? '' : ' class="new_win" target="_blank"', empty($action['title']) ? '' : ' title="' . $action['title'] . '"', empty($action['js']) ? '' : ' ' . $action['js'], '>
