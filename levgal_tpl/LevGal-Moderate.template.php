@@ -36,8 +36,7 @@ function template_moderate_main()
 
 	echo '
 			</div>
-		</div>
-	<br class="clear" />';
+		</div>';
 }
 
 function template_block_unapproved_comments()
@@ -45,16 +44,16 @@ function template_block_unapproved_comments()
 	global $context, $txt, $scripturl;
 
 	echo '
-		<h3 class="secondary_header">
+		<h3 class="category_header hdicon cat_img_talk">
 			<a href="', $scripturl, '?media/moderate/unapproved_comments/">', $txt['lgal_recent_unapproved_comments'], '</a>
 		</h3>
 		<div class="content modbox">
-			<ul class="reset">';
+			<ul>';
 
 	foreach ($context['moderation']['unapproved_comments'] as $comment)
 	{
 		echo '
-				<li class="smalltext">
+				<li>
 					', sprintf($txt['lgal_mod_comment_text'], $comment['comment_url'], $comment['item_url'], $comment['item_name'], $comment['author'], $comment['time_added_format']), '
 				</li>';
 	}
@@ -63,8 +62,8 @@ function template_block_unapproved_comments()
 	if (empty($context['moderation']['unapproved_comments']))
 	{
 		echo '
-				<li>
-					<strong class="smalltext">', $txt['lgal_recent_unapproved_comments_none'], '</strong>
+				<li class="infobox">
+					<strong>', $txt['lgal_recent_unapproved_comments_none'], '</strong>
 				</li>';
 	}
 
@@ -78,16 +77,17 @@ function template_block_unapproved_items()
 	global $context, $txt, $scripturl;
 
 	echo '
-		<h3 class="secondary_header">
+		<h3 class="category_header hdicon cat_img_attachments">
 			<a href="', $scripturl, '?media/moderate/unapproved_items/">', $txt['lgal_recent_unapproved_items'], '</a>
 		</h3>
 		<div class="content modbox">
-			<ul class="reset">';
+			<ul>';
 
 	foreach ($context['moderation']['unapproved_items'] as $item)
 	{
 		echo '
-				<li class="smalltext">
+				<li>
+					<i class="icon i-view"></i>
 					', sprintf($txt['lgal_mod_item_text'], $item['item_url'], $item['item_name'], $item['author'], $item['time_added_format']), '
 				</li>';
 	}
@@ -96,8 +96,8 @@ function template_block_unapproved_items()
 	if (empty($context['moderation']['unapproved_items']))
 	{
 		echo '
-				<li>
-					<strong class="smalltext">', $txt['lgal_recent_unapproved_items_none'], '</strong>
+				<li class="infobox">
+					<strong>', $txt['lgal_recent_unapproved_items_none'], '</strong>
 				</li>';
 	}
 
@@ -111,16 +111,17 @@ function template_block_unapproved_albums()
 	global $context, $txt, $scripturl;
 
 	echo '
-		<h3 class="secondary_header">
+		<h3 class="category_header hdicon cat_img_database">
 			<a href="', $scripturl, '?media/moderate/unapproved_albums/">', $txt['lgal_recent_unapproved_albums'], '</a>
 		</h3>
 		<div class="content modbox">
-			<ul class="reset">';
+			<ul>';
 
 	foreach ($context['moderation']['unapproved_albums'] as $album)
 	{
 		echo '
-				<li class="smalltext">
+				<li>
+					<i class="icon i-view"></i>
 					', sprintf($txt['lgal_mod_album_text'], $album['album_url'], $album['album_name']), '
 				</li>';
 	}
@@ -129,8 +130,8 @@ function template_block_unapproved_albums()
 	if (empty($context['moderation']['unapproved_albums']))
 	{
 		echo '
-				<li>
-					<strong class="smalltext">', $txt['lgal_recent_unapproved_albums_none'], '</strong>
+				<li class="infobox">
+					<strong>', $txt['lgal_recent_unapproved_albums_none'], '</strong>
 				</li>';
 	}
 
@@ -144,16 +145,17 @@ function template_block_reported_comments()
 	global $context, $txt, $scripturl;
 
 	echo '
-		<h3 class="secondary_header">
+		<h3 class="category_header hdicon cat_img_moderation">
 			<a href="', $scripturl, '?media/moderate/reported_comments/">', $txt['lgal_recent_reported_comments'], '</a>
 		</h3>
 		<div class="content modbox">
-			<ul class="reset">';
+			<ul>';
 
 	foreach ($context['moderation']['reported_comments'] as $comment)
 	{
 		echo '
-				<li class="smalltext">
+				<li>
+					<i class="icon i-flag"></i>
 					', sprintf($txt['lgal_mod_comment_text'], $comment['report_url'], $comment['item_url'], $comment['item_name'], $comment['author'], $comment['time_started_format']), '
 				</li>';
 	}
@@ -162,8 +164,8 @@ function template_block_reported_comments()
 	if (empty($context['moderation']['reported_comments']))
 	{
 		echo '
-				<li>
-					<strong class="smalltext">', $txt['lgal_recent_reported_comments_none'], '</strong>
+				<li class="infobox">
+					<strong>', $txt['lgal_recent_reported_comments_none'], '</strong>
 				</li>';
 	}
 
@@ -177,16 +179,17 @@ function template_block_reported_items()
 	global $context, $txt, $scripturl;
 
 	echo '
-		<h3 class="secondary_header">
+		<h3 class="category_header hdicon cat_img_moderation">
 			<a href="', $scripturl, '?media/moderate/reported_items/">', $txt['lgal_recent_reported_items'], '</a>
 		</h3>
 		<div class="content modbox">
-			<ul class="reset">';
+			<ul>';
 
 	foreach ($context['moderation']['reported_items'] as $item)
 	{
 		echo '
-				<li class="smalltext">
+				<li>
+					<i class="icon i-flag"></i>
 					', sprintf($txt['lgal_mod_item_text'], $item['report_url'], $item['item_name'], $item['author'], $item['time_added_format']), '
 				</li>';
 	}
@@ -195,8 +198,8 @@ function template_block_reported_items()
 	if (empty($context['moderation']['reported_items']))
 	{
 		echo '
-				<li>
-					<strong class="smalltext">', $txt['lgal_recent_reported_items_none'], '</strong>
+				<li class="infobox">
+					<strong>', $txt['lgal_recent_reported_items_none'], '</strong>
 				</li>';
 	}
 

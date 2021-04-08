@@ -12,9 +12,6 @@ function template_main()
 {
 	template_main_page_sidebar();
 	template_main_page_display();
-
-	echo '
-		<br class="clear" />';
 }
 
 function template_main_page_sidebar()
@@ -245,8 +242,6 @@ function template_sidebar_action_list($title, $action_list)
 
 		foreach ($actions as $id_action => $action)
 		{
-
-
 			echo '
 							<li id="sidebar_', $action_group, '_', $id_action, '">
 								<a href="', $action[1], '"', empty($action[2]) ? '' : ' class="new_win" target="_blank"', empty($action['title']) ? '' : ' title="' . $action['title'] . '"', empty($action['js']) ? '' : ' ' . $action['js'], '>
@@ -461,7 +456,7 @@ function template_album_list_main()
 				echo '
 				<div class="album_featured well">
 					<div class="floatleft album_thumb">
-						<img src="', $settings['default_theme_url'], '/levgal_res/albums/folder-image.png" alt="" />
+						<img src="', $settings['default_theme_url'], '/levgal_res/albums/folder-image.svg" alt="" />
 					</div>
 					<div class="album_desc lefttext">
 						<a href="', $group['url'], '">', $group['title'], '</a><br />

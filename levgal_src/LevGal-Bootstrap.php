@@ -321,6 +321,7 @@ class LevGal_Bootstrap
 					'title' => $txt['levgal'],
 					'href' => $scripturl . '?media/',
 					'show' => true,
+					'data-icon' => 'i-picture',
 					'sub_buttons' => array(
 						'albumlist' => array(
 							'title' => $txt['lgal_see_albums'],

@@ -154,6 +154,11 @@ dl.album_details dd, dl.album_info dd {
 	margin: 0 10px;
 }
 
+.generic_thumb {
+	width: 120px;
+	height: 120px;
+}
+
 .album_featured .album_desc {
 	margin-top: 5px;
 }
@@ -370,7 +375,7 @@ ul.lgalactions li.lgal_approve {background: url(buttons/approve.png) no-repeat 4
 ul.lgalactions li.lgal_edit {background: url(buttons/edit.png) no-repeat 4px 3px;}
 ul.lgalactions li.lgal_delete {background: url(buttons/delete.png) no-repeat 4px 3px;}
 
-#privacy_custom > label > img, #configure_owner_group > label > img {
+#privacy_custom > label > img, #configure_owner_group > label > img, .ownership_group > dd > label >  img{
 	margin: 0;
 }
 
@@ -728,4 +733,8 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 
 .i-options::before {
 	content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23000000' viewBox='0 0 36 36'%3E%3Cpath d='M0 0h9v9H0zm13.5 2.25H36v4.5H13.5zM0 13.5h9v9H0zm13.5 2.25H36v4.5H13.5zM0 27h9v9H0zm13.5 2.25H36v4.5H13.5z'/%3E%3C/svg%3E");
+}
+
+.i-approveitem::before {
+	content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%234CAF50' viewBox='0 0 32 32'%3E%3Cpath d='M27 4L12 19l-7-7-5 5 12 12L32 9z'/%3E%3C/svg%3E");
 }

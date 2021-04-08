@@ -15,11 +15,7 @@ function template_main_item_view()
 	template_main_item_sidebar();
 	template_main_item_display();
 
-	// And now we have to make sure we fix floats.
-	echo '
-		<br class="clear" />';
-
-	// And now we need the JavaScript for our copy buttons.
+	// Now we need the JavaScript for our copy buttons.
 	echo '
 	<script src="', $settings['default_theme_url'], '/levgal_res/clipboard/clipboard.min.js"></script>
 	<script>

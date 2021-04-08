@@ -24,9 +24,6 @@ function template_unseen()
 		template_unseen_sidebar();
 		template_unseen_display();
 	}
-
-	echo '
-		<br class="clear" />';
 }
 
 function template_unseen_sidebar()
@@ -106,7 +103,7 @@ function template_unseen_display()
 	if (!empty($context['unseen_pageindex']))
 	{
 		echo '
-			<div class="pagesection">', $txt['pages'], ': ', $context['unseen_pageindex'], '</div>';
+			<div class="pagesection" style="clear: none">', $txt['pages'], ': ', $context['unseen_pageindex'], '</div>';
 	}
 
 	template_item_list('unseen_items');

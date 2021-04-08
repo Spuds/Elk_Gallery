@@ -30,6 +30,10 @@ function template_main_album_display()
 			<div class="album_container">';
 		foreach ($context['album_family'] as $owner_type => $owners)
 		{
+			if (empty($owners))
+			{
+				continue;
+			}
 			foreach ($owners as $owner => $albums)
 			{
 				echo '
@@ -783,7 +787,7 @@ function template_add_bulk_items()
 					
 							if (el.length)
 							{
-								spanProgress = "<span id=\"async_" + response.async + "\">" + txt.processing + "</span>";
+								spanProgress = "<span id=\"async_" + response.async + "\"><i class=\"icon icon-spin i-spinner\"></i>" + txt.processing + "</span>";
 								el[0].parentElement.innerHTML = spanProgress;
 							}
 						},
@@ -801,7 +805,6 @@ function template_add_bulk_items()
 				{
 					uploader.processQueue();
 					sessionStorage.removeItem(file.upload.uuid);
-
 				});
 				this.on("error", function (file, msg, xhr)
 				{
@@ -876,7 +879,7 @@ function template_delete_album()
 
 	echo '
 						<div class="delete_ays">', $txt['lgal_delete_album_are_you_sure'], '</div>
-						<div class="submitbutton">
+						<div>
 							<input type="submit" name="delete" value="', $txt['lgal_delete_album_delete'], '" />
 							<input type="submit" name="cancel" value="', $txt['lgal_delete_album_cancel'], '" />
 							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
@@ -913,8 +916,7 @@ function template_notify_album()
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 				</div>
 			</div>
-		</form>
-		<br class="clear" />';
+		</form>';
 }
 
 function template_edit_album()
