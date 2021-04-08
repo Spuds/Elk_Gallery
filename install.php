@@ -601,7 +601,7 @@ foreach ($tables as $table)
 
 	// This table requires one or more fulltext indexes. If for some weird-ass reason others exist,
 	// leave them alone, but we need to verify the ones the installer demands.
-	if (!empty($table['parameters']['requires_fulltext']) && ($db_type == 'mysql') )
+	if (!empty($table['parameters']['requires_fulltext']) && ($db_type === 'mysql') )
 	{
 		$indexes_to_build = $table['parameters']['requires_fulltext'];
 		$request = $db->query('', '
