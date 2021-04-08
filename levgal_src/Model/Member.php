@@ -146,7 +146,7 @@ class LevGal_Model_Member
 		);
 
 		$count = 0;
-		if($db->num_rows($$request))
+		if($db->num_rows($request))
 			list ($count) = $db->fetch_row($request);
 
 		$db->free_result($request);
