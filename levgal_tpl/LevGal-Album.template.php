@@ -574,7 +574,7 @@ function template_add_single_item()
 					url: elk_prepareScriptUrl(elk_scripturl) + ' . JavaScriptEscape(str_replace($scripturl . '?', '', $context['album_details']['album_url']) . 'chunked/') . ',
 					data: {
 						async_chunks: file.upload.chunks.length,
-						async_filename: encodeURIComponent(file.name),
+						async_filename: file.name.php_urlencode(),
 						async: file.upload.uuid,
 						' . $context['session_var'] . ': "' . $context['session_id'] . '"
 					},
@@ -765,7 +765,7 @@ function template_add_bulk_items()
 					{
       					formData.append("' . $context['session_var'] . '", "' . $context['session_id'] . '");
       					formData.append("async", file.upload.uuid);
-      					formData.append("async_filename", encodeURIComponent(file.name));
+      					formData.append("async_filename", file.name.php_urlencode());
       				}
 
 		      		document.getElementById("total-progress").style.opacity = "1";
@@ -777,7 +777,7 @@ function template_add_bulk_items()
 						url: elk_prepareScriptUrl(elk_scripturl) + ' . JavaScriptEscape(str_replace($scripturl . '?', '', $context['album_details']['album_url']) . 'addbulk/') . ',
 						data: {
 							save: 1,
-							async_filename: encodeURIComponent(file.name),
+							async_filename: file.name.php_urlencode(),
 							async: response.async,
 							async_size: file.size,
 							' . $context['session_var'] . ': "' . $context['session_id'] . '"
@@ -842,7 +842,7 @@ function template_add_bulk_items()
 					url: elk_prepareScriptUrl(elk_scripturl) + ' . JavaScriptEscape(str_replace($scripturl . '?', '', $context['album_details']['album_url']) . 'chunked/') . ',
 					data: {
 						async_chunks: file.upload.chunks.length,
-						async_filename: encodeURIComponent(file.name),
+						async_filename: file.name.php_urlencode(),
 						async: file.upload.uuid,
 						' . $context['session_var'] . ': "' . $context['session_id'] . '"
 					},

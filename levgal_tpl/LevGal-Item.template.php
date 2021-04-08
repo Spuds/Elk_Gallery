@@ -1057,7 +1057,7 @@ function template_edit_item()
 					url: elk_prepareScriptUrl(elk_scripturl) + ' . JavaScriptEscape(str_replace($scripturl . '?', '', $context['album_details']['album_url']) . 'chunked/') . ',
 					data: {
 						async_chunks: file.upload.chunks.length,
-						async_filename: encodeURIComponent(file.name),
+						async_filename: file.name.php_urlencode(),
 						async: file.upload.uuid,
 						' . $context['session_var'] . ': "' . $context['session_id'] . '"
 					},
