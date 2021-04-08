@@ -103,7 +103,7 @@ function template_unseen_display()
 	if (!empty($context['unseen_pageindex']))
 	{
 		echo '
-			<div class="pagesection" style="clear: none">', $txt['pages'], ': ', $context['unseen_pageindex'], '</div>';
+			<div class="pagesection" style="clear: none">', $context['unseen_pageindex'], '</div>';
 	}
 
 	template_item_list('unseen_items');

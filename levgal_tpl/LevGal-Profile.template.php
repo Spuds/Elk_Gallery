@@ -70,15 +70,17 @@ function template_levgal_profile_items()
 	else
 	{
 		echo '
-			 <ul class="pagelinks">', $context['page_index'], '</ul>';
+			<div class="pagesection">
+				<ul class="pagelinks">', $context['page_index'], '</ul>
+			</div>';
+
 		template_item_list('profile_items');
 
 		echo '
-			<ul class="pagelinks">', $context['page_index'], '</ul>';
+			<div class="pagesection">
+				<ul class="pagelinks">', $context['page_index'], '
+			</div>';
 	}
-
-	echo '
-			<br class="clear" />';
 }
 
 function template_levgal_profile_bookmarks()

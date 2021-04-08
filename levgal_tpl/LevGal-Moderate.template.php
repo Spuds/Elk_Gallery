@@ -216,7 +216,7 @@ function template_moderate_unapproved_comments()
 		<h3 class="secondary_header">', $txt['levgal_unapproved_comments'], '</h3>';
 
 	echo '
-		<div class="pagesection">', $txt['pages'], ': ', $context['pageindex'], '</div>';
+		<div class="pagesection">', $context['pageindex'], '</div>';
 
 	if (empty($context['comments']))
 	{
@@ -255,7 +255,7 @@ function template_moderate_unapproved_comments()
 	}
 
 	echo '
-		<div class="pagesection">', $txt['pages'], ': ', $context['pageindex'], '</div>';
+		<div class="pagesection">', $context['pageindex'], '</div>';
 
 	echo '
 		<br class="clear" />';
@@ -269,7 +269,7 @@ function template_moderate_unapproved_items()
 		<h3 class="secon">', $txt['levgal_unapproved_items'], '</h3>';
 
 	echo '
-		<div class="pagesection">', $txt['pages'], ': ', $context['pageindex'], '</div>';
+		<div class="pagesection">', $context['pageindex'], '</div>';
 
 	echo '
 		<table class="table_grid" style="width: 100%;">
@@ -321,7 +321,7 @@ function template_moderate_unapproved_items()
 		</table>';
 
 	echo '
-		<div class="pagesection">', $txt['pages'], ': ', $context['pageindex'], '</div>';
+		<div class="pagesection">', $context['pageindex'], '</div>';
 }
 
 function template_moderate_unapproved_albums()
@@ -332,7 +332,7 @@ function template_moderate_unapproved_albums()
 		<h3 class="secondary_header">', $txt['levgal_unapproved_albums'], '</h3>';
 
 	echo '
-		<div class="pagesection">', $txt['pages'], ': ', $context['pageindex'], '</div>';
+		<div class="pagesection">', $context['pageindex'], '</div>';
 
 	echo '
 		<table class="table_grid" style="width: 100%;">
@@ -380,7 +380,7 @@ function template_moderate_unapproved_albums()
 		</table>';
 
 	echo '
-		<div class="pagesection">', $txt['pages'], ': ', $context['pageindex'], '</div>';
+		<div class="pagesection">', $context['pageindex'], '</div>';
 }
 
 function template_moderate_reported_comments()
@@ -410,7 +410,7 @@ function template_moderate_reported_comments()
 		<h3 class="secondary_header">', $context['page_title'], '</h3>';
 
 	echo '
-		<div class="pagesection">', $txt['pages'], ': ', $context['pageindex'], '</div>';
+		<div class="pagesection">', $context['pageindex'], '</div>';
 
 	foreach ($context['comments'] as $comment)
 	{
@@ -442,7 +442,7 @@ function template_moderate_reported_comments()
 	}
 
 	echo '
-		<div class="pagesection">', $txt['pages'], ': ', $context['pageindex'], '</div>
+		<div class="pagesection">', $context['pageindex'], '</div>
 		<br class="clear" />';
 }
 
@@ -473,7 +473,7 @@ function template_moderate_reported_items()
 		<h3 class="secondary_header">', $context['page_title'], '</h3>';
 
 	echo '
-		<div class="pagesection">', $txt['pages'], ': ', $context['pageindex'], '</div>';
+		<div class="pagesection">', $context['pageindex'], '</div>';
 
 	$alternate = true;
 	foreach ($context['items'] as $item)
@@ -508,7 +508,7 @@ function template_moderate_reported_items()
 	}
 
 	echo '
-		<div class="pagesection">', $txt['pages'], ': ', $context['pageindex'], '</div>
+		<div class="pagesection">', $context['pageindex'], '</div>
 		<br class="clear" />';
 }
 

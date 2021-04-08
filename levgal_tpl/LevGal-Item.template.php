@@ -434,7 +434,7 @@ function template_main_item_comments()
 	if (!empty($context['item_pageindex']))
 	{
 		echo '
-				<div class="pagesection">', $txt['pages'], ': ', $context['item_pageindex'], '</div>';
+				<div class="pagesection">', $context['item_pageindex'], '</div>';
 	}
 
 	foreach ($context['item_comments'] as $id_comment => $comment)
