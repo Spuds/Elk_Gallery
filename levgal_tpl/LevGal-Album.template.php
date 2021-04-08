@@ -175,8 +175,9 @@ function template_main_album_sidebar()
 		{
 			echo '
 				<div class="album_group">
-					<div class="group_name">', $group['color_name'], ' ', sprintf($txt['lgal_see_more'], $scripturl . '?media/albumlist/' . $group_id . '/group/'), '</div>
-					<div class="group_stars">', $group['stars'], '</div>
+					<div class="group_name">', $group['color_name'], '</div>
+					<div class="group_stars">', $group['stars'], '</div>',
+					sprintf($txt['lgal_see_more'], $scripturl . '?media/albumlist/' . $group_id . '/group/'), '
 					<br class="clear" />
 				</div>';
 		}
