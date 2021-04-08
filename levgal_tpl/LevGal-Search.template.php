@@ -25,75 +25,69 @@ function template_search()
 
 	// Kicking off the upper form area.
 	echo '
-			<fieldset id="advanced_search">
-				<div class="well">';
-
-	// The actual search text bit
-	echo '
-					<span class="enhanced">
+			<fieldset id="advanced_search" class="content">
+				<div id="search_term_input">
+					<label for="search">
 						<strong>', $txt['lgal_search_for'], '</strong>
-						<input type="text" name="search"', empty($context['search_text']) ? '' : ' value="' . $context['search_text'] . '"', ' maxlength="100" size="50" class="input_text" />
-					</span>
-					<br /><br />';
+					</label>:
+					<input type="search" id="search" name="search"', empty($context['search_text']) ? '' : ' value="' . $context['search_text'] . '"', ' maxlength="100" size="50" required="required" autofocus="autofocus" />
+					<input id="submit" type="submit" name="submit" value="Search" class="button_submit">
+				</div>';
 
-	// Left panel of options
+	// Panel of options
 	echo '
-					<div>
-						<ul class="ignoreboards floatleft">
-							<li class="category">
-								', $txt['lgal_search_by_member'], '
-								<input id="search_member" type="text" name="search_member" value="', empty($context['search_member_display']) ? '' : '&quot;' . implode('&quot;, &quot;', $context['search_member_display']) . '&quot;', '" size="20" class="input_text" />
-								<div id="member_container"></div>
-							</li>
-							<li class="category lefttext">';
+				<div id="search_options">
+					<ul style="columns: 2">
+						<li class="lefttext">
+							', $txt['lgal_search_by_member'], '
+							<input id="search_member" type="text" name="search_member" value="', $context['search_params']['userspec'], '" size="20" class="input_text" />
+							<div id="member_container"></div>
+						</li>
+						<li class="lefttext clear_left">';
 
 	foreach (array('search_album_names', 'search_item_names', 'search_item_descs') as $type)
 	{
 		echo '
-								<label>
-									<input type="checkbox" name="', $type, '"', empty($context[$type]) ? '' : ' checked="checked"', ' class="input_check" /> ', $txt['lgal_' . $type], '
-								</label><br />';
+							<label>
+								<input type="checkbox" name="', $type, '"', empty($context[$type]) ? '' : ' checked="checked"', ' class="input_check" /> ', $txt['lgal_' . $type], '
+							</label>
+							<br />';
 	}
 
 	echo '
-							</li>';
+						</li>';
 
 	if (!empty($context['searchable_fields']))
 	{
 		echo '
-							<li class="category lefttext">';
+						<li class="lefttext">';
 		foreach ($context['searchable_fields'] as $field)
 		{
 			echo '
-								<label><input type="checkbox" name="search_field_', $field['id_field'], '"', in_array($field['id_field'], $context['selected_fields']) ? ' checked="checked"' : '', ' class="input_check" /> ', sprintf($txt['lgal_search_in_field'], $field['field_name']), '</label><br />';
+							<label
+								><input type="checkbox" name="search_field_', $field['id_field'], '"', in_array($field['id_field'], $context['selected_fields']) ? ' checked="checked"' : '', ' class="input_check" /> ', sprintf($txt['lgal_search_in_field'], $field['field_name']), '
+							</label>
+							<br />';
 		}
 		echo '
-							</li>';
+						</li>';
 	}
 
 	echo '
-						</ul>';
-
-	// Right panel of options
-	echo '
-						<ul class="ignoreboards floatright">
-							<li class="category lefttext">';
+						<li class="lefttext">';
 
 	foreach ($context['search_types'] as $type)
 	{
 		echo '
-								<label>
-									<input type="checkbox" name="search_', $type, '"', in_array($type, $context['selected_search_types']) ? ' checked="checked"' : '', ' class="input_check" />
-									', $txt['lgal_search_type_' . $type], '
-								</label><br />';
+							<label>
+								<input type="checkbox" name="search_', $type, '"', in_array($type, $context['selected_search_types']) ? ' checked="checked"' : '', ' class="input_check" />
+								', $txt['lgal_search_type_' . $type], '
+							</label>
+							<br />';
 	}
 	echo '
-							</li>
-						</ul>
-					</div>';
-
-	echo '
-					<br class="clear" />';
+						</li>
+					</ul>';
 
 	// Finishing the upper search area.
 	echo '
@@ -102,18 +96,18 @@ function template_search()
 
 	// Beginning the select-album area
 	echo '
-			<fieldset class="flow_hidden">
-				<div class="well">';
+			<fieldset class="flow_hidden content">';
 
 	// Selecting an album with collapse joy.
 	echo '
-					<h4 class="secondary_header">
-						<span id="search_toggle" class="toggle_down"></span>';
+				<h4 class="secondary_header">
+					<span id="search_toggle" class="toggle_down"></span>';
 
-	echo ' <a href="#" id="search_toggle_link">', $txt['lgal_search_by_album'], '</a>
-					</h4>
-					<div class="flow_auto" id="search_albums">
-						<ul class="ignoreboards floatleft">';
+	echo '
+					<a href="#" id="search_toggle_link">', $txt['lgal_search_by_album'], '</a>
+				</h4>
+				<div class="flow_auto" id="search_albums">
+					<ul class="ignoreboards floatleft">';
 
 	if (!empty($context['hierarchies']['site']))
 	{
@@ -137,19 +131,17 @@ function template_search()
 	}
 
 	echo '
-						</ul>
-					</div>';
+					</ul>';
 
 	// Ending the select-album area
 	echo '
-					<br class="clear" />
-					<div class="padding">
-						<input type="checkbox" name="all" id="check_all" value=""', $context['all_albums'] ? ' checked="checked"' : '', ' onclick="invertAll(this, this.form, \'alb\');" class="input_check floatleft" />
-						<label for="check_all" class="floatleft">', $txt['check_all'], '</label>
-						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-						<input type="submit" name="submit" value="Search" class="button_submit floatright">
+					<div class="submitbutton">
+						<span class="floatleft">
+							<input type="checkbox" name="all" id="check_all" value=""', $context['all_albums'] ? ' checked="checked"' : '', ' onclick="invertAll(this, this.form, \'alb\');" />
+							<label for="check_all"><em>', $txt['check_all'], '</em></label>
+							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+						</span>
 					</div>
-					<br class="clear" />
 				</div>
 			</fieldset>';
 

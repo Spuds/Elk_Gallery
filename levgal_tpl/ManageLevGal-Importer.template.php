@@ -60,7 +60,8 @@ function template_no_valid_importers()
 			<p class="information">', $txt['levgal_importer_desc'], '</p>
 			<div class="content">
 				<div>', $txt['levgal_import_supports'], '</div>
-				<ul>';
+				<br />
+				<ul class="bbc_list">';
 
 	foreach (array_keys($context['possible_importers']) as $import_id)
 	{
@@ -70,6 +71,7 @@ function template_no_valid_importers()
 
 	echo '
 				</ul>
+				<br />
 				<div>', $txt['levgal_no_valid_importer'], '</div>
 			</div>
 		</div>';
