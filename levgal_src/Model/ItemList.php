@@ -70,7 +70,7 @@ class LevGal_Model_ItemList
 			}
 		}
 
-		if (empty($album_list))
+		if (empty($album_list) || empty($items))
 		{
 			return array();
 		}
