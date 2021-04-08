@@ -1074,7 +1074,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 				'folder-video.svg' => 'icon_video',
 				'folder-remote.svg' => 'icon_remote',
 				'folder-home.svg' => 'icon_home',
-				'folder-favorites.svg' => 'icon-favorites',
+				'folder-favorites.svg' => 'icon_favorites',
 			),
 		);
 
