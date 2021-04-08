@@ -389,7 +389,7 @@ class LevGal_Model_AlbumList
 			FROM {db_prefix}lgal_owner_member AS lom
 				LEFT JOIN {db_prefix}members AS mem ON (lom.id_member = mem.id_member)' . ($album_list === true ? '' : '
 			WHERE lom.id_album IN ({array_int:album_list})') . '
-			GROUP BY lom.id_member
+			GROUP BY lom.id_member, mem.real_name
 			ORDER BY mem.real_name',
 			array(
 				'album_list' => $album_list,
@@ -419,7 +419,7 @@ class LevGal_Model_AlbumList
 			FROM {db_prefix}lgal_owner_group AS log
 				LEFT JOIN {db_prefix}membergroups AS mg ON (log.id_group = mg.id_group)' . ($album_list === true ? '' : '
 			WHERE log.id_album IN ({array_int:album_list})') . '
-			GROUP BY log.id_group
+			GROUP BY log.id_group, mg.group_name, mg.online_color, mg.{raw:stars_column}
 			ORDER BY mg.group_name',
 			array(
 				'album_list' => $album_list,

@@ -40,7 +40,7 @@ class LevGal_Model_Member
 
 		$request = $db->query('', '
 			SELECT 
-			    id_album, owner_cache
+				id_album, owner_cache
 			FROM {db_prefix}lgal_albums
 			ORDER BY null');
 		while ($row = $db->fetch_assoc($request))
@@ -124,6 +124,8 @@ class LevGal_Model_Member
 
 		$albumModel = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
 		$album_list = $albumModel->getVisibleAlbums();
+		if(empty($album_list))
+			return 0;
 
 		$can_see_all = allowedTo(array('lgal_manage', 'lgal_approve_item')) || $context['user']['id'] == $memID;
 
@@ -143,7 +145,10 @@ class LevGal_Model_Member
 			)
 		);
 
-		list ($count) = $db->fetch_row($request);
+		$count = 0;
+		if($db->num_rows($request))
+			list ($count) = $db->fetch_row($request);
+
 		$db->free_result($request);
 
 		return $count;
@@ -157,6 +162,8 @@ class LevGal_Model_Member
 
 		$albumModel = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
 		$album_list = $albumModel->getVisibleAlbums();
+		if(empty($album_list))
+			return 0;
 
 		$can_see_all = allowedTo(array('lgal_manage', 'lgal_approve_item')) || $context['user']['id'] == $memID;
 
@@ -196,6 +203,8 @@ class LevGal_Model_Member
 
 		$albumModel = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
 		$album_list = $albumModel->getVisibleAlbums();
+		if(empty($album_list))
+			return 0;
 
 		$can_see_all = allowedTo(array('lgal_manage', 'lgal_approve_item')) || $context['user']['id'] == $memID;
 
@@ -228,6 +237,8 @@ class LevGal_Model_Member
 
 		$albumModel = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
 		$album_list = $albumModel->getVisibleAlbums();
+		if(empty($album_list))
+			return 0;
 
 		$can_see_all = allowedTo(array('lgal_manage', 'lgal_approve_item')) || $context['user']['id'] == $memID;
 
@@ -268,6 +279,8 @@ class LevGal_Model_Member
 
 		$albumModel = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
 		$album_list = $albumModel->getVisibleAlbums();
+		if(empty($album_list))
+			return 0;
 
 		$can_see_all = allowedTo(array('lgal_manage', 'lgal_approve_item')) || $context['user']['id'] == $memID;
 
@@ -300,6 +313,8 @@ class LevGal_Model_Member
 
 		$albumModel = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
 		$album_list = $albumModel->getVisibleAlbums();
+		if(empty($album_list))
+			return 0;
 
 		$can_see_all = allowedTo(array('lgal_manage', 'lgal_approve_item')) || $context['user']['id'] == $memID;
 

@@ -40,7 +40,7 @@ if (strpos(strtolower($db->db_title()), 'mysql') !== 0)
 // We have a lot to do. Make sure as best we can that we have the time to do so.
 detectServer()->setTimeLimit(600);
 
-global $modSettings, $txt, $db_prefix;
+global $modSettings, $txt, $db_prefix, $db_type;
 
 // Here we will update the $modSettings variables.
 $mod_settings = array();
@@ -601,7 +601,7 @@ foreach ($tables as $table)
 
 	// This table requires one or more fulltext indexes. If for some weird-ass reason others exist,
 	// leave them alone, but we need to verify the ones the installer demands.
-	if (!empty($table['parameters']['requires_fulltext']))
+	if (!empty($table['parameters']['requires_fulltext']) && ($db_type == 'mysql') )
 	{
 		$indexes_to_build = $table['parameters']['requires_fulltext'];
 		$request = $db->query('', '
