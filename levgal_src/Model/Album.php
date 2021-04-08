@@ -125,7 +125,7 @@ class LevGal_Model_Album
 			}
 		}
 
-		return array(false, $settings['default_theme_url'] . '/levgal_res/albums/folder.png');
+		return array(false, $settings['default_theme_url'] . '/levgal_res/albums/folder.svg');
 	}
 
 	public function getThumbnailUrl()
@@ -134,7 +134,7 @@ class LevGal_Model_Album
 
 		if (empty($this->current_album) || empty($this->current_album['thumbnail']))
 		{
-			return $settings['default_theme_url'] . '/levgal_res/albums/folder.png';
+			return $settings['default_theme_url'] . '/levgal_res/albums/folder.svg';
 		}
 		elseif (strpos($this->current_album['thumbnail'], 'folder') === 0)
 		{
