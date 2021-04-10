@@ -556,15 +556,20 @@ function template_add_single_item()
 				});
 			},
 			accept: function(file, done) {
-				let result = addFileFilter(file, this.options.lgal_quota);
-				if (result)
-				{
-					done(result);
-					display_error(result, true);
-					setTimeout(() => {this.removeFile(file);}, 7000);
-					return;
-				}
-				done();
+				// We do not have the width / height until this completes
+				this.on("thumbnail", function(file) {
+					let result = addFileFilter(file, this.options.lgal_quota);
+					if (result)
+					{
+						done(result);
+						display_error(result, true);
+						setTimeout(() => {this.removeFile(file);}, 7000);
+					}
+					else
+					{
+						done();
+					}
+				});
 			},
 			chunksUploaded: function(file, done)
 			{
@@ -792,13 +797,12 @@ function template_add_bulk_items()
 								el[0].parentElement.innerHTML = spanProgress;
 							}
 						},
-						success: function (xhr) {
+						complete: function (xhr) {
 							urls[file.upload.uuid] = {async: response.async, url: ""};
-							onFileSend(xhr);
+							onFileSend(xhr.responseJSON);
 						},
-						error: function (xhr) {
+						error: function () {
 							file.accepted = false;
-							onFileSend(xhr);
 						}
 					})
 				});
@@ -821,18 +825,27 @@ function template_add_bulk_items()
 						uploader.disable();
 					}
 				});
+				this.on("thumbnail", function(file) {
+					let result = addFileFilter(file, this.options.lgal_quota);
+					if (result !== true)
+					{
+						display_error(result, true);
+						this.removeFile(file);
+						file.rejectDimensions(result);
+					}
+					else
+					{
+						sessionStorage.setItem(file.upload.uuid, file.name);
+						file.acceptDimensions();
+					}
+				});
 			},
 			accept: function(file, done)
 			{
-				let result = addFileFilter(file, this.options.lgal_quota);
-				if (result)
-				{
-					done(result);
-					display_error(result, true);
-					this.removeFile(file);
-				}
-				sessionStorage.setItem(file.upload.uuid, file.name);
-				done();
+				// We do not have the width / height until the thumbnail is done, so set up
+				// callbacks using the passed done function
+    			file.acceptDimensions = done;
+    			file.rejectDimensions = function(error) {done(error);};
 			},
 			chunksUploaded: function(file, done)
 			{

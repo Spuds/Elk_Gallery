@@ -1038,16 +1038,19 @@ function template_edit_item()
 				});
 			},
 			accept: function(file, done) {
-				let result = addFileFilter(file, this.options.lgal_quota);
-				if (result)
-				{
-					done(result);
-					display_error(result, true);
-					setTimeout(() => {this.removeFile(file);}, 7000);
-					return;
-				}
-				sessionStorage.setItem("filename", file.name);
-				done();
+				this.on("thumbnail", function(file) {
+					let result = addFileFilter(file, this.options.lgal_quota);
+					if (result)
+					{
+						done(result);
+						display_error(result, true);
+						setTimeout(() => {this.removeFile(file);}, 7000);
+					}
+					else
+					{
+						done();
+					}
+				});
 			},
 			chunksUploaded: function(file, done)
 			{
