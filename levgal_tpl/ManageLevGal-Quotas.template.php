@@ -16,7 +16,7 @@ function template_quotas_javascript_above()
 
 	$js = '';
 
-	// Run the toggler for the overall blocks of file types; so we hide the ones not even enabled.
+	// Run the toggle for the overall blocks of file types; so we hide the ones not even enabled.
 	foreach ($context['container_blocks'] as $type)
 	{
 		$js .= '
@@ -30,7 +30,6 @@ function template_quotas_javascript_above()
 		$array[$id_group] = $group['color_name'];
 	}
 	$js .= '
-
 	groupList = ' . json_encode($array) . ';
 	managers = ' . json_encode($context['managers']) . ';
 	quotas = ' . json_encode($context['quotas']) . ';
