@@ -656,7 +656,7 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 	content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Cpath fill='%23000000' d='M36 11.25l-18-9-18 9 18 9 18-9zM18 5.237l12.025 6.013L18 17.263 5.975 11.25 18 5.237zm14.395 10.96L36 18l-18 9-18-9 3.605-1.803L18 23.394zm0 6.75L36 24.75l-18 9-18-9 3.605-1.803L18 30.144z'/%3E%3C/svg%3E");
 }
 
-.i-star::before, .i-feature_album::before {
+.i-star::before, .i-feature_album::before, .i-new::before {
 	content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Cpath fill='%23000000' d='M36 13.959l-12.438-1.807L18 .882l-5.562 11.27L0 13.959l9 8.773-2.125 12.387L18 29.27l11.125 5.849L27 22.732l9-8.773z'/%3E%3C/svg%3E");
 }
 
