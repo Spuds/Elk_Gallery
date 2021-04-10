@@ -97,6 +97,8 @@ class ManageLevGalQuotas_Controller extends Action_Controller
 			array('desc', 'levgal_quotas_desc'),
 			array('text', 'lgal_max_space'),
 			array('message', 'lgal_max_space_note'),
+			array('check', 'lgal_enable_resize'),
+			array('message', 'lgal_enable_resize_note'),
 		);
 
 		$this->levgal_get_filetypes();

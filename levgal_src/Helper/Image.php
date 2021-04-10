@@ -108,6 +108,11 @@ class LevGal_Helper_Image
 		$this->image_handler->resizeImageToMax($max_dimension, $file, $format);
 	}
 
+	public function fixDimensions($max_dimension, $file, $format)
+	{
+		$this->image_handler->resizeImageToMax($max_dimension, $file, $format);
+	}
+
 	public function fixOrientation($current_orientation)
 	{
 		$changed = false;

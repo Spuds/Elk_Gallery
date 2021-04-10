@@ -884,6 +884,7 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 		{
 			loadLanguage('levgal_lng/LevGal-Upload');
 			$context['editing'] = 'file';
+			$context['lgal_enable_resize'] = !empty($modSettings['lgal_enable_resize']);
 			$context['quota_data'] = array(
 				'formats' => $uploadModel->getFormatMap(),
 				'quotas' => $uploadModel->getAllQuotas(),

@@ -298,8 +298,8 @@ function template_add_single_item()
 						<dt class="clear_left">', $txt['lgal_item_slug'], '</dt>
 						<dd>
 							<span class="smalltext">', $scripturl, '?media/item/</span><input type="text" id="item_slug" name="item_slug" tabindex="', $context['tabindex']++, '" size="20" maxlength="40" class="input_text" value="', $context['item_slug'], '" /><span class="smalltext">.x/</span>
-						</dd>
-						<div>', $txt['lgal_item_name_and_slug_auto'], '</div>';
+						
+						</dd>';
 	if ($context['user']['is_guest'])
 	{
 		echo '
@@ -309,7 +309,8 @@ function template_add_single_item()
 						</dd>';
 	}
 	echo '
-					</dl>';
+					</dl>
+					<div class="infobox">', $txt['lgal_item_name_and_slug_auto'], '</div>';
 
 	if (!empty($context['custom_fields']))
 	{
@@ -490,6 +491,7 @@ function template_add_single_item()
 		let uploader = new Dropzone("#dragdropcontainer", {
 			url: "' . $context['album_details']['album_url'] . 'async/",
 			lgal_quota: ' . (empty($context['quota_data']) ? '{}' : json_encode($context['quota_data'])) . ',
+			lgal_enable_resize: ' . (empty($context['lgal_enable_resize']) ? 'false' : 'true') . ',
 			maxFiles: 1,
 			paramName: defaults.paramName,
 			chunking: defaults.chunking,
@@ -558,7 +560,7 @@ function template_add_single_item()
 			accept: function(file, done) {
 				// We do not have the width / height until this completes
 				this.on("thumbnail", function(file) {
-					let result = addFileFilter(file, this.options.lgal_quota);
+					let result = addFileFilter(file, this.options.lgal_quota, this.options.lgal_enable_resize);
 					if (result !== true)
 					{
 						done(result);
@@ -719,6 +721,7 @@ function template_add_bulk_items()
 		let uploader = new Dropzone("#dragdropcontainer", {
 			url: "' . $context['album_details']['album_url'] . 'async/",
 			lgal_quota: ' . (empty($context['quota_data']) ? '{}' : json_encode($context['quota_data'])) . ',
+			lgal_enable_resize: ' . (empty($context['lgal_enable_resize']) ? 'false' : 'true') . ',
 			maxFiles: 250,
 			paramName: defaults.paramName,
 			chunking: defaults.chunking,
@@ -826,7 +829,7 @@ function template_add_bulk_items()
 					}
 				});
 				this.on("thumbnail", function(file) {
-					let result = addFileFilter(file, this.options.lgal_quota);
+					let result = addFileFilter(file, this.options.lgal_quota, this.options.lgal_enable_resize);
 					if (result !== true)
 					{
 						display_error(result, true);

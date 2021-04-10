@@ -30,6 +30,13 @@ class LevGal_Model_Upload
 		return !empty($modSettings['lgal_enable_' . $type]);
 	}
 
+	public function isResizingEnabled()
+	{
+		global $modSettings;
+
+		return !empty($modSettings['lgal_enable_resize']);
+	}
+
 	public function typesEnabled()
 	{
 		global $modSettings;
@@ -251,7 +258,7 @@ class LevGal_Model_Upload
 			}
 		}
 
-		return $quotas;
+		return empty($quotas) ? array() : $quotas;
 	}
 
 	public function getSpecificQuota($type)
@@ -549,12 +556,6 @@ class LevGal_Model_Upload
 			$ext = $this->getExtension($filename);
 			$this_type = $map[$ext] ?? '';
 			$this_quota = $all_quotas[$this_type] ?? false;
-			if (empty($this_quota) || empty($this_quota['file']) || ($this_quota['file'] !== true && $this_quota['file'] < $size))
-			{
-				@unlink($path . '/' . $local_file);
-
-				return 'upload_too_large';
-			}
 
 			// Of course, if it's an image we also need to check its size.
 			if ($this_type === 'image')
@@ -568,7 +569,14 @@ class LevGal_Model_Upload
 					}
 					else
 					{
-						list ($width, $height) = getimagesize($path . '/' . $local_file);
+						require_once(SUBSDIR . '/Attachments.subs.php');
+						// If we have dimension clamping enabled, now is the time to enforce it so that we
+						// check final size and dimensions on that image
+						if ($this->isResizingEnabled() && in_array($ext, ['png', 'jpg', 'jpeg']))
+						{
+							$this->resizeUpload($local_file, $this_quota['image'], $size);
+						}
+						list ($width, $height) = elk_getimagesize($path . '/' . $local_file);
 						list ($quota_width, $quota_height) = explode('x', $this_quota['image']);
 						if ($width <= $quota_width && $height <= $quota_height)
 						{
@@ -584,6 +592,12 @@ class LevGal_Model_Upload
 					return 'upload_image_too_big';
 				}
 			}
+			if (empty($this_quota) || empty($this_quota['file']) || ($this_quota['file'] !== true && $this_quota['file'] < $size))
+			{
+				@unlink($path . '/' . $local_file);
+
+				return 'upload_too_large';
+			}
 		}
 
 		if (@file_exists($path . '/' . $local_file)
@@ -595,6 +609,34 @@ class LevGal_Model_Upload
 		@unlink($path . '/' . $local_file);
 
 		return 'upload_no_validate';
+	}
+
+	public function resizeUpload($local_file, $this_quota, &$size)
+	{
+		global $context;
+
+		$image = new LevGal_Helper_Image();
+		$path = LevGal_Bootstrap::getGalleryDir();
+
+		// Normally checked at the end, but we may change the size so we do it here and now as well
+		if (@filesize($path . '/' . $local_file) !== $size)
+		{
+			return;
+		}
+
+		list ($width, $height) = elk_getimagesize($path . '/' . $local_file);
+		list ($quota_width, $quota_height) = explode('x', $this_quota);
+		if ($width > $quota_width || $height > $quota_height)
+		{
+			$ext = $image->loadImageFromFile($path . '/' . $local_file);
+			if ($ext !== false)
+			{
+				$image->fixDimensions(min($quota_width, $quota_height), $path . '/' . $local_file, $ext);
+				clearstatcache();
+				$size = @filesize($path . '/' . $local_file);
+				$context['async_size'] = $size;
+			}
+		}
 	}
 
 	public function moveUpload($fileID, $itemID, $filename)

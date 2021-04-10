@@ -1,9 +1,11 @@
-function addFileFilter(file, quota)
+function addFileFilter(file, quota, resize)
 {
 	let ext = file.name.split(".").pop().toLowerCase();
 	if (quota.formats.hasOwnProperty(ext))
 	{
-		let this_quota = quota.quotas[quota.formats[ext]];
+		let this_quota = quota.quotas[quota.formats[ext]],
+			this_resize = typeof resize !== 'undefined' ? resize : false;
+
 		if (this_quota === true)
 		{
 			return true;
@@ -18,10 +20,11 @@ function addFileFilter(file, quota)
 
 			if (this_quota.file < file.size)
 			{
-				return file.name + ': ' + txt.upload_too_large;
+				if (quota.formats[ext] !== "image" && !this_resize)
+					return file.name + ': ' + txt.upload_too_large;
 			}
 
-			if (quota.formats[ext] !== "image" || this_quota.image === true)
+			if (quota.formats[ext] !== "image" || this_quota.image === true || this_resize === true)
 			{
 				return true;
 			}

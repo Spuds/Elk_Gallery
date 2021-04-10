@@ -985,6 +985,7 @@ function template_edit_item()
 		let uploader = new Dropzone("#dragdropcontainer", {
 			url: "' . $context['album_details']['album_url'] . 'async/",
 			lgal_quota: ' . (empty($context['quota_data']) ? '{}' : json_encode($context['quota_data'])) . ',
+			lgal_enable_resize: ' . (empty($context['lgal_enable_resize']) ? 'false' : 'true') . ',
 			maxFiles: 1,
 			paramName: defaults.paramName,
 			chunking: defaults.chunking,
@@ -1037,7 +1038,7 @@ function template_edit_item()
 			},
 			accept: function(file, done) {
 				this.on("thumbnail", function(file) {
-					let result = addFileFilter(file, this.options.lgal_quota);
+					let result = addFileFilter(file, this.options.lgal_quota, this.options.lgal_enable_resize);
 					if (result !== true)
 					{
 						done(result);
