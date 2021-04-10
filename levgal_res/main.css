@@ -149,14 +149,14 @@ dl.album_details dd, dl.album_info dd {
 }
 
 .album_thumb {
-	width: 65px;
-	height: 65px;
+	max-width: 65px;
+	max-height: 65px;
 	margin: 0 10px;
 }
 
 .generic_thumb {
-	width: 120px;
-	height: 120px;
+	max-width: 120px;
+	max-height: 120px;
 }
 
 .album_featured .album_desc {
@@ -301,8 +301,8 @@ ul.album_hierarchy, ul.album_hierarchy ul {
 }
 
 #thumbs_container img {
-	max-width: 60px;
-	max-height: 60px;
+	max-width: 65px;
+	max-height: 65px;
 	margin: 0 10px;
 }
 
