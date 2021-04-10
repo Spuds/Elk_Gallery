@@ -64,7 +64,7 @@ $txt['lgal_opts_metadata_datetime'] = 'Time taken';
 $txt['lgal_opts_metadata_make'] = 'Camera make/model';
 $txt['lgal_opts_metadata_flash'] = 'Flash settings';
 $txt['lgal_opts_metadata_exposure_time'] = 'Exposure time';
-$txt['lgal_opts_metadata_fnumber'] = 'F-number (e.g. <em>&#131;</em>/2.4, see <a href="http://en.wikipedia.org/wiki/F-number" class="new_win" target="_blank">Wikipedia</a> for more)';
+$txt['lgal_opts_metadata_fnumber'] = 'F-number (e.g. <em>&#402;</em>/2.4, see <a href="https://en.wikipedia.org/wiki/F-number" class="new_win" target="_blank">Wikipedia</a> for more)';
 $txt['lgal_opts_metadata_shutter_speed'] = 'Shutter speed';
 $txt['lgal_opts_metadata_focal_length'] = 'Focal length';
 $txt['lgal_opts_metadata_digitalzoom'] = 'Digital zoom';
