@@ -732,7 +732,6 @@ function template_move_item()
 				<form action="', $context['form_url'], '" method="post" accept-charset="UTF-8">
 					<div class="centertext">
 						<img id="item_generic" class="generic_thumb" src="', $context['item_urls']['thumb'], '" alt="" />
-						<br />
 						<div class="move_desc">
 							', $txt['lgal_move_item_album'];
 	template_display_hierarchy_dropdown();
@@ -744,8 +743,7 @@ function template_move_item()
 						</div>
 					</div>
 				</form>
-			</div>
-			<br class="clear" />';
+			</div>';
 }
 
 function template_display_hierarchy_dropdown()
@@ -1040,7 +1038,7 @@ function template_edit_item()
 			accept: function(file, done) {
 				this.on("thumbnail", function(file) {
 					let result = addFileFilter(file, this.options.lgal_quota);
-					if (result)
+					if (result !== true)
 					{
 						done(result);
 						display_error(result, true);

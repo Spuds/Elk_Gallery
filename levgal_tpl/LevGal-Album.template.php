@@ -559,7 +559,7 @@ function template_add_single_item()
 				// We do not have the width / height until this completes
 				this.on("thumbnail", function(file) {
 					let result = addFileFilter(file, this.options.lgal_quota);
-					if (result)
+					if (result !== true)
 					{
 						done(result);
 						display_error(result, true);
