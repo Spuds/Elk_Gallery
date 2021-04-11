@@ -175,8 +175,9 @@ function template_main_album_sidebar()
 		{
 			echo '
 				<div class="album_group">
-					<div class="group_name">', $group['color_name'], ' ', sprintf($txt['lgal_see_more'], $scripturl . '?media/albumlist/' . $group_id . '/group/'), '</div>
-					<div class="group_stars">', $group['stars'], '</div>
+					<div class="group_name">', $group['color_name'], '</div>
+					<div class="group_stars">', $group['stars'], '</div>',
+					sprintf($txt['lgal_see_more'], $scripturl . '?media/albumlist/' . $group_id . '/group/'), '
 					<br class="clear" />
 				</div>';
 		}
@@ -297,8 +298,8 @@ function template_add_single_item()
 						<dt class="clear_left">', $txt['lgal_item_slug'], '</dt>
 						<dd>
 							<span class="smalltext">', $scripturl, '?media/item/</span><input type="text" id="item_slug" name="item_slug" tabindex="', $context['tabindex']++, '" size="20" maxlength="40" class="input_text" value="', $context['item_slug'], '" /><span class="smalltext">.x/</span>
-						</dd>
-						<div>', $txt['lgal_item_name_and_slug_auto'], '</div>';
+						
+						</dd>';
 	if ($context['user']['is_guest'])
 	{
 		echo '
@@ -308,7 +309,8 @@ function template_add_single_item()
 						</dd>';
 	}
 	echo '
-					</dl>';
+					</dl>
+					<div class="infobox">', $txt['lgal_item_name_and_slug_auto'], '</div>';
 
 	if (!empty($context['custom_fields']))
 	{
@@ -489,6 +491,7 @@ function template_add_single_item()
 		let uploader = new Dropzone("#dragdropcontainer", {
 			url: "' . $context['album_details']['album_url'] . 'async/",
 			lgal_quota: ' . (empty($context['quota_data']) ? '{}' : json_encode($context['quota_data'])) . ',
+			lgal_enable_resize: ' . (empty($context['lgal_enable_resize']) ? 'false' : 'true') . ',
 			maxFiles: 1,
 			paramName: defaults.paramName,
 			chunking: defaults.chunking,
@@ -555,15 +558,20 @@ function template_add_single_item()
 				});
 			},
 			accept: function(file, done) {
-				let result = addFileFilter(file, this.options.lgal_quota);
-				if (result)
-				{
-					done(result);
-					display_error(result, true);
-					setTimeout(() => {this.removeFile(file);}, 7000);
-					return;
-				}
-				done();
+				// We do not have the width / height until this completes
+				this.on("thumbnail", function(file) {
+					let result = addFileFilter(file, this.options.lgal_quota, this.options.lgal_enable_resize);
+					if (result !== true)
+					{
+						done(result);
+						display_error(result, true);
+						setTimeout(() => {this.removeFile(file);}, 7000);
+					}
+					else
+					{
+						done();
+					}
+				});
 			},
 			chunksUploaded: function(file, done)
 			{
@@ -573,7 +581,7 @@ function template_add_single_item()
 					url: elk_prepareScriptUrl(elk_scripturl) + ' . JavaScriptEscape(str_replace($scripturl . '?', '', $context['album_details']['album_url']) . 'chunked/') . ',
 					data: {
 						async_chunks: file.upload.chunks.length,
-						async_filename: encodeURIComponent(file.name),
+						async_filename: file.name.php_urlencode(),
 						async: file.upload.uuid,
 						' . $context['session_var'] . ': "' . $context['session_id'] . '"
 					},
@@ -713,6 +721,7 @@ function template_add_bulk_items()
 		let uploader = new Dropzone("#dragdropcontainer", {
 			url: "' . $context['album_details']['album_url'] . 'async/",
 			lgal_quota: ' . (empty($context['quota_data']) ? '{}' : json_encode($context['quota_data'])) . ',
+			lgal_enable_resize: ' . (empty($context['lgal_enable_resize']) ? 'false' : 'true') . ',
 			maxFiles: 250,
 			paramName: defaults.paramName,
 			chunking: defaults.chunking,
@@ -764,7 +773,7 @@ function template_add_bulk_items()
 					{
       					formData.append("' . $context['session_var'] . '", "' . $context['session_id'] . '");
       					formData.append("async", file.upload.uuid);
-      					formData.append("async_filename", encodeURIComponent(file.name));
+      					formData.append("async_filename", file.name.php_urlencode());
       				}
 
 		      		document.getElementById("total-progress").style.opacity = "1";
@@ -776,7 +785,7 @@ function template_add_bulk_items()
 						url: elk_prepareScriptUrl(elk_scripturl) + ' . JavaScriptEscape(str_replace($scripturl . '?', '', $context['album_details']['album_url']) . 'addbulk/') . ',
 						data: {
 							save: 1,
-							async_filename: encodeURIComponent(file.name),
+							async_filename: file.name.php_urlencode(),
 							async: response.async,
 							async_size: file.size,
 							' . $context['session_var'] . ': "' . $context['session_id'] . '"
@@ -791,13 +800,12 @@ function template_add_bulk_items()
 								el[0].parentElement.innerHTML = spanProgress;
 							}
 						},
-						success: function (xhr) {
+						complete: function (xhr) {
 							urls[file.upload.uuid] = {async: response.async, url: ""};
-							onFileSend(xhr);
+							onFileSend(xhr.responseJSON);
 						},
-						error: function (xhr) {
+						error: function () {
 							file.accepted = false;
-							onFileSend(xhr);
 						}
 					})
 				});
@@ -820,18 +828,27 @@ function template_add_bulk_items()
 						uploader.disable();
 					}
 				});
+				this.on("thumbnail", function(file) {
+					let result = addFileFilter(file, this.options.lgal_quota, this.options.lgal_enable_resize);
+					if (result !== true)
+					{
+						display_error(result, true);
+						this.removeFile(file);
+						file.rejectDimensions(result);
+					}
+					else
+					{
+						sessionStorage.setItem(file.upload.uuid, file.name);
+						file.acceptDimensions();
+					}
+				});
 			},
 			accept: function(file, done)
 			{
-				let result = addFileFilter(file, this.options.lgal_quota);
-				if (result)
-				{
-					done(result);
-					display_error(result, true);
-					this.removeFile(file);
-				}
-				sessionStorage.setItem(file.upload.uuid, file.name);
-				done();
+				// We do not have the width / height until the thumbnail is done, so set up
+				// callbacks using the passed done function
+    			file.acceptDimensions = done;
+    			file.rejectDimensions = function(error) {done(error);};
 			},
 			chunksUploaded: function(file, done)
 			{
@@ -841,7 +858,7 @@ function template_add_bulk_items()
 					url: elk_prepareScriptUrl(elk_scripturl) + ' . JavaScriptEscape(str_replace($scripturl . '?', '', $context['album_details']['album_url']) . 'chunked/') . ',
 					data: {
 						async_chunks: file.upload.chunks.length,
-						async_filename: encodeURIComponent(file.name),
+						async_filename: file.name.php_urlencode(),
 						async: file.upload.uuid,
 						' . $context['session_var'] . ': "' . $context['session_id'] . '"
 					},

@@ -119,10 +119,10 @@ class LevGal_Model_Group
 			$details[$id_group] = $row;
 		}
 
-		$sortBy = array_column($details, $sort);
-		array_multisort($sortBy, SORT_ASC, SORT_STRING, $details);
+		$keys = array_keys($details);
+		array_multisort(array_column($details, $sort), SORT_ASC, SORT_STRING, $details, $keys);
 
-		return $details;
+		return array_combine($keys, $details);
 	}
 
 	public function allowedTo($permission, $board_id = null)

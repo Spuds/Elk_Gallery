@@ -54,11 +54,9 @@ function template_levgal_dash()
 						<script src="', $settings['default_theme_url'], '/levgal_res/Chart.min.js"></script>
 						<script>
 							document.getElementById(\'graph_container\').innerHTML = \'<canvas id="lgal_graph" width="200" height="150"></canvas>\';
-							var ctx = document.getElementById("lgal_graph").getContext("2d");
-							var data = ' . json_encode($context['item_breakdown']) . ';
-							var newChart = new Chart(ctx).Pie(data, {
-								animateRotate: false
-							});
+							var ctx = document.getElementById("lgal_graph").getContext("2d"),
+								data = ' . json_encode($context['item_breakdown']) . ',
+								newChart = new Chart(ctx).Pie(data, {animateRotate: false});
 							document.getElementById(\'graph_legend\').innerHTML = newChart.generateLegend();
 						</script>
 					</div>
@@ -158,7 +156,9 @@ function template_callback_lgal_social()
 	global $txt, $context;
 
 	echo '
-						<dt>', $txt['lgal_settings_social'], '</dt>
+						<dt>
+							<label>', $txt['lgal_settings_social'], '</label>
+						</dt>
 						<dd>
 							<fieldset id="social_icons">
 								<legend>
@@ -187,7 +187,8 @@ function template_callback_lgal_metadata()
 
 	echo '
 						<dt>
-							', $txt['lgal_settings_metadata'], '<br />
+							<label>', $txt['lgal_settings_metadata'], '</label>
+							<br />
 							<span class="smalltext">', $txt['lgal_settings_metadata_desc'], '</span>
 						</dt>
 						<dd>';
@@ -218,6 +219,5 @@ function template_callback_lgal_metadata()
 	}
 
 	echo '
-
 						</dd>';
 }

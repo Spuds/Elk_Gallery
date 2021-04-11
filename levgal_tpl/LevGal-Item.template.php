@@ -434,7 +434,7 @@ function template_main_item_comments()
 	if (!empty($context['item_pageindex']))
 	{
 		echo '
-				<div class="pagesection">', $txt['pages'], ': ', $context['item_pageindex'], '</div>';
+				<div class="pagesection">', $context['item_pageindex'], '</div>';
 	}
 
 	foreach ($context['item_comments'] as $id_comment => $comment)
@@ -732,7 +732,6 @@ function template_move_item()
 				<form action="', $context['form_url'], '" method="post" accept-charset="UTF-8">
 					<div class="centertext">
 						<img id="item_generic" class="generic_thumb" src="', $context['item_urls']['thumb'], '" alt="" />
-						<br />
 						<div class="move_desc">
 							', $txt['lgal_move_item_album'];
 	template_display_hierarchy_dropdown();
@@ -744,8 +743,7 @@ function template_move_item()
 						</div>
 					</div>
 				</form>
-			</div>
-			<br class="clear" />';
+			</div>';
 }
 
 function template_display_hierarchy_dropdown()
@@ -987,6 +985,7 @@ function template_edit_item()
 		let uploader = new Dropzone("#dragdropcontainer", {
 			url: "' . $context['album_details']['album_url'] . 'async/",
 			lgal_quota: ' . (empty($context['quota_data']) ? '{}' : json_encode($context['quota_data'])) . ',
+			lgal_enable_resize: ' . (empty($context['lgal_enable_resize']) ? 'false' : 'true') . ',
 			maxFiles: 1,
 			paramName: defaults.paramName,
 			chunking: defaults.chunking,
@@ -1038,16 +1037,19 @@ function template_edit_item()
 				});
 			},
 			accept: function(file, done) {
-				let result = addFileFilter(file, this.options.lgal_quota);
-				if (result)
-				{
-					done(result);
-					display_error(result, true);
-					setTimeout(() => {this.removeFile(file);}, 7000);
-					return;
-				}
-				sessionStorage.setItem("filename", file.name);
-				done();
+				this.on("thumbnail", function(file) {
+					let result = addFileFilter(file, this.options.lgal_quota, this.options.lgal_enable_resize);
+					if (result !== true)
+					{
+						done(result);
+						display_error(result, true);
+						setTimeout(() => {this.removeFile(file);}, 7000);
+					}
+					else
+					{
+						done();
+					}
+				});
 			},
 			chunksUploaded: function(file, done)
 			{
@@ -1057,7 +1059,7 @@ function template_edit_item()
 					url: elk_prepareScriptUrl(elk_scripturl) + ' . JavaScriptEscape(str_replace($scripturl . '?', '', $context['album_details']['album_url']) . 'chunked/') . ',
 					data: {
 						async_chunks: file.upload.chunks.length,
-						async_filename: encodeURIComponent(file.name),
+						async_filename: file.name.php_urlencode(),
 						async: file.upload.uuid,
 						' . $context['session_var'] . ': "' . $context['session_id'] . '"
 					},

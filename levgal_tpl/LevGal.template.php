@@ -274,6 +274,7 @@ function colorize_actions($id_action)
 		case 'editalbum':
 		case 'edititem':
 		case 'moveitem':
+		case 'edit':
 			$id_action .= ' colorize-dark-yellow';
 			break;
 		case 'feature_album':
@@ -282,6 +283,7 @@ function colorize_actions($id_action)
 		case 'additem':
 		case 'addbulk':
 		case 'setthumbnail':
+		case 'open':
 			$id_action .= ' colorize-green';
 			break;
 	}
@@ -296,7 +298,10 @@ function template_action_strip($actions)
 	foreach ($actions as $action_id => $action_info)
 	{
 		echo '
-				<li class="lgal_', $action_id, '"><a href="', $action_info['url'], '">', $action_info['title'], '</a></li>';
+				<li>
+					<i class="icon i-' . colorize_actions($action_id) . '"></i>
+					<a href="', $action_info['url'], '">', $action_info['title'], '</a>
+				</li>';
 	}
 	echo '
 			</ul>';
@@ -359,7 +364,7 @@ function template_album_hierarchy($hierarchy)
 		{
 			echo '
 						<p class="lgal_profile_featured floatleft smalltext">
-							<img src="', $settings['default_theme_url'], '/levgal_res/buttons/feature.png" alt="" /> ', $txt['levgal_featured_album'], '
+							<i class="lgalicon i-feature_album colorize-gold"></i> ', $txt['levgal_featured_album'], '
 						</p>';
 		}
 
@@ -371,7 +376,7 @@ function template_album_hierarchy($hierarchy)
 		if (!empty($album['see_unapproved']))
 		{
 			echo ',
-							<span class="error">', $txt['lgal_unapproved'], ' [', LevGal_Helper_Format::numstring('lgal_items', $album['num_unapproved_items']), ']</span>';
+							<span class="error"><i class="lgalicon i-flag colorize-red"></i>', $txt['lgal_unapproved'], ' [', LevGal_Helper_Format::numstring('lgal_items', $album['num_unapproved_items']), ']</span>';
 		}
 
 		echo '

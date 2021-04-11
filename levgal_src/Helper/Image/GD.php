@@ -134,6 +134,7 @@ class LevGal_Helper_Image_GD
 		detectServer()->setTimeLimit(30);
 
 		$imgfunc = $format === 'jpg' ? 'imagejpeg' : 'imagepng';
+
 		// Nothing to do, can we save ourselves some hassle?
 		if ($this->width <= $max_dimension && $this->height <= $max_dimension)
 		{
@@ -146,6 +147,7 @@ class LevGal_Helper_Image_GD
 		}
 		else
 		{
+			$quality = $format === 'jpg' ? $this->compression['jpg'] : $this->compression['png'];
 			$largest = max($this->width, $this->height);
 			$new_x = round($this->width / $largest * $max_dimension);
 			$new_y = round($this->height / $largest * $max_dimension);
@@ -153,7 +155,7 @@ class LevGal_Helper_Image_GD
 			imagealphablending($new_image, false);
 			imagesavealpha($new_image, true);
 			imagecopyresampled($new_image, $this->image, 0, 0, 0, 0, $new_x, $new_y, $this->width, $this->height);
-			$imgfunc($new_image, $dest_file);
+			$imgfunc($new_image, $dest_file, $quality);
 			imagedestroy($new_image);
 		}
 	}

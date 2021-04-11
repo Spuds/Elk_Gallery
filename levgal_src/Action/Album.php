@@ -330,7 +330,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 
 		$context['item_name'] = '';
 		$context['item_slug'] = '';
-		$context['item_posted_by'] = isset($_SESSION['guest_name']) ? $_SESSION['guest_name'] : '';
+		$context['item_posted_by'] = $_SESSION['guest_name'] ?? '';
 		$context['description'] = '';
 
 		$context['requires_approval'] = !allowedTo(array('lgal_manage', 'lgal_additem_approve', 'lgal_approve_item'));
@@ -349,6 +349,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		}
 		if (!empty($context['allowed_formats']))
 		{
+			$context['lgal_enable_resize'] = !empty($modSettings['lgal_enable_resize']);
 			$context['quota_data'] = array(
 				'formats' => $uploadModel->getFormatMap(),
 				'quotas' => $uploadModel->getAllQuotas(),
@@ -457,7 +458,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 
 	public function actionAddbulk()
 	{
-		global $context, $txt;
+		global $context, $txt, $modSettings;
 
 		$uploadModel = new LevGal_Model_Upload();
 
@@ -503,6 +504,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 
 		// Get the list of file types. If there aren't any, bail.
 		$context['allowed_formats'] = $uploadModel->getDisplayFileFormats();
+
 		// We don't care about externals here since this is strictly uploading bulk files.
 		if (!empty($context['allowed_formats']['external']))
 		{
@@ -514,6 +516,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		}
 		if (!empty($context['allowed_formats']))
 		{
+			$context['lgal_enable_resize'] = !empty($modSettings['lgal_enable_resize']);
 			$context['quota_data'] = array(
 				'formats' => $uploadModel->getFormatMap(),
 				'quotas' => $uploadModel->getAllQuotas(),

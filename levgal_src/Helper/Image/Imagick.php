@@ -104,6 +104,7 @@ class LevGal_Helper_Image_Imagick
 	{
 		if ($format === 'jpg')
 		{
+			$this->image->setImageProperty('jpeg:sampling-factor', '4:2:0');
 			$this->image->setCompression(Imagick::COMPRESSION_JPEG);
 			$this->image->setCompressionQuality($this->compression['jpg']);
 			$this->image->writeImage('jpg:' . $file);

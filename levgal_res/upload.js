@@ -1,12 +1,14 @@
-function addFileFilter(file, quota)
+function addFileFilter(file, quota, resize)
 {
 	let ext = file.name.split(".").pop().toLowerCase();
 	if (quota.formats.hasOwnProperty(ext))
 	{
-		let this_quota = quota.quotas[quota.formats[ext]];
+		let this_quota = quota.quotas[quota.formats[ext]],
+			this_resize = typeof resize !== 'undefined' ? resize : false;
+
 		if (this_quota === true)
 		{
-			return;
+			return true;
 		}
 		else
 		{
@@ -18,22 +20,26 @@ function addFileFilter(file, quota)
 
 			if (this_quota.file < file.size)
 			{
-				return txt.upload_too_large;
+				if (quota.formats[ext] !== "image" && !this_resize)
+					return file.name + ': ' + txt.upload_too_large;
 			}
 
-			if (quota.formats[ext] !== "image" || this_quota.image === true)
+			if (quota.formats[ext] !== "image" || this_quota.image === true || this_resize === true)
 			{
-				return;
+				return true;
 			}
 
 			if (ext === 'png' || ext === 'jpeg' || ext === 'jpg')
 			{
 				let dimensions = this_quota.image.split('x');
+
 				if (file.width > dimensions[0] || file.height > dimensions[1])
 				{
-					return txt.upload_image_too_big;
+					return file.name + ': ' + txt.upload_image_too_big;
 				}
 			}
+
+			return true;
 		}
 	}
 	else
@@ -178,7 +184,12 @@ function onFileSend(data)
 
 			if (typeof data.error !== 'undefined')
 			{
-				el.innerHTML = '<span class="error">' + txt.error_occurred + ': ' + data.error + '</span>';
+				let error = data.error;
+				if (typeof  txt[data.error] !== 'undefined')
+				{
+					error = txt[data.error];
+				}
+				el.innerHTML = '<span class="error">' + txt.error_occurred + ': ' + error + '</span>';
 			}
 			else
 				el.innerHTML = '<button class="button_submit"><span class="icon i-external-link"></span> <a href="' + urls[i].url + '" target="_blank">' + txt.view_item + '</a></button>';
