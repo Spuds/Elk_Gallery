@@ -5,6 +5,8 @@
  * This file handles displaying comment-related behaviours in the gallery.
  *
  * @package levgal
+ * @copyright 2014-2015 Peter Spicer (levertine.com)
+ * @license LGPL (v3)
  * @since 1.0
  */
 

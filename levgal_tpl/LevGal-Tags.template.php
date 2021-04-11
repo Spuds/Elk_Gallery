@@ -5,6 +5,8 @@
  * This file handles displaying the tagged items, either the cloud of all tags, or the items tagged with a single tag.
  *
  * @package levgal
+ * @copyright 2014-2015 Peter Spicer (levertine.com)
+ * @license LGPL (v3)
  * @since 1.0
  */
 

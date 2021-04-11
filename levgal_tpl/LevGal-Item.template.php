@@ -5,6 +5,8 @@
  * This file handles displaying the item pages.
  *
  * @package levgal
+ * @copyright 2014-2015 Peter Spicer (levertine.com)
+ * @license LGPL (v3)
  * @since 1.0
  */
 

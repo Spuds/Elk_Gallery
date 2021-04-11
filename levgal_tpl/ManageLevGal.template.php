@@ -5,6 +5,8 @@
  * This file handles displaying the front page of the admin.
  *
  * @package levgal
+ * @copyright 2014-2015 Peter Spicer (levertine.com)
+ * @license LGPL (v3)
  * @since 1.0
  */
 
@@ -137,18 +139,27 @@ function template_levgal_credits()
 		</h2>
 		<div class="well">
 			<dl>
-				<dt>', $txt['levgal_credits_' . $credit_cat . '_desc'], '</dt>';
+				<dt>
+					<u>', $txt['levgal_credits_' . $credit_cat . '_desc'], '</u>
+				</dt>
+				<dd>
+					<ul class="bbc_list">';
 
 		foreach ($credits as $credit)
 		{
 			echo '
-				<dd>', $credit, '</dd>';
+						<li>', $credit, '</li>';
 		}
 
 		echo '
+					</ul>
+				</dd>
 			</dl>
 		</div>';
 	}
+
+	echo '
+	</div>';
 }
 
 function template_callback_lgal_social()

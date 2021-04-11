@@ -5,6 +5,8 @@
  * This file handles displaying the information from the gallery in a user's profile.
  *
  * @package levgal
+ * @copyright 2014-2015 Peter Spicer (levertine.com)
+ * @license LGPL (v3)
  * @since 1.0
  */
 
