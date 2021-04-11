@@ -104,7 +104,7 @@ function levgal_admin_bootstrap(&$admin_areas)
 	addInlineJavascript('closeFieldsets();', true);
 
 	add_integration_function('integrate_load_permissions', 'levgal_admin_permissions', '',false);
-	add_integration_function('integrate_redirect', 'LevGal_Model_Group::redirectForDeletion', '',false);
+	add_integration_function('integrate_delete_membergroups', 'LevGal_Model_Group::deleteGroup', '',false);
 }
 
 /**
