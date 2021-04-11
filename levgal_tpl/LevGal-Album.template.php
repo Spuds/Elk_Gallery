@@ -5,6 +5,8 @@
  * This file handles displaying the album pages.
  *
  * @package levgal
+ * @copyright 2014-2015 Peter Spicer (levertine.com)
+ * @license LGPL (v3)
  * @since 1.0
  */
 
@@ -429,7 +431,9 @@ function template_add_single_item()
 		{
 			echo '
 							<li>
-								<label><input type="checkbox" name="', $opt_id, '" value="1"', empty($option['value']) ? '' : ' checked="checked"', ' class="input_check" />', $option['label'], '</label>
+								<label>
+									<input type="checkbox" name="', $opt_id, '" value="1"', empty($option['value']) ? '' : ' checked="checked"', ' class="input_check" />', $option['label'], '
+								</label>
 							</li>';
 		}
 		echo '
@@ -833,7 +837,6 @@ function template_add_bulk_items()
 					if (result !== true)
 					{
 						display_error(result, true);
-						this.removeFile(file);
 						file.rejectDimensions(result);
 					}
 					else
