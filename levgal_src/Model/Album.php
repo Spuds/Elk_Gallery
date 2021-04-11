@@ -1354,24 +1354,13 @@ class LevGal_Model_Album
 
 	public function getAllowableOwnershipGroups()
 	{
-		global $user_info, $txt;
+		global $user_info;
 		static $cache = null;
 
 		if ($cache !== null)
 		{
 			return $cache;
 		}
-
-		// Include Default Registered Members
-		$groups = array(
-			0 => array(
-				'id_group' => 0,
-				'group_name' => $txt['levgal_registered_members'],
-				'online_color' => '',
-				'color_name' => $txt['levgal_registered_members'],
-				'stars' => '',
-			)
-		);
 
 		// Since group ownership is an option, we need to get the group listing that you
 		// might want to bestow it upon.
@@ -1391,8 +1380,7 @@ class LevGal_Model_Album
 		}
 
 		$groupModel = new LevGal_Model_Group();
-		$groups += $groupModel->getGroupsByCriteria($opts);
-
+		$groups = $groupModel->getGroupsByCriteria($opts);
 		$cache = $groups;
 
 		return $groups;
@@ -1400,19 +1388,7 @@ class LevGal_Model_Album
 
 	public function getAllowableAccessGroups()
 	{
-		global $txt;
-
-		$groups = array(
-			0 => array(
-				'id_group' => 0,
-				'group_name' => $txt['levgal_registered_members'],
-				'online_color' => '',
-				'color_name' => $txt['levgal_registered_members'],
-				'stars' => '',
-			)
-		);
-
-		return $groups + $this->getAllowableOwnershipGroups();
+		return $this->getAllowableOwnershipGroups();
 	}
 
 	public function isFeatured()

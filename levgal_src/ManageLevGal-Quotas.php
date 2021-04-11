@@ -59,12 +59,6 @@ class ManageLevGalQuotas_Controller extends Action_Controller
 				'stars' => '',
 				'color_name' => $txt['levgal_guests'],
 			),
-			0 => array(
-				'group_name' => $txt['levgal_registered_members'],
-				'online_color' => '',
-				'stars' => '',
-				'color_name' => $txt['levgal_registered_members'],
-			),
 		);
 
 		$groupModel = new LevGal_Model_Group();
