@@ -321,9 +321,7 @@ class ManageLevGalDash_Controller extends Action_Controller
 			),
 			'images' => array(
 				'<a href="https://p.yusukekamiyamane.com/">Fugue Icons</a>, &copy; 2013 Yusuke Kamiyamane, under <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC-SA-3.0</a>',
-				'<a href="https://p.yusukekamiyamane.com/">Diagona Icons</a>, &copy; 2012 Yusuke Kamiyamane, under <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC-SA-3.0</a>',
 				'<a href="https://github.com/pasnox/oxygen-icons-png">Breeze Icons</a>, &copy; 2014 Uri Herrera and others, under the LGPL',
-				'<a href="https://www.fatcow.com/free-icons">FatCow-Farm Fresh Icons</a>, &copy; 2013 FatCow Web Hosting, under the <a href="http://creativecommons.org/licenses/by/3.0/">CC-BY-3.0</a>',
 			),
 			'translators' => array(
 				'Peter Spicer (English, English British)',
