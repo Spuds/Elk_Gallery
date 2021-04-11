@@ -31,12 +31,6 @@ elseif (!defined('ELK'))
 $db = database();
 $db_table = db_table();
 
-// We also only support MySQL for now
-if (strpos(strtolower($db->db_title()), 'mysql') !== 0)
-{
-	die('Levertine Gallery requires MySQL/MariaDB to function correctly.');
-}
-
 // We have a lot to do. Make sure as best we can that we have the time to do so.
 detectServer()->setTimeLimit(600);
 
