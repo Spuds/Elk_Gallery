@@ -58,7 +58,7 @@ class ManageLevGalDash_Controller extends Action_Controller
 		global $context, $txt;
 
 		// Things we need: title, multiple language files (due to reuse), our CSS
-		loadCSSFile(['main.css', 'admin_lg.css', 'admin.css'], ['stale' => LEVGAL_VERSION, 'subdir' => 'levgal_res']);
+		loadCSSFile(['main.css', 'admin_lg.css'], ['stale' => LEVGAL_VERSION, 'subdir' => 'levgal_res']);
 
 		loadLanguage('levgal_lng/LevGal-Stats');
 		loadLanguage('levgal_lng/ManageLevGal-Quotas');
