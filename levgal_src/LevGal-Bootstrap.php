@@ -98,7 +98,7 @@ class LevGal_Bootstrap
 			'actions' => 'LevGal_Bootstrap::hookActions',
 			'menu_buttons' => 'LevGal_Bootstrap::hookButtons',
 			'additional_bbc' => 'LevGal_Bootstrap::hookBbcCodes',
-			'delete_member' => 'LevGal_Model_Member::deleteMember',
+			'delete_members' => 'LevGal_Model_Member::deleteMembers',
 			'delete_membergroups' => 'LevGal_Model_Group::deleteGroup',
 			'action_mentions_before' => 'LevGal_Bootstrap::hookLanguage',
 			'mailist_pre_parsebbc' => 'LevGal_Bootstrap::hookPreParsebbc',
@@ -279,7 +279,7 @@ class LevGal_Bootstrap
 		switch ($_REQUEST['action'])
 		{
 			case 'admin':
-				add_integration_function('integrate_admin_areas', 'levgal_admin_bootstrap', SOURCEDIR . '/levgal_src/ManageLevGal.php',false);
+				add_integration_function('integrate_admin_areas', 'levgal_admin_bootstrap', 'SOURCEDIR/levgal_src/ManageLevGal.php',false);
 				break;
 			case 'profile':
 				add_integration_function('integrate_profile_areas', 'LevGalProfile_Controller::LevGal_profile', '',false);
