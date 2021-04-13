@@ -12,8 +12,14 @@
 
 function template_main_album_view()
 {
+	echo '
+	<div id="gallery_contain">';
+
 	template_main_album_sidebar();
 	template_main_album_display();
+
+	echo '
+	</div>';
 }
 
 function template_main_album_display()

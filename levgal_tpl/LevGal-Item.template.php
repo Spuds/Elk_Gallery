@@ -14,8 +14,14 @@ function template_main_item_view()
 {
 	global $settings, $txt;
 
+	echo '
+	<div id="gallery_contain">';
+
 	template_main_item_sidebar();
 	template_main_item_display();
+
+	echo '
+	</div>';
 
 	// Now we need the JavaScript for our copy buttons.
 	echo '
