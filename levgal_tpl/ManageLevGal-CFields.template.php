@@ -5,6 +5,8 @@
  * This file handles displaying the custom fields configuration.
  *
  * @package levgal
+ * @copyright 2014-2015 Peter Spicer (levertine.com)
+ * @license LGPL (v3)
  * @since 1.0
  */
 
@@ -23,9 +25,7 @@ function template_cfields()
 	if (empty($context['custom_fields']))
 	{
 		echo '
-			<div class="content">
-				<div class="centertext">', $txt['levgal_cfields_none'], '</div>
-			</div>';
+			<div class="infobox">', $txt['levgal_cfields_none'], '</div>';
 	}
 	else
 	{

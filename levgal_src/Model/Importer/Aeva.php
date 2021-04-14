@@ -315,7 +315,7 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 		{
 			$_SESSION['lgalimport']['items'] = 0;
 		}
-		$_SESSION['lgalimport']['items'] += $this->insertItems($files_to_import);;
+		$_SESSION['lgalimport']['items'] += $this->insertItems($files_to_import);
 
 		return array($substep + 1 == $substeps, $substeps);
 	}

@@ -105,15 +105,17 @@ dl.album_details dd, dl.album_info dd {
 }
 
 .item_link {
-	margin-top: -30px;
-	opacity: 0.8;
-	width: 1px;
+	margin-top: -28px;
 }
 
-.item_link > a {
-	border-radius: 50%;
+.item_link > a > i.icon-big {
+	height: 1em;
+	width: 1em;
+	line-height: 1em;
 	background: #FEFEFE;
-	padding: 2px 0 5px 0;
+	border-radius: 50%;
+	padding: 1px;
+	opacity: 0.7;
 }
 
 .item_image {
@@ -149,14 +151,14 @@ dl.album_details dd, dl.album_info dd {
 }
 
 .album_thumb {
-	max-width: 65px;
-	max-height: 65px;
+	width: 65px;
+	height: auto;
 	margin: 0 10px;
 }
 
 .generic_thumb {
-	max-width: 120px;
-	max-height: 120px;
+	width: 120px;
+	height: auto;
 }
 
 .album_featured .album_desc {
@@ -251,8 +253,8 @@ ul.album_hierarchy, ul.album_hierarchy ul {
 }
 
 .album_thumbnail img {
-	max-width: 125px;
-	max-height: 125px;
+	width: 125px;
+	height: auto;
 }
 
 .comment {
@@ -391,7 +393,7 @@ ul.lgalactions li a {
 }
 
 .lgal_share span.i-clipboard {
-	margin-bottom: -1px;
+	margin: 0 0 -1px 0;
 	cursor: pointer;
 }
 
@@ -627,6 +629,11 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 	filter: invert(47%) sepia(97%) saturate(3399%) hue-rotate(92deg) brightness(101%) contrast(104%);
 }
 
+.i-rss {
+	width: 16px;
+	filter: none;
+}
+
 /** SVG icons, some of these are copies from the core but with differed names, tad lazy yes */
 .i-bookmark::before, .i-unbookmark::before {
 	content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Cpath fill='%23000000' d='M6.75 0v36L18 24.75 29.25 36V0z'/%3E%3C/svg%3E");
@@ -726,4 +733,100 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 
 .i-approveitem::before, .i-approve::before {
 	content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%234CAF50' viewBox='0 0 32 32'%3E%3Cpath d='M27 4L12 19l-7-7-5 5 12 12L32 9z'/%3E%3C/svg%3E");
+}
+
+/* -------------------------------------------------------
+ *	$MEDIA
+ * -------------------------------------------------------
+ * Experimental media queries.
+ */
+@media screen and (max-width: 90em) {
+}
+
+/* This one does 1024 screens at default font size. */
+@media screen and (max-width: 64em) {
+	#album_sidebar {
+		width: 180px;
+	}
+
+	#item_main {
+		padding-right: 190px;
+	}
+}
+
+/* This one does 800 screens at default font size. */
+@media screen and (max-width: 50em) {
+	.lgalicon.i-rss {
+		display: none;
+	}
+
+	.album_entry {
+		min-width: 135px;
+		margin: 2px;
+	}
+
+	.album_entry > .well {
+		padding: 4px;
+	}
+
+	.album_container > .album_featured {
+		width: 245px;
+	}
+
+	.album_hierarchy.level_0 {
+		width: 99%;
+	}
+}
+
+/* This one does 540 and smaller screens at default font size. */
+@media screen and (max-width: 33.750em) {
+}
+
+/* This one does 480px screens at default font size. */
+@media screen and (max-width: 30em) {
+	#gallery_contain {
+		display: flex;
+		flex-direction: column;
+	}
+
+	#album_sidebar {
+		width: 95%;
+		float: none;
+		margin: 10px;
+		order: 2;
+	}
+
+	#item_main {
+		padding-right: 0;
+		margin: 0 5px;
+	}
+
+	.album_container > .album_featured {
+		width: 175px;
+		min-width: 160px;
+		margin: 1px;
+	}
+
+	.album_thumb {
+		margin: 1px;
+	}
+
+	.album_thumbnail {
+		float: left;
+	}
+
+	#album_sidebar .album_owner:after {
+		content: "";
+		clear: both;
+		display: block;
+	}
+
+	#album_sidebar .album_owner {
+		margin-top: 0;
+		height: initial;
+	}
+}
+
+/* This one does 320px screens at default font size. */
+@media screen and (max-width: 20em) {
 }

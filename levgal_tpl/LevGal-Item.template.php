@@ -5,6 +5,8 @@
  * This file handles displaying the item pages.
  *
  * @package levgal
+ * @copyright 2014-2015 Peter Spicer (levertine.com)
+ * @license LGPL (v3)
  * @since 1.0
  */
 
@@ -12,8 +14,14 @@ function template_main_item_view()
 {
 	global $settings, $txt;
 
+	echo '
+	<div id="gallery_contain">';
+
 	template_main_item_sidebar();
 	template_main_item_display();
+
+	echo '
+	</div>';
 
 	// Now we need the JavaScript for our copy buttons.
 	echo '

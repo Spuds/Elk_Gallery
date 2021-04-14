@@ -90,7 +90,7 @@ class LevGal_Model_Group
 		return $this->getGroupsByCriteria(array(
 			'exclude_moderator' => true,
 			'exclude_postcount' => true,
-		), 'name');
+		));
 	}
 
 	private function processQueryResult($request, $sort)
@@ -173,36 +173,6 @@ class LevGal_Model_Group
 		return $matched_users;
 	}
 
-	public static function redirectForDeletion(&$setLocation, &$refresh)
-	{
-		global $context;
-
-		if (!isset($context['admin_menu_id'], $context['menu_data_' . $context['admin_menu_id']]))
-		{
-			return;
-		}
-
-		// We need to perform actions when deleting a group, namely cleaning up their presence in the
-		// hierarchies.
-		// @todo does ElkArte contain a hook for deletion of a membergroup?
-		// so we have to improvise by adding a hook at redirection, since after deletion is a redirection
-		// back to the membergroups index, and check if the redirection came from deletion.
-		if (!isset($_POST['delete']) || empty($_REQUEST['group']) || !is_numeric($_REQUEST['group']) || strpos($setLocation, 'area=membergroups') === false)
-		{
-			return;
-		}
-
-		// Whatever we did do here, we don't want a meta refresh after this.
-		$refresh = false;
-
-		// Album ownership needs fixing. But this is not something any of the other models should really bother with much.
-		$groupID = (int) $_REQUEST['group'];
-		if (!empty($groupID) && ($groupID > 3 || $groupID == 2))
-		{
-			self::deleteGroup($groupID);
-		}
-	}
-
 	public static function deleteGroup($group_ids)
 	{
 		global $modSettings;
@@ -211,7 +181,6 @@ class LevGal_Model_Group
 
 		$only_owner = array();
 		$updated_albums = array();
-		$group_ids = (array) $group_ids;
 
 		$request = $db->query('', '
 			SELECT 

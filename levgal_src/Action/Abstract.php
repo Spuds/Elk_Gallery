@@ -15,6 +15,13 @@ abstract class LevGal_Action_Abstract
 	/** @var HttpReq */
 	public $_req;
 
+	public function __construct()
+	{
+		$this->loadResources();
+
+		$this->_req = HttpReq::instance();
+	}
+
 	public function getNumericId()
 	{
 		return $this->_req->getQuery('item', 'intval', 0);
@@ -28,19 +35,10 @@ abstract class LevGal_Action_Abstract
 		{
 			return array('', (int) $item);
 		}
-		else
-		{
-			list ($slug, $id) = explode('.', $item);
 
-			return array($slug, (int) $id);
-		}
-	}
+		list ($slug, $id) = explode('.', $item);
 
-	public function __construct()
-	{
-		$this->loadResources();
-
-		$this->_req = HttpReq::instance();
+		return array($slug, (int) $id);
 	}
 
 	public function loadResources()
@@ -59,7 +57,7 @@ abstract class LevGal_Action_Abstract
 		loadCSSFile($stylesheets, ['stale' => LEVGAL_VERSION, 'subdir' => 'levgal_res']);
 
 		// And our JS.
-		loadJavascriptFile('levgal.js', ['subdir' => 'levgal_res']);
+		loadJavascriptFile('levgal.js', ['subdir' => 'levgal_res', 'stale' => LEVGAL_VERSION]);
 
 		// And just in case, the main language file and template.
 		loadLanguage('levgal_lng/LevGal');
@@ -114,7 +112,7 @@ abstract class LevGal_Action_Abstract
 		if (!empty($base_template))
 		{
 			Templates::instance()->load('levgal_tpl/' . $base_template);
-			loadCSSFile($style_sheets, ['subdir' => 'levgal_res']);
+			loadCSSFile($style_sheets, ['subdir' => 'levgal_res', 'stale' => LEVGAL_VERSION]);
 		}
 
 		$context['sub_template'] = $sub_template;

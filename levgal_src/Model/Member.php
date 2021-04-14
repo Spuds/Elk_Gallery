@@ -8,10 +8,18 @@
  */
 
 /**
- * This file deals with certain member-related activities that SMF will need us to perform.
+ * This file deals with certain member-related activities that ElkArte will need us to perform.
  */
 class LevGal_Model_Member
 {
+	public static function deleteMembers($users)
+	{
+		foreach ($users as $user)
+		{
+			self::deleteMember($user);
+		}
+	}
+
 	public static function deleteMember($memID)
 	{
 		$db = database();
@@ -34,7 +42,8 @@ class LevGal_Model_Member
 		$bookmarkModel = LevGal_Bootstrap::getModel('LevGal_Model_Bookmark');
 		$bookmarkModel->removeAllBookmarksFromUser($memID);
 
-		// Album ownership needs fixing. But this is not something any of the other models should really bother with much.
+		// Album ownership needs fixing. But this is not something any of the other models should
+		// really bother with much.
 		$only_owner = array();
 		$updated_albums = array();
 
@@ -42,7 +51,8 @@ class LevGal_Model_Member
 			SELECT 
 				id_album, owner_cache
 			FROM {db_prefix}lgal_albums
-			ORDER BY null');
+			ORDER BY null'
+		);
 		while ($row = $db->fetch_assoc($request))
 		{
 			$row['owner_cache'] = @unserialize($row['owner_cache']);

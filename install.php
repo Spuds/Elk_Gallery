@@ -56,14 +56,23 @@ foreach ($new_settings as $k => $v)
 
 // Hook references to be added.
 $hooks = array();
-$hooks[] = array(
-	'hook' => 'integrate_pre_include',
-	'function' => 'SOURCEDIR/levgal_src/LevGal-Bootstrap.php',
-);
-$hooks[] = array(
-	'hook' => 'integrate_pre_load',
-	'function' => 'LevGal_Bootstrap::initialize',
-);
+$hooks[] = array('hook' => 'integrate_pre_include', 'function' => 'SOURCEDIR/levgal_src/LevGal-Bootstrap.php');
+$hooks[] = array('hook' => 'integrate_pre_load', 'function' => 'LevGal_Bootstrap::initialize');
+
+// Hook references to remove.  During adaption/testing some were mistaking added as
+// permanent so we clean them up during new install
+$hooksRemove = array();
+$hooksRemove[] = array('hook' => 'redirect', 'function' => 'LevGal_Bootstrap::hookRedirect', 'file' => '');
+$hooksRemove[] = array('hook' => 'actions', 'function' => 'LevGal_Bootstrap::hookActions', 'file' => '');
+$hooksRemove[] = array('hook' => 'menu_buttons', 'function' => 'LevGal_Bootstrap::hookButtons', 'file' => '');
+$hooksRemove[] = array('hook' => 'additional_bbc', 'function' => 'LevGal_Bootstrap::hookBbcCodes', 'file' => '');
+$hooksRemove[] = array('hook' => 'bbc_codes', 'function' => 'LevGal_Bootstrap::hookBbcCodes', 'file' => '');
+$hooksRemove[] = array('hook' => 'delete_member', 'function' => 'LevGal_Model_Member::deleteMember', 'file' => '');
+$hooksRemove[] = array('hook' => 'delete_members', 'function' => 'LevGal_Model_Member::deleteMembers', 'file' => '');
+$hooksRemove[] = array('hook' => 'delete_membergroups', 'function' => 'LevGal_Model_Group::deleteGroup', 'file' => '');
+$hooksRemove[] = array('hook' => 'action_mentions_before' , 'function' => 'LevGal_Bootstrap::hookLanguage', 'file' => '');
+$hooksRemove[] = array('hook' => 'integrate_admin_areas', 'function' => 'levgal_admin_bootstrap', 'file' => 'SOURCEDIR/levgal_src/ManageLevGal.php');
+$hooksRemove[] = array('hook' => 'integrate_profile_areas', 'function' => 'LevGalProfile_Controller::LevGal_profile', 'file' => '');
 
 // Now, we move on to adding new tables to the database.
 $tables = array();
@@ -650,6 +659,12 @@ foreach ($columns as $column)
 foreach ($hooks as $hook)
 {
 	add_integration_function($hook['hook'], $hook['function']);
+}
+
+// Hook removal for cleanup
+foreach ($hooksRemove as $hook)
+{
+	remove_integration_function($hook['hook'], $hook['function'], $hook['file']);
 }
 
 // Are we done?

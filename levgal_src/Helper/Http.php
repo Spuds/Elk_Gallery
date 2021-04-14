@@ -69,7 +69,7 @@ class LevGal_Helper_Http
 			header('Content-Encoding: none');
 		}
 
-		header($headers[$response_code], true);
+		header($headers[$response_code]);
 	}
 
 	public static function setResponseExit($response_code, $response_body = '', $content_type = 'text/plain')

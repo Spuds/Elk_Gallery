@@ -237,7 +237,7 @@ class LevGal_Model_Upload
 		$gal_size = $statsModel->getTotalGallerySize();
 
 		// If we don't get an actual size, play it safe and disallow it.
-		return $gal_size !== false ? $gal_size < $size : false;
+		return $gal_size !== false && $gal_size < $size;
 	}
 
 	public function getAllQuotas()
@@ -405,7 +405,7 @@ class LevGal_Model_Upload
 			$uploadModel = new LevGal_Model_Upload();
 			$txt['lgal_async_over_quota'] = sprintf($txt['levgal_gallery_over_quota'], LevGal_Helper_Format::filesize($uploadModel->getGalleryQuota()));
 		}
-		$error = isset($txt['lgal_async_' . $code]) ? $txt['lgal_async_' . $code] : $code;
+		$error = $txt['lgal_async_' . $code] ?? $code;
 
 		// Clean up
 		$path = LevGal_Bootstrap::getGalleryDir();

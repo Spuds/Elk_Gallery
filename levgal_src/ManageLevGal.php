@@ -92,19 +92,13 @@ function levgal_admin_bootstrap(&$admin_areas)
 		levgal_admin_permissions($permissionGroups, $permissionList, $leftPermissionGroups, $hiddenPermissions, $relabelPermissions);
 	}
 
-	// Portals also need some love. Let's detect SimplePortal.
-	if (isset($admin_areas['portal'], $admin_areas['portal']['areas']['portalconfig']))
-	{
-		loadLanguage('levgal_lng/LevGal-Portals');
-	}
-
 	// Admin function need some extra help
 	loadCSSFile('admin_lg.css', ['subdir' => 'levgal_res', 'stale' => LEVGAL_VERSION]);
 	loadJavascriptFile('admin_lg.js', ['subdir' => 'levgal_res', 'stale' => LEVGAL_VERSION]);
 	addInlineJavascript('closeFieldsets();', true);
 
-	add_integration_function('integrate_load_permissions', 'levgal_admin_permissions', '',false);
-	add_integration_function('integrate_redirect', 'LevGal_Model_Group::redirectForDeletion', '',false);
+	add_integration_function('integrate_load_permissions', 'levgal_admin_permissions', 'SOURCEDIR/levgal_src/ManageLevGal.php',false);
+	add_integration_function('integrate_delete_membergroups', 'LevGal_Model_Group::deleteGroup', '',false);
 }
 
 /**

@@ -5,13 +5,21 @@
  * This file handles displaying the album pages.
  *
  * @package levgal
+ * @copyright 2014-2015 Peter Spicer (levertine.com)
+ * @license LGPL (v3)
  * @since 1.0
  */
 
 function template_main_album_view()
 {
+	echo '
+	<div id="gallery_contain">';
+
 	template_main_album_sidebar();
 	template_main_album_display();
+
+	echo '
+	</div>';
 }
 
 function template_main_album_display()
@@ -30,7 +38,7 @@ function template_main_album_display()
 			<div class="album_container">';
 		foreach ($context['album_family'] as $owner_type => $owners)
 		{
-			if (empty($owners))
+			if (empty($owners) || $owner_type === 'album_count')
 			{
 				continue;
 			}
@@ -65,10 +73,10 @@ function template_main_album_display()
 					if ($id_album == $context['album_details']['id_album'])
 					{
 						echo '
-				<div class="album_current">
-					<span class="lgalicon i-album"></span> <em>', $album['album_name'], '</em>
-				</div>
-				<ul style="columns: 3">';
+					<div class="album_current">
+						<span class="lgalicon i-album"></span> <em>', $album['album_name'], '</em>
+					</div>
+					<ul style="columns: 3">';
 						$done_album = true;
 					}
 					elseif (!$done_album)
@@ -76,20 +84,19 @@ function template_main_album_display()
 						echo '
 					<div class="album_parent">
 						<span class="lgalicon i-alb_parent"></span> <a href="', $album['album_url'], '">', $album['album_name'], '</a>
-					</div>
-					';
+					</div>';
 					}
 					else
 					{
 						echo '
-					<li class="album_child">
-						<span class="lgalicon i-alb_child colorize-blue"></span> <a href="', $album['album_url'], '">', $album['album_name'], '</a>
-					</li>';
+						<li class="album_child">
+							<span class="lgalicon i-alb_child colorize-blue"></span> <a href="', $album['album_url'], '">', $album['album_name'], '</a>
+						</li>';
 					}
 				}
 
 				echo '
-				</ul>
+					</ul>
 				</div>
 				<div class="righttext">', sprintf($txt['lgal_see_more'], $scripturl . $link), '</div>
 			</div>';
@@ -429,7 +436,9 @@ function template_add_single_item()
 		{
 			echo '
 							<li>
-								<label><input type="checkbox" name="', $opt_id, '" value="1"', empty($option['value']) ? '' : ' checked="checked"', ' class="input_check" />', $option['label'], '</label>
+								<label>
+									<input type="checkbox" name="', $opt_id, '" value="1"', empty($option['value']) ? '' : ' checked="checked"', ' class="input_check" />', $option['label'], '
+								</label>
 							</li>';
 		}
 		echo '
@@ -833,7 +842,6 @@ function template_add_bulk_items()
 					if (result !== true)
 					{
 						display_error(result, true);
-						this.removeFile(file);
 						file.rejectDimensions(result);
 					}
 					else

@@ -76,18 +76,17 @@ class LevGal_Helper_Richtext
 	{
 		global $context, $txt;
 
-		// We would use SMF's template_control_richedit_buttons if it weren't useless to us and not customisable.
 		$editor_context = &$context['controls']['richedit'][$this->form_var];
 
 		echo '
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 				<p id="post_confirm_buttons" class="righttext">
-					<input type="submit" value="', $editor_context['labels']['post_button'] ?? $txt['post'], '" tabindex="', $context['tabindex']++, '"', isset($editor_context['js']['post_button']) ? ' onclick="' . $editor_context['js']['post_button'] . '"' : '', ' class="button_submit" />';
+					<input type="submit" value="', $editor_context['labels']['post_button'] ?? $txt['post'], '" tabindex="', $context['tabindex']++, '"', isset($editor_context['js']['post_button']) ? ' onclick="' . $editor_context['js']['post_button'] . '"' : '', ' />';
 
 		if ($editor_context['preview_type'])
 		{
 			echo '
-					<input type="submit" name="preview" value="', $editor_context['labels']['preview_button'] ?? $txt['preview'], '" tabindex="', $context['tabindex']++, '"', isset($editor_context['js']['preview_button']) ? ' onclick="' . $editor_context['js']['preview_button'] . '"' : '', ' class="button_submit" />';
+					<input type="submit" name="preview" value="', $editor_context['labels']['preview_button'] ?? $txt['preview'], '" tabindex="', $context['tabindex']++, '"', isset($editor_context['js']['preview_button']) ? ' onclick="' . $editor_context['js']['preview_button'] . '"' : '', ' />';
 		}
 
 		echo '
@@ -112,7 +111,7 @@ class LevGal_Helper_Richtext
 		// Before we check there is content, we may have to do some massaging.
 		$this->prepareWYSIWYG();
 
-		return (empty($_POST[$this->form_var]) || Util::htmltrim(Util::htmlspecialchars($_POST[$this->form_var]), ENT_QUOTES) === '');
+		return (empty($_POST[$this->form_var]) || Util::htmltrim(Util::htmlspecialchars($_POST[$this->form_var])) === '');
 	}
 
 	public function sanitizeContent()

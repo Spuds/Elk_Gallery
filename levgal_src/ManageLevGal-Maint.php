@@ -171,7 +171,7 @@ class ManageLevGalMaint_Controller extends Action_Controller
 		$context['step'] = isset($_REQUEST['step'], $context['steps'][$_REQUEST['step']])
 			? (int) $_REQUEST['step'] : 0;
 
-		// We are setting up for the not-done template SMF provides so we don't have do it ourselves.
+		// We are setting up for the not-done template ElkArte provides so we don't have do it ourselves.
 		Templates::instance()->load('Admin');
 		$context['continue_countdown'] = 3;
 		$context['continue_get_data'] = '?action=admin;area=lgalmaint;activity=rebuildsearch;' . $context['session_var'] . '=' . $context['session_id'];
@@ -260,7 +260,7 @@ class ManageLevGalMaint_Controller extends Action_Controller
 			$rows[] = array(
 				'id_item' => $item['id_item'],
 				'item_name' => $item['item_name'],
-				'description' => isset($descriptions[$item['id_item']]) ? $descriptions[$item['id_item']] : '',
+				'description' => $descriptions[$item['id_item']] ?? '',
 				'item_type' => $item['item_type'],
 			);
 		}
@@ -345,20 +345,19 @@ class ManageLevGalMaint_Controller extends Action_Controller
 			{
 				$meta = $itemModel->getMetadata();
 				// Did we get a thumbnail from meta?
+				$itemModel->deleteFiles(array('preview', 'thumb'));
 				if (isset($meta['thumbnail']))
 				{
-					$itemModel->deleteFiles(array('preview', 'thumb'));
 					$itemModel->setThumbnail($meta['thumbnail']);
 				}
 				else
 				{
-					$itemModel->deleteFiles(array('preview', 'thumb'));
 					$itemModel->getThumbnail();
 				}
 			}
 		}
 
-		// We are setting up for the not-done template SMF provides so we don't have do it ourselves.
+		// We are setting up for the not-done template ElkArte provides so we don't have do it ourselves.
 		Templates::instance()->load('Admin');
 		$context['continue_countdown'] = 3;
 		$context['continue_get_data'] = '?action=admin;area=lgalmaint;activity=rebuildthumbs;' . $context['session_var'] . '=' . $context['session_id'];

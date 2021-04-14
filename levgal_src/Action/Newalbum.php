@@ -124,7 +124,8 @@ class LevGal_Action_Newalbum extends LevGal_Action_Abstract
 		{
 			$context['errors'][] = 'levgal_no_album_name';
 
-			return $this->actionIndex();
+			$this->actionIndex();
+			return;
 		}
 
 		$approved = allowedTo(array('lgal_manage', 'lgal_addalbum_approve'));

@@ -371,7 +371,7 @@ class LevGal_Model_Metadata_ExifTag
 			for ($num = 1; $num < 100; $num++)
 			{
 				$recip = 1 / $data * $num;
-				$div = round($recip, 0);
+				$div = round($recip);
 				if (abs($div - $recip) < 0.025)
 				{
 					return array($num, $div);

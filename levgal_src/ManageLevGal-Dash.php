@@ -58,7 +58,7 @@ class ManageLevGalDash_Controller extends Action_Controller
 		global $context, $txt;
 
 		// Things we need: title, multiple language files (due to reuse), our CSS
-		loadCSSFile(['main.css', 'admin_lg.css', 'admin.css'], ['stale' => LEVGAL_VERSION, 'subdir' => 'levgal_res']);
+		loadCSSFile(['main.css', 'admin_lg.css'], ['stale' => LEVGAL_VERSION, 'subdir' => 'levgal_res']);
 
 		loadLanguage('levgal_lng/LevGal-Stats');
 		loadLanguage('levgal_lng/ManageLevGal-Quotas');
@@ -116,8 +116,8 @@ class ManageLevGalDash_Controller extends Action_Controller
 			$context['item_breakdown'][] = array(
 				'value' => $count,
 				'color' => $colors[$item_colors[$item_type]][0],
-				'highlight' => isset($colors[$item_colors[$item_type]][1]) ? $colors[$item_colors[$item_type]][1] : $colors[$item_colors[$item_type]][0],
-				'label' => isset($txt['levgal_quotas_' . $item_type . '_title_short']) ? $txt['levgal_quotas_' . $item_type . '_title_short'] : $txt['levgal_quotas_' . $item_type . '_title'],
+				'highlight' => $colors[$item_colors[$item_type]][1] ?? $colors[$item_colors[$item_type]][0],
+				'label' => $txt['levgal_quotas_' . $item_type . '_title_short'] ?? $txt['levgal_quotas_' . $item_type . '_title'],
 			);
 		}
 
@@ -321,9 +321,7 @@ class ManageLevGalDash_Controller extends Action_Controller
 			),
 			'images' => array(
 				'<a href="https://p.yusukekamiyamane.com/">Fugue Icons</a>, &copy; 2013 Yusuke Kamiyamane, under <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC-SA-3.0</a>',
-				'<a href="https://p.yusukekamiyamane.com/">Diagona Icons</a>, &copy; 2012 Yusuke Kamiyamane, under <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC-SA-3.0</a>',
 				'<a href="https://github.com/pasnox/oxygen-icons-png">Breeze Icons</a>, &copy; 2014 Uri Herrera and others, under the LGPL',
-				'<a href="https://www.fatcow.com/free-icons">FatCow-Farm Fresh Icons</a>, &copy; 2013 FatCow Web Hosting, under the <a href="http://creativecommons.org/licenses/by/3.0/">CC-BY-3.0</a>',
 			),
 			'translators' => array(
 				'Peter Spicer (English, English British)',
