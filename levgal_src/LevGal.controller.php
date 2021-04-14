@@ -160,7 +160,7 @@ function levgal_pageindex($base_url, $current_page, $num_pages)
 
 	$wrapped = array_map(
 		function ($el) {
-			return "<li class=\"linavPages\">{$el}</li>";
+			return "<li class=\"linavPages\">$el</li>";
 		},
 		$links
 	);

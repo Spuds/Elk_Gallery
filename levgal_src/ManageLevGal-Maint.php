@@ -260,7 +260,7 @@ class ManageLevGalMaint_Controller extends Action_Controller
 			$rows[] = array(
 				'id_item' => $item['id_item'],
 				'item_name' => $item['item_name'],
-				'description' => isset($descriptions[$item['id_item']]) ? $descriptions[$item['id_item']] : '',
+				'description' => $descriptions[$item['id_item']] ?? '',
 				'item_type' => $item['item_type'],
 			);
 		}
@@ -345,14 +345,13 @@ class ManageLevGalMaint_Controller extends Action_Controller
 			{
 				$meta = $itemModel->getMetadata();
 				// Did we get a thumbnail from meta?
+				$itemModel->deleteFiles(array('preview', 'thumb'));
 				if (isset($meta['thumbnail']))
 				{
-					$itemModel->deleteFiles(array('preview', 'thumb'));
 					$itemModel->setThumbnail($meta['thumbnail']);
 				}
 				else
 				{
-					$itemModel->deleteFiles(array('preview', 'thumb'));
 					$itemModel->getThumbnail();
 				}
 			}

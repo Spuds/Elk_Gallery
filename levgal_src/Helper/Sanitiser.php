@@ -27,9 +27,7 @@ class LevGal_Helper_Sanitiser
 		// Strip duplicates
 		$var = preg_replace('~\-+~', '-', $var);
 		// Lastly, cap to 50 characters and trim any leading or trailing stuff
-		$var = trim(substr($var, 0, 50), '-');
-
-		return $var;
+		return trim(substr($var, 0, 50), '-');
 	}
 
 	public static function sanitiseUrl($var)
@@ -66,7 +64,7 @@ class LevGal_Helper_Sanitiser
 
 	public static function sanitiseText($var, $max_length = null)
 	{
-		$content = Util::htmltrim(Util::htmlspecialchars($var), ENT_QUOTES);
+		$content = Util::htmltrim(Util::htmlspecialchars($var));
 
 		if (!empty($content) && $max_length !== null)
 		{

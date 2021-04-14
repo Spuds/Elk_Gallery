@@ -111,7 +111,7 @@ class LevGal_Helper_Richtext
 		// Before we check there is content, we may have to do some massaging.
 		$this->prepareWYSIWYG();
 
-		return (empty($_POST[$this->form_var]) || Util::htmltrim(Util::htmlspecialchars($_POST[$this->form_var]), ENT_QUOTES) === '');
+		return (empty($_POST[$this->form_var]) || Util::htmltrim(Util::htmlspecialchars($_POST[$this->form_var])) === '');
 	}
 
 	public function sanitizeContent()

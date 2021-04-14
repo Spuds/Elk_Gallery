@@ -116,8 +116,8 @@ class ManageLevGalDash_Controller extends Action_Controller
 			$context['item_breakdown'][] = array(
 				'value' => $count,
 				'color' => $colors[$item_colors[$item_type]][0],
-				'highlight' => isset($colors[$item_colors[$item_type]][1]) ? $colors[$item_colors[$item_type]][1] : $colors[$item_colors[$item_type]][0],
-				'label' => isset($txt['levgal_quotas_' . $item_type . '_title_short']) ? $txt['levgal_quotas_' . $item_type . '_title_short'] : $txt['levgal_quotas_' . $item_type . '_title'],
+				'highlight' => $colors[$item_colors[$item_type]][1] ?? $colors[$item_colors[$item_type]][0],
+				'label' => $txt['levgal_quotas_' . $item_type . '_title_short'] ?? $txt['levgal_quotas_' . $item_type . '_title'],
 			);
 		}
 

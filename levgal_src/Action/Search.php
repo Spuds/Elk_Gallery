@@ -176,6 +176,7 @@ class LevGal_Action_Search extends LevGal_Action_Abstract
 		global $context, $scripturl;
 
 		$search_id = $this->getNumericId();
+		$search_details = null;
 		if (!empty($search_id))
 		{
 			$search = new LevGal_Model_Search();
@@ -189,7 +190,7 @@ class LevGal_Action_Search extends LevGal_Action_Abstract
 
 		$context['existing_search'] = $search_details;
 
-		return $this->actionIndex();
+		$this->actionIndex();
 	}
 
 	public function actionResult()

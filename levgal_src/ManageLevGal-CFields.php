@@ -277,7 +277,7 @@ class ManageLevGalCFields_Controller extends Action_Controller
 						if (isset($_POST['select_option']) && is_array($_POST['select_option']))
 						{
 							$items = $_POST['select_option'];
-							$_POST['default_select'] = isset($_POST['default_select']) ? $_POST['default_select'] : '';
+							$_POST['default_select'] = $_POST['default_select'] ?? '';
 							$field_options = array();
 							$default = '';
 							foreach ($items as $k => $v)

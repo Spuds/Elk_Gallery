@@ -146,14 +146,14 @@ class LevGal_Action_Moderate extends LevGal_Action_Abstract
 	{
 		$moderate = new LevGal_Model_Moderate();
 
-		return $moderate->getReportedComments(0, 10, 'desc', 'open');
+		return $moderate->getReportedComments(0, 10, 'desc');
 	}
 
 	protected function blockReported_items()
 	{
 		$moderate = new LevGal_Model_Moderate();
 
-		return $moderate->getReportedItems(0, 10, 'desc', 'open');
+		return $moderate->getReportedItems(0, 10, 'desc');
 	}
 
 	public function actionUnapproved_comments()

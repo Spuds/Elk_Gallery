@@ -298,6 +298,8 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 		{
 			redirectexit($album_details['album_url']);
 		}
+
+		return true;
 	}
 
 	public function actionBookmark()

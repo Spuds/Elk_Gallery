@@ -746,7 +746,6 @@ class LevGal_Model_Maintenance
 			if (!in_array($base_folder . '/' . $file, $files))
 			{
 				$items_without_files[] = $row['id_item'];
-				continue;
 			}
 		}
 
@@ -924,7 +923,6 @@ class LevGal_Model_Maintenance
 			if (!isset($located[$id_album]) || $located[$id_album] != $actual_file)
 			{
 				$albums_not_found[] = $id_album;
-				continue;
 			}
 		}
 

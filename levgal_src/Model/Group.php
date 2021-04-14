@@ -90,7 +90,7 @@ class LevGal_Model_Group
 		return $this->getGroupsByCriteria(array(
 			'exclude_moderator' => true,
 			'exclude_postcount' => true,
-		), 'name');
+		));
 	}
 
 	private function processQueryResult($request, $sort)

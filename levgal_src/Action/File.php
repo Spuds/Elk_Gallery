@@ -143,21 +143,21 @@ class LevGal_Action_File extends LevGal_Action_Abstract
 	{
 		$this->viewtype = 'thumb';
 
-		return $this->actionIndex();
+		$this->actionIndex();
 	}
 
 	public function actionPreview()
 	{
 		$this->viewtype = 'preview';
 
-		return $this->actionIndex();
+		$this->actionIndex();
 	}
 
 	public function actionDownload()
 	{
 		$this->is_downloading = true;
 
-		return $this->actionIndex();
+		$this->actionIndex();
 	}
 
 	protected function endBuffers()

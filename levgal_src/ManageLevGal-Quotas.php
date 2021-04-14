@@ -149,15 +149,14 @@ class ManageLevGalQuotas_Controller extends Action_Controller
 				if (count($manager_groups) > 0)
 				{
 					$quota_groups = array_diff($manager_groups, $context['managers']);
+					$changed[$quota_type] = true;
 					if (empty($quota_groups))
 					{
 						unset ($context['quotas'][$quota_type][$k]);
-						$changed[$quota_type] = true;
 					}
 					else
 					{
 						$context['quotas'][$quota_type][$k][0] = $quota_groups;
-						$changed[$quota_type] = true;
 					}
 				}
 			}
