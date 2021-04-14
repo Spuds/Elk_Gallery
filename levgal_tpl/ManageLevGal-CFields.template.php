@@ -25,9 +25,7 @@ function template_cfields()
 	if (empty($context['custom_fields']))
 	{
 		echo '
-			<div class="content">
-				<div class="centertext">', $txt['levgal_cfields_none'], '</div>
-			</div>';
+			<div class="infobox">', $txt['levgal_cfields_none'], '</div>';
 	}
 	else
 	{

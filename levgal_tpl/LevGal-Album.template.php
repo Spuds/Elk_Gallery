@@ -38,7 +38,7 @@ function template_main_album_display()
 			<div class="album_container">';
 		foreach ($context['album_family'] as $owner_type => $owners)
 		{
-			if (empty($owners))
+			if (empty($owners) || $owner_type === 'album_count')
 			{
 				continue;
 			}
@@ -73,10 +73,10 @@ function template_main_album_display()
 					if ($id_album == $context['album_details']['id_album'])
 					{
 						echo '
-				<div class="album_current">
-					<span class="lgalicon i-album"></span> <em>', $album['album_name'], '</em>
-				</div>
-				<ul style="columns: 3">';
+					<div class="album_current">
+						<span class="lgalicon i-album"></span> <em>', $album['album_name'], '</em>
+					</div>
+					<ul style="columns: 3">';
 						$done_album = true;
 					}
 					elseif (!$done_album)
@@ -84,20 +84,19 @@ function template_main_album_display()
 						echo '
 					<div class="album_parent">
 						<span class="lgalicon i-alb_parent"></span> <a href="', $album['album_url'], '">', $album['album_name'], '</a>
-					</div>
-					';
+					</div>';
 					}
 					else
 					{
 						echo '
-					<li class="album_child">
-						<span class="lgalicon i-alb_child colorize-blue"></span> <a href="', $album['album_url'], '">', $album['album_name'], '</a>
-					</li>';
+						<li class="album_child">
+							<span class="lgalicon i-alb_child colorize-blue"></span> <a href="', $album['album_url'], '">', $album['album_name'], '</a>
+						</li>';
 					}
 				}
 
 				echo '
-				</ul>
+					</ul>
 				</div>
 				<div class="righttext">', sprintf($txt['lgal_see_more'], $scripturl . $link), '</div>
 			</div>';
