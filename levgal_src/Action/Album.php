@@ -18,8 +18,6 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 	private $album_slug;
 	/** @var \LevGal_Model_Album */
 	private $album_obj;
-	/** @var string[] */
-	private $uploadErrors;
 
 	public function __construct()
 	{
@@ -46,9 +44,6 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		{
 			LevGal_Helper_Http::hardRedirect($context['album_details']['album_url'] . (!empty($_GET['sub']) ? $_GET['sub'] . '/' : ''));
 		}
-
-		// Known processing responses
-		$this->uploadErrors = ['not_allowed', 'invalid', 'over_quota', 'not_writable', 'not_found'];
 	}
 
 	public function actionIndex()
@@ -1311,7 +1306,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 			'jpg' => 'image/jpeg',
 			'gif' => 'image/gif',
 		);
-		$format = isset($extensions[$ext]) ? $extensions[$ext] : 'application/octet-stream';
+		$format = $extensions[$ext] ?? 'application/octet-stream';
 
 		header('Content-Type: ' . $format);
 		echo file_get_contents($thumb);
