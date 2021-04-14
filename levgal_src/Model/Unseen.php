@@ -51,7 +51,7 @@ class LevGal_Model_Unseen
 				// No albums? Reset the new counter to 0 and the unseen count as well.
 				updateMemberData($user_info['id'], array('lgal_new' => 0, 'lgal_unseen' => 0));
 				$user_settings['lgal_new'] = 0;
-				$user_settings['lgal_unseen'] = $unseen;
+				$user_settings['lgal_unseen'] = 0;
 
 				return;
 			}
@@ -60,7 +60,8 @@ class LevGal_Model_Unseen
 
 			// Note: your own items are not included in the case of non-moderator with item unapproved
 			$request = $db->query('', '
-				SELECT COUNT(li.id_item) AS item_count, COUNT(ls.id_item) AS seen_count
+				SELECT 
+					COUNT(li.id_item) AS item_count, COUNT(ls.id_item) AS seen_count
 				FROM {db_prefix}lgal_items AS li
 					LEFT JOIN {db_prefix}lgal_log_seen AS ls ON (ls.id_item = li.id_item AND ls.id_member = {int:current_member} AND ls.view_time >= li.time_updated - {int:unseen_threshold})
 				WHERE ' . ($this->albums !== true ? 'li.id_album IN ({array_int:albums})' : '1=1') . (!$viewing_all ? '
@@ -71,7 +72,6 @@ class LevGal_Model_Unseen
 					'unseen_threshold' => self::UNSEEN_THRESHOLD,
 				)
 			);
-
 			list ($items, $seen) = $db->fetch_row($request);
 			$db->free_result($request);
 
@@ -254,7 +254,7 @@ class LevGal_Model_Unseen
 			)
 		);
 		// Second, flag everyone for recount
-		$this->markForRecount(null);
+		$this->markForRecount();
 	}
 
 	public function markForRecount($user = null)
