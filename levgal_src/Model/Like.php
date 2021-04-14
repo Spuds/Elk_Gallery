@@ -67,7 +67,7 @@ class LevGal_Model_Like
 		);
 
 		call_integration_hook('integrate_lgal_like_item', array($id_item));
-		$this->likeMention($id_ite);
+		$this->likeMention($id_item);
 		$this->clearCacheByItems($id_item);
 	}
 
