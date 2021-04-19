@@ -266,7 +266,7 @@ class LevGal_Model_AlbumList
 				num_unapproved_comments, featured, owner_cache, perms
 			FROM {db_prefix}lgal_albums
 			WHERE id_album IN ({array_int:album_list})
-			ORDER BY null',
+			',
 			array(
 				'album_list' => array_keys($hierarchy),
 			)

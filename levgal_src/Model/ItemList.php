@@ -238,7 +238,7 @@ class LevGal_Model_ItemList
 			    id_item
 			FROM {db_prefix}lgal_items
 			WHERE ' . implode(' AND ', $criteria) . '
-			ORDER BY {raw:order}
+			ORDER BY ' . $order . ' 
 			LIMIT {int:qty}',
 			array_merge($values, array(
 				'album_list' => $album_list,
