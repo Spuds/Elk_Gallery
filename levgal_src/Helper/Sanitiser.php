@@ -114,7 +114,7 @@ class LevGal_Helper_Sanitiser
 	{
 		// First, get the username.
 		$username = self::sanitiseTextFromPost($var, 30);
-		require_once(SOURCEDIR . '/Members.subs.php');
+		require_once(SUBSDIR . '/Members.subs.php');
 
 		return array(!empty($username) && !isReservedName($username, 0, true, false), $username);
 	}
