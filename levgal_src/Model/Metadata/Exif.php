@@ -130,8 +130,6 @@ class LevGal_Model_Metadata_Exif
 		}
 
 		// Start looking for directory data.
-		$data = '';
-		$size = 0;
 		$header = '';
 		$loop = 0;
 

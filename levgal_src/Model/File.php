@@ -14,7 +14,7 @@ class LevGal_Model_File
 {
 	/** @var bool */
 	protected $current_item = false;
-	/** @var bool */
+	/** @var \LevGal_Model_Album */
 	protected $current_album = false;
 
 	public function getFileInfoById($itemId)

@@ -318,6 +318,7 @@ class LevGal_Model_Comment
 			return $this->current_comment['comment_url'];
 		}
 
+		$criteria = array();
 		$criteria[] = '
 			id_item = {int:id_item}';
 		$criteria[] = '

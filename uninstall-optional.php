@@ -29,7 +29,6 @@
 if (file_exists(dirname(__FILE__) . '/SSI.php') && !defined('ELK'))
 {
 	require_once(dirname(__FILE__) . '/SSI.php');
-	db_extend('packages');
 }
 // If we are outside ElkArte and can't find SSI.php, then throw an error
 elseif (!defined('ELK'))

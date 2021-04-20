@@ -358,7 +358,6 @@ function template_moderate_unapproved_albums()
 	}
 	else
 	{
-		$alternate = false;
 		foreach ($context['albums'] as $album)
 		{
 			echo '
@@ -373,7 +372,6 @@ function template_moderate_unapproved_albums()
 					<br class="clear" />
 				</td>
 			</tr>';
-			$alternate = !$alternate;
 		}
 	}
 
@@ -477,7 +475,6 @@ function template_moderate_reported_items()
 	echo '
 		<div class="pagesection">', $context['pageindex'], '</div>';
 
-	$alternate = true;
 	foreach ($context['items'] as $item)
 	{
 		echo '
@@ -559,7 +556,6 @@ function template_showreport()
 	echo '
 		<h3 class="secondary_header">', $txt['lgal_reports_by_members'], '</h3>';
 
-	$alternate = false;
 	foreach ($context['report_bodies'] as $body)
 	{
 		echo '

@@ -18,7 +18,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 	const SEEN_THRESHOLD = 120;
 	/** @var int|bool  */
 	protected $current_item = false;
-	/** @var int|bool  */
+	/** @var \LevGal_Model_Album  */
 	protected $current_album = false;
 
 	public function getItemInfoById($itemId)
@@ -651,6 +651,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 		}
 
 		$comments = array();
+		$clauses = array();
 		$session_comments = !empty($_SESSION['lgal_comments']) ? $_SESSION['lgal_comments'] : array();
 		$clauses[] = 'lc.id_item = {int:item}';
 		// Guests see only approved items, period.
