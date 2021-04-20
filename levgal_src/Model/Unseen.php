@@ -201,7 +201,12 @@ class LevGal_Model_Unseen
 	public function markAlbumSeen($id_album)
 	{
 		global $modSettings, $user_info;
-		$marking_all = allowedTo(array('lgal_manage', 'lgal_approve_item')) || (!empty($modSettings['lgal_selfmod_approve_item']) && $this->isOwnedByUser());
+
+		$album_obj = new LevGal_Model_Album();
+		$album_obj->getAlbumById($id_album);
+
+		$marking_all = allowedTo(array('lgal_manage', 'lgal_approve_item'))
+			|| (!empty($modSettings['lgal_selfmod_approve_item']) && $album_obj->isOwnedByUser());
 
 		$db = database();
 
