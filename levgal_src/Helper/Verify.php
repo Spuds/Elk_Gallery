@@ -22,7 +22,7 @@ class LevGal_Helper_Verify
 
 	private function initialize($do_test)
 	{
-		require_once(SOURCEDIR . '/Subs-Editor.php');
+		require_once(SUBSDIR . '/VerificationControls.class.php');
 		$options = array(
 			'id' => $this->id,
 		);
@@ -44,7 +44,6 @@ class LevGal_Helper_Verify
 	{
 		global $txt;
 
-		echo '
-				<strong>', $txt['verification'], ':</strong>', template_control_verification($this->id, 'quick_reply'), '<br />';
+		template_verification_controls($this->id, '<strong>' . $txt['verification'] . ':</strong>', '<br />');
 	}
 }
