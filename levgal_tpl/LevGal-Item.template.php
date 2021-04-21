@@ -80,7 +80,7 @@ function template_main_item_display()
 	if (!empty($context['item_details']['description']))
 	{
 		echo '
-				<div id="item_desc">', $context['item_details']['description'], '</div>';
+				<div id="item_desc" class="well">', $context['item_details']['description'], '</div>';
 	}
 
 	if (!empty($context['item_display']['custom_fields']['desc']))
