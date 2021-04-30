@@ -541,6 +541,7 @@ function template_add_single_item()
 				this.on("sending", function(file, xhr, formData) 
       			{
       				formData.append("' . $context['session_var'] . '", "' . $context['session_id']  . '");
+      				formData.append("async", file.upload.uuid);
 				});
 				this.on("error", function (file, msg, xhr)
 				{
@@ -567,7 +568,7 @@ function template_add_single_item()
 				});
 			},
 			accept: function(file, done) {
-				// We do not have the width / height until this completes
+				// We do not have the width / height until thumbnail completes
 				this.on("thumbnail", function(file) {
 					let result = addFileFilter(file, this.options.lgal_quota, this.options.lgal_enable_resize);
 					if (result !== true)
@@ -581,6 +582,14 @@ function template_add_single_item()
 						done();
 					}
 				});
+				
+				// If its not an image, trigger thumbnail manually so the accept checks run
+				let ext = file.name.split(".").pop().toLowerCase();
+				if (ext !== \'png\' || ext !== \'jpeg\' || ext !== \'jpg\')
+				{
+					let dataURL = get_upload_generic_thumbnail(file, this.options.lgal_quota);
+					this.emit("thumbnail", file, dataURL);
+				}
 			},
 			chunksUploaded: function(file, done)
 			{
@@ -857,6 +866,14 @@ function template_add_bulk_items()
 				// callbacks using the passed done function
     			file.acceptDimensions = done;
     			file.rejectDimensions = function(error) {done(error);};
+    			
+				// If its not an image, trigger thumbnail manually so the accept checks run
+				let ext = file.name.split(".").pop().toLowerCase();
+				if (ext !== \'png\' || ext !== \'jpeg\' || ext !== \'jpg\')
+				{
+					let dataURL = get_upload_generic_thumbnail(file, this.options.lgal_quota);
+					this.emit("thumbnail", file, dataURL);
+				}
 			},
 			chunksUploaded: function(file, done)
 			{
