@@ -128,7 +128,7 @@ class LevGal_Model_Embed
 				if (isset($items[$item['id']]))
 				{
 					$item = $item + $items[$item['id']];
-					$buffer = str_replace($search, '<a href="' . $item['item_url'] . '">' . $item['item_name'] . '</a>', $buffer);
+					$buffer = str_replace($search, '<a href="' . $item['item_url'] . '" class="levgal">' . $item['item_name'] . '</a>', $buffer);
 				}
 				else
 				{
