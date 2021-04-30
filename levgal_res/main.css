@@ -524,6 +524,10 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 	display: table-row;
 }
 
+.file-row.dz-image-preview img {
+	max-width: 60px;
+}
+
 .dz-table .file-row:first-child > div {
 	border-top: 1px solid #ddd;
 }
