@@ -708,7 +708,7 @@ function template_item_generic()
 	{
 		echo '
 					<div>
-						<a href="' . (!empty($viewInline) ? substr($context['item_actions']['actions']['download'][1], 0 , -10) : '') . '">
+						<a href="' . (!empty($viewInline) ? substr($context['item_actions']['actions']['download'][1], 0, -10) : '') . '">
 							<img id="item_generic" class="generic_preview" src="', $context['item_display']['urls']['preview'], '" alt="" />
 						</a>
 					</div>';
@@ -717,7 +717,7 @@ function template_item_generic()
 	{
 		echo '
 					<div>
-						<a href="' . (!empty($viewInline) ? substr($context['item_actions']['actions']['download'][1], 0 , -10) : '') . '">
+						<a href="' . (!empty($viewInline) ? substr($context['item_actions']['actions']['download'][1], 0, -10) : '') . '">
 							<img id="item_generic" class="generic_thumb" src="', $context['item_display']['urls']['thumb'], '" alt="" />
 						</a>
 					</div>';
@@ -1024,7 +1024,7 @@ function template_edit_item()
 				});
 				this.on("sending", function(file, xhr, formData) 
       			{
-      				formData.append("' . $context['session_var'] . '", "' . $context['session_id']  . '");
+      				formData.append("' . $context['session_var'] . '", "' . $context['session_id'] . '");
       				formData.append("async", file.upload.uuid);
 				});
 				this.on("error", function (file, msg, xhr)

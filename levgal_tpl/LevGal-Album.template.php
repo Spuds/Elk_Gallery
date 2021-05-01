@@ -33,7 +33,7 @@ function template_main_album_display()
 	if (!empty($context['album_family']))
 	{
 		$title = '';
-		$link='';
+		$link = '';
 		echo '
 			<div class="album_container">';
 		foreach ($context['album_family'] as $owner_type => $owners)
@@ -540,7 +540,7 @@ function template_add_single_item()
 				});
 				this.on("sending", function(file, xhr, formData) 
       			{
-      				formData.append("' . $context['session_var'] . '", "' . $context['session_id']  . '");
+      				formData.append("' . $context['session_var'] . '", "' . $context['session_id'] . '");
       				formData.append("async", file.upload.uuid);
 				});
 				this.on("error", function (file, msg, xhr)

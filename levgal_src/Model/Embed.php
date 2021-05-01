@@ -14,7 +14,7 @@ class LevGal_Model_Embed
 {
 	/** @var array[] */
 	private $embed;
-	/** @var attay[] */
+	/** @var array[] */
 	private $item_list;
 	/** @var string */
 	private $type;
