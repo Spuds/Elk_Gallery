@@ -142,7 +142,7 @@ class LevGal_Bootstrap
 
 		// Allow the gallery to be first in autoloader checking, else ElkArte will throw
 		// an error before we get to look.
-		spl_autoload_register(array('LevGal_Bootstrap', 'autoloader'), false, true);
+		spl_autoload_register(array('LevGal_Bootstrap', 'autoloader'), true, true);
 	}
 
 	public static function autoloader($class)
