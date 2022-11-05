@@ -8,6 +8,8 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  * @since 1.0
+ *
+ * @version 1.2.0 / elkarte
  */
 
 function template_main()
@@ -52,6 +54,8 @@ function template_main_page_sidebar()
 function template_main_page_display()
 {
 	global $context;
+
+	template_album_list_action_tabs($context['gallery_actions']);
 
 	echo '
 		<div id="item_main">';
@@ -115,6 +119,7 @@ function template_display_album_list($list)
 function template_display_latest_items()
 {
 	global $context, $txt;
+
 	echo '
 			<h3 class="secondary_header">', $txt['lgal_latest_items'], '</h3>';
 
@@ -131,6 +136,7 @@ function template_display_latest_items()
 function template_display_random_items()
 {
 	global $context, $txt;
+
 	echo '
 			<h3 class="secondary_header">', $txt['lgal_random_items'], '</h3>';
 
@@ -284,9 +290,11 @@ function colorize_actions($id_action)
 			break;
 		case 'additem':
 		case 'addbulk':
-		case 'setthumbnail':
 		case 'open':
 			$id_action .= ' colorize-green';
+			break;
+		case 'movealbum':
+			$id_action .= ' colorize-blue';
 			break;
 	}
 
@@ -311,13 +319,13 @@ function template_action_strip($actions)
 
 function template_album_hierarchy($hierarchy)
 {
-	global $txt, $settings;
+	global $txt;
 
 	$last_level = -1;
 	foreach ($hierarchy as $id_album => $album)
 	{
 		// This is strange but if we nest <ul>, we have to put them inside the last li.
-		if ($album['album_level'] == $last_level)
+		if ($album['album_level'] === $last_level)
 		{
 			// Same level as the last one. Just end the last item, and all is good.
 			echo '
@@ -410,7 +418,9 @@ function template_album_list_none()
 
 function template_album_list_main()
 {
-	global $context, $txt, $memberContext, $settings;
+	global $context, $txt, $memberContext, $settings, $scripturl;
+
+	template_album_list_action_tabs($context['album_actions']);
 
 	template_album_list_sidebar();
 
@@ -423,6 +433,31 @@ function template_album_list_main()
 		echo '
 			</div>';
 	}
+	elseif (!empty($context['nested_hierarchy']))
+	{
+		echo '
+			<div id="item_main">';
+		template_album_list_header();
+		foreach ($context['nested_hierarchy'] as $member => $hierarchy)
+		{
+			$data = array_values($hierarchy)[0];
+			if (isset($data['id_member']))
+			{
+				$link = '<a href="' . $scripturl . '?media/albumlist/' . $data['id_member'] . '/member/"><strong>' . $member . '</strong></a>';
+			}
+			else
+			{
+				$link = '<a href="' . $scripturl . '?media/albumlist/' . $data['id_group'] . '/group/"><strong>' . $member . '</strong></a>';
+			}
+
+			echo '
+				<h3 class="secondary_header">' . sprintf($txt['lgal_albums_owned_site'], $link) . '</h3>';
+
+			template_album_hierarchy($hierarchy);
+		}
+		echo '
+			</div>';
+	}
 	else
 	{
 		echo '
@@ -431,49 +466,49 @@ function template_album_list_main()
 		if (!empty($context['album_owners']['members']))
 		{
 			echo '
-			<h3 class="secondary_header">', $txt['lgal_albums_member'], '</h3>
-			<div class="album_container">';
+				<h3 class="secondary_header">', $txt['lgal_albums_member'], '</h3>
+				<div class="album_container">';
 
 			foreach ($context['sidebar']['members']['items'] as $member)
 			{
 				echo '
-				<div class="album_featured well">
-					<div class="floatleft album_thumb">
-						', empty($memberContext[$member['id']]['avatar']['image']) ? '' : $memberContext[$member['id']]['avatar']['image'], '
-					</div>
-					<div class="album_desc lefttext">
-						<a href="', $member['url'], '">', $member['title'], '</a><br />
-						<span class="lgalicon i-album"></span> ', LevGal_Helper_Format::numstring('lgal_albums', $member['count']), '
-					</div>
-				</div>';
-			}
+					<div class="album_featured well">
+						<div class="floatleft album_thumb">
+							', empty($memberContext[$member['id']]['avatar']['image']) ? '' : $memberContext[$member['id']]['avatar']['image'], '
+						</div>
+						<div class="album_desc lefttext">
+							<a href="', $member['url'], '">', $member['title'], '</a><br />
+							<span class="lgalicon i-album"></span> ', LevGal_Helper_Format::numstring('lgal_albums', $member['count']), '
+						</div>
+					</div>';
+				}
 
 			echo '
-			</div>';
+				</div>';
 		}
 
 		if (!empty($context['album_owners']['groups']))
 		{
 			echo '
-			<h3 class="secondary_header">', $txt['lgal_albums_group'], '</h3>
-			<div class="album_container">';
+				<h3 class="secondary_header">', $txt['lgal_albums_group'], '</h3>
+				<div class="album_container">';
 
 			foreach ($context['sidebar']['groups']['items'] as $group)
 			{
 				echo '
-				<div class="album_featured well">
-					<div class="floatleft album_thumb">
-						<img src="', $settings['default_theme_url'], '/levgal_res/albums/folder-image.svg" alt="" />
-					</div>
-					<div class="album_desc lefttext">
-						<a href="', $group['url'], '">', $group['title'], '</a><br />
-						<span class="lgalicon i-album"></span> ', LevGal_Helper_Format::numstring('lgal_albums', $group['count']), '
-					</div>
-				</div>';
+					<div class="album_featured well">
+						<div class="floatleft album_thumb">
+							<img src="', $settings['default_theme_url'], '/levgal_res/albums/folder-image.svg" alt="" />
+						</div>
+						<div class="album_desc lefttext">
+							<a href="', $group['url'], '">', $group['title'], '</a><br />
+							<span class="lgalicon i-album"></span> ', LevGal_Helper_Format::numstring('lgal_albums', $group['count']), '
+						</div>
+					</div>';
 			}
 
 			echo '
-			</div>';
+				</div>';
 		}
 
 		echo '
@@ -513,8 +548,13 @@ function template_album_list_sidebar()
 			</div>';
 	}
 
-	if (!empty($context['album_actions']))
+	if (!empty($context['album_actions']['actions']))
 	{
+		// Don't need the tab actions in this view
+		$context['album_actions']['actions'] = array_filter($context['album_actions']['actions'], static function($v, $k) {
+			return strpos($v[1], 'albumlist') === false;
+		}, ARRAY_FILTER_USE_BOTH);
+
 		template_sidebar_action_list($txt['lgal_album_actions'], $context['album_actions']);
 	}
 
@@ -522,12 +562,44 @@ function template_album_list_sidebar()
 		</div>';
 }
 
+function template_album_list_action_tabs($actions_groups)
+{
+	if (empty($actions_groups['actions']))
+		return;
+
+	echo '
+		<ul id="levgal_tabs">';
+
+		foreach ($actions_groups['actions'] as $id_action =>  $action)
+		{
+			if (!isset($action['tab']))
+			{
+				continue;
+			}
+
+			// Show active as bold
+			$item = $action[0];
+			if (!empty($action['active']))
+				$item = '<strong>' . $item . '</strong>';
+
+			echo '
+			<li class="listlevel1">
+				<a class="linklevel1" href="', $action[1], '"', empty($action[2]) ? '' : ' class="new_win" target="_blank"', empty($action['title']) ? '' : ' title="' . $action['title'] . '"', empty($action['js']) ? '' : ' ' . $action['js'], '>
+					<span class="lgalicon i-', $id_action, '"></span>', $item, '
+				</a>
+			</li>';
+		}
+
+		echo '
+		</ul>';
+}
+
 function template_album_list_header()
 {
 	global $context;
 
 	echo '
-			<h3 class="secondary_header">', $context['page_title'], '</h3>';
+			<h2 class="secondary_header">', $context['page_title'], '</h2>';
 }
 
 function template_lgal_error_list($title, $list)
@@ -541,14 +613,14 @@ function template_lgal_error_list($title, $list)
 	}
 
 	echo '
-						<div class="errorbox" id="errors"', empty($list) ? ' style="display:none"' : '', '>
-							<dl>
-								<dt>
-									<strong id="error_serious">', $title, '</strong>
-								</dt>
-								<dd class="error" id="error_list">
-									', implode('<br />', $errors), '
-								</dd>
-							</dl>
-						</div>';
+		<div class="errorbox" id="errors"', empty($list) ? ' style="display:none"' : '', '>
+			<dl>
+				<dt>
+					<strong id="error_serious">', $title, '</strong>
+				</dt>
+				<dd class="error" id="error_list">
+					', implode('<br />', $errors), '
+				</dd>
+			</dl>
+		</div>';
 }
