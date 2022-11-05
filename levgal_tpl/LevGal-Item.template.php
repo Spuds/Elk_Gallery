@@ -8,6 +8,8 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  * @since 1.0
+ *
+ * @version 1.2.0 / elkarte
  */
 
 function template_main_item_view()
@@ -193,14 +195,14 @@ function template_main_item_navigation()
 	{
 		echo '
 				<span class="lefttext" style="display: inline-block;width: 49.5%">
-					<a href="', $context['prev_next']['previous']['item_url'], '" title="', $context['prev_next']['previous']['item_name'], '"><i class="icon i-chevron-circle-left"></i>', $txt['lgal_previous'], '</a>
+					<a href="', $context['prev_next']['previous']['item_url'], '#item_main" title="', $context['prev_next']['previous']['item_name'], '"><i class="icon i-chevron-circle-left"></i>', $txt['lgal_previous'], '</a>
 				</span>';
 	}
 	if (!empty($context['prev_next']['next']))
 	{
 		echo '
 				<span class="righttext" style="display: inline-block;width: 49.5%">
-					<a href="', $context['prev_next']['next']['item_url'], '" title="', $context['prev_next']['next']['item_name'], '">', $txt['lgal_next'], '<i class="icon i-chevron-circle-right"></i></a>
+					<a href="', $context['prev_next']['next']['item_url'], '#item_main" title="', $context['prev_next']['next']['item_name'], '">', $txt['lgal_next'], '<i class="icon i-chevron-circle-right"></i></a>
 				</span>';
 	}
 
@@ -823,7 +825,7 @@ function template_delete_item()
 					<div class="centertext">
 						<div class="delete_desc">', $txt['lgal_delete_item_desc'], '</div>
 						<img id="item_generic" class="generic_thumb" src="', $context['item_urls']['thumb'], '" alt="" />
-						<div class="delete_ays">', $txt['lgal_delete_item_are_you_sure'], '</div>
+						<div class="delete_ays"><i class="icon i-warning"></i>', $txt['lgal_delete_item_are_you_sure'], '</div>
 						<div class="delete_buttons">
 							<input type="submit" name="delete" value="', $txt['lgal_delete_item_delete'], '" class="button_submit" />
 							<input type="submit" name="cancel" value="', $txt['lgal_delete_item_cancel'], '" class="button_submit" />

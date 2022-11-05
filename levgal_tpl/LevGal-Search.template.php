@@ -8,6 +8,8 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  * @since 1.0
+ *
+ * @version 1.2.0 / elkarte
  */
 
 function template_search()
@@ -42,8 +44,8 @@ function template_search()
 					<ul style="columns: 2">
 						<li class="lefttext">
 							', $txt['lgal_search_by_member'], '
-							<input id="search_member" type="text" name="search_member" value="', $context['search_params']['userspec'], '" size="20" class="input_text" />
-							<div id="member_container"></div>
+							<input id="search_member" type="text" name="search_member" value="" size="20" class="input_text" />
+							<div id="member_container" style="min-height: 4em"></div>
 						</li>
 						<li class="lefttext clear_left">';
 

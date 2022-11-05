@@ -8,6 +8,8 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  * @since 1.0
+ *
+ * @version 1.2.0 / elkarte
  */
 
 function template_newalbum()
@@ -19,7 +21,7 @@ function template_newalbum()
 			<h2 class="secondary_header">
 				', $txt['levgal_newalbum'], '
 			</h2>
-			<p class="description">', $txt['levgal_album_add_description'], '</p>';
+			<p class="infobox">', $txt['levgal_album_add_description'], '</p>';
 
 	template_newalbum_errors();
 
@@ -172,12 +174,12 @@ function template_newalbum_js()
 
 	// Automatically set the thing not to update if we already have one.
 	echo '
-			var updateSlug = ', empty($context['album_slug']) ? 'true' : 'false', ';
-			var albumName = document.getElementById("album_name");
-			var albumSlug = document.getElementById("album_slug");
+			let updateSlug = ', empty($context['album_slug']) ? 'true' : 'false', ',
+				albumName = document.getElementById("album_name"),
+				albumSlug = document.getElementById("album_slug");
 			function transLitSlug()
 			{
-				var mystr;
+				let mystr;
 				if (updateSlug)
 				{
 					mystr = albumName.value;
@@ -199,7 +201,7 @@ function template_newalbum_js()
 			{
 				document.getElementById("ownership_groups").style.display = (document.getElementById("ownership").value == "group") ? "" : "none";
 			}
-			var ownershipSel = document.getElementById("ownership");
+			let ownershipSel = document.getElementById("ownership");
 			createEventListener(ownershipSel);
 			ownershipSel.addEventListener("change", updateOwnership, false);
 			updateOwnership();';
@@ -210,7 +212,7 @@ function template_newalbum_js()
 			{
 				document.getElementById("privacy_custom").style.display = (document.getElementById("privacy").value == "custom") ? "" : "none";
 			}
-			var privacySel = document.getElementById("privacy");
+			let privacySel = document.getElementById("privacy");
 			createEventListener(privacySel);
 			privacySel.addEventListener("change", updatePrivacy, false);
 			updatePrivacy();';

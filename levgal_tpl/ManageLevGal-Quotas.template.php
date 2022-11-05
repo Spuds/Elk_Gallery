@@ -8,6 +8,8 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  * @since 1.0
+ *
+ * @version 1.2.0 / elkarte
  */
 
 // This returns JavaScript to the handler. But since it all relates to these templates,
@@ -69,9 +71,6 @@ function template_quotas_javascript_above()
 		}
 	}
 
-	$js .= '
-	closeFieldsets();';
-
 	addInlineJavascript($js, true);
 }
 
@@ -96,7 +95,7 @@ function template_generic_filetypes($typelist)
 		echo '
 									<li>
 										<label>
-											<input type="checkbox" name="formats_', $typelist, '[', $type, ']" value="on"', in_array($type, $context['selected_file_types'][$typelist]) ? ' checked="checked"' : '', ' class="input_check" onchange="showChanged(\'', $typelist, '\');" />
+											<input type="checkbox" name="formats_', $typelist, '[', $type, ']" value="on"', in_array($type, $context['selected_file_types'][$typelist]) ? ' checked="checked"' : '', ' onchange="showChanged(\'', $typelist, '\');" />
 											<span>', $txt['lgal_' . $typelist . '_' . $type], '</span>
 										</label>
 									</li>';

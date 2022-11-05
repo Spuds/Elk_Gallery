@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -117,7 +117,7 @@ class ManageLevGalPerms_Controller extends Action_Controller
 		$config_vars = array(
 			array('title', 'levgal_perms_general'),
 			array('permissions', 'lgal_view'),
-			array('permissions', 'lgal_manage', 'subtext' => $txt['lgal_manage_note']),
+			array('permissions', 'lgal_manage', 'collapsed' => true, 'subtext' => $txt['lgal_manage_note']),
 			array('title', 'levgal_perms_album'),
 			array('permissions', 'lgal_adduseralbum'),
 			array('permissions', 'lgal_addgroupalbum'),

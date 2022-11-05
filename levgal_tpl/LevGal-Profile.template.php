@@ -8,6 +8,8 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  * @since 1.0
+ *
+ * @version 1.2.0 / elkarte
  */
 
 function template_levgal_profile_summary()
@@ -60,7 +62,7 @@ function template_levgal_profile_summary()
 
 function template_levgal_profile_items()
 {
-	global $txt, $context;
+	global $context;
 
 	if (empty($context['num_items']))
 	{
