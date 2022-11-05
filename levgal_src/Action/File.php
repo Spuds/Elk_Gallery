@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0.4 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -78,7 +78,7 @@ class LevGal_Action_File extends LevGal_Action_Abstract
 		}
 
 		// Whereas with albums we can check permissions before redirection, for files we may not be able to.
-		if ($this->file_details['item_slug'] != $this->item_slug)
+		if ($this->file_details['item_slug'] !== $this->item_slug)
 		{
 			LevGal_Helper_Http::hardRedirect($this->file_model->getFileUrl() . ($this->viewtype !== 'raw' ? $this->viewtype . '/' : ''));
 		}
@@ -229,12 +229,11 @@ class LevGal_Action_File extends LevGal_Action_Abstract
 		}
 
 		// Attempt to be all funky and cap the size being sent. Except on iOS which gets very upset if we try this.
-		if (!empty($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'AppleCoreMedia') === false)
+		if (!empty($_SERVER['HTTP_USER_AGENT'])
+			&& strpos($_SERVER['HTTP_USER_AGENT'], 'AppleCoreMedia') === false
+			&& $this->file_end - $this->file_start + 1 > $modSettings['lgal_chunk_size'])
 		{
-			if ($this->file_end - $this->file_start + 1 > $modSettings['lgal_chunk_size'])
-			{
 			$this->file_end = $this->file_start + ($modSettings['lgal_chunk_size'] - 1);
-			}
 		}
 
 		LevGal_Helper_Http::setResponse(206);
@@ -270,6 +269,10 @@ class LevGal_Action_File extends LevGal_Action_Abstract
 				case 'png.dat':
 					$content_type = 'image/png';
 					$this->file_details['filename'] .= '.png';
+					break;
+				case 'webp.dat':
+					$content_type = 'image/webp';
+					$this->file_details['filename'] .= '.webp';
 					break;
 			}
 		}

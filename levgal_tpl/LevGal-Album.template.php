@@ -8,6 +8,8 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  * @since 1.0
+ *
+ * @version 1.2.0 / elkarte
  */
 
 function template_main_album_view()
@@ -297,6 +299,8 @@ function template_add_single_item()
 	}
 
 	echo '
+					<div class="infobox">', $txt['lgal_item_name_and_slug_auto'], '</div>
+
 					<dl id="post_header">
 						<dt>', $txt['lgal_item_name'], '</dt>
 						<dd>
@@ -316,8 +320,7 @@ function template_add_single_item()
 						</dd>';
 	}
 	echo '
-					</dl>
-					<div class="infobox">', $txt['lgal_item_name_and_slug_auto'], '</div>';
+					</dl>';
 
 	if (!empty($context['custom_fields']))
 	{
@@ -585,7 +588,7 @@ function template_add_single_item()
 				
 				// If its not an image, trigger thumbnail manually so the accept checks run
 				let ext = file.name.split(".").pop().toLowerCase();
-				if (ext !== \'png\' || ext !== \'jpeg\' || ext !== \'jpg\')
+				if (ext !== \'png\' && ext !== \'jpeg\' && ext !== \'jpg\' && ext !== \'webp\')
 				{
 					let dataURL = get_upload_generic_thumbnail(file, this.options.lgal_quota);
 					this.emit("thumbnail", file, dataURL);
@@ -628,13 +631,16 @@ function template_add_bulk_items()
 	echo '
 			<h3 class="secondary_header">
 				', $context['page_title'], '
-			</h3>
+			</h3>							
 			<form action="#" method="post" name="postmodify" id="postmodify" class="flow_hidden" accept-charset="UTF-8">
-				<div class="well">
+				<div class="well">	
+					<div>
+						<input type="button" value="' . $txt['lgal_begin_upload'] . '" style="display: none" class="right_submit begin_button" onclick="return beginUpload();" />
+					</div>
 					<dl class="settings" id="upload_container">
-						<dt>';
-	echo '
+						<dt>
 							<div id="allowed_type_file">';
+
 	$display = array();
 	foreach ($context['allowed_formats'] as $type => $formats)
 	{
@@ -665,7 +671,7 @@ function template_add_bulk_items()
 	echo '
 					<div class="dz-table files" id="previews">
 						<div id="file_queue" class="file-row">
-							<div>
+							<div class="dz-thumb">
 								<span class="preview">
 									<img data-dz-thumbnail />
 								</span>
@@ -695,7 +701,7 @@ function template_add_bulk_items()
 							<div class="progress-bar progress-bar-success" style="width:0%;" data-dz-uploadprogress></div>
 						</div>
 					</div>					
-					<input type="button" value="' . $txt['lgal_begin_upload'] . '" id="begin_button" class="right_submit" onclick="return beginUpload();" />
+					<input type="button" value="' . $txt['lgal_begin_upload'] . '" style="display: none" class="right_submit begin_button" onclick="return beginUpload();" />
 				</div>			
 			</form>';
 
@@ -723,6 +729,7 @@ function template_add_bulk_items()
 		'error_occurred' => $txt['lgal_upload_error_occurred'],
 		'item_drag_here' => $txt['lgal_item_drag_here_multiple'],
 	);
+
 	echo '
 	<script>
 		// Fetch the template from, and then remove it from, the document
@@ -762,18 +769,19 @@ function template_add_bulk_items()
 					fileCount = fileCount + files.length;
 					if (fileCount > 0)
 					{
-						document.getElementById("begin_button").style.display = "block";
+						document.querySelectorAll(".begin_button").forEach((elem) => {elem.style.display = "block"});
 					}
 				});
-				this.on("removedfile", function()
+				this.on("removedfile", function(file)
 				{
 					fileCount = fileCount - 1;
+					sessionStorage.setItem(file.upload.uuid, file.name);
 					if (fileCount === 0)
 					{
-						document.getElementById("begin_button").style.display = "none";
+						document.querySelectorAll(".begin_button").forEach((elem) => {elem.style.display = "none"});
 					}
 				});
-			    this.on("totaluploadprogress", function(progress, totalBytes, totalBytesSent) 
+			    this.on("totaluploadprogress", function(progress, totalBytes, totalBytesSent)
 			    {
 			    	let byteProgress = "<span>(" + get_human_size(totalBytesSent) + " / " + get_human_size(totalBytes) + ")</span>",
 			    	    current = document.querySelector("#total-progress .progress-bar").style.width;
@@ -785,7 +793,7 @@ function template_add_bulk_items()
        					document.querySelector("#total-progress .progress-bar").style.width = progress + "%";
        				}
        			});
-      			this.on("sending", function(file, xhr, formData) 
+      			this.on("sending", function(file, xhr, formData)
       			{
       				if (sessionStorage.getItem(file.upload.uuid) === file.name)
 					{
@@ -811,7 +819,7 @@ function template_add_bulk_items()
 						beforeSend: function() {
 							let el = file.previewElement.querySelectorAll(".button_submit"),
 								spanProgress = "";
-					
+
 							if (el.length)
 							{
 								spanProgress = "<span id=\"async_" + response.async + "\"><i class=\"icon icon-spin i-spinner\"></i>" + txt.processing + "</span>";
@@ -847,6 +855,7 @@ function template_add_bulk_items()
 					}
 				});
 				this.on("thumbnail", function(file) {
+					console.log("thumbnail");
 					let result = addFileFilter(file, this.options.lgal_quota, this.options.lgal_enable_resize);
 					if (result !== true)
 					{
@@ -866,10 +875,10 @@ function template_add_bulk_items()
 				// callbacks using the passed done function
     			file.acceptDimensions = done;
     			file.rejectDimensions = function(error) {done(error);};
-    			
+
 				// If its not an image, trigger thumbnail manually so the accept checks run
 				let ext = file.name.split(".").pop().toLowerCase();
-				if (ext !== \'png\' || ext !== \'jpeg\' || ext !== \'jpg\')
+				if (ext !== \'png\' && ext !== \'jpeg\' && ext !== \'jpg\' && ext !== \'webp\')
 				{
 					let dataURL = get_upload_generic_thumbnail(file, this.options.lgal_quota);
 					this.emit("thumbnail", file, dataURL);
@@ -920,7 +929,7 @@ function template_delete_album()
 	}
 
 	echo '
-						<div class="delete_ays">', $txt['lgal_delete_album_are_you_sure'], '</div>
+						<div class="delete_ays"><i class="icon i-warning"></i>', $txt['lgal_delete_album_are_you_sure'], '</div>
 						<div>
 							<input type="submit" name="delete" value="', $txt['lgal_delete_album_delete'], '" />
 							<input type="submit" name="cancel" value="', $txt['lgal_delete_album_cancel'], '" />
@@ -970,7 +979,7 @@ function template_edit_album()
 			<h2 class="secondary_header">
 				', $context['page_title'], '
 			</h2>
-			<p class="description">', $txt['lgal_edit_album_description'], '</p>';
+			<p class="infobox">', $txt['lgal_edit_album_description'], '</p>';
 
 	// Any errors?
 	if (!empty($context['errors']))
@@ -990,7 +999,8 @@ function template_edit_album()
 					</dd>
 					<dt class="clear_left">', $txt['levgal_album_slug'], '</dt>
 					<dd>
-						<span class="smalltext">', $scripturl, '?media/album/</span><input type="text" id="album_slug" name="album_slug" tabindex="2" size="20" maxlength="40" class="input_text" value="', $context['album_details']['album_slug'], '" /><span class="smalltext">.', $context['album_details']['id_album'], '/</span>
+						<span class="smalltext">', $scripturl, '?media/album/</span>
+						<input type="text" id="album_slug" name="album_slug" tabindex="2" size="20" maxlength="40" class="input_text" value="', $context['album_details']['album_slug'], '" /><span class="smalltext">.', $context['album_details']['id_album'], '/</span>
 					</dd>';
 	if ($context['display_featured'])
 	{
@@ -1156,12 +1166,12 @@ function template_current_owners()
 	if (!empty($context['album_owner']['group']))
 	{
 		$groups = array();
-		foreach ($context['album_owner']['group_details'] as $group)
+		foreach ($context['album_owner']['group'] as $group)
 		{
-			$groups[] = $group['color_name'];
+			$groups[] = $context['album_owner']['group_details'][$group]['color_name'];
 		}
 
-		echo $txt['levgal_album_current_owners'], ' ', implode(', ', $groups);
+		echo $txt['levgal_album_current_owners'], ' <strong>', implode(', ', $groups), '</strong>';
 	}
 	elseif (!empty($context['album_owner']['member']) && !in_array(0, $context['album_owner']['member']))
 	{
@@ -1381,7 +1391,9 @@ function template_change_type()
 	foreach ($context['group_list'] as $id_group => $group)
 	{
 		echo '
-								<label><input type="checkbox" name="ownership_group[', $id_group, ']" value="', $id_group, '"', in_array($id_group, $context['ownership_data']) ? ' checked="checked"' : '', ' class="input_check" /> ', $group['color_name'], empty($group['stars']) ? '' : ' ' . $group['stars'], '</label><br />';
+								<label>
+									<input type="checkbox" name="ownership_group[', $id_group, ']" value="', $id_group, '"', in_array($id_group, $context['ownership_data']) ? ' checked="checked"' : '', ' class="input_check" /> ', $group['color_name'], empty($group['stars']) ? '' : ' ' . $group['stars'], '
+								</label><br />';
 	}
 	echo '
 							</fieldset>

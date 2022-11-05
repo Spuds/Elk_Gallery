@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -12,7 +12,7 @@
  */
 class LevGal_Helper_Image_Imagick
 {
-	/** @var  */
+	/** @var \Imagick */
 	private $image;
 	/** @var int */
 	private $width;
@@ -22,7 +22,7 @@ class LevGal_Helper_Image_Imagick
 	private $source_file;
 	/** @var string */
 	private $source_type;
-	/** @var int */
+	/** @var array */
 	private $compression;
 
 	public function __destruct()
@@ -69,7 +69,18 @@ class LevGal_Helper_Image_Imagick
 
 		list ($this->width, $this->height) = $this->getImageSize();
 		$actual_type = strtolower($this->image->getImageFormat());
-		$type = $actual_type === 'gif' || $actual_type === 'png' ? 'png' : 'jpg';
+
+		switch ($actual_type) {
+			case 'webp':
+				$type = 'webp';
+				break;
+			case 'png':
+			case 'gif':
+				$type = 'png';
+				break;
+			default:
+				$type = 'jpg';
+		}
 
 		$this->source_file = $file;
 		$this->source_type = $type;
@@ -105,14 +116,19 @@ class LevGal_Helper_Image_Imagick
 		if ($format === 'jpg')
 		{
 			$this->image->setImageProperty('jpeg:sampling-factor', '4:2:0');
-			$this->image->setCompression(Imagick::COMPRESSION_JPEG);
+			$this->image->setCompression(imagick::COMPRESSION_JPEG);
 			$this->image->setCompressionQuality($this->compression['jpg']);
 			$this->image->writeImage('jpg:' . $file);
 		}
+		elseif ($format === 'webp' && $this->hasWebpSupport())
+		{
+			$this->image->setImageCompressionQuality($this->compression['webp']);
+			$this->image->writeImage('webp:' . $file);
+		}
 		else
 		{
-			// We accept it as a 0-9 value but Imagick is weird like this.
-			$this->image->setCompressionQuality($this->compression['png'] * 10);
+			$this->image->setOption('png:compression-level', $this->compression['png']);
+			$this->image->setOption('png:exclude-chunk', 'all');
 			$this->image->writeImage('png:' . $file);
 		}
 	}
@@ -132,30 +148,53 @@ class LevGal_Helper_Image_Imagick
 			$new_image = clone $this->image;
 			if ($this->width > $this->height)
 			{
-				$new_image->resizeImage($max_dimension, 0, Imagick::FILTER_LANCZOS, 1);
+				$new_image->resizeImage($max_dimension, 0, imagick::FILTER_LANCZOS, 1);
 			}
 			else
 			{
-				$new_image->resizeImage(0, $max_dimension, Imagick::FILTER_LANCZOS, 1);
+				$new_image->resizeImage(0, $max_dimension, imagick::FILTER_LANCZOS, 1);
 			}
 
 			if ($format === 'jpg')
 			{
 				$new_image->setImageProperty('jpeg:sampling-factor', '4:2:0');
 				$new_image->borderImage('white', 0, 0);
-				$new_image->setCompression(Imagick::COMPRESSION_JPEG);
+				$new_image->setCompression(imagick::COMPRESSION_JPEG);
 				$new_image->setCompressionQuality($this->compression['jpg']);
 				$new_image->writeImage('jpg:' . $dest_file);
 			}
+			elseif ($format === 'webp' && $this->hasWebpSupport())
+			{
+				$new_image->setImageCompressionQuality($this->compression['webp']);
+				$new_image->writeImage('webp:' . $dest_file);
+			}
+			elseif ($format === 'gif')
+			{
+				if ($new_image->getNumberImages() !== 0)
+				{
+					$new_image->writeImages('gif:' . $dest_file);
+				}
+				else
+				{
+					$new_image->writeImage('gif:' . $dest_file);
+				}
+			}
 			else
 			{
-				// We accept it as a 0-9 value but Imagick is weird like this.
-				$new_image->setCompressionQuality($this->compression['png'] * 10);
+				$new_image->setOption('png:compression-level', $this->compression['png']);
+				$new_image->setOption('png:exclude-chunk', 'all');
 				$new_image->writeImage('png:' . $dest_file);
 			}
 
 			$new_image->clear();
 		}
+	}
+
+	public function hasWebpSupport()
+	{
+		$check = Imagick::queryformats();
+
+		return in_array('WEBP', $check);
 	}
 
 	public function rotate($deg)

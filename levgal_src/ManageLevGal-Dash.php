@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -113,18 +113,15 @@ class ManageLevGalDash_Controller extends Action_Controller
 		$context['item_breakdown'] = array();
 		foreach ($item_breakdown as $item_type => $count)
 		{
-			$context['item_breakdown'][] = array(
-				'value' => $count,
-				'color' => $colors[$item_colors[$item_type]][0],
-				'highlight' => $colors[$item_colors[$item_type]][1] ?? $colors[$item_colors[$item_type]][0],
-				'label' => $txt['levgal_quotas_' . $item_type . '_title_short'] ?? $txt['levgal_quotas_' . $item_type . '_title'],
-			);
+			$context['item_breakdown']['labels'][] = $txt['levgal_quotas_' . $item_type . '_title_short'] ?? $txt['levgal_quotas_' . $item_type . '_title'];
+;			$context['item_breakdown']['datasets']['data'][] = $count;
+			$context['item_breakdown']['datasets']['backgroundColor'][] = $colors[$item_colors[$item_type]][0];
 		}
 
 		$context['support'] = array(
 			'elk' => FORUM_VERSION,
 			'lgal' => LEVGAL_VERSION,
-			'php' => phpversion(),
+			'php' => PHP_VERSION,
 		);
 
 		// Get an image handler - but don't error out if none exists.
@@ -148,10 +145,14 @@ class ManageLevGalDash_Controller extends Action_Controller
 			}
 		}
 
-		// @todo ... No site to fetch news or releases from.
-		$context['latest_version'] = '';
-		$context['latest_news'] = array();
-		$context['news_loaded'] = true;
+		if ($image->hasWebpSupport())
+		{
+			$context['support']['webp'] = '<span class="lgaladmin i-check" title="' . $txt['levgal_support_available'] . '"></span>';
+		}
+		else
+		{
+			$context['support']['webp'] = '<span class="lgaladmin i-close" title="' . $txt['levgal_support_notavailable'] . '"></span> ' . $txt['levgal_support_notavailable'];
+		}
 	}
 
 	public function levgal_adminDash_modlog()

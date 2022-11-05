@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -125,7 +125,7 @@ class LevGal_Model_Upload
 		$alts = $this->getAlternateExtensions();
 		foreach ($alts as $master => $extras)
 		{
-			if (in_array($master, $formats[$type]))
+			if (in_array($master, $formats[$type], true))
 			{
 				$formats[$type] = array_merge($formats[$type], $extras);
 			}
@@ -189,7 +189,7 @@ class LevGal_Model_Upload
 			$formats = $this->getFileFormatsByType($type);
 			foreach ($alts as $master => $extras)
 			{
-				if (in_array($master, $formats))
+				if (in_array($master, $formats, true))
 				{
 					$formats = array_merge($formats, $extras);
 				}
@@ -217,10 +217,8 @@ class LevGal_Model_Upload
 
 			return $match[1] * $multiplier[$match[2]];
 		}
-		else
-		{
-			return 0;
-		}
+
+		return 0;
 	}
 
 	public function getGalleryQuota()
@@ -270,7 +268,7 @@ class LevGal_Model_Upload
 			return true; // Always allowed.
 		}
 
-		$quotas = @unserialize($modSettings['lgal_' . $type . '_quotas']);
+		$quotas = Util::unserialize($modSettings['lgal_' . $type . '_quotas']);
 		if (empty($quotas))
 		{
 			return false;
@@ -432,7 +430,7 @@ class LevGal_Model_Upload
 		// since we match chunks after this one.
 		$ext = $this->getExtension($filename);
 		$formats = $this->getAllFileFormats();
-		if (!in_array($ext, $formats))
+		if (!in_array($ext, $formats, true))
 		{
 			return $this->errorAsyncFile( 'not_allowed', $fileID);
 		}
@@ -480,7 +478,8 @@ class LevGal_Model_Upload
 		if ($chunks === 1 || ($chunks > 1 && $chunk === 0))
 		{
 			// Check file types, quotas, permissions
-			if ($result = $this->validateAsyncFile($filename, $fileID) !== true)
+			$result = $this->validateAsyncFile($filename, $fileID);
+			if ($result !== true)
 			{
 				return $result;
 			}
@@ -540,7 +539,7 @@ class LevGal_Model_Upload
 
 	public function validateUpload($fileID, $size, $filename)
 	{
-		// This is hardly bullet proof but we'll see.
+		// This is hardly bulletproof but we'll see.
 		$size = (int) $size;
 
 		$path = LevGal_Bootstrap::getGalleryDir();
@@ -572,7 +571,7 @@ class LevGal_Model_Upload
 						require_once(SUBSDIR . '/Attachments.subs.php');
 						// If we have dimension clamping enabled, now is the time to enforce it so that we
 						// check final size and dimensions on that image
-						if ($this->isResizingEnabled() && in_array($ext, ['png', 'jpg', 'jpeg']))
+						if ($this->isResizingEnabled() && in_array($ext, ['png', 'jpg', 'jpeg', 'webp']))
 						{
 							$this->resizeUpload($local_file, $this_quota['image'], $size);
 						}
@@ -618,7 +617,7 @@ class LevGal_Model_Upload
 		$image = new LevGal_Helper_Image();
 		$path = LevGal_Bootstrap::getGalleryDir();
 
-		// Normally checked at the end, but we may change the size so we do it here and now as well
+		// Normally checked at the end, but we may change size, so we do it here and now as well
 		if (@filesize($path . '/' . $local_file) !== $size)
 		{
 			return;
@@ -632,7 +631,7 @@ class LevGal_Model_Upload
 			if ($ext !== false)
 			{
 				$image->fixDimensions(min($quota_width, $quota_height), $path . '/' . $local_file, $ext);
-				clearstatcache();
+				clearstatcache(true);
 				$size = @filesize($path . '/' . $local_file);
 				$context['async_size'] = $size;
 			}
@@ -641,7 +640,7 @@ class LevGal_Model_Upload
 
 	public function moveUpload($fileID, $itemID, $filename)
 	{
-		// This is hardly bullet proof but we'll see.
+		// This is hardly bulletproof but we'll see.
 		$this->getFileModel();
 		$path = LevGal_Bootstrap::getGalleryDir();
 		$user_ident = $this->getUserIdentifier();

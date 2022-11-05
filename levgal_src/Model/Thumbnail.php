@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -27,7 +27,19 @@ class LevGal_Model_Thumbnail
 	public function createFromString($string, $mime_type)
 	{
 		$this->image = new LevGal_Helper_Image();
-		$this->ext = $mime_type === 'image/jpeg' || $mime_type === 'image/jpg' ? 'jpg' : 'png';
+
+		switch ($mime_type) {
+			case 'image/png':
+				$this->ext = 'png';
+				break;
+			case 'image/webp':
+				$this->ext = 'webp';
+				break;
+			case 'image/jpeg':
+			case 'image/jpg':
+			default:
+				$this->ext = 'jpg';
+		}
 
 		return $this->image->loadImageFromString($string);
 	}

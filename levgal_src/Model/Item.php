@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.1 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 use BBC\ParserWrapper;
@@ -16,10 +16,10 @@ class LevGal_Model_Item extends LevGal_Model_File
 {
 	/** @var int  */
 	const SEEN_THRESHOLD = 120;
-	/** @var int|bool  */
-	protected $current_item = false;
+	/** @var int|bool|array  */
+	protected $current_item;
 	/** @var \LevGal_Model_Album  */
-	protected $current_album = false;
+	protected $current_album;
 
 	public function getItemInfoById($itemId)
 	{
@@ -63,7 +63,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 			$this->current_item['description_raw'] = $this->current_item['description'];
 			censor($this->current_item['description']);
 			$this->current_item['description'] = !empty($this->current_item['description']) ? $parser->parseMessage($this->current_item['description'], true) : '';
-			$this->current_item['meta'] = !empty($this->current_item['meta']) ? @unserialize($this->current_item['meta']) : array();
+			$this->current_item['meta'] = !empty($this->current_item['meta']) ? Util::unserialize($this->current_item['meta']) : array();
 			$this->current_item['item_url'] = $scripturl . '?media/item/' . (!empty($this->current_item['item_slug']) ? $this->current_item['item_slug'] . '.' . $itemId : $itemId) . '/';
 			foreach (array('time_added', 'time_updated') as $item)
 			{
@@ -95,7 +95,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 		global $scripturl;
 
 		$this->current_item = $details;
-		$this->current_item['meta'] = !empty($this->current_item['meta']) ? @unserialize($this->current_item['meta']) : array();
+		$this->current_item['meta'] = !empty($this->current_item['meta']) ? Util::unserialize($this->current_item['meta']) : array();
 		$this->current_item['item_url'] = $scripturl . '?media/item/' . (!empty($this->current_item['item_slug']) ? $this->current_item['item_slug'] . '.' . $this->current_item['id_item'] : $this->current_item['id_item']) . '/';
 		$this->current_item['is_surrogate'] = true;
 	}
@@ -202,7 +202,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 		}
 
 		// So, the raw file itself. If this is an image, we want index.php?media/file/my-item.1/ not a download link
-		if (in_array($this->current_item['mime_type'], array('image/jpg', 'image/gif', 'image/jpeg', 'image/png')))
+		if (in_array($this->current_item['mime_type'], array('image/jpg', 'image/gif', 'image/jpeg', 'image/png', 'image/webp')))
 		{
 			// Is there a preview? This is the tricky one. A preview image should exist only if the main image is big enough.
 			if (!empty($files['preview']))
@@ -275,7 +275,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 	{
 		global $options;
 
-		return empty($options['lgal_show_mature']) && (empty($_SESSION['lgal_mature']) || !in_array($this->current_item['id_item'], $_SESSION['lgal_mature']));
+		return empty($options['lgal_show_mature']) && (empty($_SESSION['lgal_mature']) || !in_array($this->current_item['id_item'], $_SESSION['lgal_mature'], true));
 	}
 
 	private function getIconUrl($file_ext)
@@ -292,7 +292,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 				'_audio' => array('flac', 'mp3', 'm4a', 'oga', 'ogg', 'wav'),
 				'_binary' => array('bin', 'dll', 'exe'),
 				'_font' => array('otf', 'ttf'),
-				'_image' => array('gif', 'iff', 'jpeg', 'jpg', 'lbm', 'mng', 'png', 'psd', 'tiff'),
+				'_image' => array('gif', 'iff', 'jpeg', 'jpg', 'webp', 'lbm', 'mng', 'png', 'psd', 'tiff'),
 				'_video' => array('ogv', 'm4v', 'mp4', 'mov', 'qt', 'mqv', 'webm'),
 				'doc' => array(
 					'doc', 'dot', 'docm', 'docx', 'dotm', 'dotx', // MS Word
@@ -422,6 +422,8 @@ class LevGal_Model_Item extends LevGal_Model_File
 
 	public function getItemParticulars()
 	{
+		$metaModel = null;
+
 		if (empty($this->current_item))
 		{
 			return false;
@@ -449,7 +451,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 				'display_size' => $this->getDisplayFilesize(),
 				'needs_lightbox' => $this->current_item['width'] > 500 || $this->current_item['height'] > 500,
 				'urls' => $this->getItemURLs(),
-				'meta' => !empty($metaModel) ? $metaModel->getExifInfo() : array(),
+				'meta' => $metaModel !== null ? $metaModel->getExifInfo() : array(),
 			);
 		}
 
@@ -459,7 +461,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 				'display_template' => 'audio',
 				'display_size' => $this->getDisplayFilesize(),
 				'urls' => $this->getItemURLs(),
-				'meta' => !empty($metaModel) ? $metaModel->getAudioInfo() : array(),
+				'meta' => $metaModel !== null ? $metaModel->getAudioInfo() : array(),
 			);
 		}
 
@@ -469,7 +471,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 				'display_template' => 'video',
 				'display_size' => $this->getDisplayFilesize(),
 				'urls' => $this->getItemURLs(),
-				'meta' => !empty($metaModel) ? $metaModel->getVideoInfo() : array(),
+				'meta' => $metaModel !== null ? $metaModel->getVideoInfo() : array(),
 			);
 		}
 
@@ -509,9 +511,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 			return array();
 		}
 
-		$likesModel = new LevGal_Model_Like();
-
-		return $likesModel->getLikesByItem($this->current_item['id_item']);
+		return (new LevGal_Model_Like())->getLikesByItem($this->current_item['id_item']);
 	}
 
 	public function likeItem()
@@ -694,7 +694,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 			{
 				// Guests will never see unapproved comments except ones in their session. Failing that,
 				// anyone who is a manager/admin or approver will have approval permission.
-				if (($user_info['is_guest'] && !in_array($id_comment, $session_comments)) || (!$perm_cache['lgal_approve_comment'] && (!$perm_cache['lgal_selfmod_approve_comment'] || !$this->isOwnedByUser()) && ($row['id_author'] != $user_info['id'])))
+				if (($user_info['is_guest'] && !in_array($id_comment, $session_comments, true)) || (!$perm_cache['lgal_approve_comment'] && (!$perm_cache['lgal_selfmod_approve_comment'] || !$this->isOwnedByUser()) && ($row['id_author'] != $user_info['id'])))
 				{
 					continue;
 				}
@@ -1339,7 +1339,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 		}
 
 		$keys = array_keys($items);
-		$match = array_search($this->current_item['id_item'], $keys);
+		$match = array_search($this->current_item['id_item'], $keys, true);
 		if ($match === false)
 		{
 			return array();
@@ -1540,6 +1540,10 @@ class LevGal_Model_Item extends LevGal_Model_File
 			{
 				$format = 'jpg';
 			}
+			elseif (substr($files['thumb'], -8) === 'webp.dat')
+			{
+				$format = 'webp';
+			}
 			else
 			{
 				$format = $this->current_item['extension'];
@@ -1578,7 +1582,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 			{
 				foreach (array_keys($hierarchies['group']) as $group)
 				{
-					if (in_array($group, $user_info['groups']))
+					if (in_array($group, $user_info['groups'], true))
 					{
 						$result['group'][$group] = $hierarchies['group'][$group];
 					}

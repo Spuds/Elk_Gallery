@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -26,27 +26,24 @@ class LevGal_Helper_Image
 			$this->image_handler = new LevGal_Helper_Image_GD();
 		}
 
-		if (empty($this->image_handler))
+		if (empty($this->image_handler) && $fatal)
 		{
-			if ($fatal)
-			{
-				LevGal_Helper_Http::fatalError('levgal_no_image_support');
-			}
-			else
-			{
-				return false;
-			}
+			LevGal_Helper_Http::fatalError('levgal_no_image_support');
 		}
 
 		$this->image_handler->setCompression(array(
 			'png' => 9,
 			'jpg' => 85,
+			'webp' => 85,
 		));
 	}
 
 	public function availableHandlers()
 	{
 		$handlers = array();
+		$handlers['GD'] = false;
+		$handlers['Imagick'] = false;
+
 		if (function_exists('imagecreatetruecolor'))
 		{
 			$handlers['GD'] = true;
@@ -54,13 +51,8 @@ class LevGal_Helper_Image
 
 		if (class_exists('Imagick'))
 		{
-			$imagick = new Imagick();
-			$formats = $imagick->queryFormats();
+			$formats = Imagick::queryFormats();
 			$handlers['Imagick'] = !empty($formats) ? true : 'error';
-		}
-		else
-		{
-			$handlers['Imagick'] = false;
 		}
 
 		return $handlers;
@@ -81,6 +73,25 @@ class LevGal_Helper_Image
 		}
 
 		return $versions;
+	}
+
+	public function hasWebpSupport()
+	{
+		$handlers = $this->availableHandlers();
+
+		if ($handlers['Imagick'] === true)
+		{
+			$check = Imagick::queryformats();
+			return in_array('WEBP', $check);
+		}
+
+		if ($handlers['GD'] === true)
+		{
+			$check = gd_info();
+			return !empty($check['WebP Support']);
+		}
+
+		return false;
 	}
 
 	public function loadImageFromFile($file)

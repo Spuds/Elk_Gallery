@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.1 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -113,7 +113,7 @@ class ManageLevGalQuotas_Controller extends Action_Controller
 		global $context, $modSettings;
 
 		$context['file_types'] = array(
-			'image' => array('jpg', 'gif', 'png', 'psd', 'tiff', 'mng', 'iff'),
+			'image' => array('jpg', 'gif', 'png',  'webp', 'psd', 'tiff', 'mng', 'iff'),
 			'audio' => array('mp3', 'm4a', 'oga', 'flac', 'wav'),
 			'video' => array('m4v', 'ogv', 'mov', 'webm'),
 			'document' => array('doc', 'xls', 'ppt', 'pdf', 'txt', 'html', 'xml'),
@@ -126,7 +126,7 @@ class ManageLevGalQuotas_Controller extends Action_Controller
 		foreach ($context['file_types'] as $type_id => $types)
 		{
 			$context['selected_file_types'][$type_id] = empty($modSettings['lgal_' . $type_id . '_formats']) ? array() : array_intersect($types, explode(',', $modSettings['lgal_' . $type_id . '_formats']));
-			$context['quotas'][$type_id] = !empty($modSettings['lgal_' . $type_id . '_quotas']) ? @unserialize($modSettings['lgal_' . $type_id . '_quotas']) : array();
+			$context['quotas'][$type_id] = !empty($modSettings['lgal_' . $type_id . '_quotas']) ? Util::unserialize($modSettings['lgal_' . $type_id . '_quotas'],  ['allowed_classes' => false]) : array();
 		}
 	}
 
@@ -225,14 +225,14 @@ class ManageLevGalQuotas_Controller extends Action_Controller
 
 					// Now image size
 					$size = explode('x', $_POST['image_quota_imagesize'][$key]);
-					if (count($size) != 2)
+					if (count($size) !== 2)
 					{
 						continue;
 					}
 					$width = LevGal_Bootstrap::clamp($size[0], 0, 9999);
 					$height = LevGal_Bootstrap::clamp($size[1], 0, 9999);
 					// If both are empty, it's allowed. Otherwise, it's not.
-					if (($width == 0 || $height == 0) && ($width != $height))
+					if (($width === 0 || $height === 0) && ($width !== $height))
 					{
 						continue;
 					}
@@ -240,7 +240,7 @@ class ManageLevGalQuotas_Controller extends Action_Controller
 
 					// Now file size
 					$filesize = trim($_POST['image_quota_filesize'][$key]);
-					if (!preg_match('~^[0-9]+[KMG]$~i', $filesize))
+					if (!preg_match('~^[\d]+[KMG]$~i', $filesize))
 					{
 						continue;
 					}
@@ -301,7 +301,7 @@ class ManageLevGalQuotas_Controller extends Action_Controller
 
 							// Now file size
 							$filesize = trim($_POST[$type_id . '_quota_filesize'][$key]);
-							if (!preg_match('~^[0-9]+[KMG]$~i', $filesize))
+							if (!preg_match('~^[\d]+[KMG]$~i', $filesize))
 							{
 								continue;
 							}

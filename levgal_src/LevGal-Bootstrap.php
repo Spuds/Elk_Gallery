@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.1 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 use BBC\Codes;
@@ -22,7 +22,7 @@ class LevGal_Bootstrap
 	 */
 	public static function initialize()
 	{
-		define('LEVGAL_VERSION', '1.1.1');
+		define('LEVGAL_VERSION', '1.2.0');
 
 		self::setDefaults();
 		self::defineAutoload();
@@ -59,7 +59,7 @@ class LevGal_Bootstrap
 			'lgal_enable_archive' => 0,
 			'lgal_enable_generic' => 0,
 			'lgal_enable_external' => 1,
-			'lgal_image_formats' => 'jpg,gif,png',
+			'lgal_image_formats' => 'jpg,gif,png,webp',
 			'lgal_audio_formats' => 'mp3,m4a,oga,flac',
 			'lgal_video_formats' => 'm4v,ogv',
 			'lgal_document_formats' => 'doc,xls,ppt,pdf,txt',
@@ -134,7 +134,7 @@ class LevGal_Bootstrap
 		if (function_exists('__autoload'))
 		{
 			$autoloaders = spl_autoload_functions();
-			if (!empty($autoloaders) && !in_array('__autoload', $autoloaders))
+			if (!empty($autoloaders) && !in_array('__autoload', $autoloaders, true))
 			{
 				spl_autoload_register('__autoload');
 			}
@@ -170,7 +170,6 @@ class LevGal_Bootstrap
 
 		// If it is, this is really just about us silently converting it internally to
 		// suit ElkArte's other stuff
-		//http://192.168.99.90/entegra/index.php?media/albumlist/0/group/
 		$possible_routes = array(
 			'~^media/?$~i' => 'action=media',
 			// The file item is special because we want to pre-empt a lot of ElkArte behaviour
@@ -219,7 +218,7 @@ class LevGal_Bootstrap
 			}
 		}
 		// If we've matched, we need to rewrite the original requested URI too.
-		if ($orig != $_SERVER['QUERY_STRING'])
+		if ($orig !== $_SERVER['QUERY_STRING'])
 		{
 			// If we're serving files, we want to flag as dlattach to avoid certain queries.
 			// This replacement needs to be done *before* HttpReq has been called
@@ -234,7 +233,7 @@ class LevGal_Bootstrap
 	 */
 	public static function addHtmlHeader($header)
 	{
-		LevGal_Bootstrap::$header .= $header;
+		self::$header .= $header;
 	}
 
 	public static function hookLanguage()
@@ -429,7 +428,7 @@ class LevGal_Bootstrap
 				// Reported items are somewhat simpler; there's only global counts - because there's only managers that can see it.
 				if (allowedTo('lgal_manage'))
 				{
-					$reported = @unserialize($modSettings['lgal_reports']);
+					$reported = Util::unserialize($modSettings['lgal_reports'],  ['allowed_classes' => false]);
 					foreach (array('comments', 'items') as $type)
 					{
 						if (!empty($reported[$type]))
@@ -535,7 +534,7 @@ class LevGal_Bootstrap
 	public static function hookLoadTheme()
 	{
 		$buffers = ob_list_handlers();
-		if (empty($buffers) || !in_array('LevGal_Bootstrap::hookBuffer', $buffers))
+		if (empty($buffers) || !in_array('LevGal_Bootstrap::hookBuffer', $buffers, true))
 		{
 			ob_start(array('LevGal_Bootstrap', 'hookBuffer'));
 		}
@@ -566,7 +565,7 @@ class LevGal_Bootstrap
 			Codes::ATTR_VALIDATE => function(&$tag, &$data, $disabledBBC) {
 				global $context, $settings, $txt;
 
-				if (in_array('media', $disabledBBC))
+				if (in_array('media', $disabledBBC, true))
 				{
 					return null;
 				}
@@ -610,10 +609,10 @@ class LevGal_Bootstrap
 			Codes::ATTR_TYPE => Codes::TYPE_UNPARSED_CONTENT,
 			Codes::ATTR_CONTENT => '!<lgalmediacomplex: {id}>',
 			Codes::ATTR_BEFORE => '{id},{align},{type}',
-			Codes::ATTR_VALIDATE => function(&$tag, &$data, $disabledBBC) {
+			Codes::ATTR_VALIDATE => function(&$tag, $data, $disabledBBC) {
 				global $context, $txt, $settings;
 
-				if (in_array('media', $disabledBBC))
+				if (in_array('media', $disabledBBC, true))
 				{
 					return null;
 				}
@@ -659,9 +658,9 @@ class LevGal_Bootstrap
 	{
 		global $scripturl, $context;
 
-		if (!empty(LevGal_Bootstrap::$header))
+		if (!empty(self::$header))
 		{
-			$buffer = str_replace('</head>', LevGal_Bootstrap::$header . "\n" . '</head>', $buffer);
+			$buffer = str_replace('</head>', self::$header . "\n" . '</head>', $buffer);
 		}
 
 		// Now to fix any embeds.
@@ -679,10 +678,8 @@ class LevGal_Bootstrap
 		{
 			return str_replace($scripturl . '?debug;media', $scripturl . '?media', $buffer);
 		}
-		else
-		{
-			return str_replace($scripturl . '?' . SID . '&amp;media', $scripturl . '?media', $buffer);
-		}
+
+		return str_replace($scripturl . '?' . SID . '&amp;media', $scripturl . '?media', $buffer);
 	}
 
 	/**
