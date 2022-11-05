@@ -140,22 +140,32 @@ div.field_placement {
 	height: 16em
 }
 
-#graph_legend .pie-legend {
-	list-style: none;
-	margin-top: 0;
-	padding: 3px;
+#pie_container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 
-#graph_legend .pie-legend li {
-	margin-bottom: 2px;
+#graph_legend > ul {
+	display: flex;
+	flex-direction: column;
+	margin: 1em 0 0 0;
+	padding: 0;
 }
 
-.pie-legend li span {
+#graph_legend > ul > li {
+	align-items: center;
+	cursor: pointer;
+	display: flex;
+	gap: 5px;
+}
+
+#graph_legend > ul > li > span {
 	display: inline-block;
-	width: 13px;
-	height: 13px;
+	width: 20px;
+	height: 20px;
 	border-radius: 4px;
-	margin: 0 3px -1px 3px;
+	margin-bottom: 3px;
 }
 
 .lgal_admin_block, .modbox {
@@ -165,10 +175,6 @@ div.field_placement {
 
 .lgal_admin_block.news {
 	overflow-y: auto;
-}
-
-#lev_news {
-	font-size: 0.85em;
 }
 
 #lev_news dt {
