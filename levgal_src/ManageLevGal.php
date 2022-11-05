@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.1 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -93,9 +93,12 @@ function levgal_admin_bootstrap(&$admin_areas)
 	}
 
 	// Admin function need some extra help
-	loadCSSFile('admin_lg.css', ['subdir' => 'levgal_res', 'stale' => LEVGAL_VERSION]);
-	loadJavascriptFile('admin_lg.js', ['subdir' => 'levgal_res', 'stale' => LEVGAL_VERSION]);
-	addInlineJavascript('closeFieldsets();', true);
+	if (!empty($_GET['area']) && strpos($_GET['area'], 'lgal') === 0)
+	{
+		loadCSSFile('admin_lg.css', ['subdir' => 'levgal_res', 'stale' => LEVGAL_VERSION]);
+		loadJavascriptFile('admin_lg.js', ['subdir' => 'levgal_res', 'stale' => LEVGAL_VERSION]);
+		addInlineJavascript('closeFieldsets();', true);
+	}
 
 	add_integration_function('integrate_load_permissions', 'levgal_admin_permissions', 'SOURCEDIR/levgal_src/ManageLevGal.php',false);
 	add_integration_function('integrate_delete_membergroups', 'LevGal_Model_Group::deleteGroup', '',false);
@@ -224,7 +227,7 @@ function levgal_adminSettings($return_config = false)
 		'audio' => array('title', 'artist', 'album_artist', 'album', 'track_number', 'genre', 'playtime', 'bitrate'),
 		'video' => array('title', 'artist', 'album_artist', 'album', 'track_number', 'genre', 'playtime', 'bitrate'),
 	);
-	$context['selected_metadata'] = unserialize($modSettings['lgal_metadata']);
+	$context['selected_metadata'] = unserialize($modSettings['lgal_metadata'], ['allowed_classes' => false]);
 
 	call_integration_hook('integrate_lgal_settings', array(&$config_vars));
 
