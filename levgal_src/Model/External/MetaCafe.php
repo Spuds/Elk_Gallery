@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.1 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -48,7 +48,7 @@ class LevGal_Model_External_MetaCafe
 
 		return array(
 			'display_template' => 'external',
-			'external_url' => 'http://www.metacafe.com/watch/' . $this->meta['id'] . '/',
+			'external_url' => 'https://www.metacafe.com/watch/' . $this->meta['id'] . '/',
 			'video_id' => $this->meta['id'],
 			'markup' => '
 	<iframe class="base_iframe" src="https://www.metacafe.com/embed/' . $this->meta['id'] . '/" style="width: 540px; height: 304px" allowFullScreen></iframe>
@@ -61,15 +61,12 @@ class LevGal_Model_External_MetaCafe
 		require_once(SUBSDIR . '/Package.subs.php');
 
 		// This is a bit complicated, but essentially we can look up the thumbnail from the OpenGraph tags.
-		if ($page = fetch_web_data('https://www.metacafe.com/watch/' . $this->meta['id'] . '/'))
+		if (($page = fetch_web_data('https://www.metacafe.com/watch/' . $this->meta['id'] . '/'))
+			&& preg_match('~<meta property="og:image" content="([^"]+)"( /)?>~i', $page, $match)
+			&& !empty($match[1])
+			&& $thumbnail_data = fetch_web_data($match[1]))
 		{
-			if (preg_match('~<meta property="og:image" content="([^"]+)"( /)?>~i', $page, $match) && !empty($match[1]))
-			{
-				if ($thumbnail_data = fetch_web_data($match[1]))
-				{
-					return array('data' => $thumbnail_data, 'image_mime' => 'image/jpeg');
-				}
-			}
+			return array('data' => $thumbnail_data, 'image_mime' => 'image/jpeg');
 		}
 
 		return false;

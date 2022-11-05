@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.1 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -65,7 +65,7 @@ class LevGal_Model_External_YouTube
 	public function getThumbnail()
 	{
 		require_once(SUBSDIR . '/Package.subs.php');
-		if ($thumbnail_data = fetch_web_data('http://img.youtube.com/vi/' . $this->meta['id'] . '/0.jpg'))
+		if ($thumbnail_data = fetch_web_data('https://img.youtube.com/vi/' . $this->meta['id'] . '/0.jpg'))
 		{
 			return array('data' => $thumbnail_data, 'image_mime' => 'image/jpeg');
 		}

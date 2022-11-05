@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -50,18 +50,18 @@ class LevGal_Model_External_DailyMotion
 
 		return array(
 			'display_template' => 'external',
-			'external_url' => 'http://www.dailymotion.com/video/' . $this->meta['id'],
+			'external_url' => 'https://www.dailymotion.com/video/' . $this->meta['id'],
 			'video_id' => $this->meta['id'],
 			'markup' => '
 	<iframe class="base_iframe" src="//www.dailymotion.com/embed/video/' . $this->meta['id'] . '?title=0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
-	<div class="centertext ext_link"><a href="http://www.dailymotion.com/video/' . $this->meta['id'] . '">' . $txt['lgal_view_dailymotion'] . '</a></div>',
+	<div class="centertext ext_link"><a href="https://www.dailymotion.com/video/' . $this->meta['id'] . '">' . $txt['lgal_view_dailymotion'] . '</a></div>',
 		);
 	}
 
 	public function getThumbnail()
 	{
 		require_once(SUBSDIR . '/Package.subs.php');
-		if ($thumbnail_data = fetch_web_data('http://www.dailymotion.com/thumbnail/video/' . $this->meta['id']))
+		if ($thumbnail_data = fetch_web_data('https://www.dailymotion.com/thumbnail/video/' . $this->meta['id']))
 		{
 			return array('data' => $thumbnail_data, 'image_mime' => 'image/jpeg');
 		}
