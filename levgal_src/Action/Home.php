@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -47,12 +47,12 @@ class LevGal_Action_Home extends LevGal_Action_Abstract
 
 		if (allowedTo(array('lgal_manage', 'lgal_adduseralbum', 'lgal_addgroupalbum')) || !empty($context['stats']['levgal_stats_total_albums']))
 		{
-			$context['gallery_actions']['actions']['album'] = array($txt['lgal_see_albums'], $scripturl . '?media/albumlist/');
+			$context['gallery_actions']['actions']['album'] = array($txt['lgal_see_albums'], $scripturl . '?media/albumlist/', 'tab' => true);
 		}
 
 		if (allowedTo(array('lgal_manage', 'lgal_adduseralbum', 'lgal_addgroupalbum')))
 		{
-			$context['gallery_actions']['actions']['addalbum'] = array($txt['levgal_newalbum'], $scripturl . '?media/newalbum/');
+			$context['gallery_actions']['actions']['addalbum'] = array($txt['levgal_newalbum'], $scripturl . '?media/newalbum/', 'tab' => true);
 		}
 
 		if (!empty($user_settings['lgal_new']))
@@ -62,10 +62,10 @@ class LevGal_Action_Home extends LevGal_Action_Abstract
 		}
 		if (!$context['user']['is_guest'] && !empty($user_settings['lgal_unseen']))
 		{
-			$context['gallery_actions']['actions']['new'] = array($txt['levgal_unseen'] . ' [<strong>' . $user_settings['lgal_unseen'] . '</strong>]', $scripturl . '?media/unseen/');
+			$context['gallery_actions']['actions']['new'] = array($txt['levgal_unseen'] . ' [<strong>' . $user_settings['lgal_unseen'] . '</strong>]', $scripturl . '?media/unseen/', 'tab' => true);
 		}
 
-		$context['gallery_actions']['actions']['search'] = array($txt['levgal_search'], $scripturl . '?media/search/');
+		$context['gallery_actions']['actions']['search'] = array($txt['levgal_search'], $scripturl . '?media/search/', 'tab' => true);
 		$context['gallery_actions']['actions']['stats'] = array($txt['lgal_gallery_stats'], $scripturl . '?media/stats/');
 		$context['gallery_actions']['actions']['tag'] = array($txt['levgal_tagcloud'], $scripturl . '?media/tag/cloud/');
 
@@ -77,7 +77,7 @@ class LevGal_Action_Home extends LevGal_Action_Abstract
 			$moderation_count += LevGal_Bootstrap::getUnapprovedAlbumsCount();
 			if (allowedTo('lgal_manage'))
 			{
-				$reported = @unserialize($modSettings['lgal_reports']);
+				$reported = Util::unserialize($modSettings['lgal_reports']);
 				foreach (array('comments', 'items') as $type)
 				{
 					if (!empty($reported[$type]))
@@ -86,7 +86,7 @@ class LevGal_Action_Home extends LevGal_Action_Abstract
 					}
 				}
 			}
-			$context['gallery_actions']['actions']['moderate'] = array($txt['levgal_moderate'] . (empty($moderation_count) ? '' : ' [<strong>' . $moderation_count . '</strong>]'), $scripturl . '?media/moderate/');
+			$context['gallery_actions']['actions']['moderate'] = array($txt['levgal_moderate'] . (empty($moderation_count) ? '' : ' [<strong>' . $moderation_count . '</strong>]'), $scripturl . '?media/moderate/', 'tab' => true);
 		}
 	}
 }
