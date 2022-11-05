@@ -72,7 +72,7 @@ function is_submittable()
 	}
 	else
 	{
-		// Courtesy comments to http://stackoverflow.com/questions/161738/what-is-the-best-regular-expression-to-check-if-a-string-is-a-valid-url#comment24355215_9284473
+		// Courtesy comments to https://stackoverflow.com/questions/161738/what-is-the-best-regular-expression-to-check-if-a-string-is-a-valid-url#comment24355215_9284473
 		// Note that this presumes the URL will always have a schema - but if it doesn't
 		// (e.g. www.youtube.com/...), softly fix that here.
 		let url = document.getElementById('upload_url').value;
@@ -158,7 +158,8 @@ function beginUpload()
 		uploader.processQueue();
 	}
 
-	document.getElementById('begin_button').style.display = "none";
+	document.querySelectorAll(".begin_button").forEach((elem) => {elem.style.display = "none"});
+
 	return false;
 }
 
