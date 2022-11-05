@@ -1,8 +1,8 @@
 // Toggle the containers for the quotas page.
 function toggleContainers(name)
 {
-	var link = document.getElementById(name + '_link');
-	var fs = document.getElementById(name);
+	let link = document.getElementById(name + '_link');
+	let fs = document.getElementById(name);
 	fs.style.display = (fs.style.display === 'none') ? '' : 'none';
 	link.style.display = (fs.style.display === 'none') ? '' : 'none';
 	return false;
@@ -12,10 +12,13 @@ function toggleContainers(name)
 function closeFieldsets()
 {
 	let thisLegends = document.getElementsByTagName("legend");
-
-	for (var i = 0, n = thisLegends.length; i < n; i++)
+	for (let i = 0, n = thisLegends.length; i < n; i++)
 	{
-		thisLegends[i].nextElementSibling.style.display = 'none';
+		let el = thisLegends[i].nextElementSibling;
+		while (el) {
+			el.style.display = 'none';
+			el = el.nextElementSibling;
+		}
 	}
 }
 
@@ -507,8 +510,8 @@ function getImageSize()
 {
 	if (document.getElementById('max_image_size').value == 'defined')
 	{
-		var imagewidth = ~~(document.getElementById('max_image_size_width').value);
-		var imageheight = ~~(document.getElementById('max_image_size_height').value);
+		let imagewidth = Math.trunc(document.getElementById('max_image_size_width').value);
+		let imageheight = Math.trunc(document.getElementById('max_image_size_height').value);
 		if (imagewidth <= 0 || imagewidth >= 10000 || imageheight <= 0 || imageheight >= 10000)
 		{
 			return false;
@@ -581,4 +584,72 @@ function is_valid_filesize(str)
 function showChanged(section)
 {
 	document.getElementById(section + '_changed').style.display = 'block';
+}
+
+function levgal_currentVersion()
+{
+	let olgVersionContainer = document.getElementById("levgalCurrentVersion"),
+		oinstalledVersionContainer = document.getElementById("levgalYourVersion"),
+		sCurrentVersion = oinstalledVersionContainer.innerHTML,
+		lgIndex = new elk_AdminIndex(),
+		lgVersion = '???',
+		verCompare = new elk_ViewVersions();
+
+	$.getJSON('https://api.github.com/repos/Spuds/Elk_Gallery/releases', {format: "json"},
+		function (data, textStatus, jqXHR)
+		{
+			let mostRecent = {},
+				previous = {},
+				init_news = false;
+
+			lgIndex.current = lgIndex.normalizeVersion(sCurrentVersion);
+
+			$.each(data, function (idx, elem)
+			{
+				// No drafts, thank you
+				if (elem.draft)
+				{
+					return;
+				}
+
+				let release = lgIndex.normalizeVersion(elem.tag_name),
+					sCheckVersion = elem.tag_name.indexOf('v') === 0 ? elem.tag_name.substring(1) : elem.tag_name;
+
+				sCheckVersion.replace('-', '').substring(1);
+				if (!previous.hasOwnProperty('major') || verCompare.compareVersions(sCurrentVersion, sCheckVersion))
+				{
+					// Using a preprelease? Then you may need to know a new one is out!
+					if ((elem.prerelease && adminIndex.current.prerelease) || (!elem.prerelease))
+					{
+						previous = release;
+						mostRecent = elem;
+					}
+				}
+
+				// Load announcements for this release
+				levgal_setAnnouncement(init_news, elem);
+				init_news = true;
+			});
+
+			let lgVersion = mostRecent.tag_name.replace(/gallery/i, '').trim();
+
+			olgVersionContainer.innerHTML = lgVersion;
+			if (sCurrentVersion !== lgVersion)
+			{
+				oinstalledVersionContainer.innerHTML = '<span class="alert"><i class="icon i-alert"></i>' + sCurrentVersion + '</span>';
+			}
+		}
+	);
+}
+
+function levgal_setAnnouncement(init_news, announcement)
+{
+	let oElem = document.getElementById('lev_news'),
+		sMessages = init_news ? oElem.innerHTML : '',
+		sAnnouncementTemplate = '<dl>%content%</dl>',
+		sAnnouncementMessageTemplate = '<dt><a href="%href%">%subject%</a> :: %time%</dt><dd>%message%</dd>';
+
+	let sMessage = sAnnouncementMessageTemplate.replace('%href%', announcement.html_url).replace('%subject%', announcement.name).replace('%time%', announcement.published_at.replace(/[TZ]/g, ' ')).replace('%message%', announcement.body).replace(/\n/g, '<br />').replace(/\r/g, '');
+
+	oElem.innerHTML = sMessages + sAnnouncementTemplate.replace('%content%', sMessage);
 }
