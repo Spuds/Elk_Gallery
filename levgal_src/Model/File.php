@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -83,8 +83,8 @@ class LevGal_Model_File
 
 		// If you ever add 4 character filetype specs instead of _jpg and _png, update the file sender, please.
 		$possibles = array(
-			'preview' => array('_preview.dat', '_preview_jpg.dat', '_preview_png.dat'),
-			'thumb' => array('_thumb.dat', '_thumb_jpg.dat', '_thumb_png.dat'),
+			'preview' => array('_preview.dat', '_preview_jpg.dat', '_preview_png.dat', '_preview_webp.dat'),
+			'thumb' => array('_thumb.dat', '_thumb_jpg.dat', '_thumb_png.dat', '_thumb_webp.dat'),
 		);
 		foreach ($possibles as $possible_type => $possible_suffix)
 		{
@@ -104,13 +104,19 @@ class LevGal_Model_File
 	public function makePath($hash)
 	{
 		$path = LevGal_Bootstrap::getGalleryDir();
-		if (!file_exists($path . '/files/' . $hash[0]))
+
+		if (!file_exists($path . '/files/' . $hash[0])
+			&& !mkdir($concurrentDirectory = $path . '/files/' . $hash[0])
+			&& !is_dir($concurrentDirectory))
 		{
-			@mkdir($path . '/files/' . $hash[0]);
+			LevGal_Helper_Http::fatalError(sprintf('Directory "%s" was not created', $concurrentDirectory));
 		}
-		if (!file_exists($path . '/files/' . $hash[0] . '/' . $hash[0] . $hash[1]))
+
+		if (!file_exists($path . '/files/' . $hash[0] . '/' . $hash[0] . $hash[1])
+			&& !mkdir($concurrentDirectory = $path . '/files/' . $hash[0] . '/' . $hash[0] . $hash[1])
+			&& !is_dir($concurrentDirectory))
 		{
-			@mkdir($path . '/files/' . $hash[0] . '/' . $hash[0] . $hash[1]);
+			LevGal_Helper_Http::fatalError(sprintf('Directory "%s" was not created', $concurrentDirectory));
 		}
 
 		return $path . '/files/' . $hash[0] . '/' . $hash[0] . $hash[1];
@@ -162,7 +168,7 @@ class LevGal_Model_File
 		}
 
 		// So the user can see the album. If the item is approved or they're the album owner, they can see it.
-		if ($this->isApproved() || $this->isOwnedByUser() || $this->current_album->isOwnedByUser() || ($user_info['is_guest'] && !empty($_SESSION['lgal_items']) && in_array($this->current_item['id_item'], $_SESSION['lgal_items'])))
+		if ($this->isApproved() || $this->isOwnedByUser() || $this->current_album->isOwnedByUser() || ($user_info['is_guest'] && !empty($_SESSION['lgal_items']) && in_array($this->current_item['id_item'], $_SESSION['lgal_items'], true)))
 		{
 			return true;
 		}
@@ -193,7 +199,7 @@ class LevGal_Model_File
 		$files = $this->getFilePaths();
 		foreach ($files as $key => $file)
 		{
-			if ((empty($file_list) || in_array($key, $file_list)) && $key !== 'filehash')
+			if ($key !== 'filehash' && (empty($file_list) || in_array($key, $file_list, true)))
 			{
 				@unlink($file);
 			}
