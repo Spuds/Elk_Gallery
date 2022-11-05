@@ -8,17 +8,13 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  * @since 1.0
+ *
+ * @version 1.2.0 / elkarte
  */
 
 function template_levgal_dash()
 {
 	global $context, $txt, $settings;
-
-	if (!empty($context['out_of_date']))
-	{
-		echo '
-		<div class="errorbox" id="errors"></span> ', sprintf($txt['levgal_out_of_date'], LEVGAL_VERSION, $context['latest_version']), '</div>';
-	}
 
 	// Header area.
 	echo '
@@ -48,18 +44,96 @@ function template_levgal_dash()
 	echo '
 				<div id="stats_right">
 					<div class="content modbox">
-						<div id="graph_container" class="floatleft"></div>
-						<div id="graph_legend_container" class="floatleft">
-							<strong>', $txt['levgal_uploaded_items'], '</strong>
-							<div id="graph_legend"></div>
+						<div id="pie_container">
+							<div id="graph_container" class="floatleft">
+								<canvas id="lgal_graph" width="200" height="200"></canvas>
+							</div>
+							<div id="graph_legend_container" class="floatleft">
+								<div id="graph_legend"><ul></ul></div>
+							</div>
 						</div>
-						<script src="', $settings['default_theme_url'], '/levgal_res/Chart.min.js"></script>
+						<script src="', $settings['default_theme_url'], '/levgal_res/chart.min.js"></script>
 						<script>
-							document.getElementById(\'graph_container\').innerHTML = \'<canvas id="lgal_graph" width="200" height="150"></canvas>\';
-							var ctx = document.getElementById("lgal_graph").getContext("2d"),
-								data = ' . json_encode($context['item_breakdown']) . ',
-								newChart = new Chart(ctx).Pie(data, {animateRotate: false});
-							document.getElementById(\'graph_legend\').innerHTML = newChart.generateLegend();
+							let ctx = document.getElementById("lgal_graph").getContext("2d"),
+								data = {
+									labels: ' . json_encode($context['item_breakdown']['labels']) . ',
+									datasets: [{
+										data: ' . json_encode($context['item_breakdown']['datasets']['data']) . ',
+										backgroundColor: ' . json_encode($context['item_breakdown']['datasets']['backgroundColor']) . ',
+										hoverOffset: 4
+									}]
+								};
+							
+							// Separate the legend from the chart canvas to allow the pie to be full sized / symmetric
+							const htmlLegendPlugin = {
+								id: "pielegend",
+								afterUpdate(chart, args, options) {
+									let legendContainer = document.getElementById(options.containerID);
+								
+									const ul = legendContainer.querySelector("ul")
+							
+									// Remove old legend items
+									while (ul.firstChild) {
+										ul.firstChild.remove();
+									}
+								
+									// Reuse the built-in legendItems generator
+									const items = chart.options.plugins.legend.labels.generateLabels(chart);
+							
+									items.forEach(item => {
+										const li = document.createElement("li");
+								
+										li.onclick = () => {
+											const {type} = chart.config;
+
+											chart.toggleDataVisibility(item.index);
+											chart.update();
+										};
+						
+										// Color box
+										const boxSpan = document.createElement("span");
+										boxSpan.style.background = item.fillStyle;
+										boxSpan.style.borderColor = item.strokeStyle;
+										boxSpan.style.borderWidth = item.lineWidth + "px";
+										
+										// Text
+										const textContainer = document.createElement("p");
+										textContainer.style.color = item.fontColor;
+										textContainer.style.textDecoration = item.hidden ? "line-through" : "";
+							
+										const text = document.createTextNode(item.text);
+										textContainer.appendChild(text);
+										
+										li.appendChild(boxSpan);
+										li.appendChild(textContainer);
+										ul.appendChild(li);
+									});
+								}
+							};								
+							
+							// All that and this for a pie chart !
+							newChart = new Chart(ctx, {
+								type: "pie",
+								data: data,
+								options: {
+									plugins: {
+								      pielegend: {
+										containerID: "graph_legend",
+									},
+									title: {
+										display: true,
+										font: {
+											size: 18
+										},
+										text: "' . $txt['levgal_uploaded_items'] . '"
+									},
+									legend: {
+										display: false,
+									}},
+									responsive: true,
+								},
+								plugins: [htmlLegendPlugin],
+							});
 						</script>
 					</div>
 				</div>';
@@ -90,29 +164,15 @@ function template_levgal_dash()
 	echo '
 				<div id="stats_right">
 					<h2 class="secondary_header hdicon cat_img_address">', $txt['levgal_news_from_home'], '</h2>
-					<div class="content modbox">';
-
-	if (empty($context['latest_news']))
-	{
-		echo '
-						', $txt['levgal_news_not_available'];
-	}
-	else
-	{
-		echo '
-						<dl id="lev_news">';
-		foreach ($context['latest_news'] as $item)
-		{
-			echo '
-							<dt>', sprintf($txt['levgal_news_item'], $item['subject'], $item['author'], $item['time']), '</dt>
-							<dd>', $item['message'], '</dd>';
-		}
-
-		echo '
-						</dl>';
-	}
-
-	echo '
+					<div class="content modbox">
+						<div>
+							', $txt['levgal_versions_lgal'], ' ', $txt['support_versions_current'], ' <span id="levgalCurrentVersion" class="bbc_strong">???</span>
+ 							/ ', $txt['support_versions_forum'], ' <span id="levgalYourVersion" class="bbc_strong">', LEVGAL_VERSION, '</span>
+						</div>
+						<hr />
+						<div id="lev_news">',
+							$txt['levgal_news_not_available'], '
+						</div>
 					</div>
 				</div>';
 
@@ -120,6 +180,12 @@ function template_levgal_dash()
 	echo '
 			</div>
 		</div>';
+
+	// Fetch the news
+	echo '
+	<script>
+	addLoadEvent(levgal_currentVersion);
+	</script>';
 }
 
 function template_levgal_credits()

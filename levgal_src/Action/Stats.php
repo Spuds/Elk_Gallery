@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -19,6 +19,7 @@ class LevGal_Action_Stats extends LevGal_Action_Abstract
 		// Stuff we will need
 		$this->setTemplate('LevGal-Stats', 'stats', 'admin_lg.css');
 		loadLanguage('levgal_lng/LevGal-Stats');
+		loadJavascriptFile('chart.min.js', ['subdir' => 'levgal_res', 'defer' => false]);
 
 		$this->addLinkTree($txt['levgal'], '?media/');
 		$this->addLinkTree($txt['levgal_stats_linktree'], '?media/stats/');

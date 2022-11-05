@@ -111,3 +111,43 @@ function handleBookmark(link)
 		return false;
 	}
 }
+
+function barConfig(bar_data, tooltips)
+{
+	return {
+		type: "bar",
+		data: bar_data,
+		options: {
+			indexAxis: "y",
+			categoryPercentage: ".9",
+			elements: {
+				bar: {borderWidth: 0,}
+			},
+			responsive: true,
+			scales: {
+				y: {
+					grid: {display: false},
+					afterFit: function (scaleInstance) {
+						scaleInstance.width = 200;
+					},
+					ticks: {font: {size: 15,}},
+				},
+				x: {
+					ticks: {display: true,},
+				}
+			},
+			plugins: {
+				title: {display: false},
+				legend: {display: false},
+				tooltip: {
+					callbacks: {
+						label: function (context)
+						{
+							return tooltips[context.dataIndex];
+						}
+					}
+				}
+			}
+		},
+	};
+}
