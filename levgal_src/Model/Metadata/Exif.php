@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.1 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -14,19 +14,19 @@ class LevGal_Model_Metadata_Exif
 {
 	/** @var string */
 	private $file;
-	/** @var array  */
+	/** @var array */
 	private $errors;
 	/** @var resource */
 	private $handle;
 	/** @var resource */
 	private $seek;
-	/** @var array  */
+	/** @var array */
 	private $data;
-	/** @var bool  */
+	/** @var bool */
 	private $intelByteOrder = true;
-	/** @var int  */
+	/** @var int */
 	private $offset = 0;
-	/** @var \LevGal_Model_Metadata_ExifTag  */
+	/** @var \LevGal_Model_Metadata_ExifTag */
 	private $tag;
 
 	public function __construct($file)
@@ -35,17 +35,25 @@ class LevGal_Model_Metadata_Exif
 		$this->errors = array();
 		$this->data = array();
 
-		if (!$this->openFile())
+		if ($this->openFile())
 		{
-			return array('errors' => $this->errors);
+			$this->tag = new LevGal_Model_Metadata_ExifTag();
 		}
-
-		$this->tag = new LevGal_Model_Metadata_ExifTag();
 	}
 
 	public function __destruct()
 	{
 		$this->closeFile();
+	}
+
+	public function getErrors()
+	{
+		if (empty($this->errors))
+		{
+			return false;
+		}
+
+		return array('errors' => $this->errors);
 	}
 
 	protected function openFile()
@@ -65,8 +73,11 @@ class LevGal_Model_Metadata_Exif
 
 	protected function closeFile()
 	{
-		@fclose($this->handle);
-		@fclose($this->seek);
+		if (is_resource($this->handle))
+		{
+			@fclose($this->handle);
+			@fclose($this->seek);
+		}
 	}
 
 	protected function skipBytes($num, $handle = true)
@@ -156,22 +167,21 @@ class LevGal_Model_Metadata_Exif
 					break;
 				case "\xff\xe1": // APP1 marker (Exif / TIFF IFD, or JPEG thumbnail)
 					$header = $this->readBytes(6);
-					if ($header == "Exif\x00\x00")
+					if ($header === "Exif\x00\x00")
 					{
 						$this->data['EXIF']['Valid'] = true;
 						$this->data['APP1']['Valid'] = true;
 						$this->data['APP1']['Size'] = $size;
 						break 2; // Need to exit both this switch and the while loop since we hit what we were looking for.
 					}
-					else
+
+					// We hit an APP1 marker but not an Exif one. Let's skip to the next one.
+					if ($size > 2)
 					{
-						// We hit an APP1 marker but not an Exif one. Let's skip to the next one.
-						if ($size > 2)
-						{
-							$data = $this->readBytes($size - 2 - 6); // (skip Exif marker plus size)
-						}
-						$this->offset += $size + 2;
+						$this->readBytes($size - 2 - 6); // (skip Exif marker plus size)
 					}
+					$this->offset += $size + 2;
+
 					break;
 				case "\xff\xe2": // APP2 marker, data fetchable by way of readBytes($size - 2);
 				case "\xff\xed": // IPTC marker, data fetchable by way of readBytes($size - 2)
@@ -361,13 +371,11 @@ class LevGal_Model_Metadata_Exif
 			);
 		}
 
-		if ($type == LevGal_Model_Metadata_ExifTag::TYPE_UNS_BYTE)
+		if (($type == LevGal_Model_Metadata_ExifTag::TYPE_UNS_BYTE)
+			&& in_array($tag, array('XPTitle', 'XPComment', 'XPAuthor', 'XPKeywords', 'XPSubject')))
 		{
-			if (in_array($tag, array('XPTitle', 'XPComment', 'XPAuthor', 'XPKeywords', 'XPSubject')))
-			{
-				// These are all UCS-2 fields added by Windows Explorer.
-				$data = $this->parseUCS2toEntity($data);
-			}
+			// These are all UCS-2 fields added by Windows Explorer.
+			$data = $this->parseUCS2toEntity($data);
 		}
 		if ($type == LevGal_Model_Metadata_ExifTag::TYPE_ASCII)
 		{
@@ -388,7 +396,7 @@ class LevGal_Model_Metadata_Exif
 			// Tags such as MakerNote (0x927c) come into this category.
 			$data = base64_encode($data);
 		}
-		elseif (in_array($type, $type_list['rational']))
+		elseif (in_array($type, $type_list['rational'], true))
 		{
 			// First, get the top/bottom values, allowing for endianness.
 			$data = bin2hex($data);
@@ -418,7 +426,7 @@ class LevGal_Model_Metadata_Exif
 				$data = $top . '/' . $bottom;
 			}
 		}
-		elseif (in_array($type, $type_list['numeric']))
+		elseif (in_array($type, $type_list['numeric'], true))
 		{
 			$data = bin2hex($data);
 			if ($this->intelByteOrder)
@@ -464,7 +472,8 @@ class LevGal_Model_Metadata_Exif
 			{
 				continue;
 			}
-			elseif ($codepoint > 127)
+
+			if ($codepoint > 127)
 			{
 				// It's beyond the ASCII plane, entitify it.
 				$result .= '&#x' . $codepoint . ';';

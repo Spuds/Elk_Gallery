@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -51,7 +51,7 @@ class LevGal_Model_Album
 			$this->current_album = $db->fetch_assoc($request);
 			foreach (array('owner_cache', 'perms') as $item)
 			{
-				$this->current_album[$item] = !empty($this->current_album[$item]) ? @unserialize($this->current_album[$item]) : array();
+				$this->current_album[$item] = !empty($this->current_album[$item]) ? Util::unserialize($this->current_album[$item]) : array();
 			}
 			foreach (array('member', 'group') as $type)
 			{
@@ -85,14 +85,14 @@ class LevGal_Model_Album
 		);
 	}
 
-	// This isn't pretty but it means we can reuse all the exciting other methods without having
+	// This isn't pretty, but it means we can reuse all the exciting other methods without having
 	// to expressly re-query anything.
 	public function buildFromSurrogate($details)
 	{
 		$this->current_album = $details;
 		foreach (array('owner_cache', 'perms') as $item)
 		{
-			$this->current_album[$item] = !empty($this->current_album[$item]) ? @unserialize($this->current_album[$item]) : array();
+			$this->current_album[$item] = !empty($this->current_album[$item]) ? Util::unserialize($this->current_album[$item]) : array();
 		}
 		$this->current_album['album_url'] = $this->getAlbumUrl();
 		$this->current_album['thumbnail_url'] = $this->getThumbnailUrl();
@@ -114,15 +114,13 @@ class LevGal_Model_Album
 		{
 			return array(false, $this->getThumbnailUrl());
 		}
-		else
-		{
-			list ($ext, $hash) = explode(',', $this->current_album['thumbnail']);
-			$album_thumb = LevGal_Bootstrap::getGalleryDir() . '/albums/' . $this->current_album['id_album'] . '_' . $hash . '.dat';
 
-			if (file_exists($album_thumb))
-			{
-				return array($ext, $album_thumb);
-			}
+		list ($ext, $hash) = explode(',', $this->current_album['thumbnail']);
+		$album_thumb = LevGal_Bootstrap::getGalleryDir() . '/albums/' . $this->current_album['id_album'] . '_' . $hash . '.dat';
+
+		if (file_exists($album_thumb))
+		{
+			return array($ext, $album_thumb);
 		}
 
 		return array(false, $settings['default_theme_url'] . '/levgal_res/albums/folder.svg');
@@ -136,18 +134,18 @@ class LevGal_Model_Album
 		{
 			return $settings['default_theme_url'] . '/levgal_res/albums/folder.svg';
 		}
-		elseif (strpos($this->current_album['thumbnail'], 'folder') === 0)
+
+		if (strpos($this->current_album['thumbnail'], 'folder') === 0)
 		{
 			return $settings['default_theme_url'] . '/levgal_res/albums/' . $this->current_album['thumbnail'];
 		}
-		elseif (strpos($this->current_album['thumbnail'], 'generic/') === 0)
+
+		if (strpos($this->current_album['thumbnail'], 'generic/') === 0)
 		{
 			return $settings['default_theme_url'] . '/levgal_res/icons/' . substr($this->current_album['thumbnail'], 8);
 		}
-		else
-		{
-			return $this->current_album['album_url'] . 'thumb/';
-		}
+
+		return $this->current_album['album_url'] . 'thumb/';
 	}
 
 	public function isApproved()
@@ -209,7 +207,7 @@ class LevGal_Model_Album
 		}
 
 		// If the current user is an owner, he can see it.
-		if (!empty($this->current_album['owner_cache']['member']) && in_array($user_info['id'], $this->current_album['owner_cache']['member']))
+		if (!empty($this->current_album['owner_cache']['member']) && in_array($user_info['id'], $this->current_album['owner_cache']['member'], true))
 		{
 			return true;
 		}
@@ -423,18 +421,15 @@ class LevGal_Model_Album
 				$criteria .= '
 				AND (li.approved = {int:approved} OR li.id_member = {int:member})';
 			}
+			elseif (!empty($_SESSION['lgal_items']))
+			{
+				$criteria .= '
+				AND (li.approved = {int:approved} OR li.id_item IN ({array_int:my_items}))';
+			}
 			else
 			{
-				if (!empty($_SESSION['lgal_items']))
-				{
-					$criteria .= '
-				AND (li.approved = {int:approved} OR li.id_item IN ({array_int:my_items}))';
-				}
-				else
-				{
-					$criteria .= '
+				$criteria .= '
 				AND (li.approved = {int:approved})';
-				}
 			}
 		}
 
@@ -872,14 +867,12 @@ class LevGal_Model_Album
 
 			if (isset($this->current_album['owner_cache']['member']))
 			{
-				if (in_array(0, $this->current_album['owner_cache']['member']))
+				if (in_array(0, $this->current_album['owner_cache']['member'], true))
 				{
 					return array('type' => 'site', 'owners' => array());
 				}
-				else
-				{
-					return array('type' => 'member', 'owners' => $this->current_album['owner_cache']['member']);
-				}
+
+				return array('type' => 'member', 'owners' => $this->current_album['owner_cache']['member']);
 			}
 		}
 
@@ -993,7 +986,7 @@ class LevGal_Model_Album
 		$db = database();
 
 		// This does not support cross-ownership switches. Nor does it support adding to site albums.
-		if (!isset($this->current_album['owner_cache'][$owner_type]) || (!empty($this->current_album['owner_cache']['member']) && in_array(0, $this->current_album['owner_cache']['member'])))
+		if (!isset($this->current_album['owner_cache'][$owner_type]) || (!empty($this->current_album['owner_cache']['member']) && in_array(0, $this->current_album['owner_cache']['member'], true)))
 		{
 			return;
 		}
@@ -1037,7 +1030,7 @@ class LevGal_Model_Album
 		$db = database();
 
 		// This does not support cross-ownership switches. Nor does it support adding to site albums.
-		if (!isset($this->current_album['owner_cache'][$owner_type]) || (!empty($this->current_album['owner_cache']['member']) && in_array(0, $this->current_album['owner_cache']['member'])))
+		if (!isset($this->current_album['owner_cache'][$owner_type]) || (!empty($this->current_album['owner_cache']['member']) && in_array(0, $this->current_album['owner_cache']['member'], true)))
 		{
 			return;
 		}
@@ -1142,7 +1135,7 @@ class LevGal_Model_Album
 		list ($perms) = $db->fetch_row($request);
 		$db->free_result($request);
 
-		$perms = !empty($perms) ? @unserialize($perms) : array();
+		$perms = !empty($perms) ? Util::unserialize($perms) : array();
 		$this->current_album['perms'] = array_merge((array) $perms, $privacy);
 
 		$db->query('', '
@@ -1210,7 +1203,7 @@ class LevGal_Model_Album
 			$params['thumbnail'] = $opts['thumbnail'];
 		}
 
-		if (isset($opts['perms'], $opts['perms']['type']) && ($opts['perms']['type'] !== 'custom' || isset($opts['perms']['groups'])))
+		if (isset($opts['perms']['type']) && ($opts['perms']['type'] !== 'custom' || isset($opts['perms']['groups'])))
 		{
 			$new_value = array(
 				'type' => $opts['perms']['type'],

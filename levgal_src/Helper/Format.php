@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -21,11 +21,13 @@ class LevGal_Helper_Format
 		{
 			return sprintf($txt['lgal_size_kb'], comma_format($bytes / 1024, 1));
 		}
-		// 1MB to 1GB, display 1,023MB
-		elseif ($bytes < (1024 * 1024 * 1024))
+
+		if ($bytes < (1024 * 1024 * 1024))
 		{
 			return sprintf($txt['lgal_size_mb'], comma_format($bytes / 1024 / 1024, 1));
 		}
+		// 1MB to 1GB, display 1,023MB
+
 		// otherwise round to GBs... eek.
 		return sprintf($txt['lgal_size_gb'], comma_format($bytes / 1024 / 1024 / 1024, 1));
 	}
@@ -49,10 +51,8 @@ class LevGal_Helper_Format
 		{
 			return sprintf('%02s:%02s', floor($secs / 60), $secs % 60);
 		}
-		else
-		{
-			return sprintf('%s:%02s:%02s', floor($secs / 3600), floor(($secs % 3600) / 60), $secs % 60);
-		}
+
+		return sprintf('%s:%02s:%02s', floor($secs / 3600), floor(($secs % 3600) / 60), $secs % 60);
 	}
 
 	public static function numstring($string, $num)

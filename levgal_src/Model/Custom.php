@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.1 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 use BBC\ParserWrapper;
@@ -59,10 +59,10 @@ class LevGal_Model_Custom
 			while ($row = $db->fetch_assoc($request))
 			{
 				$row['field_options'] = !empty($row['field_options']) ? explode(',', $row['field_options']) : array();
-				$row['field_config'] = !empty($row['field_config']) ? unserialize($row['field_config']) : array();
+				$row['field_config'] = !empty($row['field_config']) ? Util::unserialize($row['field_config']) : array();
 				$row['description_raw'] = $row['description'];
 				$row['description'] = $parser->parseMessage($row['description'], false);
-				if (!empty($row['field_config']['all_albums']) || (!empty($row['field_config']['albums']) && in_array($album, $row['field_config']['albums'])))
+				if (!empty($row['field_config']['all_albums']) || (!empty($row['field_config']['albums']) && in_array($album, $row['field_config']['albums'], true)))
 				{
 					$temp[$row['id_field']] = $row;
 				}
@@ -236,7 +236,7 @@ class LevGal_Model_Custom
 			while ($row = $db->fetch_assoc($request))
 			{
 				$row['field_options'] = !empty($row['field_options']) ? explode(',', $row['field_options']) : array();
-				$row['field_config'] = !empty($row['field_config']) ? unserialize($row['field_config']) : array();
+				$row['field_config'] = !empty($row['field_config']) ? Util::unserialize($row['field_config']) : array();
 				$fields[$row['id_field']] = $row;
 			}
 			$db->free_result($request);
@@ -283,7 +283,7 @@ class LevGal_Model_Custom
 	{
 		$db = database();
 
-		if (empty($opts['field_type']) || !in_array($opts['field_type'], $this->getValidFieldTypes()))
+		if (empty($opts['field_type']) || !in_array($opts['field_type'], $this->getValidFieldTypes(), true))
 		{
 			$opts['field_type'] = 'text';
 		}
@@ -331,7 +331,7 @@ class LevGal_Model_Custom
 		{
 			case 'text':
 				$field_config['max_length'] = isset($opts['field_config']['max_length']) ? (int) $opts['field_config']['max_length'] : '';
-				$field_config['validation'] = isset($opts['field_config']['validation']) && in_array($opts['field_config']['validation'], $this->getValidValidationTypes()) ? $opts['field_config']['validation'] : 'nohtml';
+				$field_config['validation'] = isset($opts['field_config']['validation']) && in_array($opts['field_config']['validation'], $this->getValidValidationTypes(), true) ? $opts['field_config']['validation'] : 'nohtml';
 				if ($field_config['validation'] === 'regex')
 				{
 					$field_config['valid_regex'] = $opts['field_config']['valid_regex'] ?? '';
@@ -420,7 +420,7 @@ class LevGal_Model_Custom
 		}
 
 		// Special integers we know about.
-		if (isset($opts['placement']) && in_array($opts['placement'], array(0, 1, 2)))
+		if (isset($opts['placement']) && in_array($opts['placement'], array(0, 1, 2), true))
 		{
 			$criteria[] = 'placement = {int:placement}';
 			$values['placement'] = $opts['placement'];
@@ -707,7 +707,7 @@ class LevGal_Model_Custom
 					foreach ($field['field_options'] as $key => $option)
 					{
 						echo '
-								<label><input type="checkbox" class="input_check" tabindex="', $context['tabindex'], '" name="field_', $id_field, '[]" value="', ($key + 1), '"', in_array($option, $values) ? ' checked="checked"' : '', ' /> ', $bbc ? $parser->parseMessage($option, false) : $option, '</label><br />';
+								<label><input type="checkbox" class="input_check" tabindex="', $context['tabindex'], '" name="field_', $id_field, '[]" value="', ($key + 1), '"', in_array($option, $values, true) ? ' checked="checked"' : '', ' /> ', $bbc ? $parser->parseMessage($option, false) : $option, '</label><br />';
 					}
 					break;
 				case 'radio':

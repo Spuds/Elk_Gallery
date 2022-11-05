@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 use BBC\ParserWrapper;
@@ -256,7 +256,7 @@ class LevGal_Model_Moderate
 			$unapproved_albums[$row['id_album']] = array(
 				'album_name' => $row['album_name'],
 				'album_url' => $scripturl . '?media/album/' . (!empty($row['album_slug']) ? $row['album_slug'] . '.' . $row['id_album'] : $row['id_album']) . '/',
-				'owner_cache' => unserialize($row['owner_cache']),
+				'owner_cache' => Util::unserialize($row['owner_cache']),
 				'owner' => array(),
 			);
 		}
@@ -269,7 +269,7 @@ class LevGal_Model_Moderate
 		{
 			if (!empty($album['owner_cache']['member']))
 			{
-				if (in_array(0, $album['owner_cache']['member']))
+				if (in_array(0, $album['owner_cache']['member'], true))
 				{
 					$unapproved_albums[$id_album]['owner'] = array($context['forum_name']);
 					unset ($unapproved_albums[$id_album]['owner_cache']);

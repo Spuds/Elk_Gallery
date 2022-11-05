@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -185,6 +185,11 @@ class LevGal_Helper_Feed
 
 	private function getTimestamp($time = 0)
 	{
+		if (method_exists('Util', 'gmstrftime'))
+		{
+			return Util::gmstrftime('%Y-%m-%dT%H:%M:%SZ', $time === 0 ? time() : $time);
+		}
+
 		return gmstrftime('%Y-%m-%dT%H:%M:%SZ', $time === 0 ? time() : $time);
 	}
 }

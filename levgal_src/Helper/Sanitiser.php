@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -33,9 +33,9 @@ class LevGal_Helper_Sanitiser
 	public static function sanitiseUrl($var)
 	{
 		// Soft-fix domains without any kind of schema, because users may not be nice about it.
-		if (substr($var, 0, 7) !== 'http://' && substr($var, 0, 8) !== 'https://')
+		if (strpos($var, 'http://') !== 0 && strpos($var, 'https://') !== 0)
 		{
-			$var = (substr($var, 0, 2) === '//' ? 'https:' : 'https://') . $var;
+			$var = (strpos($var, '//') === 0 ? 'https:' : 'https://') . $var;
 		}
 
 		return filter_var(trim($var), FILTER_VALIDATE_URL);
@@ -133,11 +133,9 @@ class LevGal_Helper_Sanitiser
 
 			return array(true, $sanitised);
 		}
-		else
-		{
-			// Oh dear, not even sanitisable? Let's make sure we return something so that we
-			// can redisplay whatever the user did enter back into the form for them to get it right.
-			return array(false, Util::htmlspecialchars($email, ENT_QUOTES));
-		}
+
+		// Oh dear, not even sanitisable? Let's make sure we return something so that we
+		// can redisplay whatever the user did enter back into the form for them to get it right.
+		return array(false, Util::htmlspecialchars($email, ENT_QUOTES));
 	}
 }

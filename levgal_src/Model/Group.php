@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0.3 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -120,7 +120,8 @@ class LevGal_Model_Group
 		}
 
 		$keys = array_keys($details);
-		array_multisort(array_column($details, $sort), SORT_ASC, SORT_STRING, $details, $keys);
+		$array_col = array_column($details, $sort);
+		array_multisort($array_col, SORT_ASC, SORT_STRING, $details, $keys);
 
 		return array_combine($keys, $details);
 	}
@@ -189,7 +190,7 @@ class LevGal_Model_Group
 			ORDER BY null');
 		while ($row = $db->fetch_assoc($request))
 		{
-			$row['owner_cache'] = @unserialize($row['owner_cache']);
+			$row['owner_cache'] = Util::unserialize($row['owner_cache']);
 			if (!isset($row['owner_cache']['group']))
 			{
 				continue;
@@ -266,7 +267,7 @@ class LevGal_Model_Group
 		// For those groups we've removed, we need to fix the quotas they used to have.
 		foreach (array('image', 'audio', 'video', 'document', 'archive', 'generic') as $type)
 		{
-			$quotas = isset($modSettings['lgal_' . $type . '_quotas']) ? @unserialize($modSettings['lgal_' . $type . '_quotas']) : array();
+			$quotas = isset($modSettings['lgal_' . $type . '_quotas']) ? Util::unserialize($modSettings['lgal_' . $type . '_quotas']) : array();
 			if (empty($quotas))
 			{
 				continue;

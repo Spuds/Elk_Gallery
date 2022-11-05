@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.1 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -24,12 +24,12 @@ class LevGal_Model_Metadata_Display
 		$this->meta = $meta;
 		loadLanguage('levgal_lng/LevGal-Exif');
 
-		$this->settings = unserialize($modSettings['lgal_metadata']);
+		$this->settings = Util::unserialize($modSettings['lgal_metadata']);
 	}
 
 	protected function isDisplaying($class, $value)
 	{
-		return isset($this->settings[$class]) && in_array($value, $this->settings[$class]);
+		return isset($this->settings[$class]) && in_array($value, $this->settings[$class], true);
 	}
 
 	public function getExifInfo()
@@ -76,7 +76,7 @@ class LevGal_Model_Metadata_Display
 		);
 		foreach ($display_items as $id => $item)
 		{
-			if ($this->isDisplaying('images', $id) && isset($exif[$item[0]][$item[1]]))
+			if (isset($exif[$item[0]][$item[1]]) && $this->isDisplaying('images', $id))
 			{
 				$meta[$id] = $exif[$item[0]][$item[1]];
 			}

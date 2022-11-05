@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -60,7 +60,8 @@ class LevGal_Model_Mime_Rules
 		{
 			return $mime_type;
 		}
-		elseif (!empty($this->mime))
+
+		if (!empty($this->mime))
 		{
 			return $this->mime;
 		}

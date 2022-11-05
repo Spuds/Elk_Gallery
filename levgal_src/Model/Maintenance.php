@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0.1 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -203,7 +203,7 @@ class LevGal_Model_Maintenance
 				FROM {db_prefix}lgal_albums');
 			while ($row = $db->fetch_assoc($request))
 			{
-				$owner_cache = @unserialize($row['owner_cache']);
+				$owner_cache = Util::unserialize($row['owner_cache']);
 				$changed = false;
 
 				foreach (array('member', 'group') as $type)
@@ -215,7 +215,7 @@ class LevGal_Model_Maintenance
 					}
 				}
 
-				if (isset($owner_cache['member']) && in_array(0, $owner_cache['member']) && count($owner_cache['member']) != 1)
+				if (isset($owner_cache['member']) && in_array(0, $owner_cache['member'], true) && count($owner_cache['member']) != 1)
 				{
 					// We had multiple owners but one of them was the site. Should reset that to the members left.
 					$owner_cache['member'] = array_diff($owner_cache['member'], array(0));
@@ -368,7 +368,7 @@ class LevGal_Model_Maintenance
 				FROM {db_prefix}lgal_albums');
 			while ($row = $db->fetch_assoc($request))
 			{
-				$owner_cache = @unserialize($row['owner_cache']);
+				$owner_cache = Util::unserialize($row['owner_cache']);
 
 				// So, let's compare what the albums table says against what the lom/log tables say.
 				if (isset($owner_cache['member']))
@@ -743,7 +743,7 @@ class LevGal_Model_Maintenance
 
 			// So there should at least be a core file.
 			$file = $row['id_item'] . '_' . $row['filehash'] . (!empty($row['extension']) ? '_' . $row['extension'] : '') . '.dat';
-			if (!in_array($base_folder . '/' . $file, $files))
+			if (!in_array($base_folder . '/' . $file, $files, true))
 			{
 				$items_without_files[] = $row['id_item'];
 			}

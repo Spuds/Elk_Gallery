@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 use BBC\ParserWrapper;
@@ -106,7 +106,7 @@ class LevGal_Model_Report
 
 		if ($type === 'items' || $type === 'comments')
 		{
-			$reports = @unserialize($modSettings['lgal_reports']);
+			$reports = Util::unserialize($modSettings['lgal_reports']);
 			if (!isset($reports[$type]))
 			{
 				$reports[$type] = 1;
@@ -126,7 +126,7 @@ class LevGal_Model_Report
 
 		if ($type === 'items' || $type === 'comments')
 		{
-			$reports = @unserialize($modSettings['lgal_reports']);
+			$reports = Util::unserialize($modSettings['lgal_reports']);
 			if (!isset($reports[$type]) || $reports[$type] <= 1)
 			{
 				$reports[$type] = 0;
@@ -149,27 +149,25 @@ class LevGal_Model_Report
 		// Open reports are easy, we can do this easy.
 		if ($open === 'open')
 		{
-			$reports = @unserialize($modSettings['lgal_reports']);
+			$reports = Util::unserialize($modSettings['lgal_reports']);
 
 			return $reports[$type] ?? 0;
 		}
-		else
-		{
-			$request = $db->query('', '
-				SELECT COUNT(*)
-				FROM {db_prefix}lgal_reports
-				WHERE id_comment {raw:is_comment}
-					AND closed = {int:closed}',
-				array(
-					'is_comment' => $type === 'comments' ? '!= 0' : '= 0',
-					'closed' => 1,
-				)
-			);
-			list ($count) = $db->fetch_row($request);
-			$db->free_result($request);
 
-			return $count;
-		}
+		$request = $db->query('', '
+			SELECT COUNT(*)
+			FROM {db_prefix}lgal_reports
+			WHERE id_comment {raw:is_comment}
+				AND closed = {int:closed}',
+			array(
+				'is_comment' => $type === 'comments' ? '!= 0' : '= 0',
+				'closed' => 1,
+			)
+		);
+		list ($count) = $db->fetch_row($request);
+		$db->free_result($request);
+
+		return $count;
 	}
 
 	public function createCommentReport($id_comment, $report_details)

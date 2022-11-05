@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -122,7 +122,7 @@ class LevGal_Action_Movealbum extends LevGal_Action_Abstract
 
 		// Next up: let's figure out whether we can actually be doing this.
 		// Gallery managers, people who can edit any album, or people who can edit their own albums (and this is us)
-		if (!allowedTo(array('lgal_manage', 'lgal_edit_album_any')) && !(allowedTo('lgal_edit_album_own') && in_array($group_id, $user_info['groups'])))
+		if (!allowedTo(array('lgal_manage', 'lgal_edit_album_any')) && !(allowedTo('lgal_edit_album_own') && in_array($group_id, $user_info['groups'], true)))
 		{
 			LevGal_Helper_Http::fatalError('levgal_invalid_action');
 		}

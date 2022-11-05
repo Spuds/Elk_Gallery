@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -118,5 +118,5 @@ abstract class LevGal_Action_Abstract
 		$context['sub_template'] = $sub_template;
 	}
 
-	public abstract function actionIndex();
+	abstract public function actionIndex();
 }

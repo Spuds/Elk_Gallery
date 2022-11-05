@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -67,7 +67,7 @@ class LevGal_Action_Newalbum extends LevGal_Action_Abstract
 
 		$context['album_name'] = '';
 		$context['album_slug'] = '';
-		$context['ownership'] = in_array('member', $context['ownership_opts']) ? 'member' : (in_array('group', $context['ownership_opts']) ? 'group' : 'site');
+		$context['ownership'] = in_array('member', $context['ownership_opts'], true) ? 'member' : (in_array('group', $context['ownership_opts'], true) ? 'group' : 'site');
 		// Take the user's primary group as default
 		$context['primary_group'] = (int) $user_info['groups'][0];
 		$context['ownership_group'] = $context['primary_group'];
@@ -91,7 +91,7 @@ class LevGal_Action_Newalbum extends LevGal_Action_Abstract
 
 		// Next, ownership
 		$default_ownership = $context['ownership'];
-		$context['ownership'] = isset($_POST['ownership']) && in_array($_POST['ownership'], $context['ownership_opts']) ? $_POST['ownership'] : $default_ownership;
+		$context['ownership'] = isset($_POST['ownership']) && in_array($_POST['ownership'], $context['ownership_opts'], true) ? $_POST['ownership'] : $default_ownership;
 		if ($context['ownership'] === 'group')
 		{
 			$context['ownership_group'] = isset($_POST['ownership_group'], $context['group_list'][$_POST['ownership_group']]) ? (int) $_POST['ownership_group'] : $context['primary_group'];

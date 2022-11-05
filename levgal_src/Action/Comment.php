@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -131,17 +131,16 @@ class LevGal_Action_Comment extends LevGal_Action_Abstract
 	{
 		global $modSettings, $context, $txt, $scripturl;
 
-		if (!allowedTo('lgal_manage'))
+		if (!allowedTo('lgal_manage')
+			&& !allowedTo('lgal_edit_comment_any')
+			&& (!allowedTo('lgal_edit_comment_own') || !$this->comment_obj->isOwnedByUser()))
 		{
-			if (!allowedTo('lgal_edit_comment_any') && (!allowedTo('lgal_edit_comment_own') || !$this->comment_obj->isOwnedByUser()))
+			// Maybe the user can be a moderator of sorts?
+			if (empty($modSettings['lgal_selfmod_edit_comment']) || !$this->comment_obj->isOwnedByUser())
 			{
-				// Maybe the user can be a moderator of sorts?
-				if (empty($modSettings['lgal_selfmod_edit_comment']) || !$this->comment_obj->isOwnedByUser())
-				{
-					loadLanguage('levgal_lng/LevGal-Errors');
-					is_not_guest($txt['cannot_lgal_edit_comment']);
-					LevGal_Helper_Http::fatalError('cannot_lgal_edit_comment');
-				}
+				loadLanguage('levgal_lng/LevGal-Errors');
+				is_not_guest($txt['cannot_lgal_edit_comment']);
+				LevGal_Helper_Http::fatalError('cannot_lgal_edit_comment');
 			}
 		}
 
@@ -257,17 +256,16 @@ class LevGal_Action_Comment extends LevGal_Action_Abstract
 		global $txt, $modSettings;
 
 		// Permissions. Funky.
-		if (!allowedTo('lgal_manage'))
+		if (!allowedTo('lgal_manage')
+			&& !allowedTo('lgal_delete_comment_any')
+			&& (!allowedTo('lgal_delete_comment_own') || !$this->comment_obj->isOwnedByUser()))
 		{
-			if (!allowedTo('lgal_delete_comment_any') && (!allowedTo('lgal_delete_comment_own') || !$this->comment_obj->isOwnedByUser()))
+			// Maybe the user can be a moderator of sorts?
+			if (empty($modSettings['lgal_selfmod_delete_comment']) || !$this->comment_obj->isOwnedByUser())
 			{
-				// Maybe the user can be a moderator of sorts?
-				if (empty($modSettings['lgal_selfmod_delete_comment']) || !$this->comment_obj->isOwnedByUser())
-				{
-					loadLanguage('levgal_lng/LevGal-Errors');
-					is_not_guest($txt['cannot_lgal_delete_comment']);
-					LevGal_Helper_Http::fatalError('cannot_lgal_delete_comment');
-				}
+				loadLanguage('levgal_lng/LevGal-Errors');
+				is_not_guest($txt['cannot_lgal_delete_comment']);
+				LevGal_Helper_Http::fatalError('cannot_lgal_delete_comment');
 			}
 		}
 

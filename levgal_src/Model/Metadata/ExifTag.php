@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.1 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -272,10 +272,8 @@ class LevGal_Model_Metadata_ExifTag
 			{
 				return sprintf($txt['lgal_exif_seconds'], round($num, 2));
 			}
-			else
-			{
-				return sprintf($txt['lgal_exif_1n_seconds'], $num, $div);
-			}
+
+			return sprintf($txt['lgal_exif_1n_seconds'], $num, $div);
 		}
 
 		return null;
@@ -348,19 +346,15 @@ class LevGal_Model_Metadata_ExifTag
 		{
 			return $txt['lgal_exif_bulb'];
 		}
-		else
-		{
-			if ($data >= 1)
-			{
-				return sprintf($txt['lgal_exif_seconds'], round($data, 2));
-			}
-			else
-			{
-				list ($num, $div) = $this->convertToFraction($data);
 
-				return sprintf($txt['lgal_exif_1n_seconds'], $num, $div);
-			}
+		if ($data >= 1)
+		{
+			return sprintf($txt['lgal_exif_seconds'], round($data, 2));
 		}
+
+		list ($num, $div) = $this->convertToFraction($data);
+
+		return sprintf($txt['lgal_exif_1n_seconds'], $num, $div);
 	}
 
 	public function convertToFraction($data)

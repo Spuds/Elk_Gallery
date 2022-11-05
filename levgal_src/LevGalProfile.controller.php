@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0.4 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -171,7 +171,7 @@ class LevGalProfile_Controller extends Action_Controller
 		$context['summary_items'][] = '<span class="lgalicon i-album"></span> <a href="' . $scripturl . '?media/albumlist/' . $memID . '/">' . LevGal_Helper_Format::numstring('lgal_albums', $context['total_albums']) . '</a>';
 		$context['summary_items'][] = '<span class="lgalicon i-album"></span> <a href="' . $scripturl . '?action=profile;area=mediaitems;u=' . $memID . '">' . LevGal_Helper_Format::numstring('lgal_items', $context['total_items']) . '</a>';
 
-		if (allowedTo(array('lgal_manage', 'lgal_approve_item')) && !empty($context['total_unapproved_items']))
+		if (!empty($context['total_unapproved_items']) && allowedTo(array('lgal_manage', 'lgal_approve_item')))
 		{
 			$context['summary_items'][] = '<span class="lgalicon i-warning colorize-orange"></span> ' . $txt['lgal_unapproved'] . LevGal_Helper_Format::numstring('lgal_items', $context['total_unapproved_items']);
 		}
@@ -325,16 +325,14 @@ class LevGalProfile_Controller extends Action_Controller
 			$changes = array();
 			foreach ($context['preferences'] as $pref)
 			{
-				switch ($pref[0])
+				if ($pref[0] === 'check')
 				{
-					case 'check':
-						$new_value = isset($_POST[$pref[1]]) ? 1 : 0;
-						if (!isset($options[$pref[1]]) || $new_value != $options[$pref[1]])
-						{
-							$changes[] = array($memID, 1, $pref[1], $new_value);
-							$options[$pref[1]] = $new_value;
-						}
-						break;
+					$new_value = isset($_POST[$pref[1]]) ? 1 : 0;
+					if (!isset($options[$pref[1]]) || $new_value != $options[$pref[1]])
+					{
+						$changes[] = array($memID, 1, $pref[1], $new_value);
+						$options[$pref[1]] = $new_value;
+					}
 				}
 			}
 

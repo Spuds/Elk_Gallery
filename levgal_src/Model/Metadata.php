@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -84,7 +84,7 @@ class LevGal_Model_Metadata
 				{
 					$exifModel = new LevGal_Model_Metadata_Exif($this->file);
 					$exif = $exifModel->getExif();
-					if (empty($exif['errors']))
+					if (empty($exifModel->getErrors()))
 					{
 						$meta_id3['exif'] = $exif;
 					}

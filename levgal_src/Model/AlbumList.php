@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -61,8 +61,8 @@ class LevGal_Model_AlbumList
 				ORDER BY null');
 			while ($row = $db->fetch_assoc($request))
 			{
-				$row['owner_cache'] = @unserialize($row['owner_cache']);
-				if (isset($row['owner_cache']['member']) && in_array($user_info['id'], $row['owner_cache']['member']))
+				$row['owner_cache'] = Util::unserialize($row['owner_cache']);
+				if (isset($row['owner_cache']['member']) && in_array($user_info['id'], $row['owner_cache']['member'], true))
 				{
 					$temp[] = $row['id_album'];
 				}
@@ -135,8 +135,8 @@ class LevGal_Model_AlbumList
 			);
 			while ($row = $db->fetch_assoc($request))
 			{
-				$row['owner_cache'] = @unserialize($row['owner_cache']);
-				$row['perms'] = @unserialize($row['perms']);
+				$row['owner_cache'] = Util::unserialize($row['owner_cache']);
+				$row['perms'] = Util::unserialize($row['perms']);
 
 				// Something wrong with it?
 				if (!isset($row['perms']['type']))
@@ -147,7 +147,7 @@ class LevGal_Model_AlbumList
 				// Not approved?
 				if (empty($row['approved']) && !allowedTo('lgal_approve_album'))
 				{
-					if ((!empty($row['owner_cache']['member']) && !in_array($user_info['id'], $row['owner_cache']['member'])) || (!empty($row['owner_cache']['group']) && count(array_intersect($row['owner_cache']['group'], $user_info['groups'])) == 0))
+					if ((!empty($row['owner_cache']['member']) && !in_array($user_info['id'], $row['owner_cache']['member'], true)) || (!empty($row['owner_cache']['group']) && count(array_intersect($row['owner_cache']['group'], $user_info['groups'])) == 0))
 					{
 						continue;
 					}
@@ -178,7 +178,7 @@ class LevGal_Model_AlbumList
 					case 'justme':
 						if (empty($user_info['is_guest']))
 						{
-							if (isset($row['owner_cache']['member']) && in_array($user_info['id'], $row['owner_cache']['member']))
+							if (isset($row['owner_cache']['member']) && in_array($user_info['id'], $row['owner_cache']['member'], true))
 							{
 								$temp[] = $row['id_album'];
 							}
@@ -294,7 +294,7 @@ class LevGal_Model_AlbumList
 		$level_shift = max($album_level - 1, 0);
 
 		$map = array_keys($hierarchy);
-		$position = array_search($album, $map);
+		$position = array_search($album, $map, true);
 
 		// So, first we want to figure out what albums after our position are ones we are keeping.
 		$pruning = array();

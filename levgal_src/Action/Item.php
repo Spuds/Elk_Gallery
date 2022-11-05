@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.1 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -161,7 +161,7 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 		$context['social_icons'] = array();
 		foreach ($share as $id => $link)
 		{
-			if (in_array($id, $sharing))
+			if (in_array($id, $sharing, true))
 			{
 				$context['social_icons']['actions'][$id] = array($txt['lgal_share_' . $id] ?? $id, $link, true);
 			}
@@ -571,7 +571,7 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 		{
 			checkSession();
 
-			if (!in_array($_POST['destalbum'], $album_count))
+			if (!in_array($_POST['destalbum'], $album_count, true))
 			{
 				LevGal_Helper_Http::fatalError('lgal_no_album_destination');
 			}
@@ -593,12 +593,11 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 		global $context, $txt;
 
 		// Perms checking is a bit hard here.
-		if (!allowedTo('lgal_manage'))
-		{
-			if (!allowedTo('lgal_delete_item_any') && (!allowedTo('lgal_delete_item_own') || !$this->item_obj->isOwnedByUser()))
+		if (!allowedTo('lgal_manage')
+			&& !allowedTo('lgal_delete_item_any')
+			&& (!allowedTo('lgal_delete_item_own') || !$this->item_obj->isOwnedByUser()))
 		{
 			LevGal_Helper_Http::fatalError('cannot_lgal_delete_item');
-		}
 		}
 
 		// Page title, this level of link tree, canonical URL
@@ -639,12 +638,11 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 		global $scripturl;
 
 		// Perms checking is a bit hard here.
-		if (!allowedTo('lgal_manage'))
-		{
-			if (!allowedTo('lgal_delete_item_any') && (!allowedTo('lgal_delete_item_own') || !$this->item_obj->isOwnedByUser()))
+		if (!allowedTo('lgal_manage')
+			&& !allowedTo('lgal_delete_item_any')
+			&& (!allowedTo('lgal_delete_item_own') || !$this->item_obj->isOwnedByUser()))
 		{
 			LevGal_Helper_Http::fatalError('cannot_lgal_delete_item');
-		}
 		}
 		checkSession('get');
 
@@ -699,7 +697,6 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 			$this->addLinkTree($item['name'], $item['url']);
 
 			$this->setTemplate('LevGal-Item', 'notify_item');
-			$context['form_url'] = $item['url'] . 'notify/';
 			$context['form_url'] = $item['url'] . 'notify/';
 		}
 	}
@@ -929,7 +926,7 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 			// Which album it is in.
 			if (!empty($context['hierarchies']))
 			{
-				$moved_album = isset($_POST['destalbum'], $album_count) && in_array($_POST['destalbum'], $album_count) ? (int) $_POST['destalbum'] : 0;
+				$moved_album = isset($_POST['destalbum'], $album_count) && in_array($_POST['destalbum'], $album_count, true) ? (int) $_POST['destalbum'] : 0;
 				if (!empty($moved_album) && $moved_album != $context['item_details']['id_album'])
 				{
 					$changes['id_album'] = $moved_album;
@@ -1102,7 +1099,7 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 					}
 					elseif ($option['type'] === 'select')
 					{
-						if (!isset($_POST[$id]) || !isset($option['opts'][$_POST[$id]]))
+						if (!isset($_POST[$id], $option['opts'][$_POST[$id]]))
 						{
 							continue;
 						}

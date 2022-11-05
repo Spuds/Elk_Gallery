@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -107,7 +107,7 @@ class LevGal_Model_ModLog
 		);
 		while ($row = $db->fetch_assoc($request))
 		{
-			$row['details'] = !empty($row['details']) ? @unserialize($row['details']) : array();
+			$row['details'] = !empty($row['details']) ? Util::unserialize($row['details']) : array();
 			if (!empty($row['id_album']))
 			{
 				// An album was indicated but does it still exist?

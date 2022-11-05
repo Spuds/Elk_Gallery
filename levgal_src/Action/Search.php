@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -83,8 +83,7 @@ class LevGal_Action_Search extends LevGal_Action_Abstract
 			}
 
 			// Get member searching.
-			$memberModel = new LevGal_Model_Member();
-			list ($context['search_member'], $context['search_member_display']) = $memberModel->getFromAutoSuggest('search_member');
+			list ($context['search_member'], $context['search_member_display']) = (new LevGal_Model_Member())->getFromAutoSuggest('search_member');
 
 			// Get selected custom fields
 			$context['selected_fields'] = array();

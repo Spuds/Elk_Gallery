@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -25,13 +25,11 @@ class LevGal_Helper_Database
 		// See db_create_table for basis of this.
 		$real_prefix = preg_match('~^(`?)(.+?)\\1\\.(.*?)$~', $db_prefix, $match) === 1 ? $match[3] : $db_prefix;
 
-		return in_array(str_replace('{db_prefix}', $real_prefix, $table_name), $table_list);
+		return in_array(str_replace('{db_prefix}', $real_prefix, $table_name), $table_list, true);
 	}
 
 	private static function getTableList()
 	{
-		$db = database();
-
-		return $db->db_list_tables();
+		return database()->db_list_tables();
 	}
 }

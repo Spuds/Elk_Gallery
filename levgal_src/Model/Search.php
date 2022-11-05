@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 use BBC\ParserWrapper;
@@ -323,7 +323,7 @@ class LevGal_Model_Search
 		if ($db->num_rows($request) != 0)
 		{
 			list ($data) = $db->fetch_row($request);
-			$result = @unserialize($data);
+			$result = Util::unserialize($data);
 		}
 		$db->free_result($request);
 

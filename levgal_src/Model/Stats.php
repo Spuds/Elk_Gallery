@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -39,12 +39,10 @@ class LevGal_Model_Stats
 		{
 			return true;
 		}
-		else
-		{
-			$this->getAlbumList();
 
-			return $this->album_list_model->getVisibleAlbums();
-		}
+		$this->getAlbumList();
+
+		return $this->album_list_model->getVisibleAlbums();
 	}
 
 	public function getInstalledTime()

@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -55,8 +55,8 @@ class LevGal_Model_Member
 		);
 		while ($row = $db->fetch_assoc($request))
 		{
-			$row['owner_cache'] = @unserialize($row['owner_cache']);
-			if (isset($row['owner_cache']['member']) && in_array($memID, $row['owner_cache']['member']))
+			$row['owner_cache'] = Util::unserialize($row['owner_cache']);
+			if (isset($row['owner_cache']['member']) && in_array($memID, $row['owner_cache']['member'], true))
 			{
 				$updated_albums[$row['id_album']] = $row['owner_cache'];
 				if (count($row['owner_cache']['member']) == 1)
@@ -135,7 +135,9 @@ class LevGal_Model_Member
 		$albumModel = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
 		$album_list = $albumModel->getVisibleAlbums();
 		if(empty($album_list))
+		{
 			return 0;
+		}
 
 		$can_see_all = allowedTo(array('lgal_manage', 'lgal_approve_item')) || $context['user']['id'] == $memID;
 
@@ -156,8 +158,10 @@ class LevGal_Model_Member
 		);
 
 		$count = 0;
-		if($db->num_rows($request))
+		if ($db->num_rows($request))
+		{
 			list ($count) = $db->fetch_row($request);
+		}
 
 		$db->free_result($request);
 
@@ -172,8 +176,10 @@ class LevGal_Model_Member
 
 		$albumModel = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
 		$album_list = $albumModel->getVisibleAlbums();
-		if(empty($album_list))
+		if (empty($album_list))
+		{
 			return 0;
+		}
 
 		$can_see_all = allowedTo(array('lgal_manage', 'lgal_approve_item')) || $context['user']['id'] == $memID;
 
@@ -213,8 +219,10 @@ class LevGal_Model_Member
 
 		$albumModel = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
 		$album_list = $albumModel->getVisibleAlbums();
-		if(empty($album_list))
+		if (empty($album_list))
+		{
 			return 0;
+		}
 
 		$can_see_all = allowedTo(array('lgal_manage', 'lgal_approve_item')) || $context['user']['id'] == $memID;
 
@@ -247,8 +255,10 @@ class LevGal_Model_Member
 
 		$albumModel = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
 		$album_list = $albumModel->getVisibleAlbums();
-		if(empty($album_list))
+		if (empty($album_list))
+		{
 			return 0;
+		}
 
 		$can_see_all = allowedTo(array('lgal_manage', 'lgal_approve_item')) || $context['user']['id'] == $memID;
 
@@ -289,8 +299,10 @@ class LevGal_Model_Member
 
 		$albumModel = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
 		$album_list = $albumModel->getVisibleAlbums();
-		if(empty($album_list))
+		if (empty($album_list))
+		{
 			return 0;
+		}
 
 		$can_see_all = allowedTo(array('lgal_manage', 'lgal_approve_item')) || $context['user']['id'] == $memID;
 
@@ -323,8 +335,10 @@ class LevGal_Model_Member
 
 		$albumModel = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
 		$album_list = $albumModel->getVisibleAlbums();
-		if(empty($album_list))
+		if (empty($album_list))
+		{
 			return 0;
+		}
 
 		$can_see_all = allowedTo(array('lgal_manage', 'lgal_approve_item')) || $context['user']['id'] == $memID;
 

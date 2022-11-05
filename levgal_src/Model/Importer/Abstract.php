@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.0
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -311,7 +311,6 @@ abstract class LevGal_Model_Importer_Abstract
 				else
 				{
 					@unlink($base_file . '.dat');
-					continue;
 				}
 			}
 			elseif (!empty($item['external_data']) && !empty($item['external_url']))

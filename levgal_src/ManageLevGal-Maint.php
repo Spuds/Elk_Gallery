@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -122,7 +122,7 @@ class ManageLevGalMaint_Controller extends Action_Controller
 			redirectexit($url);
 		}
 
-		if ($substep == 0)
+		if ($substep === 0)
 		{
 			unset ($_SESSION['lgalmaint'][$method]);
 		}
@@ -324,7 +324,7 @@ class ManageLevGalMaint_Controller extends Action_Controller
 		while ($row = $db->fetch_assoc($request))
 		{
 			// If the user uploaded a thumbnail or it was produced by some mechanism other than by LevGal itself, we need to not rebuild it.
-			$meta = !empty($row['meta']) ? @unserialize($row['meta']) : array();
+			$meta = !empty($row['meta']) ? Util::unserialize($row['meta'], ['allowed_classes' => false]) : array();
 			if (!empty($meta) && !empty($meta['thumb_uploaded']))
 			{
 				continue;
@@ -365,7 +365,7 @@ class ManageLevGalMaint_Controller extends Action_Controller
 		$context['sub_template'] = 'not_done';
 		$context['page_title'] = $txt['levgal_task_rebuildthumbs'];
 		$context['continue_percent'] = round($context['step'] / $total_steps * 100);
-		if ($context['continue_percent'] == 0)
+		if (empty($context['continue_percent']))
 		{
 			$context['continue_percent'] = 1; // so it *always* shows something.
 		}

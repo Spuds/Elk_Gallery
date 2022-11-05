@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -96,7 +96,7 @@ function levgal_pageindex($base_url, $current_page, $num_pages)
 	}
 
 	// Shamelessly borrowed from constructPageIndex. But without quite so much faff.
-	$PageContiguous = (int) ($modSettings['compactTopicPagesContiguous'] - ($modSettings['compactTopicPagesContiguous'] % 2)) / 2;
+	$PageContiguous = ($modSettings['compactTopicPagesContiguous'] - ($modSettings['compactTopicPagesContiguous'] % 2)) / 2;
 
 	// Show the first page. (>1< ... 6 7 [8] 9 10 ... 15)
 	if ($current_page > ($PageContiguous + 1))
@@ -116,7 +116,7 @@ function levgal_pageindex($base_url, $current_page, $num_pages)
 		if ($current_page > $nCont)
 		{
 			$this_page = $current_page - $nCont;
-			$links[] = '<a class="navPages" href="' . $base_url . ($this_page != 1 ? 'page-' . $this_page . '/' : '') . '">' . $this_page . '</a>';
+			$links[] = '<a class="navPages" href="' . $base_url . ((int) $this_page !== 1 ? 'page-' . $this_page . '/' : '') . '">' . $this_page . '</a>';
 		}
 	}
 
@@ -159,7 +159,7 @@ function levgal_pageindex($base_url, $current_page, $num_pages)
 	}
 
 	$wrapped = array_map(
-		function ($el) {
+		static function ($el) {
 			return "<li class=\"linavPages\">$el</li>";
 		},
 		$links

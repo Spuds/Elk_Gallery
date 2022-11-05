@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -174,12 +174,12 @@ class ManageLevGalCFields_Controller extends Action_Controller
 				$context['errors'][] = $txt['levgal_cfields_empty_field'];
 			}
 			$context['custom_field']['description'] = LevGal_Helper_Sanitiser::sanitiseBBCTextFromPost('description');
-			$context['custom_field']['placement'] = isset($_POST['placement']) && in_array($_POST['placement'], array(0, 1, 2)) ? (int) $_POST['placement'] : 0;
+			$context['custom_field']['placement'] = isset($_POST['placement']) && in_array($_POST['placement'], array(0, 1, 2), true) ? (int) $_POST['placement'] : 0;
 			$context['custom_field']['active'] = !empty($_POST['active']) ? 1 : 0;
 			$context['custom_field']['can_search'] = !empty($_POST['can_search']) ? 1 : 0;
 			$context['custom_field']['field_config']['required'] = !empty($_POST['required']) ? 1 : 0;
 			$context['custom_field']['field_config']['bbc'] = !empty($_POST['bbc']) ? 1 : 0;
-			$context['custom_field']['field_config']['validation'] = isset($_POST['field_validation']) && in_array($_POST['field_validation'], $context['valid_validation']) ? $_POST['field_validation'] : 'nohtml';
+			$context['custom_field']['field_config']['validation'] = isset($_POST['field_validation']) && in_array($_POST['field_validation'], $context['valid_validation'], true) ? $_POST['field_validation'] : 'nohtml';
 			$context['custom_field']['default_val'] = LevGal_Helper_Sanitiser::sanitiseTextFromPost('default_val');
 			$context['custom_field']['field_config']['max_length'] = LevGal_Helper_Sanitiser::sanitiseIntFromPost('max_length', 0, 30000);
 
@@ -237,7 +237,7 @@ class ManageLevGalCFields_Controller extends Action_Controller
 				$context['custom_field']['field_config']['valid_regex'] = '';
 			}
 
-			if (isset($_POST['field_type']) && in_array($_POST['field_type'], $context['valid_field_types']))
+			if (isset($_POST['field_type']) && in_array($_POST['field_type'], $context['valid_field_types'], true))
 			{
 				$context['custom_field']['field_type'] = $_POST['field_type'];
 				switch ($context['custom_field']['field_type'])
