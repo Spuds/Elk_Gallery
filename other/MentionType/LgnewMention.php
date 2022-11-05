@@ -5,7 +5,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 namespace ElkArte\sources\subs\MentionType;
@@ -41,11 +41,9 @@ class Lgnew_Mention extends Mention_BoardAccess_Abstract
 			// Site notification
 			return $this->_getNotificationStrings('', array('subject' => static::$_type, 'body' => static::$_type), $members, $this->_task);
 		}
-		else
-		{
-			// Some form of email
-			$keys = array('subject' => 'notify_lgnew_' . $lang_data['subject'], 'body' => 'notify_lgnew_' . $lang_data['body']);
-		}
+
+		// Some form of email
+		$keys = array('subject' => 'notify_lgnew_' . $lang_data['subject'], 'body' => 'notify_lgnew_' . $lang_data['body']);
 
 		$notifier = $this->_task->getNotifierData();
 		$replacements = array(
@@ -67,7 +65,7 @@ class Lgnew_Mention extends Mention_BoardAccess_Abstract
 	 * "template" for what will appear in the notifications new items gallery tab
 	 *
 	 * @param string $type
-	 * @param mixed[] $mentions
+	 * @param array $mentions
 	 * @return bool
 	 */
 	public function view($type, &$mentions)
@@ -89,7 +87,7 @@ class Lgnew_Mention extends Mention_BoardAccess_Abstract
 			// These are associated to gallery items and require album permission checks
 			$current_album = new \LevGal_Model_Album();
 			$album_details = $current_album->getAlbumById($item_details['id_album']);
-			if ($current_album->isVisible() && $item_details['approved'])
+			if ($item_details['approved'] && $current_album->isVisible())
 			{
 				$mentions[$key]['message'] = '<a href="' . $item_details['item_url'] . '">' .
 					sprintf($txt['levgal_album_added_new'], $item_details['item_name'], $album_details['album_name']) . '</a>';

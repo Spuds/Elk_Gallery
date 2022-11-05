@@ -5,7 +5,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 namespace ElkArte\sources\subs\MentionType;
@@ -67,7 +67,7 @@ class Lgcomment_Mention extends Mention_BoardAccess_Abstract
 	 * "template" for what will appear in the notifications comments gallery tab
 	 *
 	 * @param string $type
-	 * @param mixed[] $mentions
+	 * @param array $mentions
 	 * @return bool
 	 */
 	public function view($type, &$mentions)

@@ -5,7 +5,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 namespace ElkArte\sources\subs\MentionType;
@@ -43,7 +43,7 @@ class Lglike_Mention extends Mention_BoardAccess_Abstract
 	 * "template" for what will appear in the notifications like gallery tab
 	 *
 	 * @param string $type
-	 * @param mixed[] $mentions
+	 * @param array $mentions
 	 * @return bool
 	 */
 	public function view($type, &$mentions)
@@ -65,7 +65,7 @@ class Lglike_Mention extends Mention_BoardAccess_Abstract
 			// These are associated to gallery items and require album permission checks
 			$current_album = new \LevGal_Model_Album();
 			$current_album->getAlbumById($item_details['id_album']);
-			if ($current_album->isVisible() && $item_details['approved'])
+			if ($item_details['approved'] && $current_album->isVisible())
 			{
 				$mentions[$key]['message'] = '<a href="' . $item_details['item_url'] . '">' . $txt['lgal_liked_your'] . ' ' . $item_details['item_name'] . '</a>';
 			}
