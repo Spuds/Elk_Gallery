@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0.4 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -93,7 +93,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 
 	protected function processAlbums($order_by, $order)
 	{
-		global $context, $txt, $modSettings;
+		global $context, $txt, $modSettings, $scripturl, $user_info;
 
 		// Page title, this level of link tree, canonical URL
 		$context['page_title'] = sprintf($txt['lgal_viewing_album'], $context['album_details']['album_name']);
@@ -122,14 +122,12 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		);
 		// Comments are a lot complicated: we can only show them comments if they could approve them
 		// - or failing that, the number of comments on their items that are unapproved.
-		if (!empty($context['can_see_unapproved']['comments']))
+		if (!empty($context['can_see_unapproved']['comments'])
+			&& !allowedTo(array('lgal_manage', 'lgal_approve_comment')))
 		{
-			if (!allowedTo(array('lgal_manage', 'lgal_approve_comment')))
-			{
-				// So they don't have actual permission (and thus could see it normally, but they
-				// might have self-mod permission, in which case we need comments on their items only.
-				$context['can_see_unapproved']['comments'] = empty($modSettings['lgal_selfmod_approve_comment']) ? 0 : $this->album_obj->getUnapprovedCommentsOnUserItems($context['user']['id']);
-			}
+			// So they don't have actual permission (and thus could see it normally, but they
+			// might have self-mod permission, in which case we need comments on their items only.
+			$context['can_see_unapproved']['comments'] = empty($modSettings['lgal_selfmod_approve_comment']) ? 0 : $this->album_obj->getUnapprovedCommentsOnUserItems($context['user']['id']);
 		}
 
 		$context['num_items'] = $this->album_obj->countAlbumItems();
@@ -186,6 +184,23 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		if ($this->album_obj->isEditable())
 		{
 			$context['album_actions']['moderation']['editalbum'] = array($txt['lgal_edit_album_title'], $album['url'] . 'edit/');
+
+			// Can they move this album?
+			$ownership = $this->album_obj->getAlbumOwnership();
+			if ($ownership['type'] === 'site' && isAllowedTo('lgal_manage'))
+			{
+				$context['album_actions']['moderation']['movealbum'] = array($txt['lgal_arrange_albums'], $scripturl . '?media/movealbum/site/');
+			}
+			elseif ($ownership['type'] === 'member')
+			{
+				$album_list = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
+				$context['hierarchy'] = $album_list->getAlbumHierarchy('member', $ownership['owners'][0]);
+
+				if (!empty($context['hierarchy']) && count($context['hierarchy']) > 1)
+				{
+					$context['album_actions']['moderation']['movealbum'] = array($txt['lgal_arrange_albums'], $scripturl . '?media/movealbum/' . $ownership['owners'][0] . '/member/');
+				}
+			}
 		}
 
 		if (allowedTo(array('lgal_manage', 'lgal_delete_album_any')) || (allowedTo('lgal_delete_album_own') && $this->album_obj->isOwnedByUser()))
@@ -211,7 +226,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 
 		$filename = !empty($_POST['async_filename']) ? rawurldecode($_POST['async_filename']) : '';
 		$fileID = $_POST['async'] ?? 0;
-		$chunks = (int) $_POST['async_chunks'] ?? 0;
+		$chunks = isset($_POST['async_chunks']) ? (int) $_POST['async_chunks'] : 0;
 
 		$result = $uploadModel->combineChunks($fileID, $chunks, $filename);
 
@@ -695,10 +710,8 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 
 				return $itemID;
 			}
-			else
-			{
-				$context['errors']['upload_no_link'] = $txt['lgal_upload_no_link'];
-			}
+
+			$context['errors']['upload_no_link'] = $txt['lgal_upload_no_link'];
 		}
 		else
 		{
@@ -766,11 +779,9 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 					// And we're done.
 					return $itemID;
 				}
-				else
-				{
-					$itemModel->deleteItem();
-					$context['errors']['upload_no_move'] = $txt['lgal_upload_no_move'];
-				}
+
+				$itemModel->deleteItem();
+				$context['errors']['upload_no_move'] = $txt['lgal_upload_no_move'];
 			}
 			elseif ($result === false)
 			{
@@ -803,12 +814,11 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		global $context, $txt, $scripturl;
 
 		// Perms checking is a bit hard here.
-		if (!allowedTo('lgal_manage'))
+		if (!allowedTo('lgal_manage')
+			&& !allowedTo('lgal_delete_album_any')
+			&& (!allowedTo('lgal_delete_album_own') || !$this->album_obj->isOwnedByUser()))
 		{
-			if (!allowedTo('lgal_delete_album_any') && (!allowedTo('lgal_delete_album_own') || !$this->album_obj->isOwnedByUser()))
-			{
-				LevGal_Helper_Http::fatalError('cannot_lgal_delete_album');
-			}
+			LevGal_Helper_Http::fatalError('cannot_lgal_delete_album');
 		}
 
 		$context['page_title'] = sprintf($txt['lgal_deleting_album'], $context['album_details']['album_name']);
@@ -964,12 +974,11 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		global $scripturl;
 
 		// Perms checking is a bit hard here.
-		if (!allowedTo('lgal_manage'))
+		if (!allowedTo('lgal_manage')
+			&& !allowedTo('lgal_delete_album_any')
+			&& (!allowedTo('lgal_delete_album_own') || !$this->album_obj->isOwnedByUser()))
 		{
-			if (!allowedTo('lgal_delete_album_any') && (!allowedTo('lgal_delete_album_own') || !$this->album_obj->isOwnedByUser()))
-			{
-				LevGal_Helper_Http::fatalError('cannot_lgal_delete_album');
-			}
+			LevGal_Helper_Http::fatalError('cannot_lgal_delete_album');
 		}
 
 		checkSession('get');
@@ -1121,7 +1130,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 				}
 			}
 
-			if (in_array('change_type', $context['ownership_blocks']) && isset($_POST['ownership']) && in_array($_POST['ownership'], $context['ownership_opts']) && $_POST['ownership'] != $context['ownership'])
+			if (in_array('change_type', $context['ownership_blocks'], true) && isset($_POST['ownership']) && in_array($_POST['ownership'], $context['ownership_opts'], true) && $_POST['ownership'] != $context['ownership'])
 			{
 				if ($_POST['ownership'] === 'site')
 				{
@@ -1156,25 +1165,24 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 
 			if (empty($changing_ownership))
 			{
-				if ($context['ownership'] === 'member' && in_array('add_owner_member', $context['ownership_blocks']))
+				if ($context['ownership'] === 'member' && in_array('add_owner_member', $context['ownership_blocks'], true))
 				{
 					$memberModel = new LevGal_Model_Member();
 					list ($context['add_member'], $context['add_member_display']) = $memberModel->getFromAutoSuggest('add_member');
 				}
-				if ($context['ownership'] === 'group' && in_array('add_owner_group', $context['ownership_blocks']))
+				if ($context['ownership'] === 'group'
+					&& in_array('add_owner_group', $context['ownership_blocks'], true)
+					&& isset($_POST['add_group']) && is_array($_POST['add_group']))
 				{
-					if (isset($_POST['add_group']) && is_array($_POST['add_group']))
-					{
-						// So, get the groups the user selected, marry them against the list of valid groups
-						// then remove any duplicates we might have.
-						$context['add_group'] = array_intersect($_POST['add_group'], array_keys($context['group_list']));
-						$context['add_group'] = array_diff($context['add_group'], $context['album_owner']['group']);
-					}
+					// So, get the groups the user selected, marry them against the list of valid groups
+					// then remove any duplicates we might have.
+					$context['add_group'] = array_intersect($_POST['add_group'], array_keys($context['group_list']));
+					$context['add_group'] = array_diff($context['add_group'], $context['album_owner']['group']);
 				}
 				// Removing is actually a bit simpler than adding since it's the same either way.
 				foreach (array('member', 'group') as $type)
 				{
-					if (in_array('remove_owner_' . $type, $context['ownership_blocks']) && isset($_POST['remove_' . $type]) && is_array($_POST['remove_' . $type]))
+					if (in_array('remove_owner_' . $type, $context['ownership_blocks'], true) && isset($_POST['remove_' . $type]) && is_array($_POST['remove_' . $type]))
 					{
 						$values = array_intersect($_POST['remove_' . $type], $context['album_owner'][$type]);
 						if (!empty($values))
@@ -1183,7 +1191,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 							// Now, this is where it gets complicated.
 							if (count(array_diff($context['album_owner'][$type], $values)) == 0)
 							{
-								if (!in_array('site', $context['ownership_opts']))
+								if (!in_array('site', $context['ownership_opts'], true))
 								{
 									$context['errors']['one_owner'] = 'levgal_error_at_least_one_owner';
 								}
