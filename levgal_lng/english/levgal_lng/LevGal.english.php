@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.1
+ * @version 1.1.2
  * @package levgal
  * @since 1.0
  */
@@ -60,7 +60,7 @@ $txt['lgal_albums_site'] = 'Site Albums';
 $txt['lgal_albums_member'] = 'Member Albums';
 $txt['lgal_albums_group'] = 'Group Albums';
 $txt['lgal_arrange_albums'] = 'Arrange Albums';
-$txt['lgal_arrange_albums_desc'] = 'On this page, you can rearrange the different albums, including making albums into sub-albums. Simply drag and drop the albums to where you want them to be.';
+$txt['lgal_arrange_albums_desc'] = 'On this page, you can rearrange the different albums, <strong>including moving albums into sub-albums</strong>. Simply drag and drop the albums to where you want them to be.';
 $txt['lgal_arrange_albums_save'] = 'Save the new order';
 $txt['lgal_invalid_saving_order'] = 'Something went wrong with trying to save the new order. Please reload the page and try again.';
 
@@ -119,7 +119,7 @@ $txt['lgal_unapproved_item'] = 'This item has not been approved yet.';
 $txt['lgal_comment_was_reported'] = 'This comment has been reported.';
 $txt['lgal_item_was_reported'] = 'This item has been reported.';
 
-$txt['levgal_album_add_description'] = 'This page is about collecting enough information to be able to create a new album for you. More details will be available once the album is created.';
+$txt['levgal_album_add_description'] = 'This page is about collecting enough information to be able to create a new album for you. More details will be available once the album is created, including arranging this as a child album of another album.';
 $txt['levgal_album_name'] = 'Album name:';
 $txt['levgal_album_slug'] = 'Album slug:';
 $txt['levgal_set_album_featured'] = 'Mark this album as a featured album?';
@@ -189,7 +189,7 @@ $txt['lgal_set_thumbnail_desc'] = 'This set the album\'s thumbnail picture to us
 
 $txt['lgal_item_actions_actions'] = 'Actions';
 $txt['lgal_item_actions_moderation'] = 'Moderation';
-$txt['lgal_add_item'] = 'Add Item';
+$txt['lgal_add_item'] = 'Add Single Item';
 $txt['lgal_add_bulk'] = 'Add Bulk Items';
 $txt['lgal_mark_album_seen'] = 'Mark Album Seen';
 $txt['lgal_bookmark_item'] = 'Bookmark Item';
@@ -241,7 +241,7 @@ $txt['lgal_item_mature_cancel'] = 'No, I don\'t want to see it';
 $txt['lgal_edit_item_title'] = 'Edit Item';
 
 // Metadata
-$txt['lgal_additional_information'] = 'Additional Info';
+$txt['lgal_additional_information'] = 'Media Info';
 $txt['lgal_metadata_title'] = 'Title:';
 $txt['lgal_metadata_artist'] = 'Artist:';
 $txt['lgal_metadata_album'] = 'Album:';

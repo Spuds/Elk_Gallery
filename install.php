@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -18,10 +18,10 @@
  * @since 1.0
  */
 
-// If we have found SSI.php and we are outside of ELK, then we are running standalone.
-if (file_exists(dirname(__FILE__) . '/SSI.php') && !defined('ELK'))
+// If we have found SSI.php, and we are outside of ELK, then we are running standalone.
+if (!defined('ELK') && file_exists(__DIR__ . '/SSI.php'))
 {
-	require_once(dirname(__FILE__) . '/SSI.php');
+	require_once(__DIR__ . '/SSI.php');
 }
 elseif (!defined('ELK'))
 {

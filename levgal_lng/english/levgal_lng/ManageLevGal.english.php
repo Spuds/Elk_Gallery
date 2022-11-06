@@ -26,12 +26,13 @@ $txt['levgal_admindash_desc'] = 'From this area you can get an overview of your 
 // The rest of the dashboard stats are in LevGal-Stats.language.php
 $txt['levgal_stats_installed_time'] = 'Installed on:';
 $txt['levgal_support_information'] = 'Support Information';
-$txt['levgal_support'] = 'If you have any questions about Levertine Gallery, please contact <a href="http://levertine.com/">Levertine.com</a> who can assist you.';
+$txt['levgal_support'] = 'If you have any questions about Levertine Gallery for ElkArte, please visit our <a href="https://www.elkarte.net/community/index.php?topic=5969">Support Thread</a> for assistance';
 $txt['levgal_versions_elk'] = 'ElkArte Version:';
 $txt['levgal_versions_lgal'] = 'Levertine Gallery:';
 $txt['levgal_versions_php'] = 'PHP:';
 $txt['levgal_versions_GD'] = 'GD library:';
 $txt['levgal_versions_Imagick'] = 'ImageMagick (Imagick):';
+$txt['levgal_versions_webp'] = 'Webp support:';
 $txt['levgal_support_notavailable'] = '(not available)';
 $txt['levgal_support_available'] = '(available)';
 $txt['levgal_support_warning'] = '(not configured correctly)';

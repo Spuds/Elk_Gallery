@@ -37,11 +37,11 @@ $txt['lgal_error_no_filetypes'] = 'You did not select any types of files to sear
 $txt['lgal_error_no_search'] = 'You did not select anything to search within.';
 
 $txt['lgal_search_results'] = 'Search Results';
-$txt['lgal_search_no_results'] = 'No results were found for your given criteria. You may wish to <a href="%1$s">refine your search</a>.';
+$txt['lgal_search_no_results'] = 'No results were found for your given criteria. You may wish to <a href="%1$s" class="linkbutton">refine your search</a>.';
 
 $txt['lgal_search_results_albums'] = 'Album Search Results';
-$txt['lgal_search_results_albums_none'] = 'No albums matching your criteria were found. You can try <a href="%1$s">editing your search</a> to see if that helps.';
+$txt['lgal_search_results_albums_none'] = 'No albums matching your criteria were found. You can try <a href="%1$s" class="linkbutton">editing your search</a> to see if that helps.';
 $txt['lgal_search_results_items'] = 'Item Search Results';
-$txt['lgal_search_results_items_none'] = 'No items matching your criteria were found. You can try <a href="%1$s">editing your search</a> to see if that helps.';
+$txt['lgal_search_results_items_none'] = 'No items matching your criteria were found. You can try <a href="%1$s" class="linkbutton">editing your search</a> to see if that helps.';
 
-$txt['lgal_search_refine'] = 'You can always try <a href="%1$s">editing the search</a> if you did not find what you were looking for.';
+$txt['lgal_search_refine'] = 'You can always try <a href="%1$s" class="linkbutton">editing the search</a> if you did not find what you were looking for.';

@@ -17,7 +17,7 @@ $txt['lgal_max_space'] = 'The maximum server space that is allowed to be used by
 $txt['lgal_max_space_note'] = 'You can use numbers with K, M or G, for example where 100M means 100 megabytes of space will be used.';
 
 $txt['lgal_enable_resize'] = 'Resize images over quota dimensions.';
-$txt['lgal_enable_resize_note'] = 'This will attempt to resize PNG and JPG images that are over the quota dimensions instead of immediately rejecting them.  If you do not have Imagick installed you will loose the EXIF data for resized images.';
+$txt['lgal_enable_resize_note'] = 'This will attempt to resize PNG, JPG and WEBP images that are over the quota dimensions instead of immediately rejecting them.  If you do not have Imagick installed you will loose the EXIF data for resized images.';
 
 $txt['levgal_allowed_file_types'] = 'Allowed File Types';
 $txt['levgal_max_file_size'] = 'Maximum file size';
@@ -44,6 +44,7 @@ $txt['lgal_allowed_types_image'] = 'Types of image file users are allowed to upl
 $txt['lgal_image_jpg'] = 'JPEG images (.jpg, .jpeg)';
 $txt['lgal_image_gif'] = 'GIF images (.gif)';
 $txt['lgal_image_png'] = 'PNG images (.png)';
+$txt['lgal_image_webp'] = 'WEBP images (.webp)';
 $txt['lgal_image_psd'] = 'Photoshop files (.psd)';
 $txt['lgal_image_tiff'] = 'TIFF images (.tiff)';
 $txt['lgal_image_mng'] = 'MNG images (.mng)';

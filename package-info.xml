@@ -3,7 +3,7 @@
 <package-info xmlns="https://www.elkarte.net/site/package-info" xmlns:elk="https://www.elkarte.net/">
 	<id>Levertine:Gallery</id>
 	<name>Levertine Gallery</name>
-	<version>1.1.1</version>
+	<version>1.2.0</version>
 	<type>modification</type>
 
 	<install for="1.1.7 - 1.1.99">
@@ -11,18 +11,21 @@
 		<readme lang="english" parsebbc="true" type="file">readme/readme.english.txt</readme>
 
 		<!-- Dependencies -->
-		<require-dir name="levgal_src" destination="SOURCEDIR">Adding main source files</require-dir>
-		<require-dir name="levgal_tpl" destination="THEMEDIR">Adding main templates</require-dir>
-		<require-dir name="levgal_lng" destination="THEMEDIR/languages">Adding language files</require-dir>
+		<require-dir name="levgal_src" destination="SOURCEDIR">Source files</require-dir>
+		<require-dir name="levgal_tpl" destination="THEMEDIR">Templates</require-dir>
+		<require-dir name="levgal_lng/english" destination="THEMEDIR/languages/">Language files</require-dir>
+		<require-dir name="levgal_lng/french" destination="THEMEDIR/languages/"></require-dir>
+		<require-dir name="levgal_lng/german" destination="THEMEDIR/languages/"></require-dir>
+
 
 		<!-- Resources -->
-		<require-dir name="levgal_res" destination="THEMEDIR/">Adding CSS, JS, images</require-dir>
+		<require-dir name="levgal_res" destination="THEMEDIR/">CSS, JS, images</require-dir>
 
 		<!-- Notifications -->
-		<require-dir name="other/MentionType" destination="SUBSDIR/">Adding Likes and Notifications</require-dir>
+		<require-dir name="other/MentionType" destination="SUBSDIR/">Likes and Notifications</require-dir>
 
 		<!-- Scheduled Tasks -->
-		<require-dir name="other/ScheduledTask" destination="SUBSDIR/">Adding Scheduled Tasks</require-dir>
+		<require-dir name="other/ScheduledTask" destination="SUBSDIR/">Scheduled Tasks</require-dir>
 
 		<!-- And the most important bit -->
 		<require-dir name="lgal_items" destination="BOARDDIR">Storage for files</require-dir>
@@ -39,20 +42,22 @@
 
 	<uninstall  for="1.1 - 1.1.99">
 		<!-- Dependencies -->
-		<remove-dir name="SOURCEDIR/levgal_src">Removing main source files</remove-dir>
-		<remove-dir name="THEMEDIR/levgal_tpl">Removing main templates</remove-dir>
-		<remove-dir name="THEMEDIR/languages/levgal_lng">Removing language files</remove-dir>
+		<remove-dir name="SOURCEDIR/levgal_src">Removing source files</remove-dir>
+		<remove-dir name="THEMEDIR/levgal_tpl">Removing templates</remove-dir>
+		<remove-dir name="THEMEDIR/languages/english/levgal_lng">Removing language files</remove-dir>
+		<remove-dir name="THEMEDIR/languages/french/levgal_lng"></remove-dir>
+		<remove-dir name="THEMEDIR/languages/german/levgal_lng"></remove-dir>
 
 		<!-- Resources -->
 		<remove-dir name="THEMEDIR/levgal_res">Removing CSS, JS, images</remove-dir>
 
 		<!-- Notifications -->
-		<remove-file name="SUBSDIR/MentionType/LgcommentMention.php">Notifications</remove-file>
+		<remove-file name="SUBSDIR/MentionType/LgcommentMention.php">Removing Notifications</remove-file>
 		<remove-file name="SUBSDIR/MentionType/LglikeMention.php" />
 		<remove-file name="SUBSDIR/MentionType/LgnewMention.php" />
 
 		<!-- Scheduled Task -->
-		<remove-file name="SUBSDIR/ScheduledTask/LevgalMaintenance.php">Scheduled Task</remove-file>
+		<remove-file name="SUBSDIR/ScheduledTask/LevgalMaintenance.php">Removing Scheduled Task</remove-file>
 
 		<!-- Database -->
 		<code>uninstall-required.php</code>
