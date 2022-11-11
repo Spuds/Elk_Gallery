@@ -1,5 +1,5 @@
 <?php
-// Version: 1.1.1; Levertine Gallery item display template
+// Version: 1.2.0; Levertine Gallery item display template
 
 /**
  * This file handles displaying the item pages.
@@ -88,10 +88,10 @@ function template_main_item_display()
 	if (!empty($context['item_display']['custom_fields']['desc']))
 	{
 		echo '
-				<dl class="settings" id="lgal_cf_desc">';
+				<div class="settings" id="lgal_cf_desc">';
 		template_display_custom_fields('desc');
 		echo '
-				</dl>';
+				</div>';
 	}
 
 	echo '
@@ -249,40 +249,47 @@ function template_main_item_sidebar()
 
 	echo '
 				<hr />
-				<dl class="album_details">';
+				<div class="album_details">';
 
 	if (!empty($context['item_details']['time_added']))
 	{
 		echo '
-					<dt>', $txt['lgal_time_added'], '</dt>
-					<dd>', $context['item_details']['time_added_format'], '</dd>';
+					<div><strong>', $txt['lgal_time_added'], '</strong><br>
+					', $context['item_details']['time_added_format'], '</div>';
 	}
 
 	if ($context['item_details']['time_added'] < $context['item_details']['time_updated'])
 	{
 		echo '
-					<dt>', $txt['lgal_time_updated'], '</dt>
-					<dd>', $context['item_details']['time_updated_format'], '</dd>';
+					<div><strong>', $txt['lgal_time_updated'], '</strong><br>
+					', $context['item_details']['time_updated_format'], '</div>';
 	}
 
 	if (!empty($context['item_display']['display_string']) && !empty($txt[$context['item_display']['display_string']]))
 	{
 		echo '
-					<dt class="floatleft">', $txt[$context['item_display']['display_string']], '</dt>
-					<dd class="floatleft">', $context['item_display']['display_value'], '<br></dd>';
+					<div><strong>', $txt[$context['item_display']['display_string']], '</strong>
+					', $context['item_display']['display_value'], '</div>';
 	}
 
 	if (!empty($context['item_display']['display_size']))
 	{
 		echo '
-					<dt class="floatleft">', $txt['lgal_file_size'], '</dt>
-					<dd class="floatleft">', $context['item_display']['display_size'], '<br></dd>';
+					<div><strong>', $txt['lgal_file_size'], '</strong>
+					', $context['item_display']['display_size'], '</div>';
+	}
+
+	if (!empty($context['item_details']['extension']))
+	{
+		echo '
+					<div><strong>', $txt['lgal_file_type'], '</strong>
+					', strtoupper($context['item_details']['extension']), '</div>';
 	}
 
 	template_display_custom_fields('main');
 
 	echo '
-				</dl>
+				</div>
 			</div>';
 
 	if (!empty($context['item_display']['meta']) || !empty($context['item_display']['custom_fields']['meta']))
@@ -314,7 +321,7 @@ function template_main_item_sidebar_meta()
 				<a href="#" id="sidebar_meta_toggle_link" >', $txt['exclude_these'], '</a>
 			</h3>
 			<div class="content hide" id="sidebar_meta_container">
-				<dl class="album_details">';
+				<div class="album_details">';
 
 	if (!empty($context['item_display']['meta']))
 	{
@@ -323,8 +330,8 @@ function template_main_item_sidebar_meta()
 			if (isset($txt['lgal_metadata_' . $key]))
 			{
 				echo '
-					<dt>', $txt['lgal_metadata_' . $key], '</dt>
-					<dd>', $value, '</dd>';
+					<div><strong>', $txt['lgal_metadata_' . $key], '</strong>
+					', $value, '</div>';
 			}
 		}
 	}
@@ -332,7 +339,7 @@ function template_main_item_sidebar_meta()
 	template_display_custom_fields('meta');
 
 	echo '
-				</dl>
+				</div>
 			</div>
 			<script>
 			var oMetaToggle = new elk_Toggle({
@@ -367,8 +374,8 @@ function template_display_custom_fields($area)
 		foreach ($context['item_display']['custom_fields'][$area] as $field)
 		{
 			echo '
-						<dt>', $field['field_name'], ':</dt>
-						<dd>', $field['value'], '</dd>';
+						<div><strong>', $field['field_name'], ':</strong>
+						', $field['value'], '</div>';
 		}
 	}
 }
@@ -516,8 +523,8 @@ function template_main_item_commentbox()
 	global $context, $txt;
 
 	echo '
-				<div class="well">
-					<form action="', $context['form_url'], '#postmodify" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" class="flow_hidden" onsubmit="submitonce(this);smc_saveEntities(\'postmodify\', [\'', $context['comment_box']->getId(), '\']);" enctype="multipart/form-data">';
+				<div class="editor_wrapper">
+					<form action="', $context['form_url'], '#postmodify" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" onsubmit="submitonce(this);smc_saveEntities(\'postmodify\', [\'', $context['comment_box']->getId(), '\']);" enctype="multipart/form-data">';
 
 	if (!empty($context['comment_errors']))
 	{
@@ -658,18 +665,10 @@ function template_item_audio()
 
 	// Now for the music player.
 	echo '
-	<audio src="', $context['item_display']['urls']['raw'], '" id="lgal_audio_player" type="', $context['item_details']['mime_type'], '" preload="metadata"></audio>
-
-	<script>
-	let player = new MediaElementPlayer("lgal_audio_player", {
-		audioWidth: 480,
-		audioHeight: 40,
-		startVolume: 0.5,
-		loop: false,
-		alwaysShowControls: true,
-		useDefaultControls: true
-	});
-	</script>';
+	<audio id="lgal_audio_player" controls preload="metadata">
+		<source src="', $context['item_display']['urls']['raw'], '" type="', $context['item_details']['mime_type'], '">,
+		Sorry, your browser doesn\'t support embedded audio
+	</audio>';
 }
 
 function template_item_video()
@@ -685,22 +684,15 @@ function template_item_video()
 
 	// Now for the video player.
 	echo '
-	<script>
-		document.write(\'<video src="', $context['item_display']['urls']['raw'], '" id="lgal_video_player" type="', $context['item_details']['mime_type'], '" preload="metadata" poster="', $poster, '"></video>\');
-		$("#lgal_video_player").mediaelementplayer({
-			audioWidth: 480,
-			audioHeight: 270,
-			startVolume: 0.8,
-			loop: false,
-			features: ["playpause","progress","current","duration","volume"],
-			alwaysShowControls: true
-		});
-	</script>';
+	<video id="lgal_video_player" controls preload="metadata" poster="', $poster, '">
+		<source src="', $context['item_display']['urls']['raw'], '" type="', $context['item_details']['mime_type'], '">,
+		Sorry, your browser doesn\'t support embedded videos
+	</video>';
 }
 
 function template_item_generic()
 {
-	global $context;
+	global $context, $txt;
 
 	$viewInline = isset($context['item_actions']['actions']['download'][1]) ?? '';
 
@@ -713,7 +705,8 @@ function template_item_generic()
 						<a href="' . (!empty($viewInline) ? substr($context['item_actions']['actions']['download'][1], 0, -10) : '') . '">
 							<img id="item_generic" class="generic_preview" src="', $context['item_display']['urls']['preview'], '" alt="" />
 						</a>
-					</div>';
+					</div>
+					<div class="centertext smalltext">', $txt['lgal_click_to_view'], '</div>';
 	}
 	else
 	{
@@ -867,6 +860,37 @@ function template_flagitem()
 		</form>';
 }
 
+function template_edit_tag_list()
+{
+	global $context, $txt;
+
+	// None defined and not allowed to add
+	if (empty($context['can_add_tags']) && empty($context['tags']))
+	{
+		return;
+	}
+
+	echo '
+		<dt class="clear_left">', $txt['lgal_tagged_as'], '</dt>
+		<dd>
+			<input type="text" placeholder="', $txt['lgal_item_tag_input'], '" class="flexdatalist" data-min-length="0" multiple="multiple" list="tags" id="tag" name="tag" />
+			<span class="smalltext">', $txt['lgal_item_tag_description'], '</span>
+			<datalist id="tags">';
+
+	if (!empty($context['tags']))
+	{
+		foreach($context['tags'] as $tag)
+		{
+			echo '
+				<option value="', strtolower($tag), '">', $tag, '</option>';
+		}
+	}
+
+	echo '
+			</datalist>
+		</dd>';
+}
+
 function template_edit_item()
 {
 	global $context, $txt, $scripturl, $settings;
@@ -897,11 +921,9 @@ function template_edit_item()
 							<input type="text" name="guest_username" value="', $context['poster_name'], '" size="25" class="input_text" tabindex="', $context['tabindex']++, '" />
 						</dd>';
 	}
-	echo '
-						<dt class="clear_left">', $txt['lgal_tagged_as'], '</dt>
-						<dd>
-							<input type="text" name="tags" value="', $context['tags'], '" size="40" class="input_text" tabindex="', $context['tabindex']++, '" style="width: 50%;" />
-						</dd>';
+
+	template_edit_tag_list();
+
 	if (!empty($context['hierarchies']))
 	{
 		echo '
