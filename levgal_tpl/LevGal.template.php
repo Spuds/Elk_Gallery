@@ -515,6 +515,7 @@ function template_album_list_main($tree_view = false)
 		echo '
 			<hr />
 			<div class="album_container">';
+
 		foreach ($context['nested_hierarchy'] as $member => $hierarchy)
 		{
 			$data = array_values($hierarchy)[0];
@@ -541,7 +542,6 @@ function template_album_list_main($tree_view = false)
 				<h3 class="secondary_header">' . sprintf($txt['lgal_albums_owned_site'], $link) . '</h3>
 				<div class="content">';
 
-				//template_album_hierarchy($hierarchy);
 				template_album_hierarchy_compact($hierarchy);
 
 				echo '
@@ -554,65 +554,62 @@ function template_album_list_main($tree_view = false)
 	}
 	else
 	{
-		echo '
+		$headings = ['site' => 'lgal_albums_site', 'groups' => 'lgal_albums_group', 'members' => 'lgal_albums_member'];
+		foreach (['site', 'groups', 'members'] as $albumType)
+		{
+			echo '
 			<div id="item_main">';
 
-		if (!empty($context['album_owners']['members']))
-		{
-			echo '
-				<h3 class="secondary_header">', $txt['lgal_albums_member'], '</h3>
-				<div class="album_container">';
-
-			foreach ($context['sidebar']['members']['items'] as $member)
+			if (!empty($context['album_owners'][$albumType]))
 			{
 				echo '
-					<div class="album_featured well">
-						<div class="floatleft album_thumb">
-							', empty($memberContext[$member['id']]['avatar']['image']) ? '' : $memberContext[$member['id']]['avatar']['image'], '
-						</div>
-						<div class="album_desc lefttext">
-							<a href="', $member['url'], '">', $member['title'], '</a><br />
-							<span class="lgalicon i-album"></span> ', LevGal_Helper_Format::numstring('lgal_albums', $member['count']);
+				<h3 class="secondary_header">', $txt[$headings[$albumType]], '</h3>
+				<div class="album_container">';
+
+				template_album_placecard($context['sidebar'][$albumType]['items'], $albumType === 'members');
 
 				echo '
-						</div>
-					</div>';
-				}
-
-			echo '
 				</div>';
-		}
-
-		if (!empty($context['album_owners']['groups']))
-		{
-			echo '
-				<h3 class="secondary_header">', $txt['lgal_albums_group'], '</h3>
-				<div class="album_container">';
-
-			foreach ($context['sidebar']['groups']['items'] as $group)
-			{
-				echo '
-					<div class="album_featured well">
-						<div class="floatleft album_thumb">
-							<img src="', $settings['default_theme_url'], '/levgal_res/albums/folder-image.svg" alt="" />
-						</div>
-						<div class="album_desc lefttext">
-							<a href="', $group['url'], '">', $group['title'], '</a><br />
-							<span class="lgalicon i-album"></span> ', LevGal_Helper_Format::numstring('lgal_albums', $group['count']), '
-						</div>
-					</div>';
 			}
 
 			echo '
-				</div>';
-		}
-
-		echo '
 			</div>';
+		}
 	}
 
 	echo '
 		<br class="clear" />';
+}
+
+function template_album_placecard($albumItems, $useAvatar = null)
+{
+	global $settings, $memberContext;
+
+	foreach ($albumItems as $item)
+	{
+		echo '
+					<div class="album_featured well">
+						<div class="floatleft album_thumb">';
+
+		if ($useAvatar === true)
+		{
+			echo '
+							', empty($memberContext[$item['id']]['avatar']['image']) ? '' : $memberContext[$item['id']]['avatar']['image'];
+		}
+		else
+		{
+			echo '
+							<img src="', $settings['default_theme_url'], '/levgal_res/albums/folder-image.svg" alt="" />';
+		}
+
+		echo '
+						</div>
+						<div class="album_desc lefttext">
+							<a href="', $item['url'], '">', $item['title'], '</a><br />
+							<span class="lgalicon i-album"></span> ', LevGal_Helper_Format::numstring('lgal_albums', $item['count']), '
+						</div>
+					</div>';
+	}
 }
 
 function template_album_list_sidebar()

@@ -26,16 +26,49 @@ class LevGal_Action_Albumlist extends LevGal_Action_Abstract
 		$this->addLinkTree($txt['levgal'], '?media/');
 		$this->addLinkTree($txt['lgal_albums_list'], '?media/albumlist/');
 		$context['canonical_url'] = $scripturl . '?media/albumlist/';
+
 		$this->getSidebar('site');
+		$context['page_title'] = $txt['lgal_albums_list'];
+
+		// Nothing to show but an empty gallery
+		if (empty($context['album_owners']['members']) && empty($context['album_owners']['groups']) && empty($context['album_owners']['site']))
+		{
+			$this->setTemplate('LevGal', 'album_list_none');
+		}
+		else
+		{
+			$this->setTemplate('LevGal', 'album_list_main');
+
+			// If there's something to load, load it. Groups already have their data loaded,
+			// but members didn't to save a query most loads.
+			if (!empty($context['album_owners']['members']))
+			{
+				$loaded = loadMemberData(array_keys($context['album_owners']['members']));
+				foreach ($loaded as $loaded_user)
+				{
+					loadMemberContext($loaded_user);
+				}
+			}
+		}
+	}
+
+	public function actionSite()
+	{
+		global $context, $txt, $scripturl;
+
+		$this->addLinkTree($txt['levgal'], '?media/');
+		$this->addLinkTree($txt['lgal_albums_list'], '?media/albumlist/site/');
+		$context['canonical_url'] = $scripturl . '?media/albumlist/';
+
+		$this->getSidebar('site');
+		$context['page_title'] = sprintf($txt['lgal_albums_owned_site'], $context['forum_name']);
 
 		// There's only one site item here, it needs to be highlighted.
 		if (!empty($context['sidebar']['site']))
 		{
-			$context['page_title'] = sprintf($txt['lgal_albums_owned_site'], $context['forum_name']);
 			$album_list = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
 			$context['hierarchy'] = $album_list->getAlbumHierarchy('site');
 
-			$context['sidebar']['site']['items'][0]['active'] = true;
 			$this->setTemplate('LevGal', 'album_list_main');
 
 			if (count($context['hierarchy']) >= 2 && allowedTo(array('lgal_manage')))
@@ -45,29 +78,7 @@ class LevGal_Action_Albumlist extends LevGal_Action_Abstract
 		}
 		else
 		{
-			$context['page_title'] = $txt['lgal_albums_list'];
-
-			// So, let's see: are there any items we can display for users or groups? If not, just
-			// throw them to an error page.
-			if (empty($context['album_owners']['members']) && empty($context['album_owners']['groups']))
-			{
-				$this->setTemplate('LevGal', 'album_list_none');
-			}
-			else
-			{
-				// If there's something to load, load it. Groups already have their data loaded,
-				// but members didn't to save a query most loads.
-				if (!empty($context['album_owners']['members']))
-				{
-					$loaded = loadMemberData(array_keys($context['album_owners']['members']));
-					foreach ($loaded as $loaded_user)
-					{
-						loadMemberContext($loaded_user);
-					}
-				}
-
-				$this->setTemplate('LevGal', 'album_list_main');
-			}
+			$this->setTemplate('LevGal', 'album_list_none');
 		}
 	}
 
@@ -155,13 +166,16 @@ class LevGal_Action_Albumlist extends LevGal_Action_Abstract
 	{
 		global $context, $txt, $scripturl, $user_info;
 
-		$group_id = $this->getNumericId();
-		if ($group_id === 0)
+		$sub = $this->_req->getQuery('sub', 'trim', '');
+		$group_id = $this->_req->getQuery('item', 'intval', null);
+
+		if ($group_id === null && $sub === 'group')
 		{
 			$this->allGroupsAlbumList();
 			return;
 		}
 
+		/** @var $groupModel \LevGal_Model_Group */
 		$groupModel = LevGal_Bootstrap::getModel('LevGal_Model_Group');
 		$groups = $groupModel->getGroupsById($group_id);
 		if (empty($groups))
@@ -239,16 +253,18 @@ class LevGal_Action_Albumlist extends LevGal_Action_Abstract
 		$context['album_actions'] = array();
 		$context['album_actions']['actions'] = array();
 
+		$sub = $this->_req->getQuery('sub', 'trim', '');
+
 		if (!empty($context['album_owners']['site']))
 		{
 			$context['sidebar']['site'] = array(
 				'title' => $txt['lgal_albums_site'],
 				'items' => array(
 					array(
-						'url' => $scripturl . '?media/albumlist/',
+						'url' => $scripturl . '?media/albumlist/site/',
 						'title' => $txt['lgal_albums_site'],
 						'count' => $context['album_owners']['site'],
-						'active' => $sidebar_type === 'site',
+						'active' => $sidebar_type === 'site' && $sub === 'site',
 					),
 				),
 			);
@@ -256,7 +272,7 @@ class LevGal_Action_Albumlist extends LevGal_Action_Abstract
 			{
 				$context['does_exist'] = true;
 			}
-			$context['album_actions']['actions']['sitealbums'] = array($txt['lgal_albums_site'], $scripturl . '?media/albumlist/', 'tab' => true, 'sidebar' => false, 'active' => $sidebar_type === 'site');
+			$context['album_actions']['actions']['sitealbums'] = array($txt['lgal_albums_site'], $scripturl . '?media/albumlist/site/', 'tab' => true, 'sidebar' => false, 'active' => $sidebar_type === 'site' && $sub === 'site');
 		}
 
 		if (!empty($context['album_owners']['members']))
