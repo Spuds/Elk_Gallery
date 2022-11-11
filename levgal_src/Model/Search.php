@@ -310,7 +310,8 @@ class LevGal_Model_Search
 		$db = database();
 
 		$request = $db->query('', '
-			SELECT searchdata
+			SELECT 
+				searchdata
 			FROM {db_prefix}lgal_search_results
 			WHERE id_search = {int:id_search}
 				AND id_member = {int:id_member}',
@@ -327,7 +328,7 @@ class LevGal_Model_Search
 		}
 		$db->free_result($request);
 
-		return !empty($result) ? $result : arrya();
+		return !empty($result) ? $result : array();
 	}
 
 	public function deleteExistingSearches()
