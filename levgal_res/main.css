@@ -2,16 +2,40 @@
  This is the CSS for Levertine Gallery (LTR)
 **/
 
+:root {
+	--shadow-color: 0deg 0% 65%;
+	--shadow-elevation-low: 0.3px 0.5px 0.7px hsl(var(--shadow-color) / 0.31),
+	0.4px 0.8px 1px -1.2px hsl(var(--shadow-color) / 0.31),
+	1px 1.9px 2.4px -2.5px hsl(var(--shadow-color) / 0.31);
+	--shadow-elevation-medium: 0.3px 0.5px 0.7px hsl(var(--shadow-color) / 0.32),
+	0.8px 1.6px 2px -0.8px hsl(var(--shadow-color) / 0.32),
+	2px 3.9px 4.9px -1.7px hsl(var(--shadow-color) / 0.32),
+	4.8px 9.5px 12px -2.5px hsl(var(--shadow-color) / 0.32);
+	--shadow-elevation-high: 0.3px 0.5px 0.7px hsl(var(--shadow-color) / 0.3),
+	1.3px 2.7px 3.4px -0.4px hsl(var(--shadow-color) / 0.3),
+	2.5px 4.9px 6.2px -0.7px hsl(var(--shadow-color) / 0.3),
+	4px 8.1px 10.2px -1.1px hsl(var(--shadow-color) / 0.3),
+	6.4px 12.9px 16.2px -1.4px hsl(var(--shadow-color) / 0.3),
+	10.1px 20.1px 25.3px -1.8px hsl(var(--shadow-color) / 0.3),
+	15.3px 30.6px 38.5px -2.1px hsl(var(--shadow-color) / 0.3),
+	22.5px 45px 56.6px -2.5px hsl(var(--shadow-color) / 0.3);
+}
+
+#gallery_contain {
+	font-size: 1em;
+}
+
 .stats {
 	box-sizing: border-box;
 }
 
 #levgal_tabs {
 	display: flex;
-	flex-wrap: wrap;
-	gap: 4px;
 	align-content: center;
+	flex-wrap: wrap;
 	margin-right: 215px;
+	gap: 4px;
+	justify-content: flex-end;
 }
 
 #album_sidebar {
@@ -28,11 +52,13 @@
 .album_details {
 	overflow: auto;
 	max-height: 50em;
+	display: flex;
+	flex-direction: column;
 }
 
 .user_avatar {
-	margin: 0 10px 0 0;
 	float: left;
+	margin: 0 10px 0 0;
 }
 
 .user_avatar, .comment_avatar {
@@ -46,11 +72,11 @@
 }
 
 #album_sidebar .user {
-	margin-top: 3px;
 	float: left;
-	min-width: 51%;
 	width: auto;
+	min-width: 51%;
 	height: auto;
+	margin-top: 3px;
 }
 
 .posted_by {
@@ -62,24 +88,24 @@ dl.album_details dt, dl.album_info dt {
 }
 
 dl.album_info dt {
-	width: 75%;
 	float: left;
+	width: 75%;
 }
 
 dl.album_details dd, dl.album_info dd {
-	margin-left: 2px;
 	margin-bottom: 10px;
+	margin-left: 2px;
 }
 
 .secondary_header {
-	margin-top: 0;
-	border-top-color: #CFCFCF;
-	border-bottom-color: #BBBBBB;
-	background: #EBEBEB linear-gradient(to bottom, #FAFAFA, #E4E4E4);
-	padding: 4px 10px 2px 10px;
 	font-size: 1.214em;
 	line-height: 1.8em;
+	margin-top: 0;
+	padding: 4px 10px 2px 10px;
+	border-top-color: #CFCFCF;
+	border-bottom-color: #BBBBBB;
 	border-radius: 2px 2px 0 0;
+	background: #EBEBEB linear-gradient(to bottom, #FAFAFA, #E4E4E4);
 }
 
 #item_main {
@@ -91,8 +117,8 @@ dl.album_details dd, dl.album_info dd {
 }
 
 #item_picture, #item_audio_container, #item_generic {
-	margin: 0 auto;
 	display: block;
+	margin: 0 auto;
 	text-align: center;
 }
 
@@ -105,10 +131,10 @@ dl.album_details dd, dl.album_info dd {
 }
 
 #lgal_cf_desc {
+	clear: none;
 	margin-top: 2em;
 	margin-bottom: 0;
 	padding-top: 1em;
-	clear: none;
 	border-top: 1px solid lightgray;
 }
 
@@ -121,13 +147,13 @@ dl.album_details dd, dl.album_info dd {
 }
 
 .item_link > a > i.icon-big {
-	height: 1em;
-	width: 1em;
 	line-height: 1em;
-	background: #FEFEFE;
-	border-radius: 50%;
+	width: 1em;
+	height: 1em;
 	padding: 1px;
 	opacity: 0.7;
+	border-radius: 50%;
+	background: #FEFEFE;
 }
 
 .item_image {
@@ -138,8 +164,8 @@ dl.album_details dd, dl.album_info dd {
 
 .album_container {
 	display: flex;
-	flex-wrap: wrap;
 	align-items: center;
+	flex-wrap: wrap;
 	justify-content: center;
 	text-align: center;
 	gap: 5px;
@@ -150,29 +176,29 @@ dl.album_details dd, dl.album_info dd {
 	margin: 10px 2px;
 }
 
-.album_entry > .well {
-	box-shadow: 1px 1px 2px #E5E5E5, 0 -1px 0 #E5E5E5 inset;
+.album_entry > .well, .album_container > .well {
+	box-shadow: var(--shadow-elevation-low);
 }
 
 .album_entry > .well:hover {
-	box-shadow: 3px 3px 2px #E5E5E5;
-	transform: translate(0, -2px);
 	transition: .3s ease;
+	transform: translate(0, -2px);
+	box-shadow: var(--shadow-elevation-medium);
 }
 
 .album_container > .album_featured {
-	width: 255px;
-	max-height: 115px;
-	height: 90px;
 	overflow: auto;
+	width: 255px;
+	height: 90px;
+	max-height: 115px;
 }
 
 .album_featured {
 	display: inline-block;
-	margin: 6px;
-	padding: 8px 4px;
 	width: 30%;
 	min-width: 200px;
+	margin: 6px;
+	padding: 8px 4px;
 }
 
 .album_thumb {
@@ -199,10 +225,9 @@ ul.album_hierarchy, ul.album_hierarchy ul {
 }
 
 .album_hierarchy.level_0 {
+	width: 100%;
 	margin: 0;
 	padding: 0;
-	display: table;
-	width: 100%;
 }
 
 .album_hierarchy > .ui-sortable-handle {
@@ -211,6 +236,65 @@ ul.album_hierarchy, ul.album_hierarchy ul {
 
 .album_hierarchy > .ui-sortable-handle a {
 	cursor: pointer;
+}
+
+.lgal_profile_itemname {
+	margin: 0 10px;
+	font-weight: bold;
+}
+
+.album_container > .album_featured_compact {
+	width: 33%;
+	height: 200px;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+}
+
+.album_featured_compact .secondary_header, .album_featured_compact .content {
+	width: 100%;
+	padding: 4px 2px;
+}
+
+.album_featured_compact .content {
+	height: 200px;
+}
+
+.album_featured_compact .secondary_header {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.album_hierarchy_compact {
+	line-height: 1.25em;
+	overflow: hidden;
+	text-align: left;
+	white-space: nowrap;
+}
+
+li.album_hierarchy_compact ul {
+	padding: 0 0 0 20px;
+}
+
+.album_hierarchy_compact .lgal_profile_itemname {
+	display: inline-block;
+	overflow: hidden;
+	max-width: 70%;
+	margin: 0 5px;
+	text-overflow: ellipsis;
+}
+
+.level_1 > .album_hierarchy_compact .lgal_profile_itemname {
+	max-width: 65%;
+}
+
+.level_2 > .album_hierarchy_compact .lgal_profile_itemname {
+	max-width: 60%;
+}
+
+.album_hierarchy_compact .lgal_profile_itemnum {
+	float: right;
 }
 
 .sortable_error {
@@ -222,13 +306,13 @@ ul.album_hierarchy, ul.album_hierarchy ul {
 }
 
 .sortable_album_thumb {
-	margin: 0 auto;
 	display: block;
+	margin: 0 auto;
 }
 
 .sortable_album_thumb > img {
-	max-width: 50px;
 	width: 50px;
+	max-width: 50px;
 }
 
 .placeholder {
@@ -236,19 +320,19 @@ ul.album_hierarchy, ul.album_hierarchy ul {
 }
 
 .album_thumb img {
-	margin: 0 auto;
 	display: block;
 	max-width: 65px;
 	max-height: 65px;
+	margin: 0 auto;
 }
 
 .thumb_name {
 	font-size: 0.9em;
-	margin-bottom: 5px;
-	text-overflow: ellipsis;
-	width: 125px;
 	overflow: hidden;
+	width: 125px;
+	margin-bottom: 5px;
 	white-space: nowrap;
+	text-overflow: ellipsis;
 }
 
 .thumb_container {
@@ -257,19 +341,17 @@ ul.album_hierarchy, ul.album_hierarchy ul {
 }
 
 .thumb_container a {
-	height: 125px;
 	display: block;
+	height: 125px;
 }
 
 .thumb_container img {
-	margin: 0 auto;
+	position: relative;
+	top: 50%;
 	display: block;
 	max-width: 125px;
 	max-height: 125px;
-	position: relative;
-	top: 50%;
-	-webkit-transform: translateY(-50%);
-	-ms-transform: translateY(-50%);
+	margin: 0 auto;
 	transform: translateY(-50%);
 }
 
@@ -293,16 +375,16 @@ ul.album_hierarchy, ul.album_hierarchy ul {
 
 .comment_info {
 	display: table-cell;
-	width: 125px;
 	overflow: hidden;
-	vertical-align: top;
+	width: 125px;
 	margin-right: 10px;
+	vertical-align: top;
 }
 
 .comment_body {
 	display: table-cell;
-	vertical-align: top;
 	width: 90%;
+	vertical-align: top;
 }
 
 .report_body, .mod_comment {
@@ -361,10 +443,12 @@ ul.album_hierarchy, ul.album_hierarchy ul {
 
 .album_family {
 	padding-top: 8px;
+	column-count: 3;
 }
 
 .album_current {
 	padding-left: 1em;
+	column-span: all;
 }
 
 .album_child {
@@ -373,38 +457,38 @@ ul.album_hierarchy, ul.album_hierarchy ul {
 
 /* Action buttons */
 ul.lgalactions {
-	margin: 0.9em 11px 0 0;
-	clear: right;
-	float: right;
-	text-align: right;
 	font: bold 0.85em arial, sans-serif;
+	float: right;
+	clear: right;
+	margin: 0.9em 11px 0 0;
+	text-align: right;
 }
 
 ul.lgalactions li {
-	margin: 0 0 0 11px;
 	display: inline-block;
+	margin: 0 0 0 11px;
 }
 
 ul.lgalactions li a {
+	line-height: 18px;
 	display: inline-block;
 	height: 20px;
-	line-height: 18px;
 }
 
-#privacy_custom > label > img, #configure_owner_group > label > img, .ownership_group > dd > label >  img{
+#privacy_custom > label > img, #configure_owner_group > label > img, .ownership_group > dd > label > img {
 	margin: 0;
 }
 
 .sidebar_actions {
-	list-style: none;
-	padding: 0;
 	margin: 0;
+	padding: 0;
+	list-style: none;
 }
 
 .sidebar_actions li {
-	list-style: none;
-	padding: 0;
 	margin: 5px 0;
+	padding: 0;
+	list-style: none;
 }
 
 .sidebar_actions li .lgalicon {
@@ -424,8 +508,8 @@ ul.lgalactions li a {
 
 #browse_button {
 	float: none;
-	margin-left: 0;
 	margin-right: 0;
+	margin-left: 0;
 }
 
 #upload_container {
@@ -433,10 +517,10 @@ ul.lgalactions li a {
 }
 
 #upload_type_file {
-	min-height: 20px;
-	overflow: visible;
 	position: absolute;
+	overflow: visible;
 	width: 45%;
+	min-height: 20px;
 }
 
 #progressbar, #total_progressbar {
@@ -458,8 +542,8 @@ td.status #progressbar {
 }
 
 td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progresspc {
-	margin-top: 0;
 	display: block;
+	margin-top: 0;
 }
 
 #dragdroptarget {
@@ -476,12 +560,10 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 }
 
 /* Audio/video player */
-.mejs__audio, .mejs__video {
+#lgal_audio_player, #lgal_video_player {
+	display: block;
 	margin: 10px auto;
-}
-
-.mejs__button > button {
-	font-size: 2em !important;
+	max-width: 90%;
 }
 
 /* Delete page */
@@ -521,18 +603,18 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 
 /* SVG icons */
 .lgalicon {
-	margin: 0 0.25em 0 .45em;
-	width: 1.15em;
-	height: auto;
-	vertical-align: middle;
 	line-height: 1.25em;
 	display: inline-block;
+	width: 1.15em;
+	height: auto;
+	margin: 0 0.25em 0 .45em;
+	vertical-align: middle;
 	filter: invert(38%) sepia(1%) saturate(2044%) hue-rotate(354deg) brightness(87%) contrast(85%);
 }
 
 .lgalicon.i-unapproved {
-	margin-left: 5px;
 	margin-right: 5px;
+	margin-left: 5px;
 }
 
 .lgalprofile_summary .lgalicon.i-unapproved {
@@ -554,14 +636,14 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 }
 
 .dz-table .file-row:first-child > div {
-	border-top: 1px solid #ddd;
+	border-top: 1px solid #DDDDDD;
 }
 
 .dz-table .file-row > div {
 	display: table-cell;
-	vertical-align: top;
-	border-bottom: 1px solid #ddd;
 	padding: 8px;
+	vertical-align: top;
+	border-bottom: 1px solid #DDDDDD;
 }
 
 .file-row .dz-remove {
@@ -584,14 +666,14 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 
 /* The total progress gets shown by event listeners */
 #total-progress {
-	opacity: 0;
 	transition: opacity 0.3s linear;
+	opacity: 0;
 }
 
 /* Hide the progress bar when finished */
 #previews .file-row.dz-success .progress {
-	opacity: 0;
 	transition: opacity 0.3s linear;
+	opacity: 0;
 }
 
 .begin_button {
@@ -599,14 +681,14 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 }
 
 .progress {
-	background-image: linear-gradient(to bottom, #EBEBEB 0, #F5F5F5 100%);
-	background-repeat: repeat-x;
 	overflow: hidden;
 	height: 30px;
 	margin-bottom: 10px;
-	background-color: #F5F5F5;
 	border-radius: 4px;
-	box-shadow: inset 0 1px 2px rgba(0, 0, 0, .1);
+	background-color: #F5F5F5;
+	background-image: linear-gradient(to bottom, #EBEBEB 0, #F5F5F5 100%);
+	background-repeat: repeat-x;
+	box-shadow: var(--shadow-elevation-low);
 }
 
 .progress-bar-success {
@@ -615,27 +697,27 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 }
 
 .progress-bar {
-	background-image: linear-gradient(to bottom, #428BCA 0, #3071A9 100%);
-	background-repeat: repeat-x;
+	font-size: 1em;
+	line-height: 30px;
 	float: left;
 	width: 0;
 	height: 100%;
-	font-size: 1em;
-	line-height: 30px;
-	color: #FFFFFF;
-	text-align: center;
-	background-color: #428BCA;
-	box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .15);
 	transition: width .6s ease;
+	text-align: center;
+	color: #FFFFFF;
+	background-color: #428BCA;
+	background-image: linear-gradient(to bottom, #428BCA 0, #3071A9 100%);
+	background-repeat: repeat-x;
+	box-shadow: var(--shadow-elevation-low);
 }
 
 /** Video iframe embeds */
 .base_iframe {
-	border: none;
+	display: block;
 	width: 480px;
 	height: 270px;
 	margin: 0 auto;
-	display: block;
+	border: none;
 }
 
 /* Use these to change colors of SVG icons when starting from fill #000000 */
@@ -697,7 +779,7 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 	content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 41 36'%3E%3Cpath fill='%23000000' d='M7.875 4.5h-6.75C.506 4.5 0 5.006 0 5.625v24.75c0 .619.506 1.125 1.125 1.125h6.75C8.494 31.5 9 30.994 9 30.375V5.625C9 5.006 8.494 4.5 7.875 4.5zM6.75 11.25h-4.5V9h4.5v2.25zM19.125 4.5h-6.75c-.619 0-1.125.506-1.125 1.125v24.75c0 .619.506 1.125 1.125 1.125h6.75c.619 0 1.125-.506 1.125-1.125V5.625c0-.619-.506-1.125-1.125-1.125zM18 11.25h-4.5V9H18v2.25z'/%3E%3Cpath d='M26.898 6.24L20.87 9.277a1.127 1.127 0 00-.498 1.511l10.124 20.093c.278.553.958.777 1.511.498l6.028-3.037c.553-.278.777-.958.498-1.511L28.409 6.737a1.128 1.128 0 00-1.511-.499z'/%3E%3C/svg%3E");
 }
 
- .i-setthumbnail::before, .i-myalbums::before {
+.i-setthumbnail::before, .i-myalbums::before {
 	content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' xml:space='preserve' viewBox='0 0 512 512'%3E%3Cpath fill='%23ffc107' d='M375.299 49.019V345.72h101.797c11.211-27.726 17.508-57.955 17.508-89.72 0-88.489-48.053-165.586-119.305-206.981zm0 0'/%3E%3Cpath fill='%23f84437' d='M345.475 34.304c-27.65-11.241-57.801-17.553-89.473-17.553-28.754 0-56.189 5.352-81.724 14.713L345.475 191.67V34.304zm0 0'/%3E%3Cpath fill='%235acf5f' d='M166.526 477.695c27.648 11.239 57.802 17.555 89.476 17.555 88.25 0 165.139-48.183 206.418-119.629H166.526v102.074zm0 0'/%3E%3Cpath fill='%23b82ed0' d='M144.513 44.533C68.936 84.701 17.397 164.279 17.397 256c0 21.086 2.981 41.446 8.114 60.914L226.887 121.6l-82.374-77.067zm0 0'/%3E%3Cpath fill='%232299f8' d='M136.699 462.977V250.708l-100.81 97.764c20.25 48.323 55.955 88.457 100.81 114.505zm0 0'/%3E%3C/svg%3E");
 }
 
@@ -797,6 +879,31 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 	content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%234CAF50' viewBox='0 0 32 32'%3E%3Cpath d='M27 4L12 19l-7-7-5 5 12 12L32 9z'/%3E%3C/svg%3E");
 }
 
+.lgtip::after {
+	position: absolute;
+	z-index: 999;
+	bottom: auto;
+	left: 5%;
+	visibility: hidden;
+	width: 90%;
+	height: auto;
+	content: attr(data-title);
+	text-align: center;
+	opacity: 0;
+	border: 1px solid #AAAAAA;
+	border-radius: 3px;
+	background: #FAFAFA;
+	box-shadow: var(--shadow-elevation-medium);
+}
+
+.lgtip:hover::after {
+	top: 15px;
+	visibility: visible;
+	transition: .3s ease;
+	transition-delay: 1s;
+	opacity: 1;
+}
+
 /* -------------------------------------------------------
  *	$MEDIA
  * -------------------------------------------------------
@@ -852,15 +959,15 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 	}
 
 	#album_sidebar {
-		width: 95%;
 		float: none;
-		margin: 10px;
 		order: 2;
+		width: 95%;
+		margin: 10px;
 	}
 
 	#item_main {
-		padding-right: 0;
 		margin: 0 5px;
+		padding-right: 0;
 	}
 
 	.album_container > .album_featured {
@@ -878,14 +985,14 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 	}
 
 	#album_sidebar .album_owner:after {
-		content: "";
-		clear: both;
 		display: block;
+		clear: both;
+		content: "";
 	}
 
 	#album_sidebar .album_owner {
-		margin-top: 0;
 		height: initial;
+		margin-top: 0;
 	}
 }
 
