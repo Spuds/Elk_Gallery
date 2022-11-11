@@ -208,6 +208,7 @@ class LevGal_Model_Tag
 		$album_list = true;
 		if (!allowedTo('lgal_manage'))
 		{
+			/** @var $albums \LevGal_Model_AlbumList */
 			$albums = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
 			$album_list = $albums->getVisibleAlbums();
 		}
@@ -257,6 +258,7 @@ class LevGal_Model_Tag
 			$tagString = Util::htmlspecialchars($modSettings['lgal_tag_items_list'], ENT_QUOTES);
 
 			$tags = array_map('trim', explode(',', $tagString));
+			natsort($tags);
 		}
 
 		// Tags in use, in albums they have write permission on
@@ -267,9 +269,12 @@ class LevGal_Model_Tag
 			{
 				if ($tag['name'] !== $txt['levgal_tagcloud_none'] && !in_array($tag['name'], $tags, true))
 				{
-					$tags[] = Util::htmlspecialchars($tag['name'], ENT_QUOTES);
+					$inUseTags[] = Util::htmlspecialchars($tag['name'], ENT_QUOTES);
 				}
 			}
+
+			natsort($inUseTags);
+			$tags = array_merge($tags, $inUseTags);
 		}
 
 		return $tags;
