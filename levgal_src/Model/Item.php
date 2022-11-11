@@ -1044,21 +1044,22 @@ class LevGal_Model_Item extends LevGal_Model_File
 	public function createItem($item_info)
 	{
 		global $modSettings;
-		$time_added = $time_updated = time();
+		$time_updated = time();
+		$time_added = $time_updated;
 		$db = database();
 
 		$db->insert('insert',
 			'{db_prefix}lgal_items',
 			array('id_album' => 'int', 'id_member' => 'int', 'poster_name' => 'string', 'item_name' => 'string', 'item_slug' => 'string',
 				  'filename' => 'string', 'filehash' => 'string', 'extension' => 'string', 'mime_type' => 'string',
-				  'time_added' => 'int', 'time_updated' => 'int', 'description' => 'string', 'approved' => 'int',
+				  'time_added' => 'int', 'time_updated' => 'int', 'description' => 'string', 'approved' => 'int', 'has_tag' => 'int',
 				  'comment_state' => 'int', 'filesize' => 'int', 'width' => 'int', 'height' => 'int', 'mature' => 'int',
 				  'num_views' => 'int', 'num_comments' => 'int', 'num_unapproved_comments' => 'int', 'meta' => 'string',
 			),
 			array(
 				$item_info['id_album'], $item_info['poster_info']['id'], $item_info['poster_info']['name'], $item_info['item_name'], $item_info['item_slug'],
 				$item_info['filename'], $item_info['filehash'] ?? '', $item_info['extension'] ?? '', $item_info['mime_type'] ?? '',
-				$time_added, $time_updated, $item_info['description'], $item_info['approved'] ? 1 : 0,
+				$time_added, $time_updated, $item_info['description'], $item_info['approved'] ? 1 : 0, $item_info['has_tags'] ? 1 : 0,
 				$item_info['comment_state'] ?? 0, $item_info['filesize'], 0, 0, !empty($item_info['mature']) ? 1 : 0,
 				0, 0, 0, !empty($item_info['meta']) && is_array($item_info['meta']) ? serialize($item_info['meta']) : '',
 			),
@@ -1302,6 +1303,11 @@ class LevGal_Model_Item extends LevGal_Model_File
 		{
 			$this->makePath($files['filehash']); // If this is the case, we may not *have* a path.
 			$thumbModel = new LevGal_Model_Thumbnail($files['fake_raw']);
+		}
+
+		if (empty($thumbModel))
+		{
+			return false;
 		}
 
 		return $thumbModel->createFromString($thumbnail['data'], $thumbnail['image_mime']) && $thumbModel->generateThumbnails();
