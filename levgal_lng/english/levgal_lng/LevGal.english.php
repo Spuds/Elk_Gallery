@@ -79,6 +79,7 @@ $txt['lgal_time_added'] = 'Added on:';
 $txt['lgal_time_updated'] = 'Updated on:';
 $txt['lgal_picture_size'] = 'Picture size:';
 $txt['lgal_file_size'] = 'File size:';
+$txt['lgal_file_type'] = 'File type:';
 $txt['lgal_comments'] = 'Comments (%1$s)';
 $txt['lgal_comments_for'] = 'Comments on %1$s';
 $txt['lgal_items_in'] = 'Items in %1$s';
@@ -97,6 +98,8 @@ $txt['lgal_sort_direction_desc'] = 'Z-A';
 $txt['lgal_posted_in'] = 'Posted in album:';
 
 $txt['lgal_click_to_expand'] = 'Click to zoom in';
+$txt['lgal_click_to_view'] = 'Click to view';
+
 
 $txt['lgal_pending_approval'] = 'Pending approval:';
 // Note: your language might need extras, e.g. lgal_albums_2 - LevGal supports this just fine.

@@ -16,7 +16,11 @@
 $txt['lgal_adding_to_album'] = 'Uploading to album: %1$s';
 $txt['lgal_editing_item'] = 'Editing item: %1$s';
 $txt['lgal_item_slug'] = 'Item slug:';
+$txt['lgal_item_tag'] = 'Item tags:';
+$txt['lgal_item_tag_input'] = 'Choose Tag';
+$txt['lgal_item_tag_description'] = 'Select tags for this item (you don\'t have to add any)';
 $txt['lgal_item_description'] = 'Description for this item (you don\'t have to put this in):';
+$txt['lgal_item_tag_notfound'] = 'No results found for \"{keyword}\", Enter ↵ to add it as a new tag';
 
 // Quota strings:
 $txt['lgal_allowed_formats'] = '<u>You can add the following types:</u>';
@@ -29,7 +33,7 @@ $txt['lgal_allowed_format_generic'] = '<em><b>Others</b></em>: %1$s';
 $txt['lgal_allowed_external'] = 'You can add items from: %1$s';
 
 // Single uploading:
-$txt['lgal_item_name_and_slug_auto'] = 'Item name and slug will be created for you when adding a file, or you may enter a custom one.';
+$txt['lgal_item_name_and_slug_auto'] = 'Item name and link/slug will be created for you when adding a file, or you may enter a custom one.';
 $txt['lgal_item_press_browse'] = 'To upload, press the browse button - ';
 $txt['lgal_item_drag_here'] = 'Drag a file here to upload, or click to select one.';
 $txt['lgal_item_browse'] = 'Browse...';
