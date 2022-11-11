@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -242,6 +242,35 @@ class LevGal_Model_Tag
 			);
 		}
 		$db->free_result($request);
+
+		return $tags;
+	}
+
+	public function getSiteTags()
+	{
+		global $modSettings, $txt;
+
+		// Site defined ones
+		$tags = [];
+		if (!empty($modSettings['lgal_tag_items_list']))
+		{
+			$tagString = Util::htmlspecialchars($modSettings['lgal_tag_items_list'], ENT_QUOTES);
+
+			$tags = array_map('trim', explode(',', $tagString));
+		}
+
+		// Tags in use, in albums they have write permission on
+		if (!empty($modSettings['lgal_tag_items_list_more']))
+		{
+			$cloudTags = $this->getTagCloud();
+			foreach ($cloudTags as $tag)
+			{
+				if ($tag['name'] !== $txt['levgal_tagcloud_none'] && !in_array($tag['name'], $tags, true))
+				{
+					$tags[] = Util::htmlspecialchars($tag['name'], ENT_QUOTES);
+				}
+			}
+		}
 
 		return $tags;
 	}

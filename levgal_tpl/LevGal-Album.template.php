@@ -1,5 +1,5 @@
 <?php
-// Version: 1.0; Levertine Gallery album template
+// Version: 1.2.0; Levertine Gallery album template
 
 /**
  * This file handles displaying the album pages.
@@ -24,9 +24,45 @@ function template_main_album_view()
 	</div>';
 }
 
+function template_main_tag_list()
+{
+	global $context, $txt;
+
+	// None defined and not allowed to add
+	if (empty($context['can_add_tags']) && empty($context['tags']))
+	{
+		return;
+	}
+
+	echo '
+		<dt class="clear_left">', $txt['lgal_item_tag'], '</dt>
+		<dd>
+			<input type="text" placeholder="', $txt['lgal_item_tag_input'], '" class="flexdatalist" data-min-length="0" multiple="multiple" list="tags" id="tag" name="tag" />
+			<span class="smalltext">', $txt['lgal_item_tag_description'], '</span>
+			<datalist id="tags">';
+
+	if (!empty($context['tags']))
+	{
+		foreach($context['tags'] as $tag)
+		{
+			echo '
+				<option value="', strtolower($tag), '">', $tag, '</option>';
+		}
+	}
+
+	echo '
+			</datalist>
+		</dd>';
+}
+
 function template_main_album_display()
 {
 	global $context, $txt, $memberContext, $scripturl;
+
+	if (!empty($context['album_actions']['actions']))
+	{
+		template_album_list_action_tabs($context['album_actions']);
+	}
 
 	echo '
 		<div id="item_main">
@@ -49,7 +85,7 @@ function template_main_album_display()
 				echo '
 			<div class="well">';
 
-				if ($owner_type === 'member' && $owner == 0)
+				if ($owner_type === 'member' && $owner === 0)
 				{
 					$title = sprintf($txt['lgal_albums_owned_site'], $context['forum_name']);
 					$link = '?media/albumlist/';
@@ -72,13 +108,13 @@ function template_main_album_display()
 				$done_album = false;
 				foreach ($albums as $id_album => $album)
 				{
-					if ($id_album == $context['album_details']['id_album'])
+					if ($id_album === (int) $context['album_details']['id_album'])
 					{
 						echo '
 					<div class="album_current">
 						<span class="lgalicon i-album"></span> <em>', $album['album_name'], '</em>
 					</div>
-					<ul style="columns: 3">';
+					<ul>';
 						$done_album = true;
 					}
 					elseif (!$done_album)
@@ -311,6 +347,9 @@ function template_add_single_item()
 							<span class="smalltext">', $scripturl, '?media/item/</span><input type="text" id="item_slug" name="item_slug" tabindex="', $context['tabindex']++, '" size="20" maxlength="40" class="input_text" value="', $context['item_slug'], '" /><span class="smalltext">.x/</span>
 						
 						</dd>';
+
+	template_main_tag_list();
+
 	if ($context['user']['is_guest'])
 	{
 		echo '
