@@ -39,6 +39,7 @@ class LevGal_Model_External_YouTube
 				$provider = array(
 					'provider' => 'YouTube',
 					'id' => $matches[1],
+					'start' => $this->getTimestamp($url),
 					'mime_type' => 'external/_video',
 				);
 				break;
@@ -52,14 +53,44 @@ class LevGal_Model_External_YouTube
 	{
 		global $txt;
 
+		$this->meta['start'] = $this->meta['start'] ?? '';
 		return array(
 			'display_template' => 'external',
 			'external_url' => 'https://www.youtube.com/watch?v=' . $this->meta['id'],
 			'video_id' => $this->meta['id'],
 			'markup' => '
-	<iframe class="base_iframe" style="width: 560px; height: 315px" src="//www.youtube-nocookie.com/embed/' . $this->meta['id'] . '?wmode=transparent" allowfullscreen></iframe>
+	<iframe class="base_iframe" style="width: 560px; height: 315px" src="//www.youtube-nocookie.com/embed/' . $this->meta['id'] . $this->meta['start'] . '" allowfullscreen></iframe>
 	<div class="centertext ext_link"><a href="https://www.youtube.com/watch?v=' . $this->meta['id'] . '">' . $txt['lgal_view_youtube'] . '</a></div>',
 		);
+	}
+
+	public function getTimestamp($link)
+	{
+		$pattern = '~\?t=(?:([1-9]{1,2})h)?(?:([1-9]{1,2})m)?(?:([1-9]+)s?)~';
+
+		if (preg_match($pattern, $link, $match))
+		{
+			$startAtSeconds = 0;
+
+			if (!empty($match[1]))
+			{
+				$startAtSeconds += $match[1] * 3600;
+			}
+
+			if (!empty($match[2]))
+			{
+				$startAtSeconds += $match[2] * 60;
+			}
+
+			if (!empty($match[3]))
+			{
+				$startAtSeconds += $match[3];
+			}
+
+			return '?start=' . $startAtSeconds;
+		}
+
+		return '';
 	}
 
 	public function getThumbnail()
