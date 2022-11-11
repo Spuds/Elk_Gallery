@@ -311,14 +311,14 @@ class ManageLevGalDash_Controller extends Action_Controller
 				'Peter Spicer, levertine.com'
 			),
 			'components' => array(
-				'<a href="https://mediaelementjs.com/">MediaElement.js</a>, &copy; 2020 John Dyer, under the <a href="https://github.com/johndyer/mediaelement/">MIT License</a>',
-				'<a href="https://gist.github.com/sgmurphy/3095196">url_slug.js</a> &copy; 2012 Sean Murphy, under the <a href="http://creativecommons.org/publicdomain/zero/1.0/">CC0 license</a>',
-				'<a href="https://www.dropzonejs.com/">Dropzone.js</a> &copy; 2021 Matias Meno under the <a href="https://github.com/dropzone/dropzone/blob/main/LICENSE">MIT License</a>',
-				'<a href="https://biati-digital.github.io/glightbox/">Glightbox</a> &copy; 2018 Biati Digital, under the <a href="https://github.com/biati-digital/glightbox/blob/master/license.md">MIT License</a>',
-				'<a href="https://github.com/ilikenwf/nestedSortable">nestedSortable</a> &copy; 2010-2016 Manuele J Sarfatti and <a href="https://github.com/ilikenwf/nestedSortable/graphs/contributors">others</a>, under the <a href="http://opensource.org/licenses/MIT">MIT License</a>',
-				'<a href="https://github.com/nnnick/Chart.js">Chart.js</a> &copy; 2013-2014 Nick Downie, under the <a href="https://github.com/nnnick/Chart.js/blob/master/LICENSE.md">MIT License</a>',
-				'<a href="https://github.com/lucaong/jQCloud">jQCloud</a> &copy; 2014-2017 Damien "Mistic" Sorel, under the <a href="https://github.com/mistic100/jQCloud/blob/master/LICENSE.txt">MIT License</a>',
+				'<a href="https://github.com/nnnick/Chart.js">Chart.js</a> &copy; 2014-2022 Chart.js Contributors, under the <a href="https://github.com/nnnick/Chart.js/blob/master/LICENSE.md">MIT License</a>',
 				'<a href="https://github.com/zenorocha/clipboard.js">Clipboard.js</a> &copy; Zeno Rocha 2021 under the <a href="https://github.com/zenorocha/clipboard.js/blob/master/LICENSE">MIT License</a>',
+				'<a href="https://www.dropzonejs.com/">Dropzone.js</a> &copy; 2021 Matias Meno under the <a href="https://github.com/dropzone/dropzone/blob/main/LICENSE">MIT License</a>',
+				'<a href="http://projects.sergiodinislopes.pt/flexdatalist">Flexdatalist.js</a> &copy; Sérgio Dinis Lopes, under the <a href="https://github.com/sergiodlopes/jquery-flexdatalist/blob/master/LICENSE">MIT License</a>',
+				'<a href="https://biati-digital.github.io/glightbox/">Glightbox</a> &copy; 2018 Biati Digital, under the <a href="https://github.com/biati-digital/glightbox/blob/master/license.md">MIT License</a>',
+				'<a href="https://github.com/lucaong/jQCloud">jQCloud</a> &copy; 2014-2017 Damien "Mistic" Sorel, under the <a href="https://github.com/mistic100/jQCloud/blob/master/LICENSE.txt">MIT License</a>',
+				'<a href="https://github.com/ilikenwf/nestedSortable">nestedSortable</a> &copy; 2010-2016 Manuele J Sarfatti and <a href="https://github.com/ilikenwf/nestedSortable/graphs/contributors">others</a>, under the <a href="http://opensource.org/licenses/MIT">MIT License</a>',
+				'<a href="https://gist.github.com/sgmurphy/3095196">url_slug.js</a> &copy; 2012 Sean Murphy, under the <a href="http://creativecommons.org/publicdomain/zero/1.0/">CC0 license</a>',
 			),
 			'images' => array(
 				'<a href="https://p.yusukekamiyamane.com/">Fugue Icons</a>, &copy; 2013 Yusuke Kamiyamane, under <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC-SA-3.0</a>',
