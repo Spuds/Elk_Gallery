@@ -40,7 +40,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		}
 
 		// Does the album slug provided match the provided slug?
-		if ($context['album_details']['album_slug'] != $this->album_slug)
+		if ($context['album_details']['album_slug'] !== $this->album_slug)
 		{
 			LevGal_Helper_Http::hardRedirect($context['album_details']['album_url'] . (!empty($_GET['sub']) ? $_GET['sub'] . '/' : ''));
 		}
@@ -93,7 +93,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 
 	protected function processAlbums($order_by, $order)
 	{
-		global $context, $txt, $modSettings, $scripturl, $user_info;
+		global $context, $txt, $modSettings, $scripturl;
 
 		// Page title, this level of link tree, canonical URL
 		$context['page_title'] = sprintf($txt['lgal_viewing_album'], $context['album_details']['album_name']);
@@ -151,10 +151,10 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		$context['album_actions'] = array();
 		if ($this->album_obj->canUploadItems())
 		{
-			$context['album_actions']['actions']['additem'] = array($txt['lgal_add_item'], $album['url'] . 'add/');
+			$context['album_actions']['actions']['additem'] = array($txt['lgal_add_item'], $album['url'] . 'add/', 'tab' => true);
 			if (allowedTo(array('lgal_manage', 'lgal_addbulk')))
 			{
-				$context['album_actions']['actions']['addbulk'] = array($txt['lgal_add_bulk'], $album['url'] . 'addbulk/');
+				$context['album_actions']['actions']['addbulk'] = array($txt['lgal_add_bulk'], $album['url'] . 'addbulk/', 'tab' => true);
 			}
 		}
 		if (!$context['user']['is_guest'])
@@ -183,7 +183,8 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 
 		if ($this->album_obj->isEditable())
 		{
-			$context['album_actions']['moderation']['editalbum'] = array($txt['lgal_edit_album_title'], $album['url'] . 'edit/');
+			$context['album_actions']['moderation']['editalbum'] = array($txt['lgal_edit_album_title'], $album['url'] . 'edit/', 'tab' => true);
+			$context['album_actions']['actions']['editalbum'] = array($txt['lgal_edit_album_title'], $album['url'] . 'edit/', 'tab' => true, 'sidebar' => false);
 
 			// Can they move this album?
 			$ownership = $this->album_obj->getAlbumOwnership();
@@ -330,9 +331,16 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		$this->addLinkTree($txt['lgal_add_item'], $album['url'] . 'add/');
 		$context['canonical_url'] = $album['url'] . 'add/';
 
-		loadJavascriptFile(['/dropzone/dropzone.js', 'url_slug.js', 'upload.js'], ['subdir' => 'levgal_res', 'defer' => false]);
-		addInlineJavascript('Dropzone.autoDiscover = false;', true);
-		loadCSSFile(['/dropzone/dropzone.css'], ['subdir' => 'levgal_res']);
+		loadJavascriptFile(['/dropzone/dropzone.js', 'url_slug.js', 'upload.js', 'jquery.flexdatalist.min.js'], ['subdir' => 'levgal_res', 'defer' => false]);
+		addInlineJavascript('
+		Dropzone.autoDiscover = false;
+			$(".flexdatalist").flexdatalist({
+				minLength: 0,
+				limitOfValues: 5,' . (!empty($modSettings['lgal_tag_items_list_more']) ? '
+				noResultsText: "' . $txt['lgal_item_tag_notfound'] . '"' : '
+				selectionRequired: true') . '
+			});', true);
+		loadCSSFile(['/dropzone/dropzone.css', 'jquery.flexdatalist.css'], ['subdir' => 'levgal_res']);
 
 		$this->setTemplate('LevGal-Album', 'add_single_item');
 
@@ -342,6 +350,12 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		$context['item_slug'] = '';
 		$context['item_posted_by'] = $_SESSION['guest_name'] ?? '';
 		$context['description'] = '';
+
+		// Tags
+		/** @var $tagModel \LevGal_Model_Tag */
+		$tagModel = LevGal_Bootstrap::getModel('LevGal_Model_Tag');
+		$context['tags'] = $tagModel->getSiteTags();
+		$context['can_add_tags'] = !empty($modSettings['lgal_tag_items_list_more']);
 
 		$context['requires_approval'] = !allowedTo(array('lgal_manage', 'lgal_additem_approve', 'lgal_approve_item'));
 
@@ -417,16 +431,17 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 				}
 			}
 
+			// Tags
+			$context['raw_tags'] = LevGal_Helper_Sanitiser::sanitiseTagFromPost('tag');
+
 			// Then description. It is optional.
-			if ($context['description_box']->isEmpty() || !$context['description_box']->sanitizeContent())
-			{
-				$context['description'] = '';
-			}
-			else
+			$context['description'] = '';
+			if (!$context['description_box']->isEmpty() && $context['description_box']->sanitizeContent())
 			{
 				$context['description'] = $context['description_box']->getForDB();
 			}
 
+			// Save this new item
 			$itemID = $this->processNewItem();
 			if (!empty($itemID))
 			{
@@ -663,6 +678,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		}
 
 		$uploadModel = new LevGal_Model_Upload();
+		/** @var $itemModel \LevGal_Model_Item */
 		$itemModel = LevGal_Bootstrap::getModel('LevGal_Model_Item');
 
 		$item_info = array(
@@ -677,6 +693,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 			'approved' => !$context['requires_approval'],
 			'comment_state' => empty($context['new_options']['enable_comments']) || empty($_POST['enable_comments']) ? 2 : 0, // 0 = enable, 1 = no new comments, 2 = no comments
 			'mature' => !empty($context['new_options']['mature']) && !empty($_POST['mature']),
+			'has_tags' => !empty($context['raw_tags']),
 		);
 
 		if ($context['upload_type'] === 'link')
@@ -729,6 +746,14 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 
 					// First, the hash. We need this before we do anything else.
 					$itemModel->updateItem(array('hash' => $hash));
+
+					// Did they add tags?
+					if (!empty($context['raw_tags']))
+					{
+						/** @var $tagModel \LevGal_Model_Tag */
+						$tagModel = LevGal_Bootstrap::getModel('LevGal_Model_Tag');
+						$tagModel->setTagsOnItem($itemID, $context['raw_tags']);
+					}
 
 					// Then we can do the fun of meta.
 					$meta = $itemModel->getMetadata();

@@ -848,9 +848,23 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 		}
 
 		// Tags are mildly fussy.
-		$context['tags'] = '';
-		$tags = $this->item_obj->getTags();
+		loadJavascriptFile(['jquery.flexdatalist.min.js'], ['subdir' => 'levgal_res', 'defer' => true]);
+		addInlineJavascript('
+			$(".flexdatalist").flexdatalist({
+				minLength: 0,
+				limitOfValues: 5,' . (!empty($modSettings['lgal_tag_items_list_more']) ? '
+				noResultsText: "' . $txt['lgal_item_tag_notfound'] . '"' : '
+				selectionRequired: true') . '
+			});', true);
+		loadCSSFile(['jquery.flexdatalist.css'], ['subdir' => 'levgal_res']);
+
+		/** @var $tagModel \LevGal_Model_Tag */
 		$tagModel = LevGal_Bootstrap::getModel('LevGal_Model_Tag');
+		$context['tags'] = $tagModel->getSiteTags();
+		$context['can_add_tags'] = !empty($modSettings['lgal_tag_items_list_more']);
+
+		// Existing item tags
+		$tags = $this->item_obj->getTags();
 		if (!empty($tags))
 		{
 			$tag_list = array();
@@ -858,10 +872,13 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 			{
 				$tag_list[] = $tag['name'];
 			}
-			$context['tags'] = implode(', ', $tag_list);
+
+			addInlineJavascript('
+			$(".flexdatalist").flexdatalist("add", "' . implode(', ', $tag_list) . '");', true);
 		}
 
 		// Now let's set up editing the file itself or URL.
+		/** @var $uploadModel \LevGal_Model_Upload */
 		$uploadModel = LevGal_Bootstrap::getModel('LevGal_Model_Upload');
 		$context['allowed_formats'] = $uploadModel->getDisplayFileFormats();
 		$context['external_formats'] = array();
@@ -943,15 +960,15 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 			}
 
 			// Tags
-			$context['raw_tags'] = isset($_POST['tags']) ? Util::htmltrim($_POST['tags']) : '';
-			$context['tags'] = Util::htmlspecialchars($context['raw_tags'], ENT_QUOTES);
+			$context['raw_tags'] = LevGal_Helper_Sanitiser::sanitiseTagFromPost('tags');
+			$context['tags'] = LevGal_Helper_Sanitiser::sanitiseTagFromPost('tags', true);
 
 			// Changing up the file: URL first
 			if ($context['editing'] === 'link')
 			{
 				$context['edit_url'] = LevGal_Helper_Sanitiser::sanitiseUrlFromPost('upload_url');
 				// It's actually different, right?
-				if ($context['edit_url'] != $context['original_url'])
+				if ($context['edit_url'] !== $context['original_url'])
 				{
 					if (!empty($context['edit_url']))
 					{
@@ -1026,7 +1043,7 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 				}
 				$changes['description'] = $context['description'];
 				// Updating an existing URL is a bit tricky.
-				if (!empty($context['edit_url']) && $context['edit_url'] != $context['original_url'])
+				if (!empty($context['edit_url']) && $context['edit_url'] !== $context['original_url'])
 				{
 					$this->item_obj->deleteFiles();
 					$changes['filehash'] = $uploadModel->getFileHash($context['edit_url']);
@@ -1220,11 +1237,6 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 			loadCSSFile('glightbox.min.css', ['subdir' => 'levgal_res/lightbox']);
 			loadJavascriptFile('glightbox.min.js', ['subdir' => 'levgal_res/lightbox', 'defer' => true]);
 			addInlineJavascript('const lightbox = GLightbox({touchNavigation: true});', true);
-		}
-		elseif ($context['item_display']['display_template'] === 'audio' || $context['item_display']['display_template'] === 'video')
-		{
-			loadCSSFile('mediaelementplayer.css', ['subdir' => 'levgal_res/me']);
-			loadJavascriptFile('mediaelement-and-player.min.js', ['subdir' => 'levgal_res/me']);
 		}
 	}
 }

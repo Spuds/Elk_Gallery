@@ -212,6 +212,9 @@ function levgal_adminSettings($return_config = false)
 		array('check', 'lgal_feed_enable_item'),
 		array('int', 'lgal_feed_items_item', 'postinput' => $txt['lgal_feed_items_limits']),
 		'',
+		array('text', 'lgal_tag_items_list', 80),
+		array('check', 'lgal_tag_items_list_more'),
+		'',
 		'social' => array('callback', 'lgal_social'),
 		'metadata' => array('callback', 'lgal_metadata'),
 	);

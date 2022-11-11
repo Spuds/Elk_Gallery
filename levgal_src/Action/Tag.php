@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -20,6 +20,7 @@ class LevGal_Action_Tag extends LevGal_Action_Abstract
 		parent::__construct();
 
 		$tagModel = LevGal_Bootstrap::getModel('LevGal_Model_Tag');
+		/** @var $tagModel \LevGal_Model_Tag */
 		$context['tags'] = $tagModel->getTagCloud();
 
 		// We need us some tags.

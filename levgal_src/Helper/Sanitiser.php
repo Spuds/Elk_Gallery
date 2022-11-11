@@ -110,6 +110,13 @@ class LevGal_Helper_Sanitiser
 		return self::sanitiseInt($_POST[$var] ?? 0, $min, $max);
 	}
 
+	public static function sanitiseTagFromPost($var, $template = null)
+	{
+		$tags = isset($_POST[$var]) ? Util::htmltrim($_POST[$var]) : '';
+
+		return $template === true ? Util::htmlspecialchars($tags, ENT_QUOTES) : $tags;
+	}
+
 	public static function sanitiseUsernameFromPost($var)
 	{
 		// First, get the username.
