@@ -285,6 +285,7 @@ class LevGal_Model_AlbumList
 	public function getAlbumFamilyInHierarchy($owner_type, $owner, $album)
 	{
 		// So first we get the hierarchy of the owner in full.
+		$album = (int) $album;
 		$hierarchy = $this->getAlbumHierarchy($owner_type, $owner);
 		if (empty($hierarchy[$album]))
 		{
@@ -329,7 +330,7 @@ class LevGal_Model_AlbumList
 				$pruning[] = $map[$i];
 				$pruning_rest = true;
 			}
-			elseif ($hierarchy[$map[$i]]['album_level'] == $album_level - 1)
+			elseif ($hierarchy[$map[$i]]['album_level'] === $album_level - 1)
 			{
 				if ($found_parent)
 				{
