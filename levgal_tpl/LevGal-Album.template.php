@@ -72,6 +72,7 @@ function template_main_album_display()
 	{
 		$title = '';
 		$link = '';
+
 		echo '
 			<div class="album_container">';
 		foreach ($context['album_family'] as $owner_type => $owners)
@@ -321,7 +322,7 @@ function template_add_single_item()
 			<h3 class="secondary_header">
 				', $context['page_title'], '
 			</h3>
-			<form action="', $context['album_details']['album_url'], 'add/" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" class="flow_hidden" onsubmit="submitonce(this);smc_saveEntities(\'postmodify\', [\'item_name\', \'item_slug\', \'', $context['description_box']->getId(), '\', \'guest_username\'], \'options\');" enctype="multipart/form-data">
+			<form action="', $context['album_details']['album_url'], 'add/" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" onsubmit="submitonce(this);smc_saveEntities(\'postmodify\', [\'item_name\', \'item_slug\', \'', $context['description_box']->getId(), '\', \'guest_username\'], \'options\');" enctype="multipart/form-data">
 			<div>
 				<div class="well">';
 
@@ -671,7 +672,7 @@ function template_add_bulk_items()
 			<h3 class="secondary_header">
 				', $context['page_title'], '
 			</h3>							
-			<form action="#" method="post" name="postmodify" id="postmodify" class="flow_hidden" accept-charset="UTF-8">
+			<form action="#" method="post" name="postmodify" id="postmodify" accept-charset="UTF-8">
 				<div class="well">	
 					<div>
 						<input type="button" value="' . $txt['lgal_begin_upload'] . '" style="display: none" class="right_submit begin_button" onclick="return beginUpload();" />
@@ -1014,7 +1015,7 @@ function template_edit_album()
 	global $context, $txt, $scripturl;
 
 	echo '
-		<form action="', $context['destination'], '" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" class="flow_hidden" onsubmit="submitonce(this);" enctype="multipart/form-data">
+		<form action="', $context['destination'], '" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" onsubmit="submitonce(this);" enctype="multipart/form-data">
 			<h2 class="secondary_header">
 				', $context['page_title'], '
 			</h2>

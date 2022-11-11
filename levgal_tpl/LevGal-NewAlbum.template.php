@@ -17,7 +17,7 @@ function template_newalbum()
 	global $context, $txt;
 
 	echo '
-		<form action="', $context['destination'], '" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" class="flow_hidden" onsubmit="submitonce(this);" enctype="multipart/form-data">
+		<form action="', $context['destination'], '" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" onsubmit="submitonce(this);" enctype="multipart/form-data">
 			<h2 class="secondary_header">
 				', $txt['levgal_newalbum'], '
 			</h2>

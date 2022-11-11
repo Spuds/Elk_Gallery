@@ -50,6 +50,11 @@ function template_main_item_display()
 {
 	global $context, $txt;
 
+	if (!empty($context['item_actions']['actions']))
+	{
+		template_album_list_action_tabs($context['item_actions']);
+	}
+
 	echo '
 		<div id="item_main">
 			<h3 class="secondary_header">', $context['item_details']['item_name'], '</h3>
@@ -834,7 +839,7 @@ function template_flagitem()
 	global $txt, $context, $scripturl;
 
 	echo '
-		<form action="', $context['form_url'], '" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" class="flow_hidden">
+		<form action="', $context['form_url'], '" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" >
 			<h3 class="secondary_header">', $context['page_title'], '</h3>
 			<div class="well">
 				<dl class="settings">
@@ -897,7 +902,7 @@ function template_edit_item()
 
 	echo '
 			<h3 class="secondary_header">', $context['page_title'], '</h3>
-			<form action="', $context['form_url'], '" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" class="flow_hidden" onsubmit="submitonce(this);smc_saveEntities(\'postmodify\', [\'item_name\', \'item_slug\', \'', $context['description_box']->getId(), '\', \'guest_username\'], \'options\');" enctype="multipart/form-data">
+			<form action="', $context['form_url'], '" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" onsubmit="submitonce(this);smc_saveEntities(\'postmodify\', [\'item_name\', \'item_slug\', \'', $context['description_box']->getId(), '\', \'guest_username\'], \'options\');" enctype="multipart/form-data">
 				<div class="well">';
 
 	// If an error occurred, explain what happened.

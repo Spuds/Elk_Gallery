@@ -15,7 +15,7 @@ function template_editcomment()
 	global $context, $txt;
 
 	echo '
-		<form action="', $context['form_url'], '" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" class="flow_hidden" onsubmit="submitonce(this);smc_saveEntities(\'postmodify\', [\'', $context['comment_box']->getId(), '\']);" enctype="multipart/form-data">
+		<form action="', $context['form_url'], '" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" onsubmit="submitonce(this);smc_saveEntities(\'postmodify\', [\'', $context['comment_box']->getId(), '\']);" enctype="multipart/form-data">
 			<h3 class="secondary_header">', $context['display_title'], '</h3>
 			<div class="well">';
 
@@ -52,7 +52,7 @@ function template_flagcomment()
 	global $txt, $context, $scripturl;
 
 	echo '
-		<form action="', $context['form_url'], '" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" class="flow_hidden">
+		<form action="', $context['form_url'], '" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" >
 			<h3 class="secondary_header">', $context['page_title'], '</h3>
 			<div class="well">
 				<dl class="settings">

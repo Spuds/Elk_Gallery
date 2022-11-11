@@ -1306,6 +1306,8 @@ class LevGal_Model_Album
 	public function getAlbumFamily()
 	{
 		$hierarchies = array();
+
+		/** @var $albumList \LevGal_Model_AlbumList */
 		$albumList = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
 		foreach ($this->current_album['owner_cache'] as $owner_type => $owners)
 		{
