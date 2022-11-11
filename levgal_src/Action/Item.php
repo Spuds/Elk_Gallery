@@ -103,13 +103,13 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 		}
 
 		$context['item_actions'] = array();
-		$context['item_actions']['actions']['album'] = array($txt['lgal_back_to_album'], $album_details['album_url']);
+		$context['item_actions']['actions']['album'] = array($txt['lgal_back_to_album'], $album_details['album_url'], 'tab' => true);
 		if (!$user_info['is_guest'])
 		{
 			// Bookmarks
 			$bookmark = new LevGal_Model_Bookmark();
 			$action = $bookmark->isBookmarked($this->item_id) ? 'unbookmark' : 'bookmark';
-			$context['item_actions']['actions'][$action] = array($txt['lgal_' . $action . '_item'], $item['url'] . $action . '/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'js' => 'onclick="return handleBookmark(this)"');
+			$context['item_actions']['actions'][$action] = array($txt['lgal_' . $action . '_item'], $item['url'] . $action . '/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'js' => 'onclick="return handleBookmark(this)"', 'tab' => true);
 
 			// Notifications
 			$notify = new LevGal_Model_Notify();
@@ -141,6 +141,7 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 
 		if ($this->item_obj->isEditable())
 		{
+			$context['item_actions']['actions']['edititem'] = array($txt['lgal_edit_item_title'], $item['url'] . 'edit/','tab' => true, 'sidebar' => false);
 			$context['item_actions']['moderation']['edititem'] = array($txt['lgal_edit_item_title'], $item['url'] . 'edit/');
 			$context['item_actions']['moderation']['moveitem'] = array($txt['lgal_move_item_title'], $item['url'] . 'move/');
 		}
