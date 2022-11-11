@@ -14,10 +14,10 @@ class LevGal_Helper_Image
 {
 	private $image_handler;
 
-	public function __construct($fatal = true)
+	public function __construct($fatal = true, $force_GD = false)
 	{
 		$handlers = $this->availableHandlers();
-		if ($handlers['Imagick'] === true)
+		if (!$force_GD && $handlers['Imagick'] === true)
 		{
 			$this->image_handler = new LevGal_Helper_Image_Imagick();
 		}
