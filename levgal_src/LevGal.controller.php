@@ -80,7 +80,7 @@ class LevGal_Controller extends Action_Controller
 	}
 }
 
-function levgal_pageindex($base_url, $current_page, $num_pages)
+function levgal_pageindex($base_url, $current_page, $num_pages, $hash_tag = '')
 {
 	global $modSettings;
 
@@ -88,8 +88,8 @@ function levgal_pageindex($base_url, $current_page, $num_pages)
 	// First, the << and < links, requires us to be on any page that isn't the first one.
 	if ($current_page > 1)
 	{
-		$links[] = '<a class="navPages" href="' . $base_url . '">&laquo;</a>';
-		$links[] = '<a class="navPages" href="' . $base_url . 'page-' . ($current_page - 1) . '">&lsaquo;</a>';
+		$links[] = '<a class="navPages" href="' . $base_url . $hash_tag . '">&laquo;</a>';
+		$links[] = '<a class="navPages" href="' . $base_url . 'page-' . ($current_page - 1) . $hash_tag . '">&lsaquo;</a>';
 	}
 	else
 	{
@@ -103,7 +103,7 @@ function levgal_pageindex($base_url, $current_page, $num_pages)
 	// Show the first page. (>1< ... 6 7 [8] 9 10 ... 15)
 	if ($current_page > ($PageContiguous + 1))
 	{
-		$links[] = '<a class="navPages" href="' . $base_url . '">1</a>';
+		$links[] = '<a class="navPages" href="' . $base_url . $hash_tag . '">1</a>';
 	}
 
 	// Show the ... after the first page.  (1 >...< 6 7 [8] 9 10 ... 15)
@@ -118,7 +118,7 @@ function levgal_pageindex($base_url, $current_page, $num_pages)
 		if ($current_page > $nCont)
 		{
 			$this_page = $current_page - $nCont;
-			$links[] = '<a class="navPages" href="' . $base_url . ((int) $this_page !== 1 ? 'page-' . $this_page . '/' : '') . '">' . $this_page . '</a>';
+			$links[] = '<a class="navPages" href="' . $base_url . ((int) $this_page !== 1 ? 'page-' . $this_page . '/' : '') . $hash_tag . '">' . $this_page . '</a>';
 		}
 	}
 
@@ -132,7 +132,7 @@ function levgal_pageindex($base_url, $current_page, $num_pages)
 		if ($current_page + $nCont <= $num_pages)
 		{
 			$this_page = $current_page + $nCont;
-			$links[] = '<a class="navPages" href="' . $base_url . 'page-' . $this_page . '/">' . $this_page . '</a>';
+			$links[] = '<a class="navPages" href="' . $base_url . 'page-' . $this_page . $hash_tag . '">' . $this_page . '</a>';
 		}
 	}
 
@@ -145,14 +145,14 @@ function levgal_pageindex($base_url, $current_page, $num_pages)
 	// Show the last number in the list. (1 ... 6 7 [8] 9 10 ... >15<)
 	if ($current_page + $PageContiguous < $num_pages)
 	{
-		$links[] = '<a class="navPages" href="' . $base_url . 'page-' . $num_pages . '/">' . $num_pages . '</a>';
+		$links[] = '<a class="navPages" href="' . $base_url . 'page-' . $num_pages . $hash_tag . '">' . $num_pages . '</a>';
 	}
 
 	// Lastly, the > and >> links, which require us to be on any page that isn't the last one.
 	if ($current_page < $num_pages)
 	{
-		$links[] = '<a class="navPages" href="' . $base_url . 'page-' . ($current_page + 1) . '/">&rsaquo;</a>';
-		$links[] = '<a class="navPages" href="' . $base_url . 'page-' . ($num_pages) . '/">&raquo;</a>';
+		$links[] = '<a class="navPages" href="' . $base_url . 'page-' . ($current_page + 1) . $hash_tag .'">&rsaquo;</a>';
+		$links[] = '<a class="navPages" href="' . $base_url . 'page-' . ($num_pages) . $hash_tag . '">&raquo;</a>';
 	}
 	else
 	{
