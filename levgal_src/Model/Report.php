@@ -107,13 +107,13 @@ class LevGal_Model_Report
 		if ($type === 'items' || $type === 'comments')
 		{
 			$reports = Util::unserialize($modSettings['lgal_reports']);
-			if (!isset($reports[$type]))
+			if (isset($reports[$type]))
 			{
-				$reports[$type] = 1;
+				$reports[$type]++;
 			}
 			else
 			{
-				$reports[$type]++;
+				$reports[$type] = 1;
 			}
 
 			updateSettings(array('lgal_reports' => serialize($reports)));

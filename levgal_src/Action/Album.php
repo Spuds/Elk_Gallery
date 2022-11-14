@@ -421,13 +421,13 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 			if ($context['user']['is_guest'])
 			{
 				list($valid, $context['item_posted_by']) = LevGal_Helper_Sanitiser::sanitiseUsernameFromPost('guest_username');
-				if (!$valid)
+				if ($valid)
 				{
-					$context['errors'][] = $txt['levgal_error_invalid_user'];
+					$_SESSION['guest_name'] = $context['item_posted_by'];
 				}
 				else
 				{
-					$_SESSION['guest_name'] = $context['item_posted_by'];
+					$context['errors'][] = $txt['levgal_error_invalid_user'];
 				}
 			}
 
@@ -808,13 +808,13 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 				$itemModel->deleteItem();
 				$context['errors']['upload_no_move'] = $txt['lgal_upload_no_move'];
 			}
-			elseif ($result === false)
+			elseif ($result !== false)
 			{
-				$context['errors']['upload_no_validate'] = $txt['lgal_upload_no_validate'];
+				$context['errors'][$result] = $txt['lgal_' . $result];
 			}
 			else
 			{
-				$context['errors'][$result] = $txt['lgal_' . $result];
+				$context['errors']['upload_no_validate'] = $txt['lgal_upload_no_validate'];
 			}
 		}
 
@@ -1044,7 +1044,8 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		// There are certain things we will need to have set up to make this work.
 		$context['ownership_blocks'] = array();
 		$ownership = $this->album_obj->getAlbumOwnership();
-		$context['ownership'] = $context['ownership_original'] = $ownership['type'];
+		$context['ownership_original'] = $ownership['type'];
+		$context['ownership'] = $context['ownership_original'];
 		$context['ownership_data'] = array();
 		$context['ownership_opts'] = $this->album_obj->getOwnershipOptions();
 		$context['group_list'] = $this->album_obj->getAllowableOwnershipGroups();
@@ -1216,16 +1217,16 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 							// Now, this is where it gets complicated.
 							if (count(array_diff($context['album_owner'][$type], $values)) == 0)
 							{
-								if (!in_array('site', $context['ownership_opts'], true))
-								{
-									$context['errors']['one_owner'] = 'levgal_error_at_least_one_owner';
-								}
-								else
+								if (in_array('site', $context['ownership_opts'], true))
 								{
 									$context['add_member'] = $context['remove_member'] = $context['add_group'] = $context['remove_group'] = array();
 									$context['ownership'] = 'site';
 									$context['ownership_data'] = array();
 									$changing_ownership = true;
+								}
+								else
+								{
+									$context['errors']['one_owner'] = 'levgal_error_at_least_one_owner';
 								}
 							}
 						}

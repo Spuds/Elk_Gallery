@@ -45,20 +45,7 @@ function levgal_adminImport()
 	);
 	call_integration_hook('integrate_lgal_importers');
 
-	if (!isset($_POST['importer'], $context['possible_importers'][$_POST['importer']]))
-	{
-		foreach ($context['possible_importers'] as $import_id => $class)
-		{
-			$importer = new $class;
-			if ($importer->isValid())
-			{
-				$context['valid_importers'][] = $import_id;
-			}
-		}
-
-		$context['sub_template'] = !empty($context['valid_importers']) ? 'importer_home' : 'no_valid_importers';
-	}
-	else
+	if (isset($_POST['importer'], $context['possible_importers'][$_POST['importer']]))
 	{
 		levgal_extend_admin_time();
 		checkSession();
@@ -148,5 +135,18 @@ function levgal_adminImport()
 				$context['substep_title'] = $txt['levgal_importer_substep_' . $steps[$step]];
 			}
 		}
+	}
+	else
+	{
+		foreach ($context['possible_importers'] as $import_id => $class)
+		{
+			$importer = new $class;
+			if ($importer->isValid())
+			{
+				$context['valid_importers'][] = $import_id;
+			}
+		}
+
+		$context['sub_template'] = !empty($context['valid_importers']) ? 'importer_home' : 'no_valid_importers';
 	}
 }

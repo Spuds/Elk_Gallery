@@ -162,13 +162,13 @@ class LevGal_Action_Newalbum extends LevGal_Action_Abstract
 			// If they can't edit it permanently, take them to the page where they can edit it.
 			// If they can edit it permanently, take them back to the album itself and they can
 			// change it later if they want.
-			if (!$editable)
+			if ($editable)
 			{
-				redirectexit($albumUrl . 'edit/');
+				redirectexit($albumUrl);
 			}
 			else
 			{
-				redirectexit($albumUrl);
+				redirectexit($albumUrl . 'edit/');
 			}
 		}
 		else

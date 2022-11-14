@@ -13,7 +13,7 @@
 class LevGal_Model_Unseen
 {
 	/** @var int  */
-	const UNSEEN_THRESHOLD = 2;
+	public const UNSEEN_THRESHOLD = 2;
 	/** @var LevGal_Model_AlbumList */
 	private $album_list;
 	/** @var mixed */
@@ -185,13 +185,13 @@ class LevGal_Model_Unseen
 		// Now we rebuild it, in order.
 		foreach (array_keys($unseen_items) as $id_item)
 		{
-			if (!isset($items[$id_item]))
+			if (isset($items[$id_item]))
 			{
-				unset ($unseen_items[$id_item]);
+				$unseen_items[$id_item] = $items[$id_item];
 			}
 			else
 			{
-				$unseen_items[$id_item] = $items[$id_item];
+				unset ($unseen_items[$id_item]);
 			}
 		}
 

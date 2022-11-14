@@ -34,14 +34,14 @@ class LevGal_Model_Metadata_ExifTag
 	{
 		foreach ($data as $tag => $value)
 		{
-			if (!is_array($value))
+			if (is_array($value))
 			{
-				$method = 'parseTag' . str_replace('/', '', $tag);
-				$data[$tag] = method_exists($this, $method) ? $this->$method($value) : $value;
+				$data[$tag] = $this->formatData($value);
 			}
 			else
 			{
-				$data[$tag] = $this->formatData($value);
+				$method = 'parseTag' . str_replace('/', '', $tag);
+				$data[$tag] = method_exists($this, $method) ? $this->$method($value) : $value;
 			}
 		}
 

@@ -108,9 +108,7 @@ class LevGal_Action_Moderate extends LevGal_Action_Abstract
 			return array();
 		}
 
-		$moderate = new LevGal_Model_Moderate();
-
-		return $moderate->getVisibleUnapprovedComments(0, 10, 'desc', $albums);
+		return (new LevGal_Model_Moderate())->getVisibleUnapprovedComments(0, 10, 'desc', $albums);
 	}
 
 	protected function blockUnapproved_items()
@@ -124,9 +122,7 @@ class LevGal_Action_Moderate extends LevGal_Action_Abstract
 			return array();
 		}
 
-		$moderate = new LevGal_Model_Moderate();
-
-		return $moderate->getVisibleUnapprovedItems(0, 10, 'desc', $albums);
+		return (new LevGal_Model_Moderate())->getVisibleUnapprovedItems(0, 10, 'desc', $albums);
 	}
 
 	protected function blockUnapproved_albums()
@@ -137,23 +133,17 @@ class LevGal_Action_Moderate extends LevGal_Action_Abstract
 			return array();
 		}
 
-		$moderate = new LevGal_Model_Moderate();
-
-		return $moderate->getVisibleUnapprovedAlbums(0, 10, 'desc', $albums);
+		return (new LevGal_Model_Moderate())->getVisibleUnapprovedAlbums(0, 10, 'desc', $albums);
 	}
 
 	protected function blockReported_comments()
 	{
-		$moderate = new LevGal_Model_Moderate();
-
-		return $moderate->getReportedComments(0, 10, 'desc');
+		return (new LevGal_Model_Moderate())->getReportedComments(0, 10, 'desc');
 	}
 
 	protected function blockReported_items()
 	{
-		$moderate = new LevGal_Model_Moderate();
-
-		return $moderate->getReportedItems(0, 10, 'desc');
+		return (new LevGal_Model_Moderate())->getReportedItems(0, 10, 'desc');
 	}
 
 	public function actionUnapproved_comments()

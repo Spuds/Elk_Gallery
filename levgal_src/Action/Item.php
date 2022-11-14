@@ -447,23 +447,23 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 			}
 
 			list($valid, $context['comment_user_name']) = LevGal_Helper_Sanitiser::sanitiseUsernameFromPost('guest_username');
-			if (!$valid)
-			{
-				$context['comment_errors'][] = 'invalid_user';
-			}
-			else
+			if ($valid)
 			{
 				$_SESSION['guest_name'] = $context['comment_user_name'];
 			}
+			else
+			{
+				$context['comment_errors'][] = 'invalid_user';
+			}
 
 			list($valid, $context['comment_user_email']) = LevGal_Helper_Sanitiser::sanitiseEmailFromPost('guest_email');
-			if (!$valid)
+			if ($valid)
 			{
-				$context['comment_errors'][] = 'invalid_email';
+				$_SESSION['guest_email'] = $context['comment_user_email'];
 			}
 			else
 			{
-				$_SESSION['guest_email'] = $context['comment_user_email'];
+				$context['comment_errors'][] = 'invalid_email';
 			}
 		}
 
@@ -477,21 +477,21 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 
 		// So we're all good. Time to create a model, I guess.
 		$comment = new LevGal_Model_Comment();
-		if (!$context['user']['is_guest'])
+		if ($context['user']['is_guest'])
 		{
 			$posterOptions = array(
-				'id' => $context['user']['id'],
-				'name' => $context['user']['name'],
-				'email' => $context['user']['email'],
+				'id' => 0,
+				'name' => $context['comment_user_name'],
+				'email' => $context['comment_user_email'],
 				'ip' => $user_info['ip'],
 			);
 		}
 		else
 		{
 			$posterOptions = array(
-				'id' => 0,
-				'name' => $context['comment_user_name'],
-				'email' => $context['comment_user_email'],
+				'id' => $context['user']['id'],
+				'name' => $context['user']['name'],
+				'email' => $context['user']['email'],
 				'ip' => $user_info['ip'],
 			);
 		}
