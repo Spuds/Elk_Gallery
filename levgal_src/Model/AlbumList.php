@@ -147,7 +147,7 @@ class LevGal_Model_AlbumList
 				// Not approved?
 				if (empty($row['approved']) && !allowedTo('lgal_approve_album'))
 				{
-					if ((!empty($row['owner_cache']['member']) && !in_array($user_info['id'], $row['owner_cache']['member'], true)) || (!empty($row['owner_cache']['group']) && count(array_intersect($row['owner_cache']['group'], $user_info['groups'])) == 0))
+					if ((!empty($row['owner_cache']['member']) && !in_array($user_info['id'], $row['owner_cache']['member'], true)) || (!empty($row['owner_cache']['group']) && count(array_intersect($row['owner_cache']['group'], $user_info['groups'])) === 0))
 					{
 						continue;
 					}
@@ -574,6 +574,11 @@ class LevGal_Model_AlbumList
 
 	protected function fixHierarchy($hierarchy)
 	{
+		array_walk($hierarchy, static function(&$value) {
+			$value['album_level'] = (int) $value['album_level'];
+			$value['album_pos'] = (int) $value['album_pos'];
+		});
+
 		// Fix incidents of album_level for 1 >> 2 >> 3 where 2 is hidden, or other such excitement.
 		// We're only fixing this softly because the hierarchy may not be complete (so you can't force-fix it here)
 		$current_level = -1;
@@ -581,7 +586,7 @@ class LevGal_Model_AlbumList
 		foreach ($hierarchy as $id_album => $album)
 		{
 			// Whatever we might have had before, force the first one to have a root level of 0 since this is how it needs to be.
-			if ($current_level == -1)
+			if ($current_level === -1)
 			{
 				$hierarchy[$id_album]['album_level'] = 0;
 				$current_level = 0;
@@ -592,9 +597,9 @@ class LevGal_Model_AlbumList
 			// This is a bit strange. Consider 1 > 2 > 3 > 4 and 1 > 2 > 3 > 5 where 1,2,3 are not visible.
 			// We need to flatten 4 and 5 to level 1 in that situation, and we can't use 4's level to guess 5's.
 			// So if the previous album is at the same level as this album, we can flatten it to the new level.
-			if ($album['album_level'] > $current_level && ($album['album_level'] - $current_level > 1 || $album['album_level'] == $previous_level))
+			if ($album['album_level'] > $current_level && ($album['album_level'] - $current_level > 1 || $album['album_level'] === $previous_level))
 			{
-				if ($album['album_level'] == $previous_level)
+				if ($album['album_level'] === $previous_level)
 				{
 					// This album is at the same level the previous one was at before we moved it
 					$hierarchy[$id_album]['album_level'] = $current_level;
@@ -617,7 +622,7 @@ class LevGal_Model_AlbumList
 		$db = database();
 
 		$album_list = true;
-		if (!allowedTo('lgal_manage') && !$bypass_check)
+		if (!$bypass_check && !allowedTo('lgal_manage'))
 		{
 			$album_list = $this->getVisibleAlbums();
 		}
