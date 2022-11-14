@@ -15,11 +15,7 @@ use BBC\ParserWrapper;
 class LevGal_Model_Item extends LevGal_Model_File
 {
 	/** @var int  */
-	const SEEN_THRESHOLD = 120;
-	/** @var int|bool|array  */
-	protected $current_item;
-	/** @var \LevGal_Model_Album  */
-	protected $current_album;
+	public const SEEN_THRESHOLD = 120;
 
 	public function getItemInfoById($itemId)
 	{
@@ -196,7 +192,8 @@ class LevGal_Model_Item extends LevGal_Model_File
 
 		if ($this->isMature() && $this->hidingMature())
 		{
-			$urls['preview'] = $urls['thumb'] = $settings['default_theme_url'] . '/levgal_res/icons/_mature.png';
+			$urls['thumb'] = $settings['default_theme_url'] . '/levgal_res/icons/_mature.png';
+			$urls['preview'] = $urls['thumb'];
 
 			return $urls;
 		}
@@ -228,7 +225,8 @@ class LevGal_Model_Item extends LevGal_Model_File
 			}
 			else
 			{
-				$urls['preview'] = $urls['thumb'] = $settings['default_theme_url'] . '/levgal_res/icons/' . substr($this->current_item['mime_type'], 9) . '.png';
+				$urls['thumb'] = $settings['default_theme_url'] . '/levgal_res/icons/' . substr($this->current_item['mime_type'], 9) . '.png';
+				$urls['preview'] = $urls['thumb'];
 			}
 		}
 		// Something lovely and generic.
@@ -1039,6 +1037,8 @@ class LevGal_Model_Item extends LevGal_Model_File
 
 		// Lastly, nuke the item itself.
 		$this->current_item = false;
+
+		return true;
 	}
 
 	public function createItem($item_info)
@@ -1251,7 +1251,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 			$meta['mime_type'] = $meta['meta']['mime_type'];
 			// Sometimes, getID3 is actually a little *too* good.
 			$exceptions = new LevGal_Model_Mime_Rules($raw_id3, $this->current_item['extension']);
-			$new_mime_type = $exceptions->ApplyExceptions();
+			$new_mime_type = $exceptions->applyExceptions();
 			if (!empty($new_mime_type))
 			{
 				$meta['mime_type'] = $new_mime_type;

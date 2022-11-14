@@ -88,7 +88,11 @@ function levgal_admin_bootstrap(&$admin_areas)
 	if (!empty($_GET['area']) && $_GET['area'] === 'reports')
 	{
 		// We don't technically *need* per se to declare these but PHPMD would very much prefer if we did.
-		$permissionGroups = $permissionList = $leftPermissionGroups = $hiddenPermissions = $relabelPermissions = array();
+		$relabelPermissions = array();
+		$hiddenPermissions = $relabelPermissions;
+		$leftPermissionGroups = $relabelPermissions;
+		$permissionList = $relabelPermissions;
+		$permissionGroups = $relabelPermissions;
 		levgal_admin_permissions($permissionGroups, $permissionList, $leftPermissionGroups, $hiddenPermissions, $relabelPermissions);
 	}
 

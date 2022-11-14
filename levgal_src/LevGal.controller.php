@@ -32,7 +32,9 @@ class LevGal_Controller extends Action_Controller
 			is_not_guest($txt['cannot_lgal_view']);
 
 			// If they're not, this will instead catch them.
-			$_GET['action'] = $_GET['board'] = $_GET['topic'] = '';
+			$_GET['topic'] = '';
+			$_GET['board'] = '';
+			$_GET['action'] = '';
 			writeLog(true);
 			LevGal_Helper_Http::fatalError('cannot_lgal_view');
 		}
