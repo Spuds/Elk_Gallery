@@ -14,8 +14,15 @@
 
 function template_main_album_view()
 {
+	global $context;
+
 	echo '
 	<div id="gallery_contain">';
+
+	if (!empty($context['album_actions']['actions']))
+	{
+		template_album_list_action_tabs($context['album_actions']);
+	}
 
 	template_main_album_sidebar();
 	template_main_album_display();
@@ -58,11 +65,6 @@ function template_main_tag_list()
 function template_main_album_display()
 {
 	global $context, $txt, $memberContext, $scripturl;
-
-	if (!empty($context['album_actions']['actions']))
-	{
-		template_album_list_action_tabs($context['album_actions']);
-	}
 
 	echo '
 		<div id="item_main">
@@ -118,19 +120,19 @@ function template_main_album_display()
 					<ul>';
 						$done_album = true;
 					}
-					elseif (!$done_album)
-					{
-						echo '
-					<div class="album_parent">
-						<span class="lgalicon i-alb_parent"></span> <a href="', $album['album_url'], '">', $album['album_name'], '</a>
-					</div>';
-					}
-					else
+					elseif ($done_album)
 					{
 						echo '
 						<li class="album_child">
 							<span class="lgalicon i-alb_child colorize-blue"></span> <a href="', $album['album_url'], '">', $album['album_name'], '</a>
 						</li>';
+					}
+					else
+					{
+						echo '
+					<div class="album_parent">
+						<span class="lgalicon i-alb_parent"></span> <a href="', $album['album_url'], '">', $album['album_name'], '</a>
+					</div>';
 					}
 				}
 

@@ -14,8 +14,17 @@
 
 function template_main()
 {
+	global $context;
+
+	echo '
+	<div id="gallery_contain">';
+
+	template_album_list_action_tabs($context['gallery_actions']);
 	template_main_page_sidebar();
 	template_main_page_display();
+
+	echo '
+	</div>';
 }
 
 function template_main_page_sidebar()
@@ -54,8 +63,6 @@ function template_main_page_sidebar()
 function template_main_page_display()
 {
 	global $context;
-
-	template_album_list_action_tabs($context['gallery_actions']);
 
 	echo '
 		<div id="item_main">';
@@ -101,17 +108,18 @@ function template_display_album_list($list)
 		$album['album_count'] = $album['album_count'] ?? 0;
 
 		echo '
-				<div class="album_featured well">
+				<a class="album_featured well" href="', $album['album_url'], '">
 					<div class="floatleft album_thumb">
 						<img src="', $album['thumbnail_url'], '" alt="" />
 					</div>
 					<div class="album_desc lefttext">
-						', empty($album['featured']) ? '' : '<span class="lgalicon i-star colorize-gold"></span> ', '<a href="', $album['album_url'], '">', $album['album_name'], '</a><br />
+						', empty($album['featured']) ? '' : '<i class="lgalicon i-star colorize-gold"></i> ',
+						$album['album_name'], '<br />
 					</div>
-					<div class="lefttext">
+					<div class="centertext clear">
 						<span class="lgalicon i-album"></span> ', LevGal_Helper_Format::numstring('lgal_items', $album['num_items']), ' / ', LevGal_Helper_Format::numstring('lgal_albums', $album['album_count']), '
 					</div>
-				</div>';
+				</a>';
 	}
 
 	echo '
@@ -497,7 +505,13 @@ function template_album_list_main($tree_view = false)
 {
 	global $context, $txt, $memberContext, $settings, $scripturl;
 
-	template_album_list_action_tabs($context['album_actions']);
+	echo '
+	<div id="gallery_contain">';
+
+	if (!empty($context['album_actions']))
+	{
+		template_album_list_action_tabs($context['album_actions']);
+	}
 
 	template_album_list_sidebar();
 
@@ -513,7 +527,6 @@ function template_album_list_main($tree_view = false)
 	elseif (!empty($context['nested_hierarchy']))
 	{
 		echo '
-			<hr />
 			<div class="album_container">';
 
 		foreach ($context['nested_hierarchy'] as $member => $hierarchy)
@@ -578,7 +591,7 @@ function template_album_list_main($tree_view = false)
 	}
 
 	echo '
-		<br class="clear" />';
+	</div>';
 }
 
 function template_album_placecard($albumItems, $useAvatar = null)
@@ -653,7 +666,9 @@ function template_album_list_sidebar()
 function template_album_list_action_tabs($actions_groups)
 {
 	if (empty($actions_groups['actions']))
+	{
 		return;
+	}
 
 	echo '
 		<ul id="levgal_tabs">';

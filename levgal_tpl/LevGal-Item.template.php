@@ -14,10 +14,15 @@
 
 function template_main_item_view()
 {
-	global $settings, $txt;
+	global $settings, $txt, $context;
 
 	echo '
 	<div id="gallery_contain">';
+
+	if (!empty($context['item_actions']['actions']))
+	{
+		template_album_list_action_tabs($context['item_actions']);
+	}
 
 	template_main_item_sidebar();
 	template_main_item_display();
@@ -49,11 +54,6 @@ function template_main_item_view()
 function template_main_item_display()
 {
 	global $context, $txt;
-
-	if (!empty($context['item_actions']['actions']))
-	{
-		template_album_list_action_tabs($context['item_actions']);
-	}
 
 	echo '
 		<div id="item_main">
@@ -199,14 +199,14 @@ function template_main_item_navigation()
 	if (!empty($context['prev_next']['previous']))
 	{
 		echo '
-				<span class="lefttext" style="display: inline-block;width: 49.5%">
+				<span class="lefttext" style="width: 50%">
 					<a href="', $context['prev_next']['previous']['item_url'], '#item_main" title="', $context['prev_next']['previous']['item_name'], '"><i class="icon i-chevron-circle-left"></i>', $txt['lgal_previous'], '</a>
 				</span>';
 	}
 	if (!empty($context['prev_next']['next']))
 	{
 		echo '
-				<span class="righttext" style="display: inline-block;width: 49.5%">
+				<span class="righttext" style="width: 50%">
 					<a href="', $context['prev_next']['next']['item_url'], '#item_main" title="', $context['prev_next']['next']['item_name'], '">', $txt['lgal_next'], '<i class="icon i-chevron-circle-right"></i></a>
 				</span>';
 	}

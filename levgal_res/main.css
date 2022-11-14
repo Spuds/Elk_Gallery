@@ -33,7 +33,7 @@
 	display: flex;
 	align-content: center;
 	flex-wrap: wrap;
-	margin-right: 215px;
+	margin: 0 215px 2px 0;
 	gap: 4px;
 	justify-content: flex-end;
 }
@@ -107,6 +107,9 @@ dl.album_details dd, dl.album_info dd {
 .secondary_header {
 	font-size: 1.214em;
 	line-height: 1.8em;
+	display: flex;
+	align-items: center;
+	flex-wrap: nowrap;
 	margin-top: 0;
 	padding: 4px 10px 2px 10px;
 	border-top-color: #CFCFCF;
@@ -176,18 +179,23 @@ dl.album_details dd, dl.album_info dd {
 	justify-content: center;
 	text-align: center;
 	gap: 5px;
+	margin: 3px 0 10px 0;
 }
 
 .album_entry {
 	display: inline-block;
-	margin: 10px 2px;
+	margin: 0 2px 10px 2px;
 }
 
-.album_entry > .well, .album_container > .well {
+.album_container > .well {
+	min-width: 25%;
+}
+
+.album_entry > .well, .album_container > .well, .album_featured.well {
 	box-shadow: var(--shadow-elevation-low);
 }
 
-.album_entry > .well:hover {
+.album_entry > .well:hover, .album_featured.well:hover {
 	transition: .3s ease;
 	transform: translate(0, -2px);
 	box-shadow: var(--shadow-elevation-medium);
@@ -195,17 +203,9 @@ dl.album_details dd, dl.album_info dd {
 
 .album_container > .album_featured {
 	overflow: auto;
-	width: 255px;
-	height: 90px;
-	max-height: 115px;
-}
-
-.album_featured {
-	display: inline-block;
 	width: 30%;
-	min-width: 200px;
-	margin: 6px;
-	padding: 8px 4px;
+	min-height: 100px;
+	max-height: 135px;
 }
 
 .album_thumb {
@@ -725,6 +725,8 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 	height: 270px;
 	margin: 0 auto;
 	border: none;
+	aspect-ratio: 4 / 3;
+	object-fit: cover;
 }
 
 /* Use these to change colors of SVG icons when starting from fill #000000 */
@@ -928,6 +930,16 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 	#item_main {
 		padding-right: 190px;
 	}
+
+	#levgal_tabs .lgalicon {
+		display: none;
+	}
+
+	#levgal_tabs {
+		margin-right: 190px;
+		font-size: .9em;
+	}
+
 }
 
 /* This one does 800 screens at default font size. */
@@ -945,12 +957,12 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 		padding: 4px;
 	}
 
-	.album_container > .album_featured {
-		width: 245px;
-	}
-
 	.album_hierarchy.level_0 {
 		width: 99%;
+	}
+
+	.album_container > .album_featured,.album_container > .album_featured_compact {
+		width: 49%;
 	}
 }
 
@@ -965,22 +977,21 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 		flex-direction: column;
 	}
 
+	#levgal_tabs {
+		margin-right: 0;
+	}
+
 	#album_sidebar {
 		float: none;
 		order: 2;
-		width: 95%;
-		margin: 10px;
+		width: 98%;
+		margin: 5px;
 	}
 
 	#item_main {
 		margin: 0 5px;
 		padding-right: 0;
-	}
-
-	.album_container > .album_featured {
-		width: 175px;
-		min-width: 160px;
-		margin: 1px;
+		width: 98%;
 	}
 
 	.album_thumb {
@@ -989,6 +1000,11 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 
 	.album_thumbnail {
 		float: left;
+		margin: 0 5px;
+	}
+
+	.album_thumbnail img {
+		width: 75px;
 	}
 
 	#album_sidebar .album_owner:after {
@@ -1000,6 +1016,26 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 	#album_sidebar .album_owner {
 		height: initial;
 		margin-top: 0;
+	}
+
+	.album_family {
+		column-count: 2;
+	}
+
+	.album_current {
+		padding-left: 0;
+	}
+
+	.album_child {
+		padding-left: 1em;
+	}
+
+	#item_picture, #item_audio_container, #item_generic {
+		max-width: 100%;
+	}
+
+	.base_iframe {
+		max-width: 100%;
 	}
 }
 
