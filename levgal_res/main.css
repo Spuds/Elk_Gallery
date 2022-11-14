@@ -29,21 +29,26 @@
 	box-sizing: border-box;
 }
 
-#levgal_tabs {
+.levgal_navigation {
 	display: flex;
-	align-content: center;
+	align-items: center;
 	flex-wrap: wrap;
-	margin: 0 215px 2px 0;
-	gap: 4px;
-	justify-content: flex-end;
+}
+
+.levgal_navigation > .pagesection > .pagelinks {
+	margin: 0;
+}
+
+.levgal_tabs {
+	margin: 0 215px 2px auto;
 }
 
 #album_sidebar {
+	display: flex;
 	float: right;
+	flex-direction: column;
 	width: 200px;
 	margin-left: 15px;
-	display: flex;
-	flex-direction: column;
 }
 
 #album_sidebar > .content {
@@ -57,10 +62,10 @@
 }
 
 .album_details {
-	overflow: auto;
-	max-height: 50em;
 	display: flex;
+	overflow: auto;
 	flex-direction: column;
+	max-height: 50em;
 }
 
 .user_avatar {
@@ -118,8 +123,12 @@ dl.album_details dd, dl.album_info dd {
 	background: #EBEBEB linear-gradient(to bottom, #FAFAFA, #E4E4E4);
 }
 
-#item_main {
+#item_main, .item_main {
 	padding-right: 215px; /* width of #album_sidebar + padding */
+}
+
+.item_main > .pagesection, #gallery_contain > .pagesection {
+	clear: none;
 }
 
 #item_picture_container {
@@ -177,9 +186,13 @@ dl.album_details dd, dl.album_info dd {
 	align-items: center;
 	flex-wrap: wrap;
 	justify-content: center;
+	margin: 0 0 10px 0;
+	padding: 5px;
 	text-align: center;
+	border: 1px solid transparent;
+	border-radius: 5px;
+	background: linear-gradient(#FEFEFE, #FEFEFE) padding-box, linear-gradient(to bottom, #CCCCCC, transparent) border-box;
 	gap: 5px;
-	margin: 3px 0 10px 0;
 }
 
 .album_entry {
@@ -201,11 +214,16 @@ dl.album_details dd, dl.album_info dd {
 	box-shadow: var(--shadow-elevation-medium);
 }
 
-.album_container > .album_featured {
+.album_container > .album_featured, .album_container .album_placard {
 	overflow: auto;
 	width: 30%;
 	min-height: 100px;
 	max-height: 135px;
+}
+
+.album_container .album_placard {
+	width: 25%;
+	min-height: 90px;
 }
 
 .album_thumb {
@@ -246,16 +264,16 @@ ul.album_hierarchy, ul.album_hierarchy ul {
 }
 
 .lgal_profile_itemname {
-	margin: 0 10px;
 	font-weight: bold;
+	margin: 0 10px;
 }
 
 .album_container > .album_featured_compact {
-	width: 33%;
-	height: 200px;
 	display: flex;
-	flex-direction: column;
 	align-items: flex-start;
+	flex-direction: column;
+	width: 32%;
+	height: 200px;
 }
 
 .album_featured_compact .secondary_header, .album_featured_compact .content {
@@ -301,7 +319,9 @@ li.album_hierarchy_compact ul {
 }
 
 .album_hierarchy_compact .lgal_profile_itemnum {
+	display: flex;
 	float: right;
+	min-width: 50px;
 }
 
 .sortable_error {
@@ -569,8 +589,8 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 /* Audio/video player */
 #lgal_audio_player, #lgal_video_player {
 	display: block;
-	margin: 10px auto;
 	max-width: 90%;
+	margin: 10px auto;
 }
 
 /* Delete page */
@@ -925,19 +945,20 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 @media screen and (max-width: 64em) {
 	#album_sidebar {
 		width: 180px;
+		margin-left: 10px;
 	}
 
-	#item_main {
+	#item_main, .item_main {
 		padding-right: 190px;
 	}
 
-	#levgal_tabs .lgalicon {
+	.levgal_tabs .lgalicon {
 		display: none;
 	}
 
-	#levgal_tabs {
-		margin-right: 190px;
+	.levgal_tabs {
 		font-size: .9em;
+		margin-right: 190px;
 	}
 
 }
@@ -961,23 +982,19 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 		width: 99%;
 	}
 
-	.album_container > .album_featured,.album_container > .album_featured_compact {
+	.album_container > .album_featured, .album_container > .album_featured_compact, .album_container > .album_placard {
 		width: 49%;
 	}
 }
 
-/* This one does 540 and smaller screens at default font size. */
-@media screen and (max-width: 33.750em) {
-}
-
-/* This one does 480px screens at default font size. */
-@media screen and (max-width: 30em) {
+/* This one does 600 and smaller screens at default font size. */
+@media screen and (max-width: 40em) {
 	#gallery_contain {
 		display: flex;
 		flex-direction: column;
 	}
 
-	#levgal_tabs {
+	.levgal_tabs {
 		margin-right: 0;
 	}
 
@@ -988,12 +1005,15 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 		margin: 5px;
 	}
 
-	#item_main {
+	#item_main, .item_main {
+		width: 98%;
 		margin: 0 5px;
 		padding-right: 0;
-		width: 98%;
 	}
+}
 
+/* This one does 480px screens at default font size. */
+@media screen and (max-width: 30em) {
 	.album_thumb {
 		margin: 1px;
 	}

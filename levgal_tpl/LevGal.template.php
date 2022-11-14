@@ -503,14 +503,14 @@ function template_album_list_none()
 
 function template_album_list_main($tree_view = false)
 {
-	global $context, $txt, $memberContext, $settings, $scripturl;
+	global $context, $txt, $scripturl;
 
 	echo '
 	<div id="gallery_contain">';
 
 	if (!empty($context['album_actions']))
 	{
-		template_album_list_action_tabs($context['album_actions']);
+		template_album_list_action_tabs($context['album_actions'], !empty($context['nested_hierarchy']));
 	}
 
 	template_album_list_sidebar();
@@ -551,15 +551,15 @@ function template_album_list_main($tree_view = false)
 			else
 			{
 				echo '
-			<div class="album_featured_compact">
-				<h3 class="secondary_header">' . sprintf($txt['lgal_albums_owned_site'], $link) . '</h3>
-				<div class="content">';
+				<div class="album_featured_compact">
+					<h3 class="secondary_header">' . sprintf($txt['lgal_albums_owned_site'], $link) . '</h3>
+					<div class="content">';
 
 				template_album_hierarchy_compact($hierarchy);
 
 				echo '
-				</div>
-			</div>';
+					</div>
+				</div>';
 			}
 		}
 		echo '
@@ -571,12 +571,20 @@ function template_album_list_main($tree_view = false)
 		foreach (['site', 'groups', 'members'] as $albumType)
 		{
 			echo '
-			<div id="item_main">';
+			<div id="', $albumType, '" class="item_main">';
 
 			if (!empty($context['album_owners'][$albumType]))
 			{
 				echo '
-				<h3 class="secondary_header">', $txt[$headings[$albumType]], '</h3>
+				<h3 class="secondary_header">', $txt[$headings[$albumType]], '</h3>';
+
+				if ($albumType === 'members' && !empty($context['item_pageindex']))
+				{
+					echo '
+				<div class="pagesection">', $context['item_pageindex'], '</div>';
+				}
+
+				echo '
 				<div class="album_container">';
 
 				template_album_placecard($context['sidebar'][$albumType]['items'], $albumType === 'members');
@@ -596,12 +604,18 @@ function template_album_list_main($tree_view = false)
 
 function template_album_placecard($albumItems, $useAvatar = null)
 {
-	global $settings, $memberContext;
+	global $settings, $memberContext, $context;
 
 	foreach ($albumItems as $item)
 	{
+		// Don't show the placard for members we did not load due to pagination
+		if ($useAvatar && !empty($context['item_pageindex']) && empty($memberContext[$item['id']]))
+		{
+			continue;
+		}
+
 		echo '
-					<div class="album_featured well">
+					<div class="album_placard well">
 						<div class="floatleft album_thumb">';
 
 		if ($useAvatar === true)
@@ -663,15 +677,28 @@ function template_album_list_sidebar()
 		</div>';
 }
 
-function template_album_list_action_tabs($actions_groups)
+function template_album_list_action_tabs($actions_groups, $page = null)
 {
+	global $context;
+
 	if (empty($actions_groups['actions']))
 	{
 		return;
 	}
 
 	echo '
-		<ul id="levgal_tabs">';
+	<div class="levgal_navigation">';
+
+	if ($page && !empty($context['item_pageindex']))
+	{
+		echo '
+		<div class="pagesection">', $context['item_pageindex'], '</div>';
+	}
+
+	if (!empty($actions_groups['actions']))
+	{
+		echo '
+		<ul class="levgal_tabs">';
 
 		foreach ($actions_groups['actions'] as $id_action =>  $action)
 		{
@@ -695,6 +722,10 @@ function template_album_list_action_tabs($actions_groups)
 
 		echo '
 		</ul>';
+	}
+
+	echo '
+		</div>';
 }
 
 function template_album_list_header()
