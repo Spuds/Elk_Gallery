@@ -522,9 +522,9 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 		{
 			if (empty($modSettings['lgal_selfmod_approve_item']) || !$this->item_obj->albumIsOwnedByUser())
 			{
-			loadLanguage('levgal_lng/LevGal-Errors');
-			isAllowedTo('lgal_approve_item');
-		}
+				loadLanguage('levgal_lng/LevGal-Errors');
+				isAllowedTo('lgal_approve_item');
+			}
 		}
 
 		checkSession('get');

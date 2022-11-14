@@ -712,7 +712,6 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 				$item_info['meta'] = $url_data;
 
 				$itemID = $itemModel->createItem($item_info);
-				$item_details = $itemModel->getItemInfoById($itemID);
 
 				if ($thumbnail = $externalModel->getThumbnail())
 				{
@@ -742,8 +741,6 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 
 				if ($hash = $uploadModel->moveUpload($context['async_id'], $itemID, $context['filename']))
 				{
-					$item_details = $itemModel->getItemInfoById($itemID);
-
 					// First, the hash. We need this before we do anything else.
 					$itemModel->updateItem(array('hash' => $hash));
 
@@ -1219,7 +1216,10 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 							{
 								if (in_array('site', $context['ownership_opts'], true))
 								{
-									$context['add_member'] = $context['remove_member'] = $context['add_group'] = $context['remove_group'] = array();
+									$context['add_member'] = array();
+									$context['remove_member'] = array();
+									$context['add_group'] = array();
+									$context['remove_group'] = array();
 									$context['ownership'] = 'site';
 									$context['ownership_data'] = array();
 									$changing_ownership = true;
