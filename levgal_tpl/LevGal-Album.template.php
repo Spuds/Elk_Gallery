@@ -104,9 +104,11 @@ function template_main_album_display()
 					$link = '?media/albumlist/' . $owner . '/group/';
 				}
 
+				$columns = count($albums) -1;
+
 				echo '
 				<strong>', $title, '</strong>
-				<div class="album_family lefttext">';
+				<div class="album_family lefttext"', $columns < 3 ? ' style="column-count:' . $columns . ';"' : '', '>';
 
 				$done_album = false;
 				foreach ($albums as $id_album => $album)
