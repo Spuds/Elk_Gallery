@@ -98,7 +98,7 @@ class LevGal_Model_External
 							return $provider;
 						}
 					}
-					catch (RunTimeException $e)
+					catch (RuntimeException $e)
 					{
 						// We don't really care if it's not found at this point.
 					}
@@ -135,7 +135,7 @@ class LevGal_Model_External
 				return $model;
 			}
 		}
-		catch (RunTimeException $e)
+		catch (RuntimeException $e)
 		{
 			// If this fails, that's fine. This is primarily to stop the autoloader complaining.
 		}

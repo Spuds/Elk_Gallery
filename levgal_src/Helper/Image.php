@@ -81,7 +81,7 @@ class LevGal_Helper_Image
 
 		if ($handlers['Imagick'] === true)
 		{
-			$check = Imagick::queryformats();
+			$check = Imagick::queryFormats();
 			return in_array('WEBP', $check);
 		}
 

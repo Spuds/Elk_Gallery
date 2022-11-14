@@ -116,7 +116,7 @@ class LevGal_Helper_Image_Imagick
 		if ($format === 'jpg')
 		{
 			$this->image->setImageProperty('jpeg:sampling-factor', '4:2:0');
-			$this->image->setCompression(imagick::COMPRESSION_JPEG);
+			$this->image->setCompression(Imagick::COMPRESSION_JPEG);
 			$this->image->setCompressionQuality($this->compression['jpg']);
 			$this->image->writeImage('jpg:' . $file);
 		}
@@ -148,18 +148,18 @@ class LevGal_Helper_Image_Imagick
 			$new_image = clone $this->image;
 			if ($this->width > $this->height)
 			{
-				$new_image->resizeImage($max_dimension, 0, imagick::FILTER_LANCZOS, 1);
+				$new_image->resizeImage($max_dimension, 0, Imagick::FILTER_LANCZOS, 1);
 			}
 			else
 			{
-				$new_image->resizeImage(0, $max_dimension, imagick::FILTER_LANCZOS, 1);
+				$new_image->resizeImage(0, $max_dimension, Imagick::FILTER_LANCZOS, 1);
 			}
 
 			if ($format === 'jpg')
 			{
 				$new_image->setImageProperty('jpeg:sampling-factor', '4:2:0');
 				$new_image->borderImage('white', 0, 0);
-				$new_image->setCompression(imagick::COMPRESSION_JPEG);
+				$new_image->setCompression(Imagick::COMPRESSION_JPEG);
 				$new_image->setCompressionQuality($this->compression['jpg']);
 				$new_image->writeImage('jpg:' . $dest_file);
 			}
@@ -192,7 +192,7 @@ class LevGal_Helper_Image_Imagick
 
 	public function hasWebpSupport()
 	{
-		$check = Imagick::queryformats();
+		$check = Imagick::queryFormats();
 
 		return in_array('WEBP', $check);
 	}
@@ -200,7 +200,7 @@ class LevGal_Helper_Image_Imagick
 	public function rotate($deg)
 	{
 		$this->image->rotateImage(new ImagickPixel('#00000000'), $deg);
-		$this->image->setImageOrientation(imagick::ORIENTATION_TOPLEFT);
+		$this->image->setImageOrientation(Imagick::ORIENTATION_TOPLEFT);
 		list ($this->width, $this->height) = $this->getImageSize();
 	}
 
@@ -215,7 +215,7 @@ class LevGal_Helper_Image_Imagick
 			$this->image->flipImage();
 		}
 
-		$this->image->setImageOrientation(imagick::ORIENTATION_TOPLEFT);
+		$this->image->setImageOrientation(Imagick::ORIENTATION_TOPLEFT);
 		list ($this->width, $this->height) = $this->getImageSize();
 	}
 }
