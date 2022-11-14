@@ -13,6 +13,9 @@
  */
 class LevGal_Action_Albumlist extends LevGal_Action_Abstract
 {
+	/** @var int number of items to show on a page.  Used with member albums */
+	public $items_per_page = 30;
+
 	public function __construct()
 	{
 		parent::__construct();
@@ -43,8 +46,20 @@ class LevGal_Action_Albumlist extends LevGal_Action_Abstract
 			// but members didn't to save a query most loads.
 			if (!empty($context['album_owners']['members']))
 			{
-				$loaded = loadMemberData(array_keys($context['album_owners']['members']));
-				foreach ($loaded as $loaded_user)
+				$perPage = $this->items_per_page;
+				$toLoad = array_keys($context['album_owners']['members']);
+				$num_pages = ceil(count($toLoad) / $perPage);
+				if ($num_pages > 1)
+				{
+					$context['this_page'] = isset($_GET['page']) ? LevGal_Bootstrap::clamp((int) $_GET['page'], 1, $num_pages) : 1;
+					$context['item_pageindex'] = levgal_pageindex($context['canonical_url'], $context['this_page'], $num_pages, '#members');
+
+					$start = ($context['this_page'] - 1) * $perPage;
+					$toLoad = array_slice($toLoad, $start, $perPage);
+				}
+
+				$toLoad = loadMemberData($toLoad);
+				foreach ($toLoad as $loaded_user)
 				{
 					loadMemberContext($loaded_user);
 				}
@@ -144,19 +159,37 @@ class LevGal_Action_Albumlist extends LevGal_Action_Abstract
 		}
 		else
 		{
-			$context['nested_hierarchy'] = [];
-			/** @var $album_list \LevGal_Model_AlbumList */
-			$album_list = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
-			$loaded = loadMemberData(array_keys($context['album_owners']['members']));
-			foreach ($loaded as $loaded_user)
-			{
-				$context['nested_hierarchy'][$user_profile[$loaded_user]['member_name']] = $album_list->getAlbumHierarchy('member', $loaded_user);
-			}
-
 			$this->addLinkTree($txt['levgal'], '?media/');
 			$this->addLinkTree($txt['lgal_albums_list'], '?media/albumlist/');
 			$this->addLinkTree($context['page_title'], '?media/albumlist/member/');
 			$context['canonical_url'] = $scripturl . '?media/albumlist/member/';
+
+			$perPage = $this->items_per_page;
+			$toLoad = array_keys($context['album_owners']['members']);
+			$num_pages = ceil(count($toLoad) / $perPage);
+			if ($num_pages > 1)
+			{
+				$context['this_page'] = isset($_GET['page']) ? LevGal_Bootstrap::clamp((int) $_GET['page'], 1, $num_pages) : 1;
+				$context['item_pageindex'] = levgal_pageindex($context['canonical_url'], $context['this_page'], $num_pages, '#album_sidebar');
+
+				$start = ($context['this_page'] - 1) * $perPage;
+				$toLoad = array_slice($toLoad, $start, $perPage);
+			}
+
+			$loaded = array_map('\intval', loadMemberData($toLoad));
+
+			$context['nested_hierarchy'] = [];
+			/** @var \LevGal_Model_AlbumList $album_list */
+			$album_list = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
+			foreach ($toLoad as $loaded_user)
+			{
+				// We can not loop on $loaded, as it is not in the order we want to display
+				if (!in_array($loaded_user, $loaded, true))
+				{
+					continue;
+				}
+				$context['nested_hierarchy'][$user_profile[$loaded_user]['real_name']] = $album_list->getAlbumHierarchy('member', $loaded_user);
+			}
 
 			$this->setTemplate('LevGal', 'album_list_main');
 		}
@@ -299,7 +332,16 @@ class LevGal_Action_Albumlist extends LevGal_Action_Abstract
 				}
 			}
 			$context['album_actions']['actions']['memberalbums'] = array($txt['lgal_albums_member'], $scripturl . '?media/albumlist/member/', 'tab' => true, 'sidebar' => false, 'active' => (($sidebar_type === 'members' && $sidebar_id === 0) || ($sidebar_type === 'member' && $sidebar_id === $id)));
-			ksort($members);
+
+			// For the sidebar
+			ksort($members, SORT_FLAG_CASE|SORT_STRING);
+
+			// For placard listings, a bit more convoluted
+			$keys = array_keys($context['album_owners']['members']);
+			$names = array_column($context['album_owners']['members'], 'name');
+			array_multisort($names, SORT_ASC, SORT_FLAG_CASE|SORT_STRING, $context['album_owners']['members'], $keys);
+			$context['album_owners']['members'] = array_combine($keys, $context['album_owners']['members']);
+
 			$context['sidebar']['members'] = array(
 				'title' => $txt['lgal_albums_member'],
 				'items' => $members,
