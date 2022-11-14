@@ -15,7 +15,7 @@ use BBC\ParserWrapper;
 class LevGal_Model_Moderate
 {
 	/** @var int  */
-	const SESSION_THRESHOLD = 120; // Indicates TTL on unapproved counts. Too much? Not enough?
+	public const SESSION_THRESHOLD = 120; // Indicates TTL on unapproved counts. Too much? Not enough?
 
 	public function getUnapprovedCommentsCount()
 	{

@@ -15,9 +15,9 @@ class LevGal_Model_Album
 	/** @var mixed  */
 	private $current_album = false;
 	/** @var int  */
-	const LOCKED_ITEMS = 1;
+	public const LOCKED_ITEMS = 1;
 	/** @var int  */
-	const LOCKED_COMMENTS = 2;
+	public const LOCKED_COMMENTS = 2;
 
 	public function getAlbumById($albumId)
 	{

@@ -101,7 +101,7 @@ class LevGal_Model_Embed
 				if (isset($items[$item['id']]))
 				{
 					// Union the item array (id, id_msg) with the LevGal_Model_ItemList results
-					$item = $item + $items[$item['id']];
+					$item += $items[$item['id']];
 					$method = $type . 'Template';
 					$buffer = str_replace($search, $this->$method($counter, $item), $buffer);
 				}
@@ -207,8 +207,6 @@ class LevGal_Model_Embed
 	public function getItems()
 	{
 		// Load the items we need to render
-		$itemModel = new LevGal_Model_ItemList();
-
-		return $itemModel->getItemsById(array_keys($this->item_list));
+		return (new LevGal_Model_ItemList())->getItemsById(array_keys($this->item_list));
 	}
 }

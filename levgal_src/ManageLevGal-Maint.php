@@ -39,7 +39,8 @@ class ManageLevGalMaint_Controller extends Action_Controller
 
 			return $context['maint_tasks'][$_GET['activity']]();
 		}
-		elseif (isset($_GET['activity'], $context['maint_tasks'][$_GET['activity']], $_GET['done']))
+
+		if (isset($_GET['activity'], $context['maint_tasks'][$_GET['activity']], $_GET['done']))
 		{
 			$context['success'] = sprintf($txt['levgal_maint_success'], $txt['levgal_task_' . $_GET['activity']]);
 		}

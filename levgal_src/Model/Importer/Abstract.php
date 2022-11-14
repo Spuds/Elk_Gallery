@@ -285,7 +285,7 @@ abstract class LevGal_Model_Importer_Abstract
 					// And if there's an actual manual one to import? Do that next.
 					if (!empty($item['import_thumb']))
 					{
-						$image = new LevGal_Helper_Image();
+						$image = new LevGal_Helper_Image(true, true);
 						$ext = $image->loadImageFromFile($item['import_thumb']);
 						if ($ext)
 						{
@@ -324,7 +324,7 @@ abstract class LevGal_Model_Importer_Abstract
 				{
 					$path = $fileModel->makePath($new_item['filehash']);
 					$base_file = $path . '/' . $id_item . '_' . $new_item['filehash'] . (!empty($new_item['extension']) ? '_' . $new_item['extension'] : '');
-					$image = new LevGal_Helper_Image();
+					$image = new LevGal_Helper_Image(true, true);
 					$ext = $image->loadImageFromFile($item['import_thumb']);
 					if ($ext)
 					{
@@ -336,7 +336,7 @@ abstract class LevGal_Model_Importer_Abstract
 				{
 					$path = $fileModel->makePath($new_item['filehash']);
 					$base_file = $path . '/' . $id_item . '_' . $new_item['filehash'] . (!empty($new_item['extension']) ? '_' . $new_item['extension'] : '');
-					$image = new LevGal_Helper_Image();
+					$image = new LevGal_Helper_Image(true, true);
 					$image->loadImageFromString($item['external_thumbnail']['data']);
 					$ext = $item['external_thumbnail']['image_mime'] === 'image/png' ? 'png' : 'jpg';
 					$image->resizeToNewFile($thumbMax, $base_file . '_thumb_' . $ext . '.dat', $ext);
