@@ -285,7 +285,7 @@ abstract class LevGal_Model_Importer_Abstract
 					// And if there's an actual manual one to import? Do that next.
 					if (!empty($item['import_thumb']))
 					{
-						$image = new LevGal_Helper_Image(true, true);
+						$image = new LevGal_Helper_Image(true, false);
 						$ext = $image->loadImageFromFile($item['import_thumb']);
 						if ($ext)
 						{
