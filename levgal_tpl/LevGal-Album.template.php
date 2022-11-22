@@ -169,11 +169,36 @@ function template_main_album_display()
 
 	if (empty($context['album_items']))
 	{
-		echo '
-			<br>
+		if (!empty($context['album_family']) && $context['album_family']['album_count'] > 1)
+		{
+			echo '
+			<h4 class="lgal_secondary_header secondary_header centertext">
+				', $txt['lgal_see_albums'], '
+			</h4>';
+
+			foreach ($context['album_family'] as $owner_type => $owners)
+			{
+				if (empty($owners) || $owner_type === 'album_count')
+				{
+					continue;
+				}
+
+				foreach ($owners as $albums)
+				{
+					array_shift($albums);
+					$context['xyz'] = $albums;
+
+					template_display_album_list('xyz');
+				}
+			}
+		}
+		else
+		{
+			echo '
 			<h4 class="lgal_secondary_header secondary_header centertext">
 				', $txt['lgal_empty_album'], '
 			</h4>';
+		}
 	}
 	else
 	{
