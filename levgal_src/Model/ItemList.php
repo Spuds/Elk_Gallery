@@ -188,6 +188,16 @@ class LevGal_Model_ItemList
 		return $this->getItemList(array(), array(), 'RAND()', $qty);
 	}
 
+	public function getLatestImages($qty = 4)
+	{
+		return $this->getItemList(array('mime_type LIKE "image/%"'), array(), 'id_item DESC', $qty);
+	}
+
+	public function getRandomImages($qty = 4)
+	{
+		return $this->getItemList(array('mime_type LIKE "image/%"'), array(), 'RAND()', $qty);
+	}
+
 	public function getLatestItemsForUser($user, $qty = 4)
 	{
 		if (empty($user))
