@@ -18,7 +18,7 @@ function template_newalbum()
 
 	echo '
 		<form action="', $context['destination'], '" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" onsubmit="submitonce(this);" enctype="multipart/form-data">
-			<h2 class="secondary_header">
+			<h2 class="lgal_secondary_header secondary_header">
 				', $txt['levgal_newalbum'], '
 			</h2>
 			<p class="infobox">', $txt['levgal_album_add_description'], '</p>';

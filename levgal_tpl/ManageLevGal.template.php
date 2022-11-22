@@ -20,7 +20,7 @@ function template_levgal_dash()
 	echo '
 	<div id="admincenter">
 		<div id="statistics">
-			<h2 class="secondary_header hdicon cat_img_stats">', $txt['levgal_stats_general'], '</h2>';
+			<h2 class="lgal_secondary_header secondary_header hdicon cat_img_stats">', $txt['levgal_stats_general'], '</h2>';
 
 	// Left stats block with generic stuff in.
 	echo '
@@ -141,7 +141,7 @@ function template_levgal_dash()
 	// Row two, left block: support information. But since we're reusing the stats templates we have to use totally inappropriate ids. Oh well.
 	echo '
 				<div id="stats_left">
-					<h2 class="secondary_header hdicon cat_img_helptopics">', $txt['levgal_support_information'], '</h2>
+					<h2 class="lgal_secondary_header secondary_header hdicon cat_img_helptopics">', $txt['levgal_support_information'], '</h2>
 					<div class="content modbox">
 						<dl class="settings">';
 
@@ -163,7 +163,7 @@ function template_levgal_dash()
 	// Row two, right block: news from LevGal central.
 	echo '
 				<div id="stats_right">
-					<h2 class="secondary_header hdicon cat_img_address">', $txt['levgal_news_from_home'], '</h2>
+					<h2 class="lgal_secondary_header secondary_header hdicon cat_img_address">', $txt['levgal_news_from_home'], '</h2>
 					<div class="content modbox">
 						<div>
 							', $txt['levgal_versions_lgal'], ' ', $txt['support_versions_current'], ' <span id="levgalCurrentVersion" class="bbc_strong">???</span>
@@ -200,7 +200,7 @@ function template_levgal_credits()
 	foreach ($context['levgal_credits'] as $credit_cat => $credits)
 	{
 		echo '
-		<h2 class="secondary_header hdicon ' . $icon[$credit_cat] . '">',
+		<h2 class="lgal_secondary_header secondary_header hdicon ' . $icon[$credit_cat] . '">',
 			$txt['levgal_credits_' . $credit_cat . '_title'], '
 		</h2>
 		<div class="well">

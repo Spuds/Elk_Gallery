@@ -36,7 +36,7 @@ function template_main_page_sidebar()
 
 	// Information block
 	echo '
-			<h3 class="secondary_header">
+			<h3 class="lgal_secondary_header secondary_header">
 				', $txt['lgal_gallery_info'], '
 			</h3>
 			<div class="content">
@@ -90,7 +90,7 @@ function template_display_featured_albums()
 {
 	global $txt;
 	echo '
-			<h3 class="secondary_header">', $txt['levgal_featured_albums'], '</h3>';
+			<h3 class="lgal_secondary_header secondary_header">', $txt['levgal_featured_albums'], '</h3>';
 
 	template_display_album_list('featured_albums');
 }
@@ -132,7 +132,7 @@ function template_display_latest_items()
 	global $context, $txt;
 
 	echo '
-			<h3 class="secondary_header">', $txt['lgal_latest_items'], '</h3>';
+			<h3 class="lgal_secondary_header secondary_header">', $txt['lgal_latest_items'], '</h3>';
 
 	if (empty($context['latest_items']))
 	{
@@ -149,7 +149,7 @@ function template_display_random_items()
 	global $context, $txt;
 
 	echo '
-			<h3 class="secondary_header">', $txt['lgal_random_items'], '</h3>';
+			<h3 class="lgal_secondary_header secondary_header">', $txt['lgal_random_items'], '</h3>';
 
 	if (empty($context['latest_items']))
 	{
@@ -249,7 +249,7 @@ function template_sidebar_action_list($title, $action_list)
 	global $txt;
 
 	echo '
-			<h3 class="secondary_header">
+			<h3 class="lgal_secondary_header secondary_header">
 				', $title, '
 			</h3>
 			<div class="content">
@@ -544,7 +544,7 @@ function template_album_list_main($tree_view = false)
 			if (!empty($tree_view))
 			{
 				echo '
-				<h3 class="secondary_header">' . sprintf($txt['lgal_albums_owned_site'], $link) . '</h3>';
+				<h3 class="lgal_secondary_header secondary_header">' . sprintf($txt['lgal_albums_owned_site'], $link) . '</h3>';
 
 				template_album_hierarchy($hierarchy);
 			}
@@ -552,7 +552,7 @@ function template_album_list_main($tree_view = false)
 			{
 				echo '
 				<div class="album_featured_compact">
-					<h3 class="secondary_header">' . sprintf($txt['lgal_albums_owned_site'], $link) . '</h3>
+					<h3 class="lgal_secondary_header secondary_header">' . sprintf($txt['lgal_albums_owned_site'], $link) . '</h3>
 					<div class="content">';
 
 				template_album_hierarchy_compact($hierarchy);
@@ -576,7 +576,7 @@ function template_album_list_main($tree_view = false)
 			if (!empty($context['album_owners'][$albumType]))
 			{
 				echo '
-				<h3 class="secondary_header">', $txt[$headings[$albumType]], '</h3>';
+				<h3 class="lgal_secondary_header secondary_header">', $txt[$headings[$albumType]], '</h3>';
 
 				if ($albumType === 'members' && !empty($context['item_pageindex']))
 				{
@@ -649,7 +649,7 @@ function template_album_list_sidebar()
 	foreach ($context['sidebar'] as $section)
 	{
 		echo '
-			<h3 class="secondary_header">
+			<h3 class="lgal_secondary_header secondary_header">
 				', $section['title'], '
 			</h3>
 			<div class="content">
@@ -733,7 +733,7 @@ function template_album_list_header()
 	global $context;
 
 	echo '
-			<h2 class="secondary_header">', $context['page_title'], '</h2>';
+			<h2 class="lgal_secondary_header secondary_header">', $context['page_title'], '</h2>';
 }
 
 function template_lgal_error_list($title, $list)

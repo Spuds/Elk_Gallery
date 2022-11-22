@@ -8,7 +8,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  * @since 1.0
- * 
+ *
  * @version 1.2.0 / elkarte
  */
 
@@ -17,7 +17,7 @@ function template_movealbum_header()
 	global $txt;
 
 	echo '
-		<h2 class="secondary_header">', $txt['lgal_arrange_albums'], '</h2>
+		<h2 class="lgal_secondary_header secondary_header">', $txt['lgal_arrange_albums'], '</h2>
 		<p class="infobox">', $txt['lgal_arrange_albums_desc'], '</p>
 		<div class="errorbox" id="errors" style="display:none">
 			<div class="error">', $txt['lgal_invalid_saving_order'], '</div>

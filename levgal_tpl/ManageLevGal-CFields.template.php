@@ -16,7 +16,7 @@ function template_cfields()
 
 	echo '
 	<div id="admincenter">
-		<h2 class="secondary_header">
+		<h2 class="lgal_secondary_header secondary_header">
 			 ', $txt['levgal_cfields'], '
 		</h2>
 		<p class="information">', $txt['levgal_cfields_desc'], '</p>
@@ -79,7 +79,7 @@ function template_cfields_modify()
 
 	echo '
 	<div id="admincenter">
-		<h3 class="secondary_header">
+		<h3 class="lgal_secondary_header secondary_header">
 			 ', $context['page_title'], '
 		</h3>
 		<p class="information">', $txt['levgal_cfields_desc'], '</p>';

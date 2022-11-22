@@ -104,7 +104,7 @@ function template_search()
 
 	// Selecting an album with collapse joy.
 	echo '
-				<h4 class="secondary_header">
+				<h4 class="lgal_secondary_header secondary_header">
 					<span id="search_toggle" class="toggle_down"></span>';
 
 	echo '

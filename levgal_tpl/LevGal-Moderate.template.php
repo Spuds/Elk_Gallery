@@ -215,7 +215,7 @@ function template_moderate_unapproved_comments()
 	global $context, $txt;
 
 	echo '
-		<h3 class="secondary_header">', $txt['levgal_unapproved_comments'], '</h3>';
+		<h3 class="lgal_secondary_header secondary_header">', $txt['levgal_unapproved_comments'], '</h3>';
 
 	echo '
 		<div class="pagesection">', $context['pageindex'], '</div>';
@@ -231,7 +231,7 @@ function template_moderate_unapproved_comments()
 		foreach ($context['comments'] as $comment)
 		{
 			echo '
-		<h4 class="secondary_header">
+		<h4 class="lgal_secondary_header secondary_header">
 			<span class="smalltext floatleft">
 				', $txt['lgal_mod_comment_on'], '
 				<a href="', $comment['album_url'], '">', $comment['album_name'], '</a> /
@@ -331,7 +331,7 @@ function template_moderate_unapproved_albums()
 	global $context, $txt;
 
 	echo '
-		<h3 class="secondary_header">', $txt['levgal_unapproved_albums'], '</h3>';
+		<h3 class="lgal_secondary_header secondary_header">', $txt['levgal_unapproved_albums'], '</h3>';
 
 	echo '
 		<div class="pagesection">', $context['pageindex'], '</div>';
@@ -388,7 +388,7 @@ function template_moderate_reported_comments()
 	global $context, $txt;
 
 	echo '
-		<h3 class="secondary_header">', $txt['levgal_reported_comments'], '</h3>
+		<h3 class="lgal_secondary_header secondary_header">', $txt['levgal_reported_comments'], '</h3>
 		<p class="information">', $txt['lgal_reported_comments_desc'], '</p>';
 
 	echo '
@@ -407,7 +407,7 @@ function template_moderate_reported_comments()
 		<br class="clear" />';
 
 	echo '
-		<h3 class="secondary_header">', $context['page_title'], '</h3>';
+		<h3 class="lgal_secondary_header secondary_header">', $context['page_title'], '</h3>';
 
 	echo '
 		<div class="pagesection">', $context['pageindex'], '</div>';
@@ -451,7 +451,7 @@ function template_moderate_reported_items()
 	global $context, $txt;
 
 	echo '
-		<h3 class="secondary_header">', $txt['levgal_reported_items'], '</h3>
+		<h3 class="lgal_secondary_header secondary_header">', $txt['levgal_reported_items'], '</h3>
 		<p class="description">', $txt['lgal_reported_items_desc'], '</p>';
 
 	echo '
@@ -470,7 +470,7 @@ function template_moderate_reported_items()
 		<br class="clear" />';
 
 	echo '
-		<h3 class="secondary_header">', $context['page_title'], '</h3>';
+		<h3 class="lgal_secondary_header secondary_header">', $context['page_title'], '</h3>';
 
 	echo '
 		<div class="pagesection">', $context['pageindex'], '</div>';
@@ -516,7 +516,7 @@ function template_showreport()
 	global $context, $txt, $scripturl;
 
 	echo '
-		<h3 class="secondary_header">', $context['section_title'], '</h3>
+		<h3 class="lgal_secondary_header secondary_header">', $context['section_title'], '</h3>
 		<p class="description">', $context['section_desc'], '</p>';
 
 	echo '
@@ -535,10 +535,10 @@ function template_showreport()
 		<br class="clear" />';
 
 	echo '
-		<h3 class="secondary_header">', $context['report_title'], '</h3>';
+		<h3 class="lgal_secondary_header secondary_header">', $context['report_title'], '</h3>';
 
 	echo '
-		<h3 class="secondary_header">', sprintf($txt['lgal_reports_received'], comma_format($context['report_details']['num_reports']), $context['report_details']['time_updated_format']), '</h3>';
+		<h3 class="lgal_secondary_header secondary_header">', sprintf($txt['lgal_reports_received'], comma_format($context['report_details']['num_reports']), $context['report_details']['time_updated_format']), '</h3>';
 
 	// If this is a comment, show the comment being reported.
 	if (!empty($context['report_details']['body']))
@@ -554,7 +554,7 @@ function template_showreport()
 	}
 
 	echo '
-		<h3 class="secondary_header">', $txt['lgal_reports_by_members'], '</h3>';
+		<h3 class="lgal_secondary_header secondary_header">', $txt['lgal_reports_by_members'], '</h3>';
 
 	foreach ($context['report_bodies'] as $body)
 	{
@@ -567,7 +567,7 @@ function template_showreport()
 
 	echo '
 		<br />
-		<h3 class="secondary_header">', $txt['lgal_moderator_comments'], '</h3>
+		<h3 class="lgal_secondary_header secondary_header">', $txt['lgal_moderator_comments'], '</h3>
 		<div class="content">';
 
 	foreach ($context['report_comments'] as $comment)

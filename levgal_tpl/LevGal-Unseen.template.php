@@ -37,7 +37,7 @@ function template_unseen_sidebar()
 
 	// Information block
 	echo '
-			<h3 class="secondary_header">
+			<h3 class="lgal_secondary_header secondary_header">
 				', $txt['lgal_unseen_by_album'], '
 			</h3>
 			<div class="content">
@@ -60,7 +60,7 @@ function template_unseen_sidebar()
 	if (!empty($context['unseen_actions']))
 	{
 		echo '
-			<h3 class="secondary_header">
+			<h3 class="lgal_secondary_header secondary_header">
 				', $txt['lgal_album_actions'], '
 			</h3>
 			<div class="content">
@@ -100,7 +100,7 @@ function template_unseen_display()
 
 	echo '
 		<div id="item_main">
-			<h3 class="secondary_header">', $context['page_title'], '</h3>';
+			<h3 class="lgal_secondary_header secondary_header">', $context['page_title'], '</h3>';
 
 	if (!empty($context['unseen_pageindex']))
 	{

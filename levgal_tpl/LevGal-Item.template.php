@@ -57,7 +57,7 @@ function template_main_item_display()
 
 	echo '
 		<div id="item_main">
-			<h3 class="secondary_header">', $context['item_details']['item_name'], '</h3>
+			<h3 class="lgal_secondary_header secondary_header">', $context['item_details']['item_name'], '</h3>
 			<div class="', $context['item_details']['approved'] ? 'content' : 'approvebg', '">';
 
 	if (isset($context['item_reported']))
@@ -194,7 +194,7 @@ function template_main_item_navigation()
 	global $txt, $context;
 
 	echo '
-			<h2 class="secondary_header">';
+			<h2 class="lgal_secondary_header secondary_header">';
 
 	if (!empty($context['prev_next']['previous']))
 	{
@@ -221,7 +221,7 @@ function template_main_item_sidebar()
 
 	echo '
 		<div id="album_sidebar">
-			<h3 class="secondary_header">
+			<h3 class="lgal_secondary_header secondary_header">
 				', $txt['lgal_item_info'], '
 			</h3>
 			<div class="content">';
@@ -319,7 +319,7 @@ function template_main_item_sidebar_meta()
 	global $context, $txt;
 
 	echo '
-			<h3 class="secondary_header panel_toggle">
+			<h3 class="lgal_secondary_header secondary_header panel_toggle">
 				<span>
 					<span id="sidebar_meta_toggle" class="chevricon i-chevron-up hide" title="', $txt['hide'], '"></span>
 				</span>
@@ -391,7 +391,7 @@ function template_sidebar_share()
 
 	$poster_name = empty($memberContext[$context['item_owner']]['name']) ? empty($context['item_owner']) ? $txt['not_applicable'] : $context['item_owner'] : ($memberContext[$context['item_owner']]['name']);
 	echo '
-			<h3 class="secondary_header">
+			<h3 class="lgal_secondary_header secondary_header">
 				', $txt['lgal_share'], '
 			</h3>
 			<div class="content">
@@ -448,7 +448,7 @@ function template_main_item_comments()
 
 	echo '
 			<div id="item_comments">
-				<h2 class="secondary_header">', empty($modSettings['lgal_feed_enable_item'])
+				<h2 class="lgal_secondary_header secondary_header">', empty($modSettings['lgal_feed_enable_item'])
 					? ''
 					: '<a href="' . $context['item_details']['item_url'] . 'feed/"><span class="lgalicon i-rss"></span></a> ',
 					sprintf($txt['lgal_comments'], comma_format($context['num_comments'])), '
@@ -568,7 +568,7 @@ function template_mature_item()
 	global $context, $txt, $settings;
 
 	echo '
-		<h3 class="secondary_header">', $context['page_title'], '</h3>
+		<h3 class="lgal_secondary_header secondary_header">', $context['page_title'], '</h3>
 		<form action="', $context['form_url'], '" method="post" accept-charset="UTF-8">
 			<div class="content">
 				<div class="centertext">
@@ -591,7 +591,7 @@ function template_notify_item()
 	global $context, $txt;
 
 	echo '
-		<h3 class="secondary_header">', $context['page_title'], '</h3>
+		<h3 class="lgal_secondary_header secondary_header">', $context['page_title'], '</h3>
 		<form action="', $context['form_url'], '" method="post" accept-charset="UTF-8">
 			<div class="content">
 				<div class="centertext">';
@@ -735,7 +735,7 @@ function template_move_item()
 	global $context, $txt;
 
 	echo '
-			<h3 class="secondary_header">', $context['page_title'], '</h3>
+			<h3 class="lgal_secondary_header secondary_header">', $context['page_title'], '</h3>
 			<div class="content">
 				<form action="', $context['form_url'], '" method="post" accept-charset="UTF-8">
 					<div class="centertext">
@@ -817,7 +817,7 @@ function template_delete_item()
 	global $context, $txt;
 
 	echo '
-			<h3 class="secondary_header">', $context['page_title'], '</h3>
+			<h3 class="lgal_secondary_header secondary_header">', $context['page_title'], '</h3>
 			<div class="content">
 				<form action="', $context['form_url'], '" method="post" accept-charset="UTF-8">
 					<div class="centertext">
@@ -840,7 +840,7 @@ function template_flagitem()
 
 	echo '
 		<form action="', $context['form_url'], '" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" >
-			<h3 class="secondary_header">', $context['page_title'], '</h3>
+			<h3 class="lgal_secondary_header secondary_header">', $context['page_title'], '</h3>
 			<div class="well">
 				<dl class="settings">
 					<dt>', $txt['lgal_item_name'], '</dt>
@@ -901,7 +901,7 @@ function template_edit_item()
 	global $context, $txt, $scripturl, $settings;
 
 	echo '
-			<h3 class="secondary_header">', $context['page_title'], '</h3>
+			<h3 class="lgal_secondary_header secondary_header">', $context['page_title'], '</h3>
 			<form action="', $context['form_url'], '" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" onsubmit="submitonce(this);smc_saveEntities(\'postmodify\', [\'item_name\', \'item_slug\', \'', $context['description_box']->getId(), '\', \'guest_username\'], \'options\');" enctype="multipart/form-data">
 				<div class="well">';
 

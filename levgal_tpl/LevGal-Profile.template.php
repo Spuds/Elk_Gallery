@@ -17,7 +17,7 @@ function template_levgal_profile_summary()
 	global $txt, $context;
 
 	echo '
-			<h3 class="secondary_header">
+			<h3 class="lgal_secondary_header secondary_header">
 				<span class="lgalicon i-album"></span> ', $txt['levgal_profile_summary'], '
 			</h3>
 			</div>
@@ -32,7 +32,7 @@ function template_levgal_profile_summary()
 	if (!empty($context['latest_items']))
 	{
 		echo '
-			<h3 class="secondary_header">
+			<h3 class="lgal_secondary_header secondary_header">
 				', sprintf($txt['levgal_latest_items_user'], $context['member']['name']), '
 			</h3>';
 
@@ -40,7 +40,7 @@ function template_levgal_profile_summary()
 	}
 
 	echo '
-			<h3 class="secondary_header">
+			<h3 class="lgal_secondary_header secondary_header">
 				', sprintf($txt['levgal_albums_user'], $context['member']['name']), '
 			</h3>';
 
@@ -92,7 +92,7 @@ function template_levgal_profile_bookmarks()
 	global $context, $txt;
 
 	echo '
-			<h3 class="secondary_header">
+			<h3 class="lgal_secondary_header secondary_header">
 				<span class="lgalicon i-bookmark"></span> ', $txt['levgal_profile_bookmarks'], '
 			</h3>
 			<p class="infobox">', $context['bookmarks_desc'], '</p>';
@@ -128,7 +128,7 @@ function template_levgal_profile_notify()
 	global $context, $txt, $scripturl;
 
 	echo '
-			<h3 class="secondary_header">
+			<h3 class="lgal_secondary_header secondary_header">
 				<span class="lgalicon i-notify"></span> ', $txt['levgal_profile_notify'], '<span>
 			</h3>
 			<p class="description">', $context['notify_desc'], '</p>';
@@ -180,7 +180,7 @@ function template_levgal_profile_prefs()
 	global $context, $txt, $options, $scripturl;
 
 	echo '
-			<h3 class="secondary_header">
+			<h3 class="lgal_secondary_header secondary_header">
 				<span class="lgalicon i-options"></span> ', $txt['levgal_profile_prefs'], '
 			</h3>
 			<p class="infobox">', $txt['levgal_profile_prefs_desc'], '</p>';

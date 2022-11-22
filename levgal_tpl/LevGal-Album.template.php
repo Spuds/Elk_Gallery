@@ -68,7 +68,7 @@ function template_main_album_display()
 
 	echo '
 		<div id="item_main">
-			<h3 class="secondary_header">', $context['album_details']['album_name'], '</h3>';
+			<h3 class="lgal_secondary_header secondary_header">', $context['album_details']['album_name'], '</h3>';
 
 	if (!empty($context['album_family']))
 	{
@@ -171,7 +171,7 @@ function template_main_album_display()
 	{
 		echo '
 			<br>
-			<h4 class="secondary_header centertext">
+			<h4 class="lgal_secondary_header secondary_header centertext">
 				', $txt['lgal_empty_album'], '
 			</h4>';
 	}
@@ -194,7 +194,7 @@ function template_main_album_sidebar()
 
 	// Information block.
 	echo '
-			<h3 class="secondary_header">
+			<h3 class="lgal_secondary_header secondary_header">
 				', $txt['lgal_album_info'], empty($modSettings['lgal_feed_enable_album']) ? '' : ' <a href="' . $context['album_details']['album_url'] . 'feed/"><span class="lgalicon i-rss"></span></a>', '
 			</h3>
 			<div class="content">
@@ -288,7 +288,7 @@ function template_main_item_sidebar_sorting()
 	global $context, $txt;
 
 	echo '
-			<h2 class="secondary_header">
+			<h2 class="lgal_secondary_header secondary_header">
 				', $txt['lgal_sorting_album'], '
 			</h2>
 			<div class="content">
@@ -323,7 +323,7 @@ function template_add_single_item()
 	global $context, $txt, $scripturl;
 
 	echo '
-			<h3 class="secondary_header">
+			<h3 class="lgal_secondary_header secondary_header">
 				', $context['page_title'], '
 			</h3>
 			<form action="', $context['album_details']['album_url'], 'add/" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" onsubmit="submitonce(this);smc_saveEntities(\'postmodify\', [\'item_name\', \'item_slug\', \'', $context['description_box']->getId(), '\', \'guest_username\'], \'options\');" enctype="multipart/form-data">
@@ -673,7 +673,7 @@ function template_add_bulk_items()
 	global $context, $txt, $scripturl;
 
 	echo '
-			<h3 class="secondary_header">
+			<h3 class="lgal_secondary_header secondary_header">
 				', $context['page_title'], '
 			</h3>							
 			<form action="#" method="post" name="postmodify" id="postmodify" accept-charset="UTF-8">
@@ -960,7 +960,7 @@ function template_delete_album()
 	global $context, $txt;
 
 	echo '
-			<h3 class="secondary_header">', $context['page_title'], '</h3>
+			<h3 class="lgal_secondary_header secondary_header">', $context['page_title'], '</h3>
 			<div class="content">
 				<form action="', $context['form_url'], '" method="post" accept-charset="UTF-8">
 					<div class="centertext">
@@ -989,7 +989,7 @@ function template_notify_album()
 	global $context, $txt;
 
 	echo '
-		<h3 class="secondary_header">', $context['page_title'], '</h3>
+		<h3 class="lgal_secondary_header secondary_header">', $context['page_title'], '</h3>
 		<form action="', $context['form_url'], '" method="post" accept-charset="UTF-8">
 			<div class="content">
 				<div class="centertext">';
@@ -1020,7 +1020,7 @@ function template_edit_album()
 
 	echo '
 		<form action="', $context['destination'], '" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" onsubmit="submitonce(this);" enctype="multipart/form-data">
-			<h2 class="secondary_header">
+			<h2 class="lgal_secondary_header secondary_header">
 				', $context['page_title'], '
 			</h2>
 			<p class="infobox">', $txt['lgal_edit_album_description'], '</p>';

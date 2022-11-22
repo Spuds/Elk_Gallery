@@ -109,18 +109,13 @@ dl.album_details dd, dl.album_info dd {
 	margin-left: 2px;
 }
 
-.secondary_header {
-	font-size: 1.214em;
+.lgal_secondary_header {
 	line-height: 1.8em;
 	display: flex;
 	align-items: center;
 	flex-wrap: nowrap;
 	margin-top: 0;
 	padding: 4px 10px 2px 10px;
-	border-top-color: #CFCFCF;
-	border-bottom-color: #BBBBBB;
-	border-radius: 2px 2px 0 0;
-	background: #EBEBEB linear-gradient(to bottom, #FAFAFA, #E4E4E4);
 }
 
 #item_main, .item_main {

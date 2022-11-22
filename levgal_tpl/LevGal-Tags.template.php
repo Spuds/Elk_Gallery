@@ -28,7 +28,7 @@ function template_tags_sidebar()
 
 	// Information block
 	echo '
-			<h3 class="secondary_header">
+			<h3 class="lgal_secondary_header secondary_header">
 				', $txt['levgal_tagcloud'], '
 			</h3>
 			<div class="content">
@@ -57,7 +57,7 @@ function template_tagcloud_display()
 
 	echo '
 	<div id="item_main">
-		<h3 class="secondary_header">', $context['page_title'], '</h3>
+		<h3 class="lgal_secondary_header secondary_header">', $context['page_title'], '</h3>
 		<div class="content">
 			<div id="jqcloud" class="jqcloud"></div>
 		</div>
@@ -89,7 +89,7 @@ function template_tagmain_display()
 
 	echo '
 		<div id="item_main">
-			<h3 class="secondary_header">', $context['page_title'], '</h3>';
+			<h3 class="lgal_secondary_header secondary_header">', $context['page_title'], '</h3>';
 
 	template_item_list('tagged_items');
 

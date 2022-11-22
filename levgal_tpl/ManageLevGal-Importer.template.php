@@ -16,7 +16,7 @@ function template_importer_home()
 
 	echo '
 		<div id="admincenter">
-			<h2 class="secondary_header">', $txt['levgal_importers'], '</h2>
+			<h2 class="lgal_secondary_header secondary_header">', $txt['levgal_importers'], '</h2>
 			<p class="information">', $txt['levgal_importer_desc'], '</p>
 			<div class="content">
 				<div>', $txt['levgal_import_supports'], '</div>
@@ -58,7 +58,7 @@ function template_no_valid_importers()
 
 	echo '
 		<div id="admincenter">
-			<h2 class="secondary_header">', $txt['levgal_importers'], '</h2>
+			<h2 class="lgal_secondary_header secondary_header">', $txt['levgal_importers'], '</h2>
 			<p class="information">', $txt['levgal_importer_desc'], '</p>
 			<div class="content">
 				<div>', $txt['levgal_import_supports'], '</div>
@@ -85,7 +85,7 @@ function template_importer_pre_import()
 
 	echo '
 		<div id="admincenter">
-			<h3 class="secondary_header">', $context['page_title'], '</h3>';
+			<h3 class="lgal_secondary_header secondary_header">', $context['page_title'], '</h3>';
 
 	if (!empty($context['import_warning']))
 	{
@@ -144,7 +144,7 @@ function template_importer_done()
 
 	echo '
 		<div id="admincenter">
-			<h2 class="secondary_header">', $context['page_title'], '</h2>
+			<h2 class="lgal_secondary_header secondary_header">', $context['page_title'], '</h2>
 			<div class="content">
 				', $txt['levgal_importer_result'], '
 				<ul>';

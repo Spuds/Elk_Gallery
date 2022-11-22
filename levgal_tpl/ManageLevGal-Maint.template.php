@@ -15,7 +15,7 @@ function template_levgal_maint()
 	global $context, $txt, $scripturl;
 
 	echo '
-		<h2 class="secondary_header">
+		<h2 class="lgal_secondary_header secondary_header">
 			', $txt['levgal_maint'], '
 		</h2>
 		<p class="information">
@@ -33,7 +33,7 @@ function template_levgal_maint()
 	foreach (array_keys($context['maint_tasks']) as $task)
 	{
 		echo '
-		<h2 class="secondary_header">
+		<h2 class="lgal_secondary_header secondary_header">
 			', $txt['levgal_task_' . $task], '
 		</h2>
 		<div class="content">

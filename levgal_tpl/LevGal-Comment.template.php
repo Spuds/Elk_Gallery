@@ -16,7 +16,7 @@ function template_editcomment()
 
 	echo '
 		<form action="', $context['form_url'], '" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" onsubmit="submitonce(this);smc_saveEntities(\'postmodify\', [\'', $context['comment_box']->getId(), '\']);" enctype="multipart/form-data">
-			<h3 class="secondary_header">', $context['display_title'], '</h3>
+			<h3 class="lgal_secondary_header secondary_header">', $context['display_title'], '</h3>
 			<div class="well">';
 
 	if (!empty($context['comment_errors']))
@@ -53,7 +53,7 @@ function template_flagcomment()
 
 	echo '
 		<form action="', $context['form_url'], '" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" >
-			<h3 class="secondary_header">', $context['page_title'], '</h3>
+			<h3 class="lgal_secondary_header secondary_header">', $context['page_title'], '</h3>
 			<div class="well">
 				<dl class="settings">
 					<dt>', $txt['lgal_mod_comment_on'], '</dt>
