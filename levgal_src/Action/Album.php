@@ -195,11 +195,12 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 			elseif ($ownership['type'] === 'member')
 			{
 				$album_list = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
-				$context['hierarchy'] = $album_list->getAlbumHierarchy('member', $ownership['owners'][0]);
+				$owner = reset($ownership['owners']);
+				$context['hierarchy'] = $album_list->getAlbumHierarchy('member', $owner);
 
 				if (!empty($context['hierarchy']) && count($context['hierarchy']) > 1)
 				{
-					$context['album_actions']['moderation']['movealbum'] = array($txt['lgal_arrange_albums'], $scripturl . '?media/movealbum/' . $ownership['owners'][0] . '/member/');
+					$context['album_actions']['moderation']['movealbum'] = array($txt['lgal_arrange_albums'], $scripturl . '?media/movealbum/' . $owner . '/member/');
 				}
 			}
 		}
@@ -1121,7 +1122,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 			if ($context['display_featured'])
 			{
 				$context['now_featured'] = !empty($_POST['feature']);
-				$change_featured = $context['is_featured'] != $context['now_featured'];
+				$change_featured = $context['is_featured'] !== $context['now_featured'];
 				// And if we have an error...
 				$context['is_featured'] = $context['now_featured'];
 			}
