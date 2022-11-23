@@ -619,8 +619,8 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 			ORDER BY am.id_media
 			LIMIT {int:start}, {int:limit}',
 			array(
-				'start' => $substep * self::ITEMS_PER_STEP,
-				'limit' => self::ITEMS_PER_STEP,
+				'start' => $substep * self::COMMENTS_PER_STEP,
+				'limit' => self::COMMENTS_PER_STEP,
 			)
 		);
 		$item_tag_map = array();
