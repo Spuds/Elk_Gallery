@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -74,6 +74,8 @@ class LevGal_Model_Unseen
 			);
 			list ($items, $seen) = $db->fetch_row($request);
 			$db->free_result($request);
+
+			require_once(SUBSDIR . '/Members.subs.php');
 
 			$unseen = $items - $seen;
 			updateMemberData($user_info['id'], array('lgal_new' => 0, 'lgal_unseen' => $unseen));
@@ -265,6 +267,8 @@ class LevGal_Model_Unseen
 	public function markForRecount($user = null)
 	{
 		global $user_settings;
+
+		require_once(SUBSDIR . '/Members.subs.php');
 
 		// First we update the database.
 		updateMemberData($user, array('lgal_new' => 1));
