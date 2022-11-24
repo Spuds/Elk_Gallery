@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0.4
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -12,7 +12,9 @@
  */
 class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 {
-	const ITEMS_PER_STEP = 5;
+	// This can be 10-15 IF you are not using Imagick or if NOT creating pdf thumbnails.
+	// Imagick uses ghostscript to create pdf thumbs, which can be very slow on large PDF's
+	const ITEMS_PER_STEP = 4;
 	const COMMENTS_PER_STEP = 50;
 
 	public function isValid()
