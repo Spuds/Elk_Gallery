@@ -23,6 +23,11 @@ function template_unseen()
 	}
 	else
 	{
+		if (!empty($context['unseen_actions']))
+		{
+			template_album_list_action_tabs($context['unseen_actions']);
+		}
+
 		template_unseen_sidebar();
 		template_unseen_display();
 	}
@@ -48,7 +53,9 @@ function template_unseen_sidebar()
 	foreach ($context['unseen_albums'] as $id_album => $album)
 	{
 		echo '
-							<li><a href="', $album['filter_url'], '">', $context['album_filter'] == $id_album ? '<strong>' . $album['album_name'] . '</strong>' : $album['album_name'], '</a> (', comma_format($album['unseen']), ')</li>';
+							<li>
+								<a href="', $album['filter_url'], '">', $context['album_filter'] == $id_album ? '<strong>' . $album['album_name'] . '</strong>' : $album['album_name'], '</a> (', comma_format($album['unseen']), ')
+							</li>';
 	}
 	echo '
 						</ul>
@@ -57,6 +64,13 @@ function template_unseen_sidebar()
 			</div>';
 
 	// Actions block
+	if (!empty($context['unseen_actions']))
+	{
+		$context['unseen_actions'] = array_filter($context['unseen_actions'], static function($e) {
+			$check = reset($e);
+			return (!isset($check['sidebar']) || $check['sidebar'] !== false);
+		});
+	}
 	if (!empty($context['unseen_actions']))
 	{
 		echo '
@@ -77,7 +91,9 @@ function template_unseen_sidebar()
 			foreach ($actions as $id_action => $action)
 			{
 				echo '
-							<li><a href="', $action[1], '"><span class="lgalicon i-', $id_action, '"></span>', $action[0], '</a></li>';
+							<li>
+								<a href="', $action[1], '"><span class="lgalicon i-', $id_action, '"></span>', $action[0], '</a>
+							</li>';
 			}
 
 			echo '
@@ -86,7 +102,7 @@ function template_unseen_sidebar()
 		}
 
 		echo '
-				</ul>
+				</dl>
 			</div>';
 	}
 
@@ -96,7 +112,7 @@ function template_unseen_sidebar()
 
 function template_unseen_display()
 {
-	global $context, $txt;
+	global $context;
 
 	echo '
 		<div id="item_main">

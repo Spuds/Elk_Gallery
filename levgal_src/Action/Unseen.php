@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -54,17 +54,17 @@ class LevGal_Action_Unseen extends LevGal_Action_Abstract
 				$num_pages = ceil($context['unseen_albums'][$album_id]['unseen'] / $modSettings['lgal_items_per_page']);
 				$this_page = isset($_GET['page']) ? LevGal_Bootstrap::clamp((int) $_GET['page'], 1, $num_pages) : 1;
 				if ($this_page > 1)
-					{
-						$context['canonical_url'] .= 'page-' . $this_page . '/';
-					}
+				{
+					$context['canonical_url'] .= 'page-' . $this_page . '/';
+				}
 				// Check the slug is right otherwise redirect.
-				if ($album_slug != $context['unseen_albums'][$album_id]['album_slug'])
-					{
-						LevGal_Helper_Http::hardRedirect($base_url . ($this_page > 1 ? 'page-' . $this_page . '/' : ''));
-					}
+				if ($album_slug !== $context['unseen_albums'][$album_id]['album_slug'])
+				{
+					LevGal_Helper_Http::hardRedirect($base_url . ($this_page > 1 ? 'page-' . $this_page . '/' : ''));
+				}
 				$context['album_filter'] = $album_id;
 				$context['unseen_actions']['actions']['album'] = array($txt['lgal_go_to_album'], $context['unseen_albums'][$album_id]['album_url']);
-				$context['unseen_actions']['actions']['markseen'] = array($txt['lgal_mark_album_seen'], $context['unseen_albums'][$album_id]['filter_url'] . 'markseen/' . $context['session_var'] . '=' . $context['session_id'] . '/');
+				$context['unseen_actions']['actions']['markseen'] = array($txt['lgal_mark_album_seen'], $context['unseen_albums'][$album_id]['filter_url'] . 'markseen/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'tab' => true);
 			}
 
 			if ($num_pages > 1)
@@ -73,6 +73,12 @@ class LevGal_Action_Unseen extends LevGal_Action_Abstract
 			}
 
 			$context['unseen_items'] = $unseenModel->getUnseenItems(($this_page - 1) * $modSettings['lgal_items_per_page'], $modSettings['lgal_items_per_page'], $context['album_filter']);
+
+			// Marking All seen
+			if (empty($album_id))
+			{
+				$context['unseen_actions']['actions']['markseen'] = array($txt['lgal_mark_all_seen'], '?media/unseen/all.1/markall/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'tab' => true, 'sidebar' => false);
+			}
 		}
 	}
 
@@ -92,6 +98,23 @@ class LevGal_Action_Unseen extends LevGal_Action_Abstract
 			}
 		}
 
+		redirectexit($scripturl . '?media/unseen/');
+	}
+
+	public function actionMarkall()
+	{
+		global $user_info, $user_settings, $scripturl;
+
+		if (!$user_info['is_guest'] && !empty($user_settings['lgal_unseen']))
+		{
+			checkSession('get');
+			$unseenModel = new LevGal_Model_Unseen();
+			$unseen_albums = $unseenModel->getUnseenCountByAlbum();
+			foreach ($unseen_albums as $album_id => $album)
+			{
+				$unseenModel->markAlbumSeen($album_id);
+			}
+		}
 		redirectexit($scripturl . '?media/unseen/');
 	}
 }

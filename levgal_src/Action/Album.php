@@ -167,7 +167,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 				$context['album_actions']['actions'][$action] = array($txt['lgal_' . $action], $album['url'] . $action . '/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'title' => $txt['lgal_' . $action . '_album_desc']);
 			}
 			// Marking seen
-			$context['album_actions']['actions']['markseen'] = array($txt['lgal_mark_album_seen'], $album['url'] . 'markseen/' . $context['session_var'] . '=' . $context['session_id'] . '/');
+			$context['album_actions']['actions']['markseen'] = array($txt['lgal_mark_album_seen'], $album['url'] . 'markseen/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'tab' => true);
 		}
 
 		if (allowedTo('lgal_manage'))
@@ -1122,7 +1122,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 			if ($context['display_featured'])
 			{
 				$context['now_featured'] = !empty($_POST['feature']);
-				$change_featured = $context['is_featured'] !== $context['now_featured'];
+				$change_featured = $context['is_featured'] != $context['now_featured'];
 				// And if we have an error...
 				$context['is_featured'] = $context['now_featured'];
 			}
