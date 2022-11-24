@@ -326,7 +326,9 @@ class ManageLevGalDash_Controller extends Action_Controller
 			),
 			'translators' => array(
 				'Peter Spicer (English, English British)',
-				'Justyne (German)',
+				'Augras (French)',
+				'McFly (German)',
+				'Radu81 (Italian)',
 			),
 			'people' => array(
 				'Justyne, for helping make sense of permissions and generally keeping sanity',
