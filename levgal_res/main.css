@@ -217,8 +217,9 @@ dl.album_details dd, dl.album_info dd {
 }
 
 .album_container .album_placard {
-	width: 25%;
+	width: 24%;
 	min-height: 90px;
+	min-width: 24%;
 }
 
 .album_thumb {
