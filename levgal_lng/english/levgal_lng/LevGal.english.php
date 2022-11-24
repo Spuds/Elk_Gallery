@@ -195,6 +195,7 @@ $txt['lgal_item_actions_moderation'] = 'Moderation';
 $txt['lgal_add_item'] = 'Add Single Item';
 $txt['lgal_add_bulk'] = 'Add Bulk Items';
 $txt['lgal_mark_album_seen'] = 'Mark Album Seen';
+$txt['lgal_mark_all_seen'] = 'Mark All Seen';
 $txt['lgal_bookmark_item'] = 'Bookmark Item';
 $txt['lgal_unbookmark_item'] = 'Unbookmark Item';
 $txt['lgal_notify'] = 'Notify Me';
