@@ -992,6 +992,8 @@ class LevGal_Model_Item extends LevGal_Model_File
 
 	public function getMetaOg()
 	{
+		global $mbname;
+
 		if (empty($this->current_item))
 		{
 			return array();
@@ -1004,6 +1006,8 @@ class LevGal_Model_Item extends LevGal_Model_File
 			'type' => 'article',
 			'url' => $this->current_item['item_url'],
 			'image' => $item_urls['thumb'],
+			'sitename' => Util::htmlspecialchars($mbname),
+			'description' => Util::htmlspecialchars(strip_tags($this->current_item['description'])),
 		);
 
 		if (strpos($this->current_item['mime_type'], 'image') === 0 && !empty($this->current_item['width']) && !empty($this->current_item['height']))
