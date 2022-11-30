@@ -253,6 +253,7 @@ class LevGal_Model_Tag
 
 		// Site defined ones
 		$tags = [];
+		$inUseTags = [];
 		if (!empty($modSettings['lgal_tag_items_list']))
 		{
 			$tagString = Util::htmlspecialchars($modSettings['lgal_tag_items_list'], ENT_QUOTES);
