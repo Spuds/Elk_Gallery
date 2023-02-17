@@ -26,7 +26,7 @@ function template_levgal_dash()
 	echo '
 				<div id="stats_left">
 					<div class="content modbox">
-						<dl class="settings">';
+						<dl class="lgal_settings">';
 
 	foreach ($context['general_stats'] as $key => $value)
 	{
@@ -143,7 +143,7 @@ function template_levgal_dash()
 				<div id="stats_left">
 					<h2 class="lgal_secondary_header secondary_header hdicon cat_img_helptopics">', $txt['levgal_support_information'], '</h2>
 					<div class="content modbox">
-						<dl class="settings">';
+						<dl class="lgal_settings">';
 
 	foreach ($context['support'] as $id => $thing)
 	{

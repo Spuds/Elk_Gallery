@@ -96,24 +96,24 @@ function template_cfields_modify()
 	// General options, aka display options
 	echo '
 					<fieldset>
-						<legend>', $txt['levgal_cfields_general'], '</legend>
-						<dl class="settings">
+						<legend data-collapsed="true">', $txt['levgal_cfields_general'], '</legend>
+						<dl class="lgal_settings">
 							<dt>
-								<strong>', $txt['levgal_cfields_field_name'], '</strong>
+								', $txt['levgal_cfields_field_name'], '
 								<div class="smalltext">', $txt['levgal_cfields_field_name_desc'], '</div>
 							</dt>
 							<dd>
 								<input type="text" name="field_name" value="', $context['custom_field']['field_name'], '" class="input_text" size="30" />
 							</dd>
 							<dt>
-								<strong>', $txt['levgal_cfields_field_desc'], '</strong>
+								', $txt['levgal_cfields_field_desc'], '
 								<div class="smalltext">', $txt['levgal_cfields_field_desc_desc'], '</div>
 							</dt>
 							<dd>
 								<textarea name="description" cols="40" rows="3">', $context['custom_field']['description'], '</textarea>
 							</dd>
 							<dt>
-								<strong>', $txt['levgal_cfields_field_placement'], '</strong>
+								', $txt['levgal_cfields_field_placement'], '
 								<div class="smalltext">', $txt['levgal_cfields_field_placement_desc'], '</div>
 							</dt>
 							<dd>
@@ -129,7 +129,7 @@ function template_cfields_modify()
 								</select>
 							</dd>
 							<dt>
-								<strong>', $txt['levgal_cfields_field_is_active'], '</strong>
+								', $txt['levgal_cfields_field_is_active'], '
 								<div class="smalltext">', $txt['levgal_cfields_field_is_active_desc'], '</div>
 							</dt>
 							<dd>
@@ -144,10 +144,10 @@ function template_cfields_modify()
 	// Input options
 	echo '
 					<fieldset>
-						<legend>', $txt['levgal_cfields_input'], '</legend>
-						<dl class="settings">
+						<legend data-collapsed="true">', $txt['levgal_cfields_input'], '</legend>
+						<dl class="lgal_settings">
 							<dt>
-								<strong>', $txt['levgal_cfields_field_type'], '</strong>
+								', $txt['levgal_cfields_field_type'], '
 							</dt>
 							<dd>
 								<span id="field_type_icon"></span>
@@ -163,7 +163,7 @@ function template_cfields_modify()
 								</select>
 							</dd>
 							<dt class="ui_field ui_field_integer ui_field_float">
-								<strong>', $txt['levgal_cfields_field_num_limits'], '</strong>
+								', $txt['levgal_cfields_field_num_limits'], '
 								<div class="smalltext">', $txt['levgal_cfields_field_num_limits_size'], '</div>
 							</dt>
 							<dd class="ui_field ui_field_integer ui_field_float">
@@ -174,7 +174,7 @@ function template_cfields_modify()
 	), '
 							</dd>
 							<dt class="ui_field ui_field_text ui_field_largetext">
-								<strong>', $txt['levgal_cfields_field_validation'], '</strong>
+								', $txt['levgal_cfields_field_validation'], '
 								<div class="smalltext">', $txt['levgal_cfields_field_validation_desc'], '</div>
 							</dt>
 							<dd class="ui_field ui_field_text">
@@ -191,14 +191,14 @@ function template_cfields_modify()
 								<input type="text" class="input_text" value="', empty($context['custom_field']['field_config']['valid_regex']) ? '' : Util::htmlspecialchars($context['custom_field']['field_config']['valid_regex'], ENT_QUOTES), '" id="valid_regex" name="valid_regex" />
 							</dd>
 							<dt class="ui_field ui_field_text ui_field_largetext">
-								<strong>', $txt['levgal_cfields_field_text_length'], '</strong>
+								', $txt['levgal_cfields_field_text_length'], '
 								<div class="smalltext">', $txt['levgal_cfields_field_text_length_desc'], '</div>
 							</dt>
 							<dd class="ui_field ui_field_text ui_field_largetext">
 								<input type="text" name="max_length" value="', $context['custom_field']['field_config']['max_length'], '" class="input_text" size="4" />
 							</dd>
 							<dt class="ui_field ui_field_largetext">
-								<strong>', $txt['levgal_cfields_field_largetext_size'], '</strong>
+								', $txt['levgal_cfields_field_largetext_size'], '
 								<div class="smalltext">', $txt['levgal_cfields_field_largetext_size_desc'], '</div>
 							</dt>
 							<dd class="ui_field ui_field_largetext">
@@ -209,14 +209,14 @@ function template_cfields_modify()
 	), '
 							</dd>
 							<dt class="ui_field ui_field_integer ui_field_float ui_field_text">
-								<strong>', $txt['levgal_cfields_field_default_val'], '</strong>
+								', $txt['levgal_cfields_field_default_val'], '
 								<div class="smalltext">', $txt['levgal_cfields_field_default_val_desc'], '</div>
 							</dt>
 							<dd class="ui_field ui_field_integer ui_field_float ui_field_text">
 								<input type="text" name="default_val" value="', $context['custom_field']['default_val'], '" size="30" class="input_text" />
 							</dd>
 							<dt class="ui_field ui_field_select ui_field_radio ui_field_multiselect">
-								<strong>', $txt['levgal_cfields_field_options'], '</strong>
+								', $txt['levgal_cfields_field_options'], '
 								<div class="smalltext ui_field ui_field_select ui_field_radio">', $txt['levgal_cfields_field_options_desc'], '</div>
 								<div class="smalltext ui_field ui_field_multiselect">', $txt['levgal_cfields_field_options_multi_desc'], '</div>
 							</dt>
@@ -266,13 +266,13 @@ function template_cfields_modify()
 	echo '
 							</dd>
 							<dt class="ui_field ui_field_text ui_field_largetext ui_field_radio ui_field_multiselect">
-								<strong>', $txt['levgal_cfields_field_bbc'], '</strong>
+								', $txt['levgal_cfields_field_bbc'], '
 							</dt>
 							<dd class="ui_field ui_field_text ui_field_largetext ui_field_radio ui_field_multiselect">
 								<input type="checkbox" name="bbc"', empty($context['custom_field']['field_config']['bbc']) ? '' : ' checked="checked"', ' />
 							</dd>
 							<dt class="ui_field ui_field_integer ui_field_float ui_field_text ui_field_largetext ui_field_select ui_field_radio">
-								<strong>', $txt['levgal_cfields_field_is_searchable'], '</strong>
+								', $txt['levgal_cfields_field_is_searchable'], '
 								<div class="smalltext">', $txt['levgal_cfields_field_is_searchable_desc'], '</div>
 							</dt>
 							<dd class="ui_field ui_field_integer ui_field_float ui_field_text ui_field_largetext ui_field_select ui_field_radio">
@@ -282,7 +282,7 @@ function template_cfields_modify()
 								</select>
 							</dd>
 							<dt>
-								<strong>', $txt['levgal_cfields_field_is_required'], '</strong>
+								', $txt['levgal_cfields_field_is_required'], '
 								<div class="smalltext">', $txt['levgal_cfields_field_is_required_desc'], '</div>
 							</dt>
 							<dd>
@@ -297,10 +297,10 @@ function template_cfields_modify()
 	// Album selection.
 	echo '
 					<fieldset>
-						<legend>', $txt['levgal_cfields_albums'], '</legend>
-						<dl class="settings">
+						<legend data-collapsed="true">', $txt['levgal_cfields_albums'], '</legend>
+						<dl class="lgal_settings">
 							<dt>
-								<strong>', $txt['levgal_cfields_applies_to_album'], '</strong>
+								', $txt['levgal_cfields_applies_to_album'], '
 								<div class="smalltext">', $txt['levgal_cfields_applies_to_album_desc'], '</div>
 							</dt>
 							<dd>

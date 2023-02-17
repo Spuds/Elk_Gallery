@@ -188,7 +188,7 @@ function template_levgal_profile_prefs()
 	echo '
 			<form action="', $scripturl, '?action=profile;u=', $context['user']['id'], ';area=mediaprefs" method="post" accept-charset="UTF-8">
 				<div class="content">
-					<dl class="settings">';
+					<dl class="lgal_settings">';
 
 	foreach ($context['preferences'] as $pref)
 	{

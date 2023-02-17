@@ -581,10 +581,10 @@ function template_showreport()
 		echo '
 			<form action="', $scripturl, '?media/moderate/', $context['report_details']['id_report'], '/comment/" method="post" accept-charset="UTF-8">
 				<textarea class="mod_comment" name="mod_comment"></textarea>
-				<div>
+				<div class="submitbutton">
 					<input type="submit" value="', $txt['levgal_add_comment'], '" class="button_submit" />
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 				</div>
-				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 			</form>';
 	}
 	else
@@ -594,6 +594,5 @@ function template_showreport()
 	}
 
 	echo '
-		</div>
-		<br class="clear" />';
+		</div>';
 }

@@ -49,11 +49,11 @@ function template_search()
 						</li>
 						<li class="lefttext clear_left">';
 
-	foreach (array('search_album_names', 'search_item_names', 'search_item_descs') as $type)
+	foreach (array('search_album_names', 'search_album_descs', 'search_item_names', 'search_item_descs') as $type)
 	{
 		echo '
 							<label>
-								<input type="checkbox" name="', $type, '"', empty($context[$type]) ? '' : ' checked="checked"', ' class="input_check" /> ', $txt['lgal_' . $type], '
+								<input type="checkbox" name="', $type, '"', empty($context[$type]) ? '' : ' checked="checked"', ' /> ', $txt['lgal_' . $type], '
 							</label>
 							<br />';
 	}
@@ -68,8 +68,8 @@ function template_search()
 		foreach ($context['searchable_fields'] as $field)
 		{
 			echo '
-							<label
-								><input type="checkbox" name="search_field_', $field['id_field'], '"', in_array($field['id_field'], $context['selected_fields']) ? ' checked="checked"' : '', ' class="input_check" /> ', sprintf($txt['lgal_search_in_field'], $field['field_name']), '
+							<label>
+								<input type="checkbox" name="search_field_', $field['id_field'], '"', in_array($field['id_field'], $context['selected_fields']) ? ' checked="checked"' : '', ' /> ', sprintf($txt['lgal_search_in_field'], $field['field_name']), '
 							</label>
 							<br />';
 		}
@@ -84,7 +84,7 @@ function template_search()
 	{
 		echo '
 							<label>
-								<input type="checkbox" name="search_', $type, '"', in_array($type, $context['selected_search_types']) ? ' checked="checked"' : '', ' class="input_check" />
+								<input type="checkbox" name="search_', $type, '"', in_array($type, $context['selected_search_types']) ? ' checked="checked"' : '', ' />
 								', $txt['lgal_search_type_' . $type], '
 							</label>
 							<br />';

@@ -238,7 +238,7 @@ class LevGal_Model_Moderate
 
 		$request = $db->query('', '
 			SELECT 
-				la.id_album, la.album_name, la.album_slug, la.owner_cache
+				la.id_album, la.album_name, la.album_slug, la.owner_cache, la.description
 			FROM {db_prefix}lgal_albums AS la
 			WHERE la.approved = {int:not_approved}' . ($albums !== true ? '
 				AND la.id_album IN ({array_int:albums})' : '') . '
@@ -255,6 +255,7 @@ class LevGal_Model_Moderate
 		{
 			$unapproved_albums[$row['id_album']] = array(
 				'album_name' => $row['album_name'],
+				'description' => $row['description'],
 				'album_url' => $scripturl . '?media/album/' . (!empty($row['album_slug']) ? $row['album_slug'] . '.' . $row['id_album'] : $row['id_album']) . '/',
 				'owner_cache' => Util::unserialize($row['owner_cache']),
 				'owner' => array(),
