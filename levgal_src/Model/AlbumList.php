@@ -263,7 +263,7 @@ class LevGal_Model_AlbumList
 		$request = $db->query('', '
 			SELECT 
 				id_album, album_name, album_slug, thumbnail, locked, approved, num_items, num_unapproved_items, num_comments,
-				num_unapproved_comments, featured, owner_cache, perms
+				num_unapproved_comments, featured, owner_cache, perms, description
 			FROM {db_prefix}lgal_albums
 			WHERE id_album IN ({array_int:album_list})
 			',
@@ -282,10 +282,13 @@ class LevGal_Model_AlbumList
 		return $this->fixHierarchy($hierarchy);
 	}
 
-	public function getAlbumFamilyInHierarchy($owner_type, $owner, $album)
+	public function getAlbumFamilyInHierarchy($owner_type, $owner, $album, $depth = 1)
 	{
-		// So first we get the hierarchy of the owner in full.
+		// By default, set traverse depth to just one child down from album
 		$album = (int) $album;
+		$depth = max(1, (int) $depth) + 1;
+
+		// So first we get the hierarchy of the owner in full.
 		$hierarchy = $this->getAlbumHierarchy($owner_type, $owner);
 		if (empty($hierarchy[$album]))
 		{
@@ -308,8 +311,8 @@ class LevGal_Model_AlbumList
 				$pruning[] = $map[$i];
 				$pruning_rest = true;
 			}
-			// If we're more than a child level down, prune that too.
-			elseif ($hierarchy[$map[$i]]['album_level'] >= $album_level + 2)
+			// If we're more than a $depth+1 child level down, prune that too.
+			elseif ($hierarchy[$map[$i]]['album_level'] >= $album_level + $depth)
 			{
 				$pruning[] = $map[$i];
 			}
@@ -325,7 +328,7 @@ class LevGal_Model_AlbumList
 			{
 				$pruning[] = $map[$i];
 			}
-			elseif ($pruning_rest || $hierarchy[$map[$i]]['album_level'] <= $album_level - 2)
+			elseif ($pruning_rest || $hierarchy[$map[$i]]['album_level'] <= $album_level - $depth)
 			{
 				$pruning[] = $map[$i];
 				$pruning_rest = true;
@@ -646,7 +649,7 @@ class LevGal_Model_AlbumList
 		$request = $db->query('', '
 			SELECT 
 				id_album, album_name, album_slug, thumbnail, locked, approved, num_items, num_unapproved_items, num_comments,
-				num_unapproved_comments, featured, owner_cache, perms
+				num_unapproved_comments, featured, owner_cache, perms, description
 			FROM {db_prefix}lgal_albums
 			WHERE id_album IN ({array_int:albums})
 			ORDER BY id_album',
@@ -685,7 +688,7 @@ class LevGal_Model_AlbumList
 		$request = $db->query('', '
 			SELECT 
 			    id_album, album_name, album_slug, thumbnail, locked, approved, num_items, num_unapproved_items, num_comments,
-				num_unapproved_comments, featured, owner_cache, perms
+				num_unapproved_comments, featured, owner_cache, perms, description
 			FROM {db_prefix}lgal_albums
 			WHERE ' . ($album_list !== true ? 'id_album IN ({array_int:albums})
 				AND ' : '') . 'featured = {int:featured}
@@ -702,8 +705,8 @@ class LevGal_Model_AlbumList
 			// Looks weird but essentially means we get everything processed for us, like album and thumbnail URLs.
 			$albumModel->buildFromSurrogate($row);
 			$featured[$row['id_album']] = $albumModel->getAlbumById($row['id_album']);
-
-			$featured[$row['id_album']]['album_count'] = $albumModel->getAlbumFamily()['album_count'];
+			list(, $album_counts) = $albumModel->getAlbumFamily();
+			$featured[$row['id_album']]['album_counts'] = $album_counts;
 		}
 		$db->free_result($request);
 
