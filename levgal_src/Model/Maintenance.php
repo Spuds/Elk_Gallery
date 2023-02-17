@@ -563,7 +563,7 @@ class LevGal_Model_Maintenance
 		// don't know anything about the state of play with them.
 		// Safest thing to do is create a new album.
 		$album = new LevGal_Model_Album();
-		$album_id = $album->createAlbum($txt['levgal_recovered_album'], '', true);
+		$album_id = $album->createAlbum($txt['levgal_recovered_album'], '', '', true);
 		$album->setAlbumOwnership('member', $user_info['id']);
 		$album->setAlbumPrivacy('justme');
 
