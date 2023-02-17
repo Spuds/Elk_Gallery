@@ -14,8 +14,11 @@ function template_editcomment()
 {
 	global $context, $txt;
 
+	/** @var $comment_box \LevGal_Helper_Richtext */
+	$comment_box = $context['comment_box'];
+
 	echo '
-		<form action="', $context['form_url'], '" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" onsubmit="submitonce(this);smc_saveEntities(\'postmodify\', [\'', $context['comment_box']->getId(), '\']);" enctype="multipart/form-data">
+		<form action="', $context['form_url'], '" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" onsubmit="submitonce(this);smc_saveEntities(\'postmodify\', [\'', $comment_box->getId(), '\']);" enctype="multipart/form-data">
 			<h3 class="lgal_secondary_header secondary_header">', $context['display_title'], '</h3>
 			<div class="well">';
 
@@ -39,8 +42,8 @@ function template_editcomment()
 				</dl>';
 	}
 
-	$context['comment_box']->displayEditWindow();
-	$context['comment_box']->displayButtons();
+	$comment_box->displayEditWindow();
+	$comment_box->displayButtons();
 
 	echo '
 			</div>
@@ -54,8 +57,8 @@ function template_flagcomment()
 	echo '
 		<form action="', $context['form_url'], '" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" >
 			<h3 class="lgal_secondary_header secondary_header">', $context['page_title'], '</h3>
-			<div class="well">
-				<dl class="settings">
+			<div id="report_topic" class="content">
+				<dl class="lgal_settings">
 					<dt>', $txt['lgal_mod_comment_on'], '</dt>
 					<dd><a href="', $context['item_details']['item_url'], '">', $context['item_details']['item_name'], '</a></dd>
 					<dt>', $txt['lgal_comment_by'], '</dt>
@@ -63,15 +66,12 @@ function template_flagcomment()
 					<dt>', $txt['lgal_posted_on'], '</dt>
 					<dd>', $context['comment_details']['time_added_format'], '</dd>
 					<dt>', $txt['lgal_comment_body'], '</dt>
-					<dd>', $context['comment_details']['comment_parsed'], '</dd>
+					<dd><i class="icon i-warning-moderate"></i>', $context['comment_details']['comment_parsed'], '</dd>
 				</dl>
-				<br />
 				<div class="centertext">
-					', $txt['lgal_why_reporting_comment'], '<br /><br />
+					<p class="infobox">', $txt['lgal_why_reporting_comment'], '</p>
 					<textarea class="report_body" name="report_body"></textarea>
 				</div>
-				<br />
-				<hr class="clear" />
 				<div class="submitbutton">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="submit" value="', $context['page_title'], '" />
