@@ -26,7 +26,7 @@ function template_newalbum()
 	template_newalbum_errors();
 
 	echo '
-			<div class="content">';
+			<div class="well">';
 
 	template_newalbum_details();
 
@@ -34,16 +34,32 @@ function template_newalbum()
 
 	template_newalbum_privacy();
 
-	// Now the end of the form and the save button.
+	// Now the description box, the save button and end of the form.
+	template_newalbum_description();
+
 	echo '
-				<div class="submitbutton">
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-					<input type="submit" value="', $txt['levgal_newalbum'], '" />
-				</div>
 			</div>
 		</form>';
 
 	template_newalbum_js();
+}
+
+function template_newalbum_description() {
+	global $context, $txt;
+
+	echo '
+			<dl class="settings">
+				<dt>
+					<span style="font-weight: 600">', $txt['lgal_album_description'], '</span>
+				</dt>
+				<dd></dd>
+			</dl>';
+
+	/** @var $description_box \LevGal_Helper_Richtext */
+	$description_box = $context['description_box'];
+	$description_box->displayEditWindow();
+	$description_box->displayButtons();
+
 }
 
 function template_newalbum_errors()
@@ -62,7 +78,7 @@ function template_newalbum_details()
 
 	// First, general album details.
 	echo '
-					<dl class="settings">
+					<dl class="lgal_settings">
 						<dt>', $txt['levgal_album_name'], '</dt>
 						<dd>
 							<input type="text" id="album_name" name="album_name" tabindex="1" size="80" maxlength="80" class="input_text" value="', $context['album_name'], '" style="width: 95%;" />
@@ -82,7 +98,7 @@ function template_newalbum_ownership()
 
 	// Now ownership
 	echo '
-					<dl class="settings">
+					<dl class="lgal_settings">
 						<dt>', $txt['levgal_album_ownership'], '</dt>
 						<dd>';
 
@@ -130,7 +146,7 @@ function template_newalbum_privacy()
 
 	// Now privacy
 	echo '
-					<dl class="settings">
+					<dl class="lgal_settings">
 						<dt>', $txt['levgal_album_privacy_title'], '</dt>
 						<dd>
 							<select name="privacy" id="privacy">';
@@ -177,6 +193,7 @@ function template_newalbum_js()
 			let updateSlug = ', empty($context['album_slug']) ? 'true' : 'false', ',
 				albumName = document.getElementById("album_name"),
 				albumSlug = document.getElementById("album_slug");
+
 			function transLitSlug()
 			{
 				let mystr;
