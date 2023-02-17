@@ -148,7 +148,7 @@ class LevGal_Model_Embed
 			return '
 			<figure class="item_image">
 				<a href="' . $item['item_base'] . '" id="link_' . $counter . 'm" data-lightboximage="' . $counter . 'm" data-lightboxmessage="' . $item['id_msg'] . '">
-					<img class="bbc_image has_lightbox" src="' . $item['thumbnail'] . '" alt="' . $item['item_name'] . '" title="' . $item['item_name'] . '" />
+					<img class="bbc_image has_lightbox" src="' . $item['thumbnail'] . '" alt="' . $item['item_name'] . '" title="' . $item['item_name'] . '" loading="lazy" />
 				</a>
 				<figcaption class="item_link">
 					<a href="' . $item['item_url'] . '">
@@ -160,15 +160,35 @@ class LevGal_Model_Embed
 
 		return '
 		<a href="' . $item['item_url'] . '" class="bbc_link">
-			<img src="' . $item['thumbnail'] . '" class="bbc_img" alt="' . $item['item_name'] . '" title="' . $item['item_name'] . '" />
+			<img src="' . $item['thumbnail'] . '" class="bbc_img" alt="' . $item['item_name'] . '" title="' . $item['item_name'] . '" loading="lazy" />
 		</a>';
 	}
 
 	private function complexTemplate($counter, $item)
 	{
+		global $txt;
+
 		$caption = !empty($item['description']) ? $item['description'] : $item['item_name'];
 		$align = $item['align'] === 'center' ? '<figure class="centertext">' : '<figure style="float:' . $item['align'] . '">';
 		$using = $item['type'] === 'preview' ? $item['preview'] : $item['thumbnail'];
+
+		// Process [media align=xxx]123[/media] as a "simple" aligned
+		if ($caption !== '_lgal_simple_')
+		{
+			$caption = '
+			<figcaption class="centertext">
+				<a class="bbc_link" href="' . $item['item_url'] . '" >' . $caption . '</a>
+			</figcaption>';
+		}
+		else
+		{
+			$caption = '
+			<figcaption class="item_link">
+				<a href="' . $item['item_url'] . '">
+					<i class="icon icon-big i-help" title="' . $txt['lgal_item_info'] . '"></i>
+				</a>
+			</figcaption>';
+		}
 
 		if ($item['item_type'] === 'image')
 		{
@@ -177,18 +197,14 @@ class LevGal_Model_Embed
 				$align . ($item['type'] === 'preview'
 				? '<a class="bbc_link" href="' . $item['item_url'] . '">'
 				: '<a href="' . $item['item_base'] . '" id="link_' . $counter . 'm" data-lightboximage="' . $counter . 'm" data-lightboxmessage="' . $item['id_msg'] . '">') . '
-					<img class="bbc_img' . ($item['type'] === 'preview' ? '' : ' has_lightbox') . '" src="' . $using . '" alt="' . $item['item_name'] . '" title="' . $item['item_name'] . '" />
-				</a>
-				<figcaption class="centertext">
-					<a class="bbc_link" href="' . $item['item_url'] . '" >' . $caption . '</a>
-				</figcaption>
-			</figure>';
+					<img class="bbc_img' . ($item['type'] === 'preview' ? '' : ' has_lightbox') . '" src="' . $using . '" alt="' . $item['item_name'] . '" title="' . $item['item_name'] . '" loading="lazy" />
+				</a>' . $caption;
 		}
 
 		return
 			$align . '
 				<a href="' . $item['item_url'] . '" class="bbc_link">
-					<img class="bbc_img" src="' . $using . '" alt="' . $item['item_name'] . '" title="' . $item['item_name'] . '" />
+					<img class="bbc_img" src="' . $using . '" alt="' . $item['item_name'] . '" title="' . $item['item_name'] . '" loading="lazy" />
 				</a>
 				<figcaption>
 					<a class="bbc_link" href="' . $item['item_url'] . '" >' . $caption . '</a>
