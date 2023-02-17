@@ -7,6 +7,8 @@
  * @version 1.2.0 / elkarte
  */
 
+use BBC\ParserWrapper;
+
 /**
  * This file deals with album internals.
  */
@@ -38,7 +40,7 @@ class LevGal_Model_Album
 		$request = $db->query('', '
 			SELECT 
 				id_album, album_name, album_slug, thumbnail, editable, locked, approved, num_items, num_unapproved_items, num_comments,
-				num_unapproved_comments, featured, owner_cache, perms
+				num_unapproved_comments, featured, owner_cache, perms, description
 			FROM {db_prefix}lgal_albums
 			WHERE id_album = {int:albumId}',
 			array(
@@ -66,6 +68,7 @@ class LevGal_Model_Album
 			}
 			$this->current_album['album_url'] = $this->getAlbumUrl();
 			$this->current_album['thumbnail_url'] = $this->getThumbnailUrl();
+			$this->current_album['description'] = $this->getAlbumDescription();
 		}
 		$db->free_result($request);
 
@@ -96,6 +99,8 @@ class LevGal_Model_Album
 		}
 		$this->current_album['album_url'] = $this->getAlbumUrl();
 		$this->current_album['thumbnail_url'] = $this->getThumbnailUrl();
+		$this->current_album['description'] = $this->getAlbumDescription();
+
 		$this->current_album['is_surrogate'] = true;
 	}
 
@@ -104,6 +109,34 @@ class LevGal_Model_Album
 		global $scripturl;
 
 		return !empty($this->current_album) ? $scripturl . '?media/album/' . (!empty($this->current_album['album_slug']) ? $this->current_album['album_slug'] . '.' . $this->current_album['id_album'] : $this->current_album['id_album']) . '/' : false;
+	}
+
+	public function getAlbumDescription()
+	{
+		$parser = ParserWrapper::instance();
+
+		$this->current_album['description'] = $this->current_album['description'] ?? '';
+		$this->current_album['description_raw'] = $this->current_album['description'];
+
+		censor($this->current_album['description']);
+		$this->current_album['description'] = !empty($this->current_album['description']) ? $parser->parseMessage($this->current_album['description'], true) : '';
+		$this->current_album['description_short'] = Util::shorten_html($this->current_album['description'], 125);
+
+		return $this->current_album['description'];
+	}
+
+	public function setAlbumDescription()
+	{
+		global $context;
+
+		if ($context['description_box']->isEmpty() || !$context['description_box']->sanitizeContent())
+		{
+			return '';
+		}
+
+		$context['description'] = $context['description_box']->getForDB();
+
+		return $context['description'];
 	}
 
 	public function getThumbnailFile()
@@ -461,6 +494,9 @@ class LevGal_Model_Album
 			$urls = $item_surrogate->getItemURLs();
 			$row['item_url'] = !empty($urls['item']) ? $urls['item'] : '';
 			$row['thumbnail'] = !empty($urls['thumb']) ? $urls['thumb'] : '';
+			$row['preview'] = !empty($urls['preview']) ? $urls['preview'] : '';
+			$row['hide_mature'] = $item_surrogate->hidingMature();
+
 			$items[$row['id_item']] = $row;
 		}
 		$db->free_result($request);
@@ -790,16 +826,16 @@ class LevGal_Model_Album
 		}
 	}
 
-	public function createAlbum($name, $slug, $approved)
+	public function createAlbum($name, $slug, $description, $approved)
 	{
 		$db = database();
 
 		$db->insert('insert',
 			'{db_prefix}lgal_albums',
 			array('album_name' => 'string', 'album_slug' => 'string', 'thumbnail' => 'string', 'editable' => 'int', 'locked' => 'int', 'approved' => 'int', 'num_items' => 'int',
-				  'num_unapproved_items' => 'int', 'num_comments' => 'int', 'num_unapproved_comments' => 'int', 'owner_cache' => 'string', 'perms' => 'string'),
+				  'num_unapproved_items' => 'int', 'num_comments' => 'int', 'num_unapproved_comments' => 'int', 'owner_cache' => 'string', 'perms' => 'string', 'description' => 'string'),
 			array($name, $slug, '', 0, 0, !empty($approved) ? 1 : 0, 0,
-				  0, 0, 0, '', ''),
+				  0, 0, 0, '', '', $description),
 			array('id_album')
 		);
 		$id = $db->insert_id('{db_prefix}lgal_albums');
@@ -819,6 +855,7 @@ class LevGal_Model_Album
 				'approved' => !empty($approved) ? 1 : 0,
 				'owner_cache' => array(),
 				'perms' => array(),
+				'description' => $description,
 			);
 			$this->current_album['album_url'] = $this->getAlbumUrl();
 
@@ -828,7 +865,7 @@ class LevGal_Model_Album
 			}
 
 			$search = new LevGal_Model_Search();
-			$search->createAlbumEntries(array(array($id, $name)));
+			$search->createAlbumEntries(array(array($id, $name, $description)));
 
 			// This is notification only of new album.
 			call_integration_hook('integrate_lgal_create_album', array($this->current_album));
@@ -1167,7 +1204,7 @@ class LevGal_Model_Album
 		}
 
 		// Known strings
-		foreach (array('album_name', 'album_slug') as $var)
+		foreach (array('album_name', 'album_slug', 'description') as $var)
 		{
 			if (isset($opts[$var]))
 			{
@@ -1241,10 +1278,10 @@ class LevGal_Model_Album
 			}
 		}
 
-		if (isset($opts['album_name']))
+		if (isset($opts['album_name'], $opts['description']))
 		{
 			$search = new LevGal_Model_Search();
-			$search->updateAlbumEntry($this->current_album['id_album'], $opts['album_name']);
+			$search->updateAlbumEntry($this->current_album['id_album'], $opts['album_name'], $opts['description']);
 		}
 	}
 
@@ -1303,29 +1340,55 @@ class LevGal_Model_Album
 		call_integration_hook('integrate_lgal_delete_album', array($this->current_album['id_album']));
 	}
 
-	public function getAlbumFamily()
+	public function getAlbumFamily($depth = 1)
 	{
 		$hierarchies = array();
+		$album_counts = array();
 
 		/** @var $albumList \LevGal_Model_AlbumList */
 		$albumList = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
 		foreach ($this->current_album['owner_cache'] as $owner_type => $owners)
 		{
 			$owners = (array) $owners;
-			$child_albums = 0;
 			foreach ($owners as $owner)
 			{
-				$hierarchy = $albumList->getAlbumFamilyInHierarchy($owner_type, $owner, $this->current_album['id_album']);
+				$hierarchy = $albumList->getAlbumFamilyInHierarchy($owner_type, $owner, $this->current_album['id_album'], $depth);
 				if (!empty($hierarchy))
 				{
-					$child_albums += count(array_keys($hierarchy)) - 1;
 					$hierarchies[$owner_type][$owner] = $hierarchy;
+					$album_counts[$owner_type][$owner] = $this->getAlbumCounts($hierarchy, $this->current_album['id_album']);
 				}
 			}
-			$hierarchies['album_count'] = $child_albums;
 		}
 
-		return $hierarchies;
+		return array($hierarchies, $album_counts);
+	}
+
+	public function getAlbumCounts($hierarchy, $id_album)
+	{
+		$count = 0;
+
+		// Find this album in the hierarchy
+		$key = array_search((int) $id_album, array_keys($hierarchy), true);
+		if ($key !== false)
+		{
+			// All the items after this point in the hierarchy are children
+			// Before this point are parents
+			$slice = array_slice($hierarchy, $key, null);
+			$current = array_shift($slice);
+			foreach ($slice as $next)
+			{
+				// Just one level down
+				if ($next['album_level'] - 1 > $current['album_level'])
+				{
+					break;
+				}
+
+				$count++;
+			}
+		}
+
+		return $count;
 	}
 
 	public function getOwnershipOptions()
