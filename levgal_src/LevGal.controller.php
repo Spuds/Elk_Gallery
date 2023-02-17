@@ -82,19 +82,14 @@ class LevGal_Controller extends Action_Controller
 
 function levgal_pageindex($base_url, $current_page, $num_pages, $hash_tag = '')
 {
-	global $modSettings;
+	global $modSettings, $txt, $settings;
 
 	$links = array();
-	// First, the << and < links, requires us to be on any page that isn't the first one.
+	// First, the << and previous links, requires us to be on any page that isn't the first one.
 	if ($current_page > 1)
 	{
 		$links[] = '<a class="navPages" href="' . $base_url . $hash_tag . '">&laquo;</a>';
-		$links[] = '<a class="navPages" href="' . $base_url . 'page-' . ($current_page - 1) . $hash_tag . '">&lsaquo;</a>';
-	}
-	else
-	{
-		$links[] = '<span class="navPages">&laquo;</span>';
-		$links[] = '<span class="navPages">&lsaquo;</span>';
+		$links[] = '<a class="navPages" href="' . $base_url . 'page-' . ($current_page - 1) . $hash_tag . '">' . str_replace('{prev_txt}', $txt['prev'], $settings['page_index_template']['previous_page']) . '</a>';
 	}
 
 	// Shamelessly borrowed from constructPageIndex. But without quite so much faff.
@@ -126,7 +121,6 @@ function levgal_pageindex($base_url, $current_page, $num_pages, $hash_tag = '')
 	$links[] = '<span class="current_page">' . $current_page . '</span>';
 
 	// Show the pages after the current one... (1 ... 6 7 [8] >9 10< ... 15)
-	//$tmpMaxPages = (int) (($max_value - 1) / $num_per_page) * $num_per_page;
 	for ($nCont = 1; $nCont <= $PageContiguous; $nCont++)
 	{
 		if ($current_page + $nCont <= $num_pages)
@@ -148,16 +142,11 @@ function levgal_pageindex($base_url, $current_page, $num_pages, $hash_tag = '')
 		$links[] = '<a class="navPages" href="' . $base_url . 'page-' . $num_pages . $hash_tag . '">' . $num_pages . '</a>';
 	}
 
-	// Lastly, the > and >> links, which require us to be on any page that isn't the last one.
+	// Lastly, the next and >> links, which require us to be on any page that isn't the last one.
 	if ($current_page < $num_pages)
 	{
-		$links[] = '<a class="navPages" href="' . $base_url . 'page-' . ($current_page + 1) . $hash_tag .'">&rsaquo;</a>';
+		$links[] = '<a class="navPages" href="' . $base_url . 'page-' . ($current_page + 1) . $hash_tag .'">' . str_replace('{next_txt}', $txt['next'], $settings['page_index_template']['next_page']) . '</a>';
 		$links[] = '<a class="navPages" href="' . $base_url . 'page-' . ($num_pages) . $hash_tag . '">&raquo;</a>';
-	}
-	else
-	{
-		$links[] = '<span class="navPages">&rsaquo;</span>';
-		$links[] = '<span class="navPages">&raquo;</span>';
 	}
 
 	$wrapped = array_map(
