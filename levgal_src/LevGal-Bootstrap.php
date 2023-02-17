@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package Levertine Gallery
  * @copyright 2014-2015 Peter Spicer (levertine.com)
@@ -8,6 +9,7 @@
  */
 
 use BBC\Codes;
+use BBC\ParserWrapper;
 
 /**
  * This file deals with some fundamental things for Levertine Gallery.
@@ -61,12 +63,12 @@ class LevGal_Bootstrap
 			'lgal_enable_external' => 1,
 			'lgal_image_formats' => 'jpg,gif,png,webp',
 			'lgal_audio_formats' => 'mp3,m4a,oga,flac',
-			'lgal_video_formats' => 'm4v,ogv',
+			'lgal_video_formats' => 'm4v',
 			'lgal_document_formats' => 'doc,xls,ppt,pdf,txt',
 			'lgal_archive_formats' => 'zip,rar',
 			'lgal_generic_formats' => '',
 			'lgal_external_formats' => 'youtube,vimeo,dailymotion,metacafe',
-			'lgal_image_quotas' => 'a:2:{i:0;a:3:{i:0;a:1:{i:0;i:2;}i:1;s:9:"1500x1500";i:2;s:3:"10M";}i:1;a:3:{i:0;a:1:{i:0;i:0;}i:1;s:9:"1000x1000";i:2;s:2:"5M";}}',
+			'lgal_image_quotas' => 'a:2:{i:0;a:3:{i:0;a:1:{i:0;i:2;}i:1;s:9:"2048x2048";i:2;s:3:"10M";}i:1;a:3:{i:0;a:1:{i:0;i:0;}i:1;s:9:"1500x1500";i:2;s:2:"5M";}}',
 			'lgal_audio_quotas' => 'a:2:{i:0;a:2:{i:0;a:1:{i:0;i:2;}i:1;s:2:"5M";}i:1;a:2:{i:0;a:1:{i:0;i:0;}i:1;s:2:"2M";}}',
 			'lgal_video_quotas' => 'a:2:{i:0;a:2:{i:0;a:1:{i:0;i:2;}i:1;s:2:"5M";}i:1;a:2:{i:0;a:1:{i:0;i:0;}i:1;s:2:"2M";}}',
 			'lgal_document_quotas' => 'a:2:{i:0;a:2:{i:0;a:1:{i:0;i:2;}i:1;s:2:"5M";}i:1;a:2:{i:0;a:1:{i:0;i:0;}i:1;s:2:"2M";}}',
@@ -74,7 +76,7 @@ class LevGal_Bootstrap
 			'lgal_generic_quotas' => 'a:2:{i:0;a:2:{i:0;a:1:{i:0;i:2;}i:1;s:2:"5M";}i:1;a:2:{i:0;a:1:{i:0;i:0;}i:1;s:2:"2M";}}',
 			'lgal_reports' => 'a:2:{s:5:"items";i:0;s:8:"comments";i:0;}',
 			'lgal_count_author_views' => 1,
-			'lgal_enable_mature' => 1,
+			'lgal_enable_mature' => 0,
 			'lgal_metadata' => 'a:3:{s:6:"images";a:21:{i:0;s:8:"datetime";i:1;s:4:"make";i:2;s:5:"flash";i:3;s:13:"exposure_time";i:4;s:7:"fnumber";i:5;s:13:"shutter_speed";i:6;s:12:"focal_length";i:7;s:11:"digitalzoom";i:8;s:10:"brightness";i:9;s:8:"contrast";i:10;s:9:"sharpness";i:11;s:8:"isospeed";i:12;s:11:"lightsource";i:13;s:13:"exposure_prog";i:14;s:13:"metering_mode";i:15;s:11:"sensitivity";i:16;s:5:"title";i:17;s:7:"subject";i:18;s:6:"author";i:19;s:8:"keywords";i:20;s:7:"comment";}s:5:"audio";a:8:{i:0;s:5:"title";i:1;s:6:"artist";i:2;s:12:"album_artist";i:3;s:5:"album";i:4;s:12:"track_number";i:5;s:5:"genre";i:6;s:8:"playtime";i:7;s:7:"bitrate";}s:5:"video";a:8:{i:0;s:5:"title";i:1;s:6:"artist";i:2;s:12:"album_artist";i:3;s:5:"album";i:4;s:12:"track_number";i:5;s:5:"genre";i:6;s:8:"playtime";i:7;s:7:"bitrate";}}',
 			'lgal_social' => 'facebook,twitter,tumblr,reddit,pinterest',
 			'lgal_feed_enable_item' => 1,
@@ -94,21 +96,23 @@ class LevGal_Bootstrap
 	public static function defineHooks()
 	{
 		$hooks = array(
-			'redirect' => 'LevGal_Bootstrap::hookRedirect',
-			'actions' => 'LevGal_Bootstrap::hookActions',
-			'menu_buttons' => 'LevGal_Bootstrap::hookButtons',
-			'additional_bbc' => 'LevGal_Bootstrap::hookBbcCodes',
-			'delete_members' => 'LevGal_Model_Member::deleteMembers',
-			'delete_membergroups' => 'LevGal_Model_Group::deleteGroup',
-			'action_mentions_before' => 'LevGal_Bootstrap::hookLanguage',
-			'mailist_pre_parsebbc' => 'LevGal_Bootstrap::hookPreParsebbc',
-			'mailist_pre_markdown' => 'LevGal_Bootstrap::hookPreMarkdown',
-			'mailist_pre_sig_parsebbc' => 'LevGal_Bootstrap::hookPreSig',
+			'integrate_redirect' => 'LevGal_Bootstrap::hookRedirect',
+			'integrate_actions' => 'LevGal_Bootstrap::hookActions',
+			'integrate_menu_buttons' => 'LevGal_Bootstrap::hookButtons',
+			'integrate_additional_bbc' => 'LevGal_Bootstrap::hookBbcCodes',
+			'pre_css_output' => 'LevGal_Bootstrap::hookCss',
+			'integrate_delete_members' => 'LevGal_Model_Member::deleteMembers',
+			'integrate_delete_membergroups' => 'LevGal_Model_Group::deleteGroup',
+			'integrate_action_mentions_before' => 'LevGal_Bootstrap::hookLanguage',
+			'integrate_mailist_pre_parsebbc' => 'LevGal_Bootstrap::hookPreParsebbc',
+			'integrate_mailist_pre_markdown' => 'LevGal_Bootstrap::hookPreMarkdown',
+			'integrate_mailist_pre_sig_parsebbc' => 'LevGal_Bootstrap::hookPreSig',
+			'integrate_quickhelp' => 'LevGal_Bootstrap::hookLanguage',
 		);
 
-		foreach ($hooks as $point => $callable)
+		foreach ($hooks as $hook => $callable)
 		{
-			add_integration_function('integrate_' . $point, $callable, '',false);
+			add_integration_function($hook, $callable, '',false);
 		}
 
 		if (ELK !== 'SSI')
@@ -538,6 +542,22 @@ class LevGal_Bootstrap
 		{
 			ob_start(array('LevGal_Bootstrap', 'hookBuffer'));
 		}
+
+	}
+
+	public static function hookCss()
+	{
+		global $context;
+
+		// Check if this class has been initiated and if so, load our CSS file.
+		// Although we load CSS in integrate_additional_bbc/hookBbcCodes, should the instance already
+		// have been created, then getCodes is not run (again) until after the template has output CSS.
+		// One could load this regardless, but it is only needed by the parser for rendering
+		// [media] tags
+		if (!isset($context['css_files']['main.css']) && class_exists(ParserWrapper::class, false))
+		{
+			loadCSSFile('main.css', ['stale' => LEVGAL_VERSION, 'subdir' => 'levgal_res']);
+		}
 	}
 
 	/**
@@ -555,7 +575,13 @@ class LevGal_Bootstrap
 	 */
 	public static function hookBbcCodes(&$codes)
 	{
-		loadCSSFile('main.css', ['stale' => LEVGAL_VERSION, 'subdir' => 'levgal_res']);
+		global $context;
+
+		// This can be too late in the process and CSS files will have already been output
+		if (!isset($context['css_files']['main.css']))
+		{
+			loadCSSFile('main.css', ['stale' => LEVGAL_VERSION, 'subdir' => 'levgal_res']);
+		}
 
 		$codes[] = array(
 			Codes::ATTR_TAG => 'media',
@@ -596,6 +622,7 @@ class LevGal_Bootstrap
 			Codes::ATTR_PARAM => array(
 				'id' => array(
 					Codes::PARAM_ATTR_MATCH => '([1-9][0-9]*)',
+					Codes::PARAM_ATTR_OPTIONAL => true,
 				),
 				'align' => array(
 					Codes::PARAM_ATTR_MATCH => '(left|center|right)',
@@ -620,6 +647,12 @@ class LevGal_Bootstrap
 				list($id, $align, $type) = explode(',', $tag[Codes::ATTR_BEFORE]);
 				unset($tag[Codes::ATTR_BEFORE]); // Because demons.
 
+				if (empty($id))
+				{
+					// allow for [media type=xxx]123[media] with a simple embed figure caption
+					$id = $data;
+					$data = '_lgal_simple_';
+				}
 				$id = (int) $id;
 				if ($id > 0 && allowedTo('lgal_view'))
 				{
