@@ -29,18 +29,21 @@ class LevGal_Model_Search
 	{
 		$db = database();
 
+		// We want the description to be bbc parsed and then only the actual text fed into the index. But we want to preserve line breaks as some kind of whitespace.
+		$rows[0][2] = $this->prepareDescription($rows[0][2]);
+
 		$db->insert('replace',
 			'{db_prefix}lgal_search_album',
-			array('id_album' => 'int', 'album_name' => 'string'),
+			array('id_album' => 'int', 'album_name' => 'string', 'description' => 'string'),
 			$rows,
-			array('id_album', 'album_name')
+			array('id_album', 'album_name', 'description')
 		);
 	}
 
-	public function updateAlbumEntry($id_album, $album_name)
+	public function updateAlbumEntry($id_album, $album_name, $description)
 	{
 		// At this point they are actually the same thing but in the future they might not be, but let's expose a sane sort of API first.
-		$this->createAlbumEntries(array(array($id_album, $album_name)));
+		$this->createAlbumEntries(array(array($id_album, $album_name, $description)));
 	}
 
 	public function deleteAlbumEntries($id_albums)
@@ -199,6 +202,34 @@ class LevGal_Model_Search
 				$data['results']['albums'][] = (int) $row['id_album'];
 			}
 			$db->free_result($request);
+		}
+
+		// Search in album descriptions
+		if (!empty($this->search_criteria['search_album_descs']))
+		{
+			$request = $db->query('', '
+				SELECT 
+					id_album, MATCH(description) AGAINST ({string:terms}) AS score
+				FROM {db_prefix}lgal_search_album
+				WHERE MATCH(description) AGAINST ({string:terms})
+					AND id_album IN ({array_int:albums})
+				ORDER BY score DESC',
+				array(
+					'terms' => $data['search_text'],
+					'albums' => $data['selected_albums'],
+				)
+			);
+			while ($row = $db->fetch_assoc($request))
+			{
+				$data['results']['albums'][] = (int) $row['id_album'];
+			}
+			$db->free_result($request);
+		}
+
+		if (!empty($data['results']['albums']))
+		{
+			$data['results']['albums'] = array_unique($data['results']['albums']);
+			rsort($data['results']['albums']);
 		}
 
 		// Searching item names/descriptions
