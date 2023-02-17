@@ -62,99 +62,327 @@ function template_main_tag_list()
 		</dd>';
 }
 
-function template_main_album_display()
+function template_base_album_display()
+{
+	global $context, $txt, $scripturl;
+
+	// Determine the total number of child albums for all owners of this album
+	$child_album_counts = get_child_count($context['album_details']);
+
+	echo '
+			<div class="album_block content">
+				<div class="album_thumbnail">
+					<img src="', $context['album_details']['thumbnail_url'], '" alt="" />
+				</div>
+				<div class="album_block_details">
+					<span class="largetext bbc_strong">', $context['album_details']['album_name'], '</span>
+					<div>
+						<span class="lgalicon i-album"></span> ', LevGal_Helper_Format::numstring('lgal_items', $context['album_details']['num_items']), ' / ', LevGal_Helper_Format::numstring('lgal_albums', $child_album_counts), '
+					</div>
+					<div class="album_block_description">', $context['album_details']['description'], '</div>
+				</div>';
+
+	// Provide some "back" navigation points
+	$back = get_back_navigation();
+	$parent = get_album_parent();
+	echo '
+				<span class="album_block_nav">';
+	if ($back)
+	{
+		echo
+					$txt['lgal_back_to_album'], ': <a class="linkbutton"  href="', $back['album_url'], '">', $back['album_name'], '</a> / ';
+	}
+
+	if ($parent && (!$back || $parent['album_url'] !== $back['album_url']))
+	{
+		echo
+					$txt['lgal_go_to_parent_album'], ': <a class="linkbutton"  href="', $parent['album_url'], '">', $parent['album_name'], '</a>';
+	}
+	else
+	{
+		$title = $txt['lgal_albums_member'];
+		$link = 'member';
+		if (empty($context['album_owner']))
+		{
+			$link = 'site';
+			$title = $txt['lgal_albums_site'];
+		}
+		elseif (!empty($context['album_owner']['group_details']))
+		{
+			$link = 'group';
+			$title = $txt['lgal_albums_group'];
+		}
+		echo
+					$txt['lgal_go_to_album'], ': <a class="linkbutton"  href="', $scripturl . '?media/albumlist/', $link, '">', $title, '</a>';
+	}
+
+	echo '
+				</span>
+			</div>';
+}
+
+function get_back_navigation()
+{
+	global $scripturl, $context;
+
+	static $back;
+
+	if (isset($back))
+	{
+		return $back;
+	}
+
+	if (empty($_SESSION['levgal_breadcrumbs']))
+	{
+		return null;
+	}
+
+	$id_album = (int) $context['album_details']['id_album'];
+
+	// A previous known navigation point
+	list($prev_slug, $prev_name) = current($_SESSION['levgal_breadcrumbs']);
+	if (count($_SESSION['levgal_breadcrumbs']) > 1)
+	{
+		end($_SESSION['levgal_breadcrumbs']);
+		list($prev_slug, $prev_name) = prev($_SESSION['levgal_breadcrumbs']);
+	}
+	$prev_album = (int) key($_SESSION['levgal_breadcrumbs']);
+	if ($prev_album === $id_album)
+	{
+		return null;
+	}
+
+	$back['album_url'] = $scripturl . '?media/album/' . $prev_slug . '.' . $prev_album . '/';
+	$back['album_name'] = $prev_name;
+	$back['id_album'] = $prev_album;
+
+	return $back;
+}
+
+function get_album_parent()
+{
+	global $context;
+
+	static $parent;
+
+	if (isset($parent))
+	{
+		return $parent;
+	}
+
+	// Determine the nearest parent of an album
+	$hierarchy = $context['hierarchy'] ?? $context['album_family']['member'][0] ?? [];
+	if (empty($hierarchy))
+		return null;
+
+	// Current album and its level
+	$id_album = (int) $context['album_details']['id_album'];
+	$current_level = (int) $hierarchy[$id_album]['album_level'];
+
+	$parent = null;
+	if ($current_level > 0)
+	{
+		// Find the closest parent in this tree
+		if (empty($parent))
+		{
+			$key = array_search($id_album, array_keys($hierarchy), true);
+			$slice = array_reverse(array_slice($hierarchy, 0, $key));
+			foreach ($slice as $next)
+			{
+				if ($next['album_level'] < $current_level)
+				{
+					$parent = $next;
+					break;
+				}
+			}
+		}
+	}
+
+	return $parent;
+}
+
+function template_album_navigation()
 {
 	global $context, $txt, $memberContext, $scripturl;
 
-	echo '
-		<div id="item_main">
-			<h3 class="lgal_secondary_header secondary_header">', $context['album_details']['album_name'], '</h3>';
+	$id_album = (int) $context['album_details']['id_album'];
+	$album_level = (int) ($context['hierarchy'][$id_album]['album_level'] ?? 0);
+	$has_multiple_owners = false;
 
-	if (!empty($context['album_family']))
+	foreach ($context['album_family'] as $owners)
 	{
-		$title = '';
-		$link = '';
-
-		echo '
-			<div class="album_container">';
-		foreach ($context['album_family'] as $owner_type => $owners)
+		if (empty($owners))
 		{
-			if (empty($owners) || $owner_type === 'album_count')
-			{
-				continue;
-			}
-			foreach ($owners as $owner => $albums)
-			{
-				echo '
-			<div class="well">';
+			continue;
+		}
 
+		$has_multiple_owners = count($owners) > 1;
+		if ($has_multiple_owners)
+		{
+			break;
+		}
+	}
+
+	// Children of an album, remember each album owner may have their own album children
+	echo '
+		<h3 class="secondary_header">', $txt['lgal_album_family'], '</h3>
+		<div class="child_container content">';
+
+	foreach ($context['album_family'] as $owner_type => $owners)
+	{
+		if (empty($owners))
+		{
+			continue;
+		}
+
+		$owners = remove_duplicates($owners);
+
+		foreach ($owners as $owner => $albums)
+		{
+			$title = '';
+			$link = '';
+
+			if ($has_multiple_owners)
+			{
 				if ($owner_type === 'member' && $owner === 0)
 				{
 					$title = sprintf($txt['lgal_albums_owned_site'], $context['forum_name']);
-					$link = '?media/albumlist/';
+					$link = '?media/albumlist/site';
 				}
 				elseif ($owner_type === 'member')
 				{
-					$title = sprintf($txt['lgal_albums_owned_someone'], '<br />' . $memberContext[$owner]['link']);
+					$title = sprintf($txt['lgal_albums_owned_someone'], $memberContext[$owner]['link']);
 					$link = '?media/albumlist/' . $owner . '/member/';
 				}
 				elseif ($owner_type === 'group')
 				{
-					$title = sprintf($txt['lgal_albums_owned_someone'], '<br />' . $context['album_owner']['group_details'][$owner]['color_name']);
+					$title = sprintf($txt['lgal_albums_owned_someone'], $context['album_owner']['group_details'][$owner]['color_name']);
 					$link = '?media/albumlist/' . $owner . '/group/';
 				}
+			}
 
-				$columns = count($albums) -1;
+			echo '
+			<strong>', $title, '</strong>
+			<div class="album_family">';
 
-				echo '
-				<strong>', $title, '</strong>
-				<div class="album_family lefttext"', $columns < 3 ? ' style="column-count:' . $columns . ';"' : '', '>';
-
-				$done_album = false;
-				foreach ($albums as $id_album => $album)
+			foreach ($albums as $album)
+			{
+				// Show the child albums
+				if ($album['album_level'] > $album_level)
 				{
-					if ($id_album === (int) $context['album_details']['id_album'])
-					{
-						echo '
-					<div class="album_current">
-						<span class="lgalicon i-album"></span> <em>', $album['album_name'], '</em>
-					</div>
-					<ul>';
-						$done_album = true;
-					}
-					elseif ($done_album)
-					{
-						echo '
-						<li class="album_child">
-							<span class="lgalicon i-alb_child colorize-blue"></span> <a href="', $album['album_url'], '">', $album['album_name'], '</a>
-						</li>';
-					}
-					else
-					{
-						echo '
-					<div class="album_parent">
-						<span class="lgalicon i-alb_parent"></span> <a href="', $album['album_url'], '">', $album['album_name'], '</a>
-					</div>';
-					}
+					echo '
+					<a class="album_child well" href="', $album['album_url'], '">
+						<img src="', $album['thumbnail_url'], '" alt="cover" />
+						<div class="album_child_details">
+							<div class="album_name">', $album['album_name'], '</div>
+							<div class="album_block_description">', $album['description_short'],
+								!empty($album['description_short']) ? '<br />' : '', '
+								<span class="lgalicon i-album"></span> ', LevGal_Helper_Format::numstring('lgal_items', $album['num_items']), '
+							</div>
+						</div>
+					</a>';
 				}
+			}
 
+			// If we have multiple owners, show a link back to that owners collection
+			if ($has_multiple_owners)
+			{
 				echo '
-					</ul>
-				</div>
-				<div class="righttext">', sprintf($txt['lgal_see_more'], $scripturl . $link), '</div>
+				<div class="righttext" style="width:100%">', sprintf($txt['lgal_see_more'], $scripturl . $link), '</div>';
+			}
+
+			echo '
 			</div>';
+		}
+	}
+
+	echo '
+		</div>';
+}
+
+function remove_duplicates($owners)
+{
+	// Experimental.
+	// Shared ownership can show the same child album under different users
+	// this collapses to only unique nav points.  Perhaps a bad idea?
+	$back = get_back_navigation();
+	$parent = get_album_parent();
+	$extra_ids = array();
+	$primary = null;
+	$extra_ids[] = $back['id_album'] ?? 'xyz';
+	$extra_ids[] = isset($parent['id_album']) ? (int) $parent['id_album'] : 'xyz';
+
+	// Prefer the child albums of the navigation point
+	if (isset($back['id_album']))
+	{
+		foreach ($owners as $id => $album)
+		{
+			if (isset($album[$back['id_album']]))
+			{
+				$primary = $id;
+				$keys = array_keys($album);
+				break;
 			}
 		}
-
-		echo '
-		</div>';
 	}
+
+	// Otherwise, use the first owner
+	if (empty($keys))
+	{
+		$keys = array_keys($owners);
+		$primary = $keys[0];
+		$keys = array_keys($owners[$primary]);
+	}
+
+	$keys = array_unique(array_merge($keys, $extra_ids), SORT_REGULAR);
+	foreach ($owners as $id => $album)
+	{
+		if ($id === $primary)
+		{
+			continue;
+		}
+
+		foreach ($keys as $key)
+		{
+			foreach ($album as $ignored)
+			{
+				unset($owners[$id][$key]);
+			}
+		}
+	}
+
+	return array_filter($owners);
+}
+
+function template_main_album_display()
+{
+	global $context, $txt;
+
+	echo '
+		<div id="item_main">
+			<h3 class="lgal_secondary_header secondary_header">', sprintf($txt['lgal_viewing_album'], '&nbsp;<strong>' . $context['album_details']['album_name'] . '</strong>'), '</h3>';
+
+	// The album art cover, name, description
+	template_base_album_display();
+
+	if (!empty(get_child_count($context['album_details'])))
+	{
+		// Children of an album, remember each owner can have their own arrangement
+		template_album_navigation();
+	}
+
+	echo '
+		<div class="levgal_navigation">';
 
 	if (!empty($context['album_pageindex']))
 	{
 		echo '
-				<div class="pagesection" style="clear: none">', $context['album_pageindex'], '</div>';
+			<div class="pagesection">', $context['album_pageindex'], '</div>';
 	}
+
+	echo '
+			<a class="linkbutton" style="margin-left: auto" href="#" onclick="myGallery.open();">', $txt['lgal_click_to_slideshow'], '</a>
+		</div>';
 
 	if (empty($context['album_details']['approved']))
 	{
@@ -169,16 +397,16 @@ function template_main_album_display()
 
 	if (empty($context['album_items']))
 	{
-		if (!empty($context['album_family']) && $context['album_family']['album_count'] > 1)
+		if (!empty($context['album_family']) && isset($context['album_family']['album_count']))
 		{
 			echo '
 			<h4 class="lgal_secondary_header secondary_header centertext">
 				', $txt['lgal_see_albums'], '
 			</h4>';
 
-			foreach ($context['album_family'] as $owner_type => $owners)
+			foreach ($context['album_family'] as $owners)
 			{
-				if (empty($owners) || $owner_type === 'album_count')
+				if (empty($owners))
 				{
 					continue;
 				}
@@ -205,6 +433,12 @@ function template_main_album_display()
 		template_item_list('album_items');
 	}
 
+	if (!empty($context['album_pageindex']))
+	{
+		echo '
+			<div class="pagesection">', $context['album_pageindex'], '</div>';
+	}
+
 	echo '
 		</div>';
 }
@@ -222,16 +456,12 @@ function template_main_album_sidebar()
 			<h3 class="lgal_secondary_header secondary_header">
 				', $txt['lgal_album_info'], empty($modSettings['lgal_feed_enable_album']) ? '' : ' <a href="' . $context['album_details']['album_url'] . 'feed/"><span class="lgalicon i-rss"></span></a>', '
 			</h3>
-			<div class="content">
-				<div class="album_thumbnail">
-					<img src="', $context['album_details']['thumbnail_url'], '" alt="" />
-				</div>';
+			<div class="content">';
 
 	if (!empty($context['album_owner']['member']))
 	{
 		echo '
-				<div class="posted_by">', $txt['lgal_owned_by'], '</div><br />';
-
+				<div class="posted_by">', $txt['lgal_owned_by'], '</div>';
 		foreach ($context['album_owner']['member'] as $user)
 		{
 			echo '
@@ -245,17 +475,31 @@ function template_main_album_sidebar()
 	elseif (!empty($context['album_owner']['group']))
 	{
 		echo '
-				<div class="posted_by">', $txt['lgal_owned_by'], '</div><br />';
+				<div class="posted_by">', $txt['lgal_owned_by'], '</div>';
 		foreach ($context['album_owner']['group_details'] as $group_id => $group)
 		{
 			echo '
 				<div class="album_group">
 					<div class="group_name">', $group['color_name'], '</div>
 					<div class="group_stars">', $group['stars'], '</div>',
-					sprintf($txt['lgal_see_more'], $scripturl . '?media/albumlist/' . $group_id . '/group/'), '
+			sprintf($txt['lgal_see_more'], $scripturl . '?media/albumlist/' . $group_id . '/group/'), '
 					<br class="clear" />
 				</div>';
 		}
+	}
+	// a site owned album, use site logo if available.
+	elseif(!empty($context['header_logo_url_html_safe']))
+	{
+		echo '
+				<div class="posted_by">', $txt['lgal_owned_by'], '</div>
+				<div class="album_owner">
+					<span class="user_avatar">
+						<img class="avatar avatarresize" src="', $context['header_logo_url_html_safe'], '" alt="', $context['forum_name_html_safe'], '" />', '
+					</span>
+					<div class="">', $context['forum_name_html_safe'], '</div>
+					<div class="user smalltext">', sprintf($txt['lgal_see_more'], $scripturl . '?media/albumlist/site/'), '</div>
+				</div>
+				<br />';
 	}
 
 	echo '
@@ -347,11 +591,14 @@ function template_add_single_item()
 {
 	global $context, $txt, $scripturl;
 
+	/** @var $description_box \LevGal_Helper_Richtext */
+	$description_box = $context['description_box'];
+
 	echo '
 			<h3 class="lgal_secondary_header secondary_header">
 				', $context['page_title'], '
 			</h3>
-			<form action="', $context['album_details']['album_url'], 'add/" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" onsubmit="submitonce(this);smc_saveEntities(\'postmodify\', [\'item_name\', \'item_slug\', \'', $context['description_box']->getId(), '\', \'guest_username\'], \'options\');" enctype="multipart/form-data">
+			<form action="', $context['album_details']['album_url'], 'add/" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" onsubmit="submitonce(this);smc_saveEntities(\'postmodify\', [\'item_name\', \'item_slug\', \'', $description_box->getId(), '\', \'guest_username\'], \'options\');" enctype="multipart/form-data">
 			<div>
 				<div class="well">';
 
@@ -367,15 +614,16 @@ function template_add_single_item()
 	echo '
 					<div class="infobox">', $txt['lgal_item_name_and_slug_auto'], '</div>
 
-					<dl id="post_header">
+					<dl id="lgal_settings">
 						<dt>', $txt['lgal_item_name'], '</dt>
 						<dd>
 							<input type="text" id="item_name" name="item_name" tabindex="', $context['tabindex']++, '" size="80" maxlength="80" class="input_text" value="', $context['item_name'], '" style="width: 95%;" />
 						</dd>
 						<dt class="clear_left">', $txt['lgal_item_slug'], '</dt>
 						<dd>
-							<span class="smalltext">', $scripturl, '?media/item/</span><input type="text" id="item_slug" name="item_slug" tabindex="', $context['tabindex']++, '" size="20" maxlength="40" class="input_text" value="', $context['item_slug'], '" /><span class="smalltext">.x/</span>
-						
+							<span class="smalltext">', $scripturl, '?media/item/</span>
+							<input type="text" id="item_slug" name="item_slug" tabindex="', $context['tabindex']++, '" size="20" maxlength="40" class="input_text" value="', $context['item_slug'], '" />
+							<span class="smalltext">.x/</span>
 						</dd>';
 
 	template_main_tag_list();
@@ -492,17 +740,19 @@ function template_add_single_item()
 						</dd>
 					</dl>
 					<hr />
-					<div class="upload_desc">', $txt['lgal_item_description'], '</div>';
+					<div class="upload_desc" style="font-weight: 600">', $txt['lgal_item_description'], '</div>';
 
-	$context['description_box']->displayEditWindow();
+	// Description box, Output buttons and session value.
+	$description_box->displayEditWindow();
+	$description_box->displayButtons();
 
 	if (!empty($context['new_options']))
 	{
 		echo '
-					<div id="postAdditionalOptionsHeader">
+					<h3 class="lgal_secondary_header secondary_header" id="postAdditionalOptionsHeader">
 						', $txt['lgal_additional_options'], '
-					</div>
-					<div id="postMoreOptions" class="smalltext">
+					</h3>
+					<div id="postMoreOptions" class="content">
 						<ul class="post_options">';
 		foreach ($context['new_options'] as $opt_id => $option)
 		{
@@ -517,9 +767,6 @@ function template_add_single_item()
 						</ul>
 					</div>';
 	}
-
-	// Output buttons and session value.
-	$context['description_box']->displayButtons();
 
 	echo '
 				</div>
@@ -1057,19 +1304,20 @@ function template_edit_album()
 	}
 
 	echo '
-				<div class="content">';
+				<div class="well">';
 
 	// First, general album details.
 	echo '
-				<dl class="settings">
-					<dt>', $txt['levgal_album_name'], '</td>
+				<dl class="lgal_settings">
+					<dt>', $txt['levgal_album_name'], '</dt>
 					<dd>
 						<input type="text" id="album_name" name="album_name" tabindex="1" size="80" maxlength="80" class="input_text" value="', $context['album_details']['album_name'], '" style="width: 95%;" />
 					</dd>
 					<dt class="clear_left">', $txt['levgal_album_slug'], '</dt>
 					<dd>
 						<span class="smalltext">', $scripturl, '?media/album/</span>
-						<input type="text" id="album_slug" name="album_slug" tabindex="2" size="20" maxlength="40" class="input_text" value="', $context['album_details']['album_slug'], '" /><span class="smalltext">.', $context['album_details']['id_album'], '/</span>
+						<input type="text" id="album_slug" name="album_slug" tabindex="2" size="20" maxlength="40" class="input_text" value="', $context['album_details']['album_slug'], '" />
+						<span class="smalltext">.', $context['album_details']['id_album'], '/</span>
 					</dd>';
 	if ($context['display_featured'])
 	{
@@ -1125,7 +1373,7 @@ function template_edit_album()
 	echo '
 						</select>
 						<div class="floatleft" id="thumbs_container">
-							<img id="current_thumbnail" src="', $context['album_details']['thumbnail_url'], '" />
+							<img id="current_thumbnail" src="', $context['album_details']['thumbnail_url'], '" alt="current" />
 							<span id="new_thumbnail" style="display:none"></span>
 							<span id="upload_thumbnail" style="display:none">
 								<input type="file" size="30" name="thumbnail" class="input_file" />
@@ -1145,15 +1393,12 @@ function template_edit_album()
 	// Privacy is complicated so we reuse the new-album version.
 	template_newalbum_privacy();
 
+	// Album description box & submit button
+	template_newalbum_description();
+
 	// Now the end of the form and the save button.
 	echo '
-					<div class="submitbutton">
-						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-						<input type="submit" name="save" value="', $txt['lgal_edit_album_title'], '" />
-					</div>
-			</div>';
-
-	echo '
+			</div>
 		</form>
 		<script>
 		function update_thumbnail()
@@ -1191,7 +1436,7 @@ function template_edit_album()
 		createEventListener(privacySel);
 		privacySel.addEventListener("change", updatePrivacy, false);
 		updatePrivacy();';
-	if (!empty($context['ownership']) && in_array('change_type', $context['ownership_blocks']))
+	if (!empty($context['ownership']) && in_array('change_type', $context['ownership_blocks'], true))
 	{
 		echo '
 	function updateOwnership()
@@ -1266,7 +1511,7 @@ function template_add_owner_member()
 	global $txt, $context, $settings;
 
 	echo '
-					<dl class="settings ownership_member">
+					<dl class="lgal_settings ownership_member">
 						<dt>
 							', $txt['levgal_album_add_owner'], '
 							<div>';
@@ -1336,7 +1581,7 @@ function template_remove_owner_member()
 	global $context, $txt, $memberContext;
 
 	echo '
-					<dl class="settings ownership_member">
+					<dl class="lgal_settings ownership_member">
 						<dt>', $txt['levgal_album_remove_owner'], '</dt>
 						<dd>';
 	foreach ($context['album_owner']['member'] as $member)
@@ -1374,7 +1619,7 @@ function template_add_owner_group()
 	}
 
 	echo '
-					<dl class="settings ownership_group">
+					<dl class="lgal_settings ownership_group">
 						<dt>
 							', $txt['levgal_album_add_owner'], '
 							<div>';
@@ -1405,7 +1650,7 @@ function template_remove_owner_group()
 	global $context, $txt;
 
 	echo '
-					<dl class="settings ownership_group">
+					<dl class="lgal_settings ownership_group">
 						<dt>', $txt['levgal_album_remove_owner'], '</dt>
 						<dd>';
 	foreach ($context['album_owner']['group'] as $group)
@@ -1433,7 +1678,7 @@ function template_change_type()
 	global $txt, $context, $settings;
 
 	echo '
-					<dl class="settings">
+					<dl class="lgal_settings">
 						<dt>
 							', $txt['levgal_album_ownership'], '
 							<div>';
