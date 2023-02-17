@@ -75,6 +75,12 @@ function levgal_admin_bootstrap(&$admin_areas)
 				'function' => 'action_index',
 				'icon' => '../../../default/levgal_res/admin/maint.png',
 			),
+			'lgalnotify' => array(
+				'label' => $txt['levgal_notify'],
+				'controller' => 'ManageFeatures_Controller',
+				'function' => 'action_notificationsSettings_display',
+				'icon' => '../../../default/levgal_res/admin/notify.png',
+			),
 			'lgalimport' => array(
 				'label' => $txt['levgal_importers'],
 				'file' => '../levgal_src/ManageLevGal-Importer.php',
@@ -111,7 +117,7 @@ function levgal_admin_bootstrap(&$admin_areas)
 /**
  * Extends the admin privileged session time.
  *
- * ElkArte by default escalates a session while in the admin area for 1 hour. Some of the maintenance
+ * ElkArte by default escalates a session while in the admin area for 1 hour. Some maintenance
  * routines may not complete in that time, so for those instances, we can call this function to
  * extend the escalated time for 3 more minutes (per iteration of maintenance/importing) to try
  * to complete the routines appropriately.
@@ -216,6 +222,9 @@ function levgal_adminSettings($return_config = false)
 		array('check', 'lgal_feed_enable_item'),
 		array('int', 'lgal_feed_items_item', 'postinput' => $txt['lgal_feed_items_limits']),
 		'',
+		array('int', 'lgal_items_per_page', 'postinput' => $txt['lgal_per_page_limits']),
+		array('int', 'lgal_comments_per_page', 'postinput' => $txt['lgal_per_page_limits']),
+		'',
 		array('text', 'lgal_tag_items_list', 80),
 		array('check', 'lgal_tag_items_list_more'),
 		'',
@@ -261,6 +270,12 @@ function levgal_adminSettings($return_config = false)
 		foreach (array('lgal_feed_items_album', 'lgal_feed_items_item') as $type)
 		{
 			$_POST[$type] = isset($_POST[$type]) ? LevGal_Bootstrap::clamp((int) $_POST[$type], 1, 50) : 10;
+		}
+
+		// Limit the items per page
+		foreach (array('lgal_items_per_page', 'lgal_comments_per_page') as $type)
+		{
+			$_POST[$type] = isset($_POST[$type]) ? LevGal_Bootstrap::clamp((int) $_POST[$type], 10, 50) : 24;
 		}
 
 		// And metadata.
