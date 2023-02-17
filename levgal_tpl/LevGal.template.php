@@ -71,14 +71,9 @@ function template_main_page_display()
 	{
 		template_display_featured_albums();
 
-		echo '
-			<br />';
 	}
 
 	template_display_latest_items();
-
-	echo '
-			<br />';
 
 	template_display_random_items();
 
@@ -105,7 +100,7 @@ function template_display_album_list($list)
 	foreach ($context[$list] as $album)
 	{
 		$album['num_items'] = $album['num_items'] ?? 0;
-		$album['album_count'] = $album['album_count'] ?? 0;
+		$album['album_count'] = get_child_count($album);
 
 		echo '
 				<a class="album_featured well" href="', $album['album_url'], '">
@@ -114,7 +109,7 @@ function template_display_album_list($list)
 					</div>
 					<div class="album_desc lefttext">
 						', empty($album['featured']) ? '' : '<i class="lgalicon i-star colorize-gold"></i> ',
-						$album['album_name'], '<br />
+						$album['album_name'], '<br />', $album['description_short'], '
 					</div>
 					<div class="centertext clear">
 						<span class="lgalicon i-album"></span> ', LevGal_Helper_Format::numstring('lgal_items', $album['num_items']), ' / ', LevGal_Helper_Format::numstring('lgal_albums', $album['album_count']), '
@@ -123,8 +118,31 @@ function template_display_album_list($list)
 	}
 
 	echo '
-				<br class="clear" />
 			</div>';
+}
+
+function get_child_count($album)
+{
+	global $context;
+
+	$counts = $album['album_counts'] ?? $context['album_counts'] ?? 0;
+	if (empty($counts))
+	{
+		return 0;
+	}
+
+	// Determine the total number of child albums under all owners
+	$child_albums = 0;
+	foreach ($album['owner_cache'] as $owner_type => $owners)
+	{
+		$owners = (array) $owners;
+		foreach ($owners as $owner)
+		{
+			$child_albums += $counts[$owner_type][$owner];
+		}
+	}
+
+	return $child_albums;
 }
 
 function template_display_latest_items()
@@ -175,6 +193,8 @@ function template_item_list($list)
 {
 	global $context, $txt, $settings;
 
+	$slideshow = array();
+
 	echo '
 			<div class="album_container">';
 
@@ -203,15 +223,34 @@ function template_item_list($list)
 						<div class="thumb_container">';
 		if (!empty($item['item_url']))
 		{
+			// Build the Slideshow
+			if (substr($item['mime_type'],0,6) === 'image/' && $item['extension'] !== 'tif')
+			{
+				$link = '<a class="linkbutton largetext" href="' . $item['item_url'] . '">'. $txt['lgal_item_info']  . '</a>';
+				$slideshow[] = array(
+					'href' => $item['mature'] && $item['hide_mature'] ? $item['thumbnail'] : substr($item['thumbnail'], 0, -6),
+					'type' => 'image',
+					'title' => $item['mature'] && $item['hide_mature'] ? sprintf($txt['lgal_mature_item'], $link) : $link
+				);
+			}
+			else
+			{
+				$slideshow[] = array(
+					'href' => $item['preview'] ?? $item['thumbnail'],
+					'type' => 'image',
+					'title' => '<a class="linkbutton largetext" href="' . $item['item_url'] . '">' . $txt['lgal_click_to_view'] . '</a>'
+				);
+			}
+
 			echo '
-							<a class="lgtip" href="', $item['item_url'], '" data-title="', $item['item_name'], '">
+							<a class="lgtip" href="', $item['item_url'], '" data-details="', $item['item_name'], '">
 								<img src="', $item['thumbnail'], '" alt="', $item['item_name'], '" />
 							</a>';
 		}
 		elseif (!empty($item['thumbnail']))
 		{
 			echo '
-							<a class="lgtip" href="#" data-title="', $item['item_name'], '">
+							<a class="lgtip" href="#" data-details="', $item['item_name'], '">
 								<img src="', $item['thumbnail'], '" alt="', $item['item_name'], '" />
 							</a>';
 		}
@@ -242,6 +281,13 @@ function template_item_list($list)
 
 	echo '
 			</div>';
+
+	addInlineJavascript('
+		const myGallery = GLightbox({elements: 
+		' . json_encode($slideshow, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . ',
+		preload: false,
+		touchNavigation: true
+	});', true);
 }
 
 function template_sidebar_action_list($title, $action_list)
@@ -375,44 +421,42 @@ function template_album_hierarchy($hierarchy)
 
 		echo '
 			<li id="album_', $id_album, '" class="album_hierarchy">
-					<div class="well">
-						<p class="floatleft sortable_album_thumb">
-							<img src="', $album['thumbnail_url'], '" alt="" />
-						</p>
-						<p class="lgal_profile_itemname floatleft">
-							<a href="', $album['album_url'], '">', $album['album_name'], '</a>
-						</p>';
+				<div class="well">
+					<p class="floatleft sortable_album_thumb">
+						<img src="', $album['thumbnail_url'], '" alt="" />
+					</p>
+					<p class="floatleft">
+						<a href="', $album['album_url'], '"><strong>', $album['album_name'], '</strong></a>
+					</p>';
 
 		if (empty($album['approved']))
 		{
 			echo '
-						<p class="floatright">', $txt['lgal_unapproved_album'], '</p>';
+					<p class="floatright">', $txt['lgal_unapproved_album'], '</p>';
 		}
 
 		if (!empty($album['featured']))
 		{
 			echo '
-						<p class="lgal_profile_featured floatleft smalltext">
-							<i class="lgalicon i-feature_album colorize-gold"></i> ', $txt['levgal_featured_album'], '
-						</p>';
+					<p class="lgal_profile_featured floatleft smalltext">
+						<i class="lgalicon i-feature_album colorize-gold"></i> ', $txt['levgal_featured_album'], '
+					</p>';
 		}
 
 		echo '
-						<br />
-						<p class="lgal_profile_album_contents floatleft">
-							<span class="lgalicon i-album"></span> ', LevGal_Helper_Format::numstring('lgal_items', $album['num_items']);
+					<br />
+					<p class="lgal_profile_album_contents floatleft">
+						', $album['description_short'], '<br />
+						<span class="lgalicon i-album" style="margin: 0"></span> ', LevGal_Helper_Format::numstring('lgal_items', $album['num_items']);
 
 		if (!empty($album['see_unapproved']))
 		{
 			echo ',
-							<span class="error"><i class="lgalicon i-flag colorize-red"></i>', $txt['lgal_unapproved'], ' [', LevGal_Helper_Format::numstring('lgal_items', $album['num_unapproved_items']), ']</span>';
+						<span class="error"><i class="lgalicon i-flag colorize-red"></i>', $txt['lgal_unapproved'], ' [', LevGal_Helper_Format::numstring('lgal_items', $album['num_unapproved_items']), ']</span>';
 		}
 
 		echo '
-						</p>';
-
-		echo '
-						<br class="clear" />
+					</p>
 				</div>';
 	}
 
@@ -567,11 +611,13 @@ function template_album_list_main($tree_view = false)
 	}
 	else
 	{
+		echo '
+		<div id="item_main">';
 		$headings = ['site' => 'lgal_albums_site', 'groups' => 'lgal_albums_group', 'members' => 'lgal_albums_member'];
 		foreach (['site', 'groups', 'members'] as $albumType)
 		{
 			echo '
-			<div id="', $albumType, '" class="item_main">';
+			<div id="', $albumType, '">';
 
 			if (!empty($context['album_owners'][$albumType]))
 			{
@@ -591,11 +637,25 @@ function template_album_list_main($tree_view = false)
 
 				echo '
 				</div>';
+
+				if ($albumType === 'members' && !empty($context['item_pageindex']))
+				{
+					echo '
+				<div class="pagesection">', $context['item_pageindex'], '</div>';
+				}
 			}
 
 			echo '
 			</div>';
 		}
+		echo '
+			</div>';
+	}
+
+	// bottom navigation / page on the non-compact view
+	if (!empty($context['album_actions']) && !empty($context['nested_hierarchy']) && !empty($context['item_pageindex']))
+	{
+		template_album_list_action_tabs($context['album_actions'], true);
 	}
 
 	echo '
@@ -615,7 +675,7 @@ function template_album_placecard($albumItems, $useAvatar = null)
 		}
 
 		echo '
-					<div class="album_placard well">
+					<a class="album_placard well" href="', $item['url'], '">
 						<div class="floatleft album_thumb">';
 
 		if ($useAvatar === true)
@@ -632,10 +692,10 @@ function template_album_placecard($albumItems, $useAvatar = null)
 		echo '
 						</div>
 						<div class="album_desc lefttext">
-							<a href="', $item['url'], '">', $item['title'], '</a><br />
+							', $item['title'], '<br />
 							<span class="lgalicon i-album"></span> ', LevGal_Helper_Format::numstring('lgal_albums', $item['count']), '
 						</div>
-					</div>';
+					</a>';
 	}
 }
 
@@ -700,7 +760,7 @@ function template_album_list_action_tabs($actions_groups, $page = null)
 		echo '
 		<ul class="levgal_tabs">';
 
-		foreach ($actions_groups['actions'] as $id_action =>  $action)
+		foreach ($actions_groups['actions'] as $id_action => $action)
 		{
 			if (!isset($action['tab']))
 			{
@@ -713,7 +773,7 @@ function template_album_list_action_tabs($actions_groups, $page = null)
 				$item = '<strong>' . $item . '</strong>';
 
 			echo '
-			<li class="listlevel1">
+			<li class="listlevel1 ', $id_action, '">
 				<a class="linklevel1" href="', $action[1], '"', empty($action[2]) ? '' : ' class="new_win" target="_blank"', empty($action['title']) ? '' : ' title="' . $action['title'] . '"', empty($action['js']) ? '' : ' ' . $action['js'], '>
 					<span class="lgalicon i-', colorize_actions($id_action), '"></span>', $item, '
 				</a>
