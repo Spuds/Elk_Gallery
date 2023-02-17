@@ -318,6 +318,7 @@ class ManageLevGalDash_Controller extends Action_Controller
 				'<a href="https://biati-digital.github.io/glightbox/">Glightbox</a> &copy; 2018 Biati Digital, under the <a href="https://github.com/biati-digital/glightbox/blob/master/license.md">MIT License</a>',
 				'<a href="https://github.com/lucaong/jQCloud">jQCloud</a> &copy; 2014-2017 Damien "Mistic" Sorel, under the <a href="https://github.com/mistic100/jQCloud/blob/master/LICENSE.txt">MIT License</a>',
 				'<a href="https://github.com/ilikenwf/nestedSortable">nestedSortable</a> &copy; 2010-2016 Manuele J Sarfatti and <a href="https://github.com/ilikenwf/nestedSortable/graphs/contributors">others</a>, under the <a href="https://opensource.org/licenses/MIT">MIT License</a>',
+				'<a href="https://github.com/sampotts/plyr">plyr.js</a> &copy; 2017 Sam Potts, under the <a href="https://github.com/dropzone/dropzone/blob/main/LICENSE">MIT License</a>',
 				'<a href="https://gist.github.com/sgmurphy/3095196">url_slug.js</a> &copy; 2012 Sean Murphy, under the <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0 license</a>',
 			),
 			'images' => array(

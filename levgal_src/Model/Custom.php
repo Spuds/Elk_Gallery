@@ -656,7 +656,7 @@ class LevGal_Model_Custom
 		$parser = ParserWrapper::instance();
 
 		echo '
-						<dl class="settings">';
+						<dl class="lgal_settings">';
 
 		foreach ($fields as $id_field => $field)
 		{
@@ -664,7 +664,7 @@ class LevGal_Model_Custom
 
 			echo '
 							<dt>
-								<strong>', $field['field_name'], ':</strong>', !empty($field['field_config']['required']) ? $txt['field_required'] : '';
+								', $field['field_name'], ':', !empty($field['field_config']['required']) ? $txt['field_required'] : '';
 			if (!empty($field['description']))
 			{
 				echo '

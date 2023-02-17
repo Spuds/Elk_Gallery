@@ -174,7 +174,7 @@ class ManageLevGalCFields_Controller extends Action_Controller
 				$context['errors'][] = $txt['levgal_cfields_empty_field'];
 			}
 			$context['custom_field']['description'] = LevGal_Helper_Sanitiser::sanitiseBBCTextFromPost('description');
-			$context['custom_field']['placement'] = isset($_POST['placement']) && in_array($_POST['placement'], array(0, 1, 2), true) ? (int) $_POST['placement'] : 0;
+			$context['custom_field']['placement'] = isset($_POST['placement']) && in_array((int) $_POST['placement'], array(0, 1, 2), true) ? (int) $_POST['placement'] : 0;
 			$context['custom_field']['active'] = !empty($_POST['active']) ? 1 : 0;
 			$context['custom_field']['can_search'] = !empty($_POST['can_search']) ? 1 : 0;
 			$context['custom_field']['field_config']['required'] = !empty($_POST['required']) ? 1 : 0;

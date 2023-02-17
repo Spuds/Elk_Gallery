@@ -169,8 +169,7 @@ class ManageLevGalMaint_Controller extends Action_Controller
 			),
 		);
 
-		$context['step'] = isset($_REQUEST['step'], $context['steps'][$_REQUEST['step']])
-			? (int) $_REQUEST['step'] : 0;
+		$context['step'] = isset($_REQUEST['step'], $context['steps'][$_REQUEST['step']]) ? (int) $_REQUEST['step'] : 0;
 
 		// We are setting up for the not-done template ElkArte provides so we don't have do it ourselves.
 		Templates::instance()->load('Admin');
@@ -202,10 +201,10 @@ class ManageLevGalMaint_Controller extends Action_Controller
 		$rows = array();
 		$request = $db->query('', '
 		SELECT 
-		    id_album, album_name
+		    id_album, album_name, description
 		FROM {db_prefix}lgal_albums'
 		);
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $db->fetch_row($request))
 		{
 			$rows[] = $row;
 		}
@@ -291,7 +290,7 @@ class ManageLevGalMaint_Controller extends Action_Controller
 
 		$db = database();
 
-		$items_per_step = 10;
+		$items_per_step = 15;
 
 		// First, get the count of items.
 		$request = $db->query('', '
