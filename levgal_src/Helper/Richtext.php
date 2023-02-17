@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 use BBC\ParserWrapper;
@@ -33,6 +33,7 @@ class LevGal_Helper_Richtext
 	public function createEditor($editorOptions)
 	{
 		global $context;
+
 		require_once(SUBSDIR . '/Editor.subs.php');
 
 		$defaults = array(
@@ -40,7 +41,7 @@ class LevGal_Helper_Richtext
 			'value' => '',
 			'height' => '175px',
 			'width' => '100%',
-			'preview_type' => 0,
+			'preview_type' => false,
 		);
 		$editorOptions = array_merge($defaults, $editorOptions);
 
@@ -55,19 +56,9 @@ class LevGal_Helper_Richtext
 
 	public function displayEditWindow()
 	{
-		global $context;
+		echo '
+			<div class="editor_wrapper">'; // closed in displayButtons
 
-		// And so, the lovely bbc editor and smileys.
-		if ($context['show_bbc'])
-		{
-			echo '
-				<div id="bbcBox_', $this->form_var, '"></div>';
-		}
-		if (!empty($context['smileys']['postform']) || !empty($context['smileys']['popup']))
-		{
-			echo '
-				<div id="smileyBox_', $this->form_var, '"></div>';
-		}
 		echo '
 				', template_control_richedit($this->form_var, 'smileyBox_' . $this->form_var, 'bbcBox_' . $this->form_var);
 	}
@@ -79,18 +70,13 @@ class LevGal_Helper_Richtext
 		$editor_context = &$context['controls']['richedit'][$this->form_var];
 
 		echo '
-				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-				<p id="post_confirm_buttons" class="righttext">
-					<input type="submit" value="', $editor_context['labels']['post_button'] ?? $txt['post'], '" tabindex="', $context['tabindex']++, '"', isset($editor_context['js']['post_button']) ? ' onclick="' . $editor_context['js']['post_button'] . '"' : '', ' />';
-
-		if ($editor_context['preview_type'])
-		{
-			echo '
-					<input type="submit" name="preview" value="', $editor_context['labels']['preview_button'] ?? $txt['preview'], '" tabindex="', $context['tabindex']++, '"', isset($editor_context['js']['preview_button']) ? ' onclick="' . $editor_context['js']['preview_button'] . '"' : '', ' />';
-		}
+				<div id="post_confirm_buttons" class="right_submit">
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="submit"', isset($editor_context['labels']['name']) ? ' name="' . $editor_context['labels']['name'] . '"' : '', ' value="', $editor_context['labels']['post_button'] ?? $txt['post'], '" tabindex="', $context['tabindex']++, '"', isset($editor_context['js']['post_button']) ? ' onclick="' . $editor_context['js']['post_button'] . '"' : '', ' />';
 
 		echo '
-				</p>';
+				</div>
+			</div>';
 	}
 
 	private function prepareWYSIWYG()
