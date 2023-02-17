@@ -23,6 +23,7 @@ $txt['lgal_search_type_archive'] = 'Search archives/zip files';
 $txt['lgal_search_type_generic'] = 'Search for other files';
 $txt['lgal_search_type_external'] = 'Search for external videos';
 $txt['lgal_search_album_names'] = 'Search in album names';
+$txt['lgal_search_album_descs'] = 'Search in album descriptions';
 $txt['lgal_search_item_names'] = 'Search in item names';
 $txt['lgal_search_item_descs'] = 'Search in item descriptions';
 

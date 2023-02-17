@@ -8,7 +8,7 @@
  * @package levgal
  * @since 1.0
  */
-// Version: 1.0; ManageLevGal
+// Version: 1.2 / elkarte; ManageLevGal
 
 // Important! Before editing these language files please read the text at the top of index.english.php.
 
@@ -32,6 +32,7 @@ $txt['levgal_versions_lgal'] = 'Levertine Gallery:';
 $txt['levgal_versions_php'] = 'PHP:';
 $txt['levgal_versions_GD'] = 'GD library:';
 $txt['levgal_versions_Imagick'] = 'ImageMagick (Imagick):';
+$txt['levgal_versions_webp'] = 'Webp support:';
 $txt['levgal_support_notavailable'] = '(indisponible)';
 $txt['levgal_support_available'] = '(disponible)';
 $txt['levgal_support_warning'] = '(pas configuré correctement)';
@@ -52,6 +53,11 @@ $txt['lgal_feed_items_album'] = 'Nombre d\'éléments les plus récents à affic
 $txt['lgal_feed_enable_item'] = 'Activer le flux RSS pour les commentaires sur un élément';
 $txt['lgal_feed_items_item'] = 'Nombre de commentaires les plus récents à afficher dans le flux RSS d\'un élément';
 $txt['lgal_feed_items_limits'] = '(1-50 éléments)';
+$txt['lgal_tag_items_list'] = 'Comma seperated list of allowed tags';
+$txt['lgal_tag_items_list_more'] = 'Allow users to use their own tags in addition to the above';
+$txt['lgal_items_per_page'] = 'Number of items to show on a page view';
+$txt['lgal_comments_per_page'] = 'Number of comments to show per page';
+$txt['lgal_per_page_limits'] = '(10-50 items)';
 $txt['lgal_settings_social'] = 'Permettre aux utilisateurs de partager facilement des éléments sur les réseaux sociaux';
 $txt['lgal_settings_select_networks'] = 'Sélectionnez les réseaux sociaux';
 $txt['lgal_settings_metadata'] = 'Afficher des métadonnées supplémentaires';
@@ -145,6 +151,8 @@ $txt['levgal_cfields'] = 'Champs personnels de la médiathèque';
 
 // Maintenance; the rest is in ManageLevGal-Maint.language.php
 $txt['levgal_maint'] = 'Maintenance de la médiathèque';
+// Notifications
+$txt['levgal_notify'] = "Media Notifications";
 
 // Moderation Log
 $txt['levgal_modlog'] = 'Mediathèque journal de modération';

@@ -8,7 +8,7 @@
  * @package levgal
  * @since 1.0
  */
-// Version: 1.0; LevGal
+// Version: 1.2 / elkarte
 
 // Important! Before editing these language files please read the text at the top of index.english.php.
 
@@ -38,8 +38,8 @@ $txt['lgal_upload_failed'] = 'Upload failed, no further information available.';
 $txt['lgal_dir_not_writable'] = 'The storage area for the media gallery is not accessible, please contact your administrator.';
 $txt['lgal_upload_failed_reason'] = 'Something went wrong while uploading this item:';
 
-$txt['lgal_previous'] = 'Newer';
-$txt['lgal_next'] = 'Older';
+$txt['lgal_previous'] = 'Previous';
+$txt['lgal_next'] = 'Next';
 
 $txt['lgal_missing_item'] = 'Missing item: %1$s';
 
@@ -55,7 +55,7 @@ $txt['lgal_gallery_stats'] = 'Gallery Stats';
 
 $txt['lgal_albums_list'] = 'Albums';
 $txt['lgal_albums_owned_site'] = 'Albums of %1$s';
-$txt['lgal_albums_owned_someone'] = 'Albums owned by %1$s';
+$txt['lgal_albums_owned_someone'] = 'Albums of %1$s';
 $txt['lgal_albums_site'] = 'Site Albums';
 $txt['lgal_albums_member'] = 'Member Albums';
 $txt['lgal_albums_group'] = 'Group Albums';
@@ -68,6 +68,9 @@ $txt['lgal_empty_album'] = 'This album has no items in it.';
 $txt['lgal_viewing_album'] = 'Viewing album: %1$s';
 $txt['lgal_album_info'] = 'Album Information';
 $txt['lgal_album_actions'] = 'Album Actions';
+$txt['lgal_album_family'] = 'Child Albums';
+$txt['lgal_album_child'] = 'Child';
+$txt['lgal_album_parent'] = 'Parent';
 $txt['lgal_viewing_item'] = 'Viewing item: %1$s';
 $txt['lgal_mature_item'] = 'Mature Content Warning: %1$s';
 $txt['lgal_item_info'] = 'Item Information';
@@ -99,7 +102,7 @@ $txt['lgal_posted_in'] = 'Posted in album:';
 
 $txt['lgal_click_to_expand'] = 'Click to zoom in';
 $txt['lgal_click_to_view'] = 'Click to view';
-
+$txt['lgal_click_to_slideshow'] = 'View slideshow';
 
 $txt['lgal_pending_approval'] = 'Pending approval:';
 // Note: your language might need extras, e.g. lgal_albums_2 - LevGal supports this just fine.
@@ -109,6 +112,9 @@ $txt['lgal_albums_x'] = '%1$s albums';
 $txt['lgal_items_0'] = 'no items';
 $txt['lgal_items_1'] = '1 item';
 $txt['lgal_items_x'] = '%1$s items';
+$txt['lgal_docs_0'] = 'no documents';
+$txt['lgal_docs_1'] = '1 document';
+$txt['lgal_docs_x'] = '%1$s documents';
 $txt['lgal_comments_0'] = 'no comments';
 $txt['lgal_comments_1'] = '1 comment';
 $txt['lgal_comments_x'] = '%1$s comments';
@@ -129,6 +135,7 @@ $txt['levgal_set_album_featured'] = 'Mark this album as a featured album?';
 $txt['levgal_album_lock_for_items'] = 'Allow new items in this album?';
 $txt['levgal_album_lock_for_comments'] = 'Allow new comments to the items in this album?';
 $txt['levgal_album_added_new'] = 'Added: %1$s to Album: %2$s';
+$txt['lgal_album_description'] = 'Description for this album (you don\'t have to put this in):';
 
 $txt['levgal_guests'] = 'Guests';
 $txt['levgal_registered_members'] = 'Registered Members';
@@ -207,11 +214,12 @@ $txt['lgal_unnotify_album_desc'] = 'Stop sending me emails whenever this gets ne
 $txt['lgal_download_item'] = 'Download Item';
 $txt['lgal_back_to_album'] = 'Back to Album';
 $txt['lgal_go_to_album'] = 'Go to Album';
+$txt['lgal_go_to_parent_album'] = 'Go to Parent Album';
 $txt['lgal_approve_item_title'] = 'Approve Item';
 $txt['lgal_flag_item_title'] = 'Report Item';
 $txt['lgal_feature_album'] = 'Feature Album';
 $txt['lgal_unfeature_album'] = 'Unfeature Album';
-$txt['lgal_see_albums'] = 'See Albums';
+$txt['lgal_see_albums'] = 'All Albums';
 $txt['lgal_approve_album_title'] = 'Approve Album';
 
 $txt['lgal_item_name'] = 'Item name:';
@@ -323,3 +331,18 @@ $txt['field_select'] = '(select from the choice below)';
 // For email messages
 $txt['levgal_email_photo_gallery'] = 'Media Photo';
 $txt['levgal_email_photo_missing'] = 'Gallery Item not found';
+
+// Help text
+$txt['media_bbc'] = 'Media BBC codes allow you to easily add your media items to a post.<br />
+<ul class="bbc_list">
+	<li>use [media]123[/media] for a simple thumbnail+link</li>
+	<li>use [media specialOptions]123[/media] for a basic aligned image</li>
+	<li>use [media id=123]description[/media] for a thumbnail with a description (uses full line) leave the description blank to use the item name instead.</li>
+	<li>use [media specialOptions id=123]description[/media] The available special options are:
+		<ul class="bbc_list">
+			<li>align=left|right|center, left and right are floated images, allowing text to be placed alongside</li>
+			<li>type=thumbnail|preview, preview provides for a larger image</li>
+			<li>[clear] a BBC tag which can be used to "end" any float</li>
+		</ul>
+	</li>
+</ul>';

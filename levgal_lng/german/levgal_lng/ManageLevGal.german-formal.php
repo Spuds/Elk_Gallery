@@ -143,6 +143,8 @@ $txt['levgal_cfields'] = 'Benutzerdefinierte Medienfelder';
 
 // Maintenance; the rest is in ManageLevGal-Maint.language.php
 $txt['levgal_maint'] = 'Wartung der Medien';
+// Notifications
+$txt['levgal_notify'] = "Media Notifications";
 
 // Moderation Log
 $txt['levgal_modlog'] = 'Medienmoderationsprotokoll';

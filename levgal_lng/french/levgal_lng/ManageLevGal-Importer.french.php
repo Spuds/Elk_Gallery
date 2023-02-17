@@ -8,7 +8,7 @@
  * @package levgal
  * @since 1.0
  */
-// Version: 1.0; ManageLevGal importers
+// Version: 1.2 / elkarte; ManageLevGal importers
 
 // Important! Before editing these language files please read the text at the top of index.english.php.
 
@@ -42,6 +42,7 @@ $txt['levgal_importer_return_admin'] = 'Allez dans la zone d\'administration de 
 $txt['levgal_importer_substep_overwrite'] = 'S\'assurer que la base de données est prête...';
 $txt['levgal_importer_substep_albums'] = 'Importation d\'albums...';
 $txt['levgal_importer_substep_items'] = 'Importation d\'éléments...';
+$txt['levgal_importer_substep_docs'] = 'Importing documents...';
 $txt['levgal_importer_substep_comments'] = 'Importation de commentaires...';
 $txt['levgal_importer_substep_customfields'] = 'mportation de champs et de données personnalisés...';
 $txt['levgal_importer_substep_tags'] = 'Importation d\'étiquettes/mots-clés...';

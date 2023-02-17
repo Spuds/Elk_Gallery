@@ -8,7 +8,7 @@
  * @package levgal
  * @since 1.0
  */
-// Version: 1.0; ManageLevGal
+// Version: 1.2 / elkarte; ManageLevGal
 
 // Important! Before editing these language files please read the text at the top of index.english.php.
 
@@ -53,8 +53,11 @@ $txt['lgal_feed_items_album'] = 'Number of most recent items to show an album\'s
 $txt['lgal_feed_enable_item'] = 'Enable RSS feed for comments on an item';
 $txt['lgal_feed_items_item'] = 'Number of most recent comments to show in an item\'s RSS feed';
 $txt['lgal_feed_items_limits'] = '(1-50 items)';
-$txt['lgal_tag_items_list'] = 'Comma seperated list of suggested tags';
+$txt['lgal_tag_items_list'] = 'Comma seperated list of allowed tags';
 $txt['lgal_tag_items_list_more'] = 'Allow users to use their own tags in addition to the above';
+$txt['lgal_items_per_page'] = 'Number of items to show on a page view';
+$txt['lgal_comments_per_page'] = 'Number of comments to show per page';
+$txt['lgal_per_page_limits'] = '(10-50 items)';
 $txt['lgal_settings_social'] = 'Allow users to easily share items on social networks';
 $txt['lgal_settings_select_networks'] = 'Select social networks';
 $txt['lgal_settings_metadata'] = 'Display additional metadata';
@@ -147,6 +150,9 @@ $txt['levgal_cfields'] = 'Media Custom Fields';
 
 // Maintenance; the rest is in ManageLevGal-Maint.language.php
 $txt['levgal_maint'] = 'Media Maintenance';
+
+// Notifications
+$txt['levgal_notify'] = "Media Notifications";
 
 // Moderation Log
 $txt['levgal_modlog'] = 'Media Moderation Log';

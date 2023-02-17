@@ -4,11 +4,11 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.1
+ * @version 1.1.2
  * @package levgal
  * @since 1.0
  */
-// Version: 1.0; LevGal
+// Version: 1.2 / elkarte
 
 // Important! Before editing these language files please read the text at the top of index.english.php.
 
@@ -82,6 +82,10 @@ $txt['lgal_file_size'] = 'Taille du fichier :';
 $txt['lgal_comments'] = 'Commentaires (%1$s)';
 $txt['lgal_comments_for'] = 'Commentaires sur %1$s';
 $txt['lgal_items_in'] = 'Éléments dans %1$s';
+$txt['lgal_file_type'] = 'File type:';
+$txt['lgal_comments'] = 'Commentaires (%1$s)';
+$txt['lgal_comments_for'] = 'Commentaires sur %1$s';
+$txt['lgal_items_in'] = 'Éléments dans %1$s';
 $txt['lgal_size_kb'] = '%1$s KB';
 $txt['lgal_size_mb'] = '%1$s MB';
 $txt['lgal_size_gb'] = '%1$s GB';
@@ -97,6 +101,8 @@ $txt['lgal_sort_direction_desc'] = 'Z-A';
 $txt['lgal_posted_in'] = 'Publié dans l\'album :';
 
 $txt['lgal_click_to_expand'] = 'Cliquez pour zoomer';
+$txt['lgal_click_to_view'] = 'Click to view';
+$txt['lgal_click_to_slideshow'] = 'View slideshow';
 
 $txt['lgal_pending_approval'] = 'En attente de validation :';
 // Note: your language might need extras, e.g. lgal_albums_2 - LevGal supports this just fine.
@@ -106,6 +112,9 @@ $txt['lgal_albums_x'] = '%1$s albums';
 $txt['lgal_items_0'] = 'pas d\'éléments';
 $txt['lgal_items_1'] = '1 élément';
 $txt['lgal_items_x'] = '%1$s éléments';
+$txt['lgal_docs_0'] = 'no documents';
+$txt['lgal_docs_1'] = '1 document';
+$txt['lgal_docs_x'] = '%1$s documents';
 $txt['lgal_comments_0'] = 'pas de commentaires';
 $txt['lgal_comments_1'] = '1 commentaire';
 $txt['lgal_comments_x'] = '%1$s commentaires';
@@ -126,6 +135,7 @@ $txt['levgal_set_album_featured'] = 'Marquer cet album comme album Favoris ?';
 $txt['levgal_album_lock_for_items'] = 'Autoriser les nouveaux éléments dans cet album ?';
 $txt['levgal_album_lock_for_comments'] = 'Autoriser les nouveaux commentaires sur les éléments de cet album?';
 $txt['levgal_album_added_new'] = 'Ajoué : %1$s à l\'album: %2$s';
+$txt['lgal_album_description'] = 'Description for this album (you don\'t have to put this in):';
 
 $txt['levgal_guests'] = 'Invités';
 $txt['levgal_registered_members'] = 'Membres enregistrés';
@@ -319,3 +329,18 @@ $txt['field_select'] = '(sélectionnez parmi les choix ci-dessous)';
 // For email messages
 $txt['levgal_email_photo_gallery'] = 'Media Photo';
 $txt['levgal_email_photo_missing'] = 'Élément de la galerie non trouvé';
+
+// Help text
+$txt['media_bbc'] = 'Media BBC codes allow you to easily add your media items to a post.<br />
+<ul class="bbc_list">
+	<li>use [media]123[/media] for a simple thumbnail+link</li>
+	<li>use [media specialOptions]123[/media] for a basic aligned image</li>
+	<li>use [media id=123]description[/media] for a thumbnail with a description (uses full line) leave the description blank to use the item name instead.</li>
+	<li>use [media specialOptions id=123]description[/media] The available special options are:
+		<ul class="bbc_list">
+			<li>align=left|right|center, left and right are floated images, allowing text to be placed alongside</li>
+			<li>type=thumbnail|preview, preview provides for a larger image</li>
+			<li>[clear] a BBC tag which can be used to "end" any float</li>
+		</ul>
+	</li>
+</ul>';

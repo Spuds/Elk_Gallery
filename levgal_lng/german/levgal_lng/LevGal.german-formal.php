@@ -4,11 +4,11 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.1
+ * @version 1.1.2
  * @package levgal
  * @since 1.0
  */
-// Version: 1.0; LevGal
+// Version: 1.2 / elkarte
 
 // Important! Before editing these language files please read the text at the top of index.english.php.
 
@@ -67,7 +67,10 @@ $txt['lgal_invalid_saving_order'] = 'Beim Versuch, die neue Anordnung zu speiche
 $txt['lgal_empty_album'] = 'In diesem Album sind keine Elemente enthalten.';
 $txt['lgal_viewing_album'] = 'Album betrachtend: %1$s';
 $txt['lgal_album_info'] = 'Albuminformation';
-$txt['lgal_album_actions'] = 'Albumationen';
+$txt['lgal_album_actions'] = 'Albumationen'
+$txt['lgal_album_family'] = 'Child Albums';
+$txt['lgal_album_child'] = 'Child';
+$txt['lgal_album_parent'] = 'Parent';
 $txt['lgal_viewing_item'] = 'Element betrachtend: %1$s';
 $txt['lgal_mature_item'] = 'Warnung vor nicht jugendfreiem Inhalt: %1$s';
 $txt['lgal_item_info'] = 'Elementinformation';
@@ -79,6 +82,7 @@ $txt['lgal_time_added'] = 'Hinzugefügt am:';
 $txt['lgal_time_updated'] = 'Aktualisiert am:';
 $txt['lgal_picture_size'] = 'Bildgröße:';
 $txt['lgal_file_size'] = 'Dateigröße:';
+$txt['lgal_file_type'] = 'File type:';
 $txt['lgal_comments'] = 'Kommentare (%1$s)';
 $txt['lgal_comments_for'] = 'Kommentare auf %1$s';
 $txt['lgal_items_in'] = 'Elemente in %1$s';
@@ -97,6 +101,8 @@ $txt['lgal_sort_direction_desc'] = 'Z-A';
 $txt['lgal_posted_in'] = 'Veröffentlicht im Album:';
 
 $txt['lgal_click_to_expand'] = 'Klicken um zu vergrößern';
+$txt['lgal_click_to_view'] = 'Click to view';
+$txt['lgal_click_to_slideshow'] = 'View slideshow';
 
 $txt['lgal_pending_approval'] = 'Genehmigung ausstehend:';
 // Note: your language might need extras, e.g. lgal_albums_2 - LevGal supports this just fine.
@@ -106,6 +112,9 @@ $txt['lgal_albums_x'] = '%1$s Alben';
 $txt['lgal_items_0'] = 'Keine Elemente';
 $txt['lgal_items_1'] = 'Ein Element';
 $txt['lgal_items_x'] = '%1$s Elemente';
+$txt['lgal_docs_0'] = 'no documents';
+$txt['lgal_docs_1'] = '1 document';
+$txt['lgal_docs_x'] = '%1$s documents';
 $txt['lgal_comments_0'] = 'Keine Kommentare';
 $txt['lgal_comments_1'] = 'Ein Kommentar';
 $txt['lgal_comments_x'] = '%1$s Kommetare';
@@ -126,6 +135,7 @@ $txt['levgal_set_album_featured'] = 'Markieren Sie dieses Album als ein vorgeste
 $txt['levgal_album_lock_for_items'] = 'Neue Elemente in diesem Album zulassen?';
 $txt['levgal_album_lock_for_comments'] = 'Neue Kommentare zu den Elementen in diesem Album zulassen?';
 $txt['levgal_album_added_new'] = 'Hinzugefügt: %1$s zu Album: %2$s';
+$txt['lgal_album_description'] = 'Description for this album (you don\'t have to put this in):';
 
 $txt['levgal_guests'] = 'Gäste';
 $txt['levgal_registered_members'] = 'Registrierte Mitglieder';
@@ -146,8 +156,7 @@ $txt['levgal_edit_comment'] = 'Kommentar bearbeiten';
 $txt['levgal_edit_comment_full'] = 'Kommentar bearbeiten zu: %1$s von %2$s';
 $txt['levgal_save_comment'] = 'Kommentar speichern';
 $txt['levgal_comment_waiting_approval'] = 'Ihr Kommentar muss erst von einem Moderator genehmigt werden, bevor er sichtbar ist.';
-$txt['levgal_item_waiting_approval'] = '
-Ihr Element muss von einem Moderator genehmigt werden, bevor es sichtbar ist.';
+$txt['levgal_item_waiting_approval'] = 'Ihr Element muss von einem Moderator genehmigt werden, bevor es sichtbar ist.';
 $txt['levgal_flag_comment'] = 'Kommentar melden';
 $txt['levgal_flag_item'] = 'Element melden';
 
@@ -193,6 +202,7 @@ $txt['lgal_item_actions_moderation'] = 'Moderation';
 $txt['lgal_add_item'] = 'Element hinzufügen';
 $txt['lgal_add_bulk'] = 'Elemente hinzufügen';
 $txt['lgal_mark_album_seen'] = 'Album als gesehen markieren';
+$txt['lgal_mark_all_seen'] = 'Mark All Seen';
 $txt['lgal_bookmark_item'] = 'Lesezeichen zum Element';
 $txt['lgal_unbookmark_item'] = 'Lesezeichen entfernen';
 $txt['lgal_notify'] = 'Benachrichtigen';
@@ -204,6 +214,7 @@ $txt['lgal_unnotify_album_desc'] = 'Keine E-Mails mehr schicken, wenn es neue El
 $txt['lgal_download_item'] = 'Element herunterladen';
 $txt['lgal_back_to_album'] = 'Zurück zum Album';
 $txt['lgal_go_to_album'] = 'Zu Album';
+$txt['lgal_go_to_parent_album'] = 'Go to Parent Album';
 $txt['lgal_approve_item_title'] = 'Element genehmigen';
 $txt['lgal_flag_item_title'] = 'Element melden';
 $txt['lgal_feature_album'] = 'Album vorstellen';
@@ -320,3 +331,18 @@ $txt['field_select'] = '(Wählen Sie aus der folgenden Auswahl)';
 // For email messages
 $txt['levgal_email_photo_gallery'] = 'Medienfoto';
 $txt['levgal_email_photo_missing'] = 'Galerieelement nicht gefunden';
+
+// Help text
+$txt['media_bbc'] = 'Media BBC codes allow you to easily add your media items to a post.<br />
+<ul class="bbc_list">
+	<li>use [media]123[/media] for a simple thumbnail+link</li>
+	<li>use [media specialOptions]123[/media] for a basic aligned image</li>
+	<li>use [media id=123]description[/media] for a thumbnail with a description (uses full line) leave the description blank to use the item name instead.</li>
+	<li>use [media specialOptions id=123]description[/media] The available special options are:
+		<ul class="bbc_list">
+			<li>align=left|right|center, left and right are floated images, allowing text to be placed alongside</li>
+			<li>type=thumbnail|preview, preview provides for a larger image</li>
+			<li>[clear] a BBC tag which can be used to "end" any float</li>
+		</ul>
+	</li>
+</ul>';
