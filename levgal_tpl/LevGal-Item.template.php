@@ -35,18 +35,23 @@ function template_main_item_view()
 	<script src="', $settings['default_theme_url'], '/levgal_res/clipboard/clipboard.min.js"></script>
 	<script>
 		let items = ["lgal_share_simple_bbc", "lgal_share_complex_bbc", "lgal_share_page"],
+			parentEl,
 			el;
 		
 		for (let i = 0, n = items.length; i < n; i++)
 		{
+			parentEl = document.querySelector("#" + items[i]  + "_container");
 			el = document.querySelector("#" + items[i] + "_container span.i-clipboard");
 			el.setAttribute("data-clipboard-target", "#" + items[i]);
+			parentEl.addEventListener("mouseleave", lgalClearTooltip);
+    		parentEl.addEventListener("blur", lgalClearTooltip);
 		}
 		
-		new ClipboardJS(".i-clipboard", {
-   			text: function(trigger) {
-        		return trigger.setAttribute("title", "', $txt['lgal_copyied_to_clipboard'], '");
-    		}
+		let clipboardSnippets = new ClipboardJS(".i-clipboard", {});
+ 		
+ 		clipboardSnippets.on("success", function(e) {
+   			let clip = e.trigger.parentElement;
+    		lgalShowTooltip(clip, "', $txt['lgal_copyied_to_clipboard'], '");
 		});
 	</script>';
 }
@@ -63,16 +68,19 @@ function template_main_item_display()
 	if (isset($context['item_reported']))
 	{
 		echo '
-				<div class="centertext"', $txt['lgal_item_was_reported'], '</div>
-				<br />';
+				<div class="warningbox">', $txt['lgal_item_was_reported'], '</div>';
 	}
 
 	if (!$context['item_details']['approved'])
 	{
 		echo '
-				<div class="centertext">', $txt['lgal_unapproved_item'], '</div>
-				<br />';
+				<div class="infobox">', $txt['lgal_unapproved_item'], '</div>';
 	}
+
+	echo '
+				<div class="main_item_container">';
+
+	template_prevnext_item_navigation('prev');
 
 	$func = 'template_item_' . $context['item_display']['display_template'];
 	if (function_exists($func))
@@ -83,6 +91,11 @@ function template_main_item_display()
 	{
 		template_item_generic();
 	}
+
+	template_prevnext_item_navigation('next');
+
+	echo '
+				</div>';
 
 	if (!empty($context['item_details']['description']))
 	{
@@ -109,7 +122,7 @@ function template_main_item_display()
 
 	if (!empty($context['prev_next']))
 	{
-		template_main_item_navigation();
+		template_mobile_item_navigation();
 	}
 
 	if ($context['can_comment'] !== 'disabled')
@@ -189,30 +202,78 @@ function template_return_item_likers()
 	return $result;
 }
 
-function template_main_item_navigation()
+function template_prevnext_item_navigation($direction = 'prev')
+{
+	global $txt, $context;
+
+	if ($direction === 'prev')
+	{
+		echo '
+				<div class="lg_prev largetext">';
+		if (!empty($context['prev_next']['previous']))
+		{
+			echo '
+					<a class="linkbutton" href="', $context['prev_next']['previous']['item_url'], '#item_main" title="', $context['prev_next']['previous']['item_name'], '">
+						<div>
+							<i class="icon i-chevron-circle-left"></i>', $txt['lgal_previous'], '
+						</div>
+					</a>';
+		}
+		echo '
+				</div>';
+	}
+
+	if ($direction === 'next')
+	{
+		echo '
+				<div class="lg_next largetext">';
+		if (!empty($context['prev_next']['next']))
+		{
+			echo '
+					<a class="linkbutton" href="', $context['prev_next']['next']['item_url'], '#item_main" title="', $context['prev_next']['next']['item_name'], '">
+						<div>',
+			$txt['lgal_next'], '<i class="icon i-chevron-circle-right"></i>
+						</div>
+					</a>';
+		}
+		echo '
+				</div>';
+	}
+}
+
+function template_mobile_item_navigation()
 {
 	global $txt, $context;
 
 	echo '
-			<h2 class="lgal_secondary_header secondary_header">';
-
-	if (!empty($context['prev_next']['previous']))
-	{
+			<div class="lgal_secondary_header secondary_header prev_next">
+				<div class="centertext" style="width: 50%">';
+		if (!empty($context['prev_next']['previous']))
+		{
+			echo '
+					<a href="', $context['prev_next']['previous']['item_url'], '#item_main" title="', $context['prev_next']['previous']['item_name'], '">
+						<div>
+							<i class="icon i-chevron-circle-left"></i>', $txt['lgal_previous'], '
+						</div>
+					</a>';
+		}
 		echo '
-				<span class="lefttext" style="width: 50%">
-					<a href="', $context['prev_next']['previous']['item_url'], '#item_main" title="', $context['prev_next']['previous']['item_name'], '"><i class="icon i-chevron-circle-left"></i>', $txt['lgal_previous'], '</a>
-				</span>';
-	}
-	if (!empty($context['prev_next']['next']))
-	{
-		echo '
-				<span class="righttext" style="width: 50%">
-					<a href="', $context['prev_next']['next']['item_url'], '#item_main" title="', $context['prev_next']['next']['item_name'], '">', $txt['lgal_next'], '<i class="icon i-chevron-circle-right"></i></a>
-				</span>';
-	}
+				</div>
+				<div class="centertext" style="width: 50%">';
 
-	echo '
-			</h2>';
+		if (!empty($context['prev_next']['next']))
+		{
+			echo '
+					<a href="', $context['prev_next']['next']['item_url'], '#item_main" title="', $context['prev_next']['next']['item_name'], '">
+						<div>',
+							$txt['lgal_next'], '<i class="icon i-chevron-circle-right"></i>
+						</div>
+					</a>';
+		}
+
+		echo '
+				</div>
+			</div>';
 }
 
 function template_main_item_sidebar()
@@ -387,7 +448,7 @@ function template_display_custom_fields($area)
 
 function template_sidebar_share()
 {
-	global $context, $txt, $memberContext;
+	global $context, $txt, $memberContext, $scripturl;
 
 	$poster_name = empty($memberContext[$context['item_owner']]['name']) ? empty($context['item_owner']) ? $txt['not_applicable'] : $context['item_owner'] : ($memberContext[$context['item_owner']]['name']);
 	echo '
@@ -396,7 +457,9 @@ function template_sidebar_share()
 			</h3>
 			<div class="content">
 				<dl class="album_details">
-					<dt>', $txt['lgal_share_simple_bbc'], '</dt>
+					<dt>', $txt['lgal_share_simple_bbc'], '
+						<a href="', $scripturl, '?action=quickhelp;help=media_bbc" onclick="return reqOverlayDiv(this.href);" class="helpicon i-help"><s>', $txt['help'], '</s></a>
+					</dt>
 					<dd id="lgal_share_simple_bbc_container" class="lgal_share">
 						<input type="text" class="input_text" id="lgal_share_simple_bbc" value="[media]', $context['item_details']['id_item'], '[/media]" readonly="readonly" />
 						<span class="lgalicon i-clipboard" title="', $txt['lgal_copy_to_clipboard'], '"></span>
@@ -462,19 +525,19 @@ function template_main_item_comments()
 	foreach ($context['item_comments'] as $id_comment => $comment)
 	{
 		echo '
-				<div class="', $comment['approved'] ? 'content' : 'approvebg', ' comment">
+				<div class="', $comment['approved'] ? 'content' : 'content approvebg', ' comment">
 					<div id="comment-', $id_comment, '">';
 
 		if (!empty($comment['reported']))
 		{
 			echo '
-						<div class="centertext">', $txt['lgal_comment_was_reported'], '</div>';
+						<div class="centertext warningbox">', $txt['lgal_comment_was_reported'], '</div>';
 		}
 
 		if (!$comment['approved'])
 		{
 			echo '
-						<div class="centertext">', $txt['lgal_unapproved_comment'], '</div>';
+						<div class="centertext"><i class="icon i-warn"></i>', $txt['lgal_unapproved_comment'], '</div>';
 		}
 
 		echo '
@@ -527,9 +590,12 @@ function template_main_item_commentbox()
 {
 	global $context, $txt;
 
+	/** @var $comment_box \LevGal_Helper_Richtext */
+	$comment_box = $context['comment_box'];
+
 	echo '
 				<div class="editor_wrapper">
-					<form action="', $context['form_url'], '#postmodify" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" onsubmit="submitonce(this);smc_saveEntities(\'postmodify\', [\'', $context['comment_box']->getId(), '\']);" enctype="multipart/form-data">';
+					<form action="', $context['form_url'], '#postmodify" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" onsubmit="submitonce(this);smc_saveEntities(\'postmodify\', [\'', $comment_box->getId(), '\']);" enctype="multipart/form-data">';
 
 	if (!empty($context['comment_errors']))
 	{
@@ -542,7 +608,7 @@ function template_main_item_commentbox()
 						<div class="centertext">', $txt['levgal_comment_waiting_approval'], '</div>';
 	}
 
-	$context['comment_box']->displayEditWindow();
+	$comment_box->displayEditWindow();
 
 	if ($context['user']['is_guest'])
 	{
@@ -556,7 +622,7 @@ function template_main_item_commentbox()
 		$context['verification']->output();
 	}
 
-	$context['comment_box']->displayButtons();
+	$comment_box->displayButtons();
 
 	echo '
 					</form>
@@ -565,25 +631,34 @@ function template_main_item_commentbox()
 
 function template_mature_item()
 {
-	global $context, $txt, $settings;
+	global $context, $settings, $txt;
 
 	echo '
-		<h3 class="lgal_secondary_header secondary_header">', $context['page_title'], '</h3>
+	<h3 id="item_main" class="lgal_secondary_header secondary_header">', $context['page_title'], '</h3>
+	<div class="main_item_container">';
+
+	template_prevnext_item_navigation('prev');
+
+	echo '
 		<form action="', $context['form_url'], '" method="post" accept-charset="UTF-8">
-			<div class="content">
-				<div class="centertext">
-					<img src="', $settings['default_theme_url'], '/levgal_res/icons/_mature.png" />
-					<br />
-					', $txt['lgal_item_is_mature'], '
-					<br /><br />
-					', $txt['lgal_item_is_mature_continue'], '
-					<br /><br />
-					<input type="submit" name="yes" value="', $txt['lgal_item_mature_accept'], '" class="button_submit" />
-					<input type="submit" name="no" value="', $txt['lgal_item_mature_cancel'], '" class="button_submit" />
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-				</div>
+			<div class="centertext">
+				<img src="', $settings['default_theme_url'], '/levgal_res/icons/_mature.png" />
+				<br />
+				<i class="icon i-warning"></i>
+				', $txt['lgal_item_is_mature'], '
+				<br /><br />
+				', $txt['lgal_item_is_mature_continue'], '
+				<br /><br />
+				<input type="submit" name="yes" value="', $txt['lgal_item_mature_accept'], '" class="button_submit" />
+				<input type="submit" name="no" value="', $txt['lgal_item_mature_cancel'], '" class="button_submit" />
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 			</div>
 		</form>';
+
+	template_prevnext_item_navigation('next');
+
+	echo '
+	</div>';
 }
 
 function template_notify_item()
@@ -624,14 +699,15 @@ function template_item_picture()
 	if (!empty($context['item_display']['needs_lightbox']))
 	{
 		echo '
-					<div id="item_picture_container">
-						<a class="glightbox" href="', $context['item_display']['urls']['raw'], '" data-glightbox="type: image" data-title="', $context['item_details']['item_name'], '" data-description=".custom-desc">
+					<div id="item_picture_container" class="lg_item">
+						<a class="glightbox" href="', $context['item_display']['urls']['raw'], '" data-glightbox="type: image" data-details="', $context['item_details']['item_name'], '" data-description=".custom-desc">
 							<img id="item_picture_contained" class="item_', $using, ' has_lightbox" src="', $context['item_display']['urls'][$using], '" alt="" />
 						</a>
-					</div>
-					<div class="centertext smalltext">', $txt['lgal_click_to_expand'], '</div>
-					<div class="custom-desc hide">',
-						$context['item_details']['description'], '
+						<br />
+						<div class="centertext"><i class="icon i-search"></i>', $txt['lgal_click_to_expand'], '</div>
+						<div class="custom-desc hide">',
+							$context['item_details']['description'], '
+						</div>
 					</div>';
 	}
 	else
@@ -650,30 +726,34 @@ function template_item_audio()
 {
 	global $context;
 
+	echo '
+	<div class="lg_item">';
+
 	// So, there might be a preview image, or there might only be a thumbnail.
 	// But one or other might be a generic icon fallback.
 	// If there's a preview and it's not generic (or it is generic but so is the thumbnail one), use that.
 	if (!empty($context['item_display']['urls']['preview']) && (empty($context['item_display']['urls']['generic']['preview']) || !empty($context['item_display']['urls']['generic']['thumb'])))
 	{
 		echo '
-					<div id="item_audio_container">
-						<img id="item_audio" class="audio_preview" src="', $context['item_display']['urls']['preview'], '" alt="" />
-					</div>';
+		<div id="item_audio_container">
+			<img id="item_audio" class="audio_preview" src="', $context['item_display']['urls']['preview'], '" alt="" />
+		</div>';
 	}
 	else
 	{
 		echo '
-					<div id="item_audio_container">
-						<img id="item_audio" class="audio_thumb" src="', $context['item_display']['urls']['thumb'], '" alt="" />
-					</div>';
+		<div id="item_audio_container">
+			<img id="item_audio" class="audio_thumb" src="', $context['item_display']['urls']['thumb'], '" alt="" />
+		</div>';
 	}
 
 	// Now for the music player.
 	echo '
-	<audio id="lgal_audio_player" controls preload="metadata">
-		<source src="', $context['item_display']['urls']['raw'], '" type="', $context['item_details']['mime_type'], '">,
-		Sorry, your browser doesn\'t support embedded audio
-	</audio>';
+		<audio id="plyr" class="lgal_audio_player" controls preload="metadata">
+			<source src="', $context['item_display']['urls']['raw'], '" type="', $context['item_details']['mime_type'], '">,
+			Sorry, your browser doesn\'t support embedded audio
+		</audio>
+	</div>';
 }
 
 function template_item_video()
@@ -689,10 +769,12 @@ function template_item_video()
 
 	// Now for the video player.
 	echo '
-	<video id="lgal_video_player" controls preload="metadata" poster="', $poster, '">
-		<source src="', $context['item_display']['urls']['raw'], '" type="', $context['item_details']['mime_type'], '">,
-		Sorry, your browser doesn\'t support embedded videos
-	</video>';
+	<div class="lg_item">
+		<video id="plyr" class="lgal_video_player" playsinline controls preload="metadata" poster="', $poster, '">
+			<source src="', $context['item_display']['urls']['raw'], '" type="', $context['item_details']['mime_type'], '">,
+			Sorry, your browser doesn\'t support embedded videos
+		</video>
+	</div>';
 }
 
 function template_item_generic()
@@ -706,17 +788,18 @@ function template_item_generic()
 	if (!empty($context['item_display']['urls']['preview']) && (empty($context['item_display']['urls']['generic']['preview']) || !empty($context['item_display']['urls']['generic']['thumb'])))
 	{
 		echo '
-					<div>
+					<div class="lg_item">
 						<a href="' . (!empty($viewInline) ? substr($context['item_actions']['actions']['download'][1], 0, -10) : '') . '">
 							<img id="item_generic" class="generic_preview" src="', $context['item_display']['urls']['preview'], '" alt="" />
 						</a>
-					</div>
-					<div class="centertext smalltext">', $txt['lgal_click_to_view'], '</div>';
+						<br />
+						<div class="centertext">', $txt['lgal_click_to_view'], '</div>
+					</div>';
 	}
 	else
 	{
 		echo '
-					<div>
+					<div class="lg_item">
 						<a href="' . (!empty($viewInline) ? substr($context['item_actions']['actions']['download'][1], 0, -10) : '') . '">
 							<img id="item_generic" class="generic_thumb" src="', $context['item_display']['urls']['thumb'], '" alt="" />
 						</a>
@@ -727,6 +810,7 @@ function template_item_generic()
 function template_item_external()
 {
 	global $context;
+
 	echo $context['item_display']['markup'];
 }
 
@@ -841,8 +925,8 @@ function template_flagitem()
 	echo '
 		<form action="', $context['form_url'], '" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" >
 			<h3 class="lgal_secondary_header secondary_header">', $context['page_title'], '</h3>
-			<div class="well">
-				<dl class="settings">
+			<div id="report_topic" class="content">
+				<dl class="lgal_settings">
 					<dt>', $txt['lgal_item_name'], '</dt>
 					<dd><a href="', $context['item_details']['item_url'], '">', $context['item_details']['item_name'], '</a></dd>
 					<dt>', $txt['lgal_posted_by'], '</dt>
@@ -852,14 +936,12 @@ function template_flagitem()
 				</dl>
 				<br />
 				<div class="centertext">
-					', $txt['lgal_why_reporting_item'], '<br /><br />
+					<p class="infobox">', $txt['lgal_why_reporting_item'], '</p>
 					<textarea class="report_body" name="report_body"></textarea>
 				</div>
-				<br />
-				<hr class="hrcolor clear" />
-				<div class="righttext">
+				<div class="submitbutton">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-					<input type="submit" value="', $context['page_title'], '" class="button_submit" />
+					<input type="submit" value="', $context['page_title'], '" />
 				</div>
 			</div>
 		</form>';
@@ -898,7 +980,7 @@ function template_edit_tag_list()
 
 function template_edit_item()
 {
-	global $context, $txt, $scripturl, $settings;
+	global $context, $txt, $scripturl;
 
 	echo '
 			<h3 class="lgal_secondary_header secondary_header">', $context['page_title'], '</h3>
@@ -909,14 +991,16 @@ function template_edit_item()
 	template_lgal_error_list($txt['lgal_upload_failed_reason'], empty($context['errors']) ? array() : $context['errors']);
 
 	echo '
-					<dl id="post_header">
+					<dl id="lgal_settings">
 						<dt>', $txt['lgal_item_name'], '</dt>
 						<dd>
 							<input type="text" id="item_name" name="item_name" tabindex="', $context['tabindex']++, '" size="80" maxlength="80" class="input_text" value="', $context['item_name'], '" style="width: 95%;" />
 						</dd>
 						<dt class="clear_left">', $txt['lgal_item_slug'], '</dt>
 						<dd>
-							<span class="smalltext">', $scripturl, '?media/item/</span><input type="text" id="item_slug" name="item_slug" tabindex="', $context['tabindex']++, '" size="20" maxlength="40" class="input_text" value="', $context['item_slug'], '" /><span class="smalltext">.', $context['item_details']['id_item'], '/</span>
+							<span class="smalltext">', $scripturl, '?media/item/</span>
+							<input type="text" id="item_slug" name="item_slug" tabindex="', $context['tabindex']++, '" size="20" maxlength="40" class="input_text" value="', $context['item_slug'], '" />
+							<span class="smalltext">.', $context['item_details']['id_item'], '/</span>
 						</dd>';
 	if (isset($context['poster_name']))
 	{
@@ -1018,7 +1102,7 @@ function template_edit_item()
 		let txt = ' . json_encode($lang) . ',
 			submittable = true,
 			defaults = get_upload_defaults();
-			
+
 		let uploader = new Dropzone("#dragdropcontainer", {
 			url: "' . $context['album_details']['album_url'] . 'async/",
 			lgal_quota: ' . (empty($context['quota_data']) ? '{}' : json_encode($context['quota_data'])) . ',
@@ -1033,8 +1117,8 @@ function template_edit_item()
 		 	dictDefaultMessage: txt.item_drag_here,
 		  	dictFallbackMessage: txt.browser_not_supported,
 			dictResponseError: txt.upload_failed,
-			thumbnailMethod: "contain",	
-			init: function() 
+			thumbnailMethod: "contain",
+			init: function()
 			{
 				this.on("addedfile", function(file)
 				{
@@ -1150,17 +1234,19 @@ function template_edit_item()
 	}
 
 	echo '
-						<div class="upload_desc">', $txt['lgal_item_description'], '</div>';
+						<div class="upload_desc" style="font-weight: 600">', $txt['lgal_item_description'], '</div>';
 
 	$context['description_box']->displayEditWindow();
+	// Output buttons and session value.
+	$context['description_box']->displayButtons();
 
 	if (!empty($context['new_options']))
 	{
 		echo '
-						<div id="postAdditionalOptionsHeader">
+						<h3 class="lgal_secondary_header secondary_header" id="postAdditionalOptionsHeader">
 							', $txt['lgal_additional_options'], '
-						</div>
-						<div id="postMoreOptions" class="smalltext">
+						</h3>
+						<div id="postMoreOptions" class="content">
 							<ul class="post_options">';
 		foreach ($context['new_options'] as $opt_id => $option)
 		{
@@ -1189,9 +1275,6 @@ function template_edit_item()
 							</ul>
 						</div>';
 	}
-
-	// Output buttons and session value.
-	$context['description_box']->displayButtons();
 
 	echo '
 				</div>
