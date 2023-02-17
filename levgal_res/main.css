@@ -1,9 +1,8 @@
 /**
  This is the CSS for Levertine Gallery (LTR)
 **/
-
 :root {
-	--shadow-color: rgba(158,158,158,.38);
+	--shadow-color: rgba(158, 158, 158, .38);
 	--shadow-elevation-low: 0.3px 0.5px 0.7px var(--shadow-color),
 	0.4px 0.8px 1px -1.2px var(--shadow-color),
 	1px 2px 2.5px -2.5px var(--shadow-color);
@@ -21,18 +20,45 @@
 	25px 50px 62.9px -2.5px var(--shadow-color);
 }
 
+/* overall container when sidebar is present */
 #gallery_contain {
 	font-size: 1em;
+	display: grid;
+	grid-template-columns: [main] 1fr [sidebar] 200px;
+	grid-template-rows: [tabs] auto [container] 1fr;
+	grid-column-gap: 12px;
 }
 
-.stats {
-	box-sizing: border-box;
-}
-
+/* navigation tabs */
 .levgal_navigation {
 	display: flex;
 	align-items: center;
 	flex-wrap: wrap;
+	grid-column: main;
+	grid-row: tabs;
+	padding: 2px 5px 2px 2px;
+	border: 1px solid #CCCCCC;
+	border-top-color: #DDDDDD;
+	background: #FAFAFA linear-gradient(to bottom, #FAFAFA, #EBEBEB);
+	text-shadow: 1px 1px 0 #FEFEFE;
+}
+
+/* menu sidebar */
+#album_sidebar {
+	display: flex;
+	flex-direction: column;
+	grid-column: sidebar;
+	grid-row: container;
+}
+
+/* main container for the rest */
+#item_main, .item_main {
+	grid-column: main;
+	grid-row: container;
+}
+
+.stats {
+	box-sizing: border-box;
 }
 
 .levgal_navigation > .pagesection > .pagelinks {
@@ -40,15 +66,7 @@
 }
 
 .levgal_tabs {
-	margin: 0 215px 2px auto;
-}
-
-#album_sidebar {
-	display: flex;
-	float: right;
-	flex-direction: column;
-	width: 200px;
-	margin-left: 15px;
+	margin-left: auto;
 }
 
 #album_sidebar > .content {
@@ -61,11 +79,15 @@
 	margin-bottom: 10px;
 }
 
+#album_sidebar .user_avatar {
+	margin: 0 5px 0 0;
+}
+
 .album_details {
 	display: flex;
 	overflow: auto;
 	flex-direction: column;
-	max-height: 50em;
+	max-height: 22em;
 }
 
 .user_avatar {
@@ -76,11 +98,43 @@
 .user_avatar, .comment_avatar {
 	width: 45px;
 	height: 45px;
+	margin: 0 auto;
 }
 
 .user_avatar img.avatar, .comment_avatar img.avatar {
 	max-width: 45px;
 	max-height: 45px;
+}
+
+/* General settings for items/albums/comments */
+#lgal_settings, .lgal_settings {
+	overflow: hidden;
+	padding: 6px;
+}
+
+#lgal_settings dt, .lgal_settings dt {
+	font-weight: 600;
+	float: left;
+	clear: both;
+	width: 330px;
+	margin: 6px 0 0 0;
+	padding: 0;
+}
+
+.lgal_settings dt > div {
+	font-weight: normal;
+}
+
+#lgal_settings dd, .lgal_settings dd {
+	float: left;
+	width: calc(100% - 330px);
+	margin: 4px 0;
+	padding: 0;
+}
+
+#lgal_settings img {
+	padding: 0 0 2px 5px;
+	vertical-align: middle;
 }
 
 #album_sidebar .user {
@@ -118,8 +172,31 @@ dl.album_details dd, dl.album_info dd {
 	padding: 4px 10px 2px 10px;
 }
 
-#item_main, .item_main {
-	padding-right: 215px; /* width of #album_sidebar + padding */
+.main_item_container {
+	display: grid;
+	align-items: center;
+	grid-template-columns: [prev] 15% [item] 1fr [next] 15%;
+	white-space: nowrap;
+}
+
+.main_item_container .lg_prev {
+	justify-self: center;
+	grid-column: prev;
+}
+
+.main_item_container .lg_next {
+	justify-self: center;
+	grid-column: next;
+}
+
+.main_item_container .lg_item {
+	justify-self: center;
+	grid-column: item;
+	max-width: 90%;
+}
+
+.prev_next {
+	display: none;
 }
 
 .item_main > .pagesection, #gallery_contain > .pagesection {
@@ -178,16 +255,36 @@ dl.album_details dd, dl.album_info dd {
 
 .album_container {
 	display: flex;
-	align-items: center;
 	flex-wrap: wrap;
 	justify-content: center;
-	margin: 0 0 10px 0;
-	padding: 5px;
+	grid-column: main;
+	grid-row: container;
+	padding: 5px 5px 10px 5px;
 	text-align: center;
 	border: 1px solid transparent;
-	border-radius: 5px;
+	border-radius: 0 0 5px 5px;
 	background: linear-gradient(#FEFEFE, #FEFEFE) padding-box, linear-gradient(to bottom, #CCCCCC, transparent) border-box;
 	gap: 5px;
+}
+
+.album_block {
+	display: grid;
+	grid-template-columns: [thumb] 125px [info] 1fr;
+	margin-bottom: 5px;
+}
+
+.album_block_details {
+	padding: 10px;
+}
+
+.album_block_nav {
+	grid-column: 2;
+	padding: 0 10px;
+}
+
+.album_block_description {
+	font-size: 1em;
+	color: #777777;
 }
 
 .album_entry {
@@ -199,33 +296,57 @@ dl.album_details dd, dl.album_info dd {
 	min-width: 25%;
 }
 
-.album_entry > .well, .album_container > .well, .album_featured.well {
+.child_container {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	margin: 0 0 12px 0;
+	gap: 5px;
+}
+
+.child_container > .child_row {
+	min-width: 100%;
+}
+
+.child_container .child_row:not(:last-child) {
+	padding-bottom: 3px;
+	border-bottom: 1px solid #CCCCCC;
+}
+
+.album_entry > .well, .album_container > .well, .album_featured.well, .album_placard.well, .album_child.well {
 	box-shadow: var(--shadow-elevation-low);
 }
 
-.album_entry > .well:hover, .album_featured.well:hover {
+.album_entry > .well:hover, .album_featured.well:hover, .album_placard.well:hover, .album_child.well:hover {
 	transition: .3s ease;
-	transform: translate(0, -2px);
+	transform: translate(0, -1px);
 	box-shadow: var(--shadow-elevation-medium);
+	text-decoration: none;
 }
 
-.album_container > .album_featured, .album_container .album_placard {
+.album_container > .album_featured {
 	overflow: auto;
-	width: 30%;
+	width: 32%;
 	min-height: 100px;
 	max-height: 135px;
 }
 
 .album_container .album_placard {
+	overflow: auto;
 	width: 24%;
-	min-width: 24%;
 	min-height: 90px;
+	max-height: 135px;
+}
+
+.album_container .album_placard.well {
+	min-width: 200px;
 }
 
 .album_thumb {
 	width: 65px;
 	height: auto;
-	margin: 0 10px;
+	margin: 0 10px 5px 0;
 }
 
 .generic_thumb {
@@ -336,6 +457,7 @@ li.album_hierarchy_compact ul {
 .sortable_album_thumb > img {
 	width: 50px;
 	max-width: 50px;
+	padding: 0 6px;
 }
 
 .placeholder {
@@ -379,12 +501,14 @@ li.album_hierarchy_compact ul {
 }
 
 .album_thumbnail {
+	padding: 5px;
 	text-align: center;
 }
 
 .album_thumbnail img {
-	width: 125px;
+	width: 100px;
 	height: auto;
+	box-shadow: var(--shadow-elevation-medium);
 }
 
 .comment {
@@ -401,6 +525,7 @@ li.album_hierarchy_compact ul {
 	overflow: hidden;
 	width: 125px;
 	margin-right: 10px;
+	text-align: center;
 	vertical-align: top;
 }
 
@@ -464,18 +589,48 @@ li.album_hierarchy_compact ul {
 	vertical-align: top;
 }
 
-.album_family {
-	padding-top: 8px;
-	column-count: 3;
-}
-
 .album_current {
 	padding-left: 1em;
 	column-span: all;
 }
 
+/* Outer container holding all .album_child blocks */
+.album_family {
+	display: flex;
+	flex-wrap: wrap;
+	min-width: 100%;
+	gap: 5px;
+}
+
+/* Child album card, name, image, description ... */
 .album_child {
-	padding-left: 2em;
+	display: flex;
+	align-items: flex-start;
+	flex: 0 1 33%;
+	min-width: 0;
+	min-height: 70px;
+}
+
+.album_child.well:hover {
+	text-decoration: none;
+}
+
+.album_child_details {
+	overflow: hidden;
+}
+
+.album_child_details > .album_name {
+	font-weight: 600;
+	overflow: hidden;
+	min-width: 95%;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.album_child > img {
+	max-width: 50px;
+	padding: 0 5px;
+	object-fit: contain;
 }
 
 /* Action buttons */
@@ -583,10 +738,28 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 }
 
 /* Audio/video player */
-#lgal_audio_player, #lgal_video_player {
+.lgal_audio_player, .lgal_video_player {
 	display: block;
 	max-width: 90%;
 	margin: 10px auto;
+}
+
+.glightbox-clean .gslide-title {
+	margin-bottom: 5px !important;
+	text-align: center;
+}
+
+.glightbox-clean .gdesc-inner {
+	padding: 5px 10px !important;
+}
+
+.plyr--full-ui.plyr--video .plyr__control--overlaid {
+	height: auto !important;
+	max-height: none !important;
+}
+
+#item_picture_contained, #item_picture, #item_audio_container, #item_generic {
+	max-width: 100%;
 }
 
 /* Delete page */
@@ -900,19 +1073,23 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 	content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23000000' viewBox='0 0 36 36'%3E%3Cpath d='M0 0h9v9H0zm13.5 2.25H36v4.5H13.5zM0 13.5h9v9H0zm13.5 2.25H36v4.5H13.5zM0 27h9v9H0zm13.5 2.25H36v4.5H13.5z'/%3E%3C/svg%3E");
 }
 
-.i-approveitem::before, .i-approve::before {
+.i-approveitem::before, .i-approve::before, .i-approvealbum::before {
 	content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%234CAF50' viewBox='0 0 32 32'%3E%3Cpath d='M27 4L12 19l-7-7-5 5 12 12L32 9z'/%3E%3C/svg%3E");
 }
 
+/* tip when hovering over an item to show its full name */
 .lgtip::after {
+	font-size: smaller;
 	position: absolute;
 	z-index: 999;
 	bottom: auto;
 	left: 5%;
 	visibility: hidden;
+	overflow: auto;
 	width: 90%;
 	height: auto;
-	content: attr(data-title);
+	max-height: 6em;
+	content: attr(data-details);
 	text-align: center;
 	opacity: 0;
 	border: 1px solid #AAAAAA;
@@ -929,6 +1106,55 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 	opacity: 1;
 }
 
+/* tooltip when you copy a BB Code to the clipboard */
+.tooltipped {
+	position: relative;
+}
+
+.tooltipped::after, .tooltipped::before {
+	position: absolute;
+	z-index: 999;
+	display: none;
+	transition: opacity .35s ease-in-out .1s;
+	opacity: 0;
+}
+
+/* This is the tooltip bubble */
+.tooltipped::after {
+	top: 100%;
+	right: 50%;
+	margin-top: 6px;
+	padding: 5px 10px;
+	content: attr(aria-label);
+	transform: translateX(50%);
+	text-align: center;
+	white-space: pre;
+	color: #585858;
+	border-radius: 2px;
+	background: #CCCCCC;
+	box-shadow: var(--shadow-elevation-medium);
+}
+
+/* This is the tooltip arrow */
+.tooltipped::before {
+	top: auto;
+	right: 50%;
+	bottom: -7px;
+	width: 0;
+	height: 0;
+	margin-right: -6px;
+	content: '';
+	color: #CCCCCC;
+	border: 6px solid transparent;
+	border-bottom-color: #CCCCCC;
+}
+
+.tooltipped:hover::before, .tooltipped:active::before, .tooltipped:focus::before,
+.tooltipped:hover::after, .tooltipped:active::after, .tooltipped:focus::after {
+	display: inline-block;
+	opacity: 1;
+}
+
 /* -------------------------------------------------------
  *	$MEDIA
  * -------------------------------------------------------
@@ -939,24 +1165,26 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 
 /* This one does 1024 screens at default font size. */
 @media screen and (max-width: 64em) {
-	#album_sidebar {
-		width: 180px;
-		margin-left: 10px;
+	/* move prev next navigation to below item */
+	.main_item_container .lg_prev, .main_item_container .lg_next {
+		display: none;
 	}
 
-	#item_main, .item_main {
-		padding-right: 190px;
+	.main_item_container .lg_item {
+		max-width: 100%;
+	}
+
+	.prev_next {
+		display: flex;
 	}
 
 	.levgal_tabs .lgalicon {
 		display: none;
 	}
 
-	.levgal_tabs {
-		font-size: .9em;
-		margin-right: 190px;
+	#gallery_contain {
+		grid-template-columns: [main] minmax(60%, 80%) [sidebar] minmax(180px, 20%);
 	}
-
 }
 
 /* This one does 800 screens at default font size. */
@@ -981,6 +1209,11 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 	.album_container > .album_featured, .album_container > .album_featured_compact, .album_container > .album_placard {
 		width: 49%;
 	}
+
+	.album_hierarchy_compact .lgal_profile_itemname {
+		max-width: 65%;
+		margin: 0 2px;
+	}
 }
 
 /* This one does 600 and smaller screens at default font size. */
@@ -994,8 +1227,11 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 		margin-right: 0;
 	}
 
+	.album_block_description {
+		display: none;
+	}
+
 	#album_sidebar {
-		float: none;
 		order: 2;
 		width: 98%;
 		margin: 5px;
@@ -1010,8 +1246,16 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 
 /* This one does 480px screens at default font size. */
 @media screen and (max-width: 30em) {
-	.album_thumb {
-		margin: 1px;
+	.editor_wrapper {
+		min-width: 100%;
+	}
+
+	div.sceditor-group {
+		display: none !important;
+	}
+
+	.album_container > .album_featured, .album_container .album_placard {
+		min-width: 100%;
 	}
 
 	.album_thumbnail {
@@ -1043,15 +1287,19 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 	}
 
 	.album_child {
-		padding-left: 1em;
+		flex: 0 1 50%;
 	}
 
-	#item_picture, #item_audio_container, #item_generic {
-		max-width: 100%;
+	.main_item_container {
+		display: flex;
 	}
 
 	.base_iframe {
 		max-width: 100%;
+	}
+
+	.album_block_nav a {
+		display: block !important;
 	}
 }
 
