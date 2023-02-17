@@ -1339,11 +1339,12 @@ class LevGal_Model_Item extends LevGal_Model_File
 		return false;
 	}
 
-	public function getPreviousNext()
+	public function getPreviousNext($order_by = 'id_item')
 	{
 		global $scripturl;
+
 		$can_see_all = $this->current_album->canSeeAllItems();
-		$items = $this->getItemListByAlbum($this->current_item['id_album'], $can_see_all);
+		$items = $this->getItemListByAlbum($this->current_item['id_album'], $can_see_all, true, $order_by);
 		if (empty($items))
 		{
 			return array();
@@ -1379,7 +1380,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 		return $return;
 	}
 
-	public function getItemListByAlbum($album_id, $can_see_all = true, $descending = true)
+	public function getItemListByAlbum($album_id, $can_see_all = true, $descending = true, $order_by = 'id_item')
 	{
 		global $user_info;
 
@@ -1412,13 +1413,14 @@ class LevGal_Model_Item extends LevGal_Model_File
 				}
 			}
 
+			$order_by = $order_by ?? 'id_item';
 			$request = $db->query('', '
 				SELECT id_item, item_name, item_slug
 				FROM {db_prefix}lgal_items
 				WHERE ' . $criteria . '
 				ORDER BY {raw:order}',
 				array(
-					'order' => $descending ? 'id_item DESC' : 'id_item',
+					'order' => $descending ? $order_by . ' DESC' : $order_by,
 					'album_id' => $album_id,
 					'current_member' => $user_info['id'],
 					'my_items' => !empty($_SESSION['lgal_items']) ? $_SESSION['lgal_items'] : array(),
