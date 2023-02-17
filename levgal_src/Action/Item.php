@@ -171,7 +171,8 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 		// Get likes, if allowed to see profiles let's also linkify things.
 		$this->getItemLikes();
 
-		$context['prev_next'] = $this->item_obj->getPreviousNext();
+		// The default order is by time added, although this should follow how the album was sorted.
+		$context['prev_next'] = $this->item_obj->getPreviousNext('time_added');
 
 		$context['item_display']['custom_fields'] = $this->item_obj->getCustomFields();
 		$context['item_display']['tags'] = $this->item_obj->getTags();
@@ -287,6 +288,7 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 
 		$this->setTemplate('LevGal-Item', 'mature_item');
 		$context['form_url'] = $item['url'] . 'mature/';
+		$context['prev_next'] = $this->item_obj->getPreviousNext('time_added');
 
 		if (isset($_POST['yes']))
 		{
@@ -325,7 +327,7 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 		if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest')
 		{
 			$action = empty($state) ? 'bookmark' : 'unbookmark';
-			LevGal_Helper_Http::jsonResponse(array('link' => '<a href="' . $context['item_details']['item_url'] . $action . '/' . $context['session_var'] . '=' . $context['session_id'] . '/" onclick="return handleBookmark(this)"><span class="lgalicon i-' . $action . '"></span>' . $txt['lgal_' . $action . '_item'] . '</a>'), 200);
+			LevGal_Helper_Http::jsonResponse(array('link' => '<a href="' . $context['item_details']['item_url'] . $action . '/' . $context['session_var'] . '=' . $context['session_id'] . '/" onclick="return handleBookmark(this)"><span class="lgalicon i-' . $action . ($action === 'unbookmark' ? ' colorize-red' : '') .'"></span>' . $txt['lgal_' . $action . '_item'] . '</a>'), 200);
 		}
 		else
 		{
@@ -1238,6 +1240,13 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 			loadCSSFile('glightbox.min.css', ['subdir' => 'levgal_res/lightbox']);
 			loadJavascriptFile('glightbox.min.js', ['subdir' => 'levgal_res/lightbox', 'defer' => true]);
 			addInlineJavascript('const lightbox = GLightbox({touchNavigation: true});', true);
+		}
+
+		if ($context['item_display']['display_template'] === 'audio' || $context['item_display']['display_template'] === 'video')
+		{
+			loadCSSFile('plyr.min.css', ['subdir' => 'levgal_res/plyr']);
+			loadJavascriptFile('plyr.min.js', ['subdir' => 'levgal_res/plyr', 'defer' => true]);
+			addInlineJavascript('const player = new Plyr("#plyr");', true);
 		}
 	}
 }
