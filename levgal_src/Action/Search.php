@@ -77,7 +77,7 @@ class LevGal_Action_Search extends LevGal_Action_Abstract
 			$context['search_text'] = LevGal_Helper_Sanitiser::sanitiseTextFromPost('search');
 
 			// Get what we're searching in
-			foreach (array('search_album_names', 'search_item_names', 'search_item_descs') as $type)
+			foreach (array('search_album_names', 'search_album_descs', 'search_item_names', 'search_item_descs') as $type)
 			{
 				$context[$type] = !empty($_POST[$type]);
 			}
@@ -158,7 +158,7 @@ class LevGal_Action_Search extends LevGal_Action_Abstract
 			{
 				$context['errors'][] = $txt['lgal_error_no_filetypes'];
 			}
-			if (empty($context['search_album_names']) && empty($context['search_item_names']) && empty($context['search_item_descs']) && empty($context['selected_fields']))
+			if (empty($context['search_album_names']) && empty($context['search_album_descs']) && empty($context['search_item_names']) && empty($context['search_item_descs']) && empty($context['selected_fields']))
 			{
 				$context['errors'][] = $txt['lgal_error_no_search'];
 			}
@@ -210,9 +210,10 @@ class LevGal_Action_Search extends LevGal_Action_Abstract
 			LevGal_Helper_Http::hardRedirect($scripturl . '?media/search/');
 		}
 
-		$context['show_albums'] = !empty($search_details['search_album_names']);
+		$context['show_albums'] = !empty($search_details['search_album_names']) || !empty($search_details['search_album_descs']);
 		if (!empty($search_details['results']['albums']))
 		{
+			/** @var \LevGal_Model_AlbumList $albumList */
 			$albumList = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
 			$results = $albumList->getAlbumsById($search_details['results']['albums']);
 			$context['search_albums'] = array();
@@ -273,6 +274,7 @@ class LevGal_Action_Search extends LevGal_Action_Abstract
 			'search_text' => '',
 			'selected_fields' => $selected_fields,
 			'search_album_names' => true,
+			'search_album_descs' => true,
 			'search_item_names' => true,
 			'search_item_descs' => true,
 		);
@@ -307,6 +309,7 @@ class LevGal_Action_Search extends LevGal_Action_Abstract
 			'search_member',
 			'selected_fields',
 			'search_album_names',
+			'search_album_descs',
 			'search_item_names',
 			'search_item_descs',
 		);

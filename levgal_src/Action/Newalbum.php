@@ -63,7 +63,7 @@ class LevGal_Action_Newalbum extends LevGal_Action_Abstract
 
 	protected function getDefaults()
 	{
-		global $context, $user_info;
+		global $context, $user_info, $txt;
 
 		$context['album_name'] = '';
 		$context['album_slug'] = '';
@@ -73,6 +73,18 @@ class LevGal_Action_Newalbum extends LevGal_Action_Abstract
 		$context['ownership_group'] = $context['primary_group'];
 		$context['privacy'] = 'members';
 		$context['privacy_group'] = array($context['primary_group']);
+
+		$context['album_description'] = '';
+		$context['description_box'] = new LevGal_Helper_Richtext('message');
+		$context['description_box']->createEditor(array(
+			'value' => $context['description_box']->getForForm($context['album_description']),
+			'labels' => array(
+				'post_button' => $txt['levgal_newalbum'],
+			),
+			'js' => array(
+				'post_button' => 'return is_submittable() && submitThisOnce(this);',
+			),
+		));
 	}
 
 	public function actionSave()
@@ -118,6 +130,13 @@ class LevGal_Action_Newalbum extends LevGal_Action_Abstract
 			$context['privacy_group'] = array_intersect($context['privacy_group'], array_keys($context['access_list']));
 		}
 
+		// The description is optional.
+		$context['description'] = '';
+		if (!$context['description_box']->isEmpty() && $context['description_box']->sanitizeContent())
+		{
+			$context['description'] = $context['description_box']->getForDB();
+		}
+
 		// I think we might be done here. Let's just see if we have a name (since we have sane values
 		// for everything else) and if so, we'll hand off to the model to create it.
 		if (empty($context['album_name']))
@@ -131,7 +150,7 @@ class LevGal_Action_Newalbum extends LevGal_Action_Abstract
 		$approved = allowedTo(array('lgal_manage', 'lgal_addalbum_approve'));
 
 		$album = new LevGal_Model_Album();
-		$album->createAlbum($context['album_name'], $context['album_slug'], $approved);
+		$album->createAlbum($context['album_name'], $context['album_slug'], $context['description'], $approved);
 		switch ($context['ownership'])
 		{
 			case 'group':
