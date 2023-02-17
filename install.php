@@ -93,6 +93,7 @@ $tables[] = array(
 		db_field('featured', 'tinyint'),
 		db_field('owner_cache', 'text'),
 		db_field('perms', 'text'),
+		db_field('description', 'text'),
 	),
 	'indexes' => array(
 		array(
@@ -389,6 +390,7 @@ $tables[] = array(
 	'columns' => array(
 		db_field('id_album', 'mediumint'),
 		db_field('album_name', 'varchar', 255),
+		db_field('description', 'text'),
 	),
 	'indexes' => array(
 		array(
@@ -397,7 +399,7 @@ $tables[] = array(
 		),
 	),
 	'parameters' => array(
-		'requires_fulltext' => array('album_name'),
+		'requires_fulltext' => array('album_name', 'description'),
 	),
 );
 $tables[] = array(
@@ -567,6 +569,29 @@ $columns[] = array(
 	'if_exists' => 'ignore',
 	'error' => 'fatal',
 );
+
+// These columns were added after 1.1, we need to ensure they are added during an update
+$new_columns = array();
+$new_columns[] = array(
+	'table_name' => '{db_prefix}lgal_albums',
+	'column_info' => db_field('description', 'text'),
+	'parameters' => array(),
+	'if_exists' => 'ignore',
+	'error' => 'fatal',
+);
+$new_columns[] = array(
+	'table_name' => '{db_prefix}lgal_search_album',
+	'column_info' => db_field('description', 'text'),
+	'parameters' => array(),
+	'if_exists' => 'ignore',
+	'error' => 'fatal',
+);
+
+// Create new columns from prior releases
+foreach ($new_columns as $column)
+{
+	$db_table->db_add_column($column['table_name'], $column['column_info'], $column['parameters'], $column['if_exists'], $column['error']);
+}
 
 // Update mod settings if applicable
 updateSettings($mod_settings);
