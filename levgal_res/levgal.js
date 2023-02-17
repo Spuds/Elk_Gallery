@@ -1,8 +1,8 @@
 // Expand ... in our page index
 function levgal_expandPages(spanNode, baseURL, firstPage, lastPage)
 {
-	var replacement = '', i, oldLastPage = 0;
-	var perPageLimit = 50;
+	let replacement = '', i, oldLastPage = 0,
+		perPageLimit = 50;
 
 	// The dots were bold, the page numbers are not (in most cases).
 	spanNode.style.fontWeight = 'normal';
@@ -20,7 +20,7 @@ function levgal_expandPages(spanNode, baseURL, firstPage, lastPage)
 		replacement += '<a class="navPages" href="' + baseURL.replace(/%1\$d/, i).replace(/%%/g, '%') + '">' + i + '</a> ';
 
 	if (oldLastPage > 0)
-		replacement += '<span style="font-weight: bold; cursor: ' + (is_ie && !is_ie6up ? 'hand' : 'pointer') + ';" onclick="levgal_expandPages(this, \'' + baseURL + '\', ' + (lastPage + 1) + ', ' + oldLastPage + ');"> ... </span> ';
+		replacement += '<span style="font-weight: bold; cursor: pointer;" onclick="levgal_expandPages(this, \'' + baseURL + '\', ' + (lastPage + 1) + ', ' + oldLastPage + ');"> ... </span> ';
 
 	// Replace the dots by the new page links.
 	setInnerHTML(spanNode, replacement);
@@ -29,7 +29,7 @@ function levgal_expandPages(spanNode, baseURL, firstPage, lastPage)
 // Switch the file/link containers
 function switchUploadType(selected)
 {
-	var not_selected = selected == 'file' ? 'link' : 'file';
+	let not_selected = selected === 'file' ? 'link' : 'file';
 	document.getElementById('allowed_type_' + selected).style.display = '';
 	document.getElementById('upload_type_' + selected).style.display = '';
 	document.getElementById('allowed_type_' + not_selected).style.display = 'none';
@@ -99,10 +99,20 @@ function handleBookmark(link)
 		sendJSONDocument(link.href, '', function (data) {
 			if (data)
 			{
-				var el = document.querySelectorAll("#sidebar_actions_bookmark, #sidebar_actions_unbookmark");
-				for (var i = 0, n = el.length; i < n; i++)
+				// sidebar
+				let el = document.querySelectorAll("#sidebar_actions_bookmark, #sidebar_actions_unbookmark");
+				for (let i = 0, n = el.length; i < n; i++)
 				{
 					el[i].innerHTML = data.link;
+				}
+
+				// tabs
+				el = document.querySelectorAll(".listlevel1.bookmark, .listlevel1.unbookmark");
+				for (i = 0, n = el.length; i < n; i++)
+				{
+					el[i].innerHTML = data.link;
+					let link = el[i].getElementsByTagName('a');
+					link[0].classList.add('linklevel1');
 				}
 			}
 			ajax_indicator(false);
@@ -150,4 +160,14 @@ function barConfig(bar_data, tooltips)
 			}
 		},
 	};
+}
+
+function lgalClearTooltip(elem) {
+	elem.currentTarget.setAttribute("class", "lgal_share");
+	elem.currentTarget.removeAttribute("aria-label");
+}
+
+function lgalShowTooltip(elem, msg) {
+	elem.setAttribute("aria-label", msg);
+	elem.setAttribute("class", "lgal_share tooltipped tooltipped-s");
 }
