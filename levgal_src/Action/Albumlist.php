@@ -20,6 +20,7 @@ class LevGal_Action_Albumlist extends LevGal_Action_Abstract
 	{
 		parent::__construct();
 		$this->addStyleSheets('profile.css');
+		$_SESSION['levgal_breadcrumbs'] = [];
 	}
 
 	public function actionIndex()

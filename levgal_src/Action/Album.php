@@ -114,6 +114,9 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 
 		$this->setTemplate('LevGal-Album', 'main_album_view');
 
+		loadCSSFile('glightbox.min.css', ['subdir' => 'levgal_res/lightbox']);
+		loadJavascriptFile('glightbox.min.js', ['subdir' => 'levgal_res/lightbox', 'defer' => true]);
+
 		$context['album_owner'] = $this->album_obj->loadOwnerData();
 
 		$context['can_see_unapproved'] = array(
@@ -137,7 +140,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 
 		if ($num_pages > 1)
 		{
-			$context['album_pageindex'] = levgal_pageindex($context['album_details']['album_url'] . $sort_method, $this_page, $num_pages);
+			$context['album_pageindex'] = levgal_pageindex($context['album_details']['album_url'] . $sort_method, $this_page, $num_pages, '#gallery_contain');
 		}
 
 		if (!empty($modSettings['lgal_feed_enable_album']))
@@ -146,7 +149,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 	<link rel="alternate" type="application/atom+xml" title="' . sprintf($txt['lgal_items_in'], $context['album_details']['album_name']) . '" href="' . $context['album_details']['album_url'] . 'feed/" />');
 		}
 
-		$context['album_family'] = $this->album_obj->getAlbumFamily();
+		list($context['album_family'], $context['album_counts']) = $this->album_obj->getAlbumFamily();
 
 		$context['album_actions'] = array();
 		if ($this->album_obj->canUploadItems())
@@ -181,23 +184,25 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 			$context['album_actions']['moderation']['approvealbum'] = array($txt['lgal_approve_album_title'], $album['url'] . 'approve/' . $context['session_var'] . '=' . $context['session_id'] . '/');
 		}
 
+		// The templates make use of hierarchy for navigation links
+		$ownership = $this->album_obj->getAlbumOwnership();
+		/** @var \LevGal_Model_AlbumList $album_list */
+		$album_list = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
+		$owner = reset($ownership['owners']);
+		$context['hierarchy'] = $album_list->getAlbumHierarchy($ownership['type'], $owner);
+
 		if ($this->album_obj->isEditable())
 		{
 			$context['album_actions']['moderation']['editalbum'] = array($txt['lgal_edit_album_title'], $album['url'] . 'edit/', 'tab' => true);
 			$context['album_actions']['actions']['editalbum'] = array($txt['lgal_edit_album_title'], $album['url'] . 'edit/', 'tab' => true, 'sidebar' => false);
 
 			// Can they move this album?
-			$ownership = $this->album_obj->getAlbumOwnership();
 			if ($ownership['type'] === 'site' && isAllowedTo('lgal_manage'))
 			{
 				$context['album_actions']['moderation']['movealbum'] = array($txt['lgal_arrange_albums'], $scripturl . '?media/movealbum/site/');
 			}
 			elseif ($ownership['type'] === 'member')
 			{
-				$album_list = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
-				$owner = reset($ownership['owners']);
-				$context['hierarchy'] = $album_list->getAlbumHierarchy('member', $owner);
-
 				if (!empty($context['hierarchy']) && count($context['hierarchy']) > 1)
 				{
 					$context['album_actions']['moderation']['movealbum'] = array($txt['lgal_arrange_albums'], $scripturl . '?media/movealbum/' . $owner . '/member/');
@@ -208,6 +213,22 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		if (allowedTo(array('lgal_manage', 'lgal_delete_album_any')) || (allowedTo('lgal_delete_album_own') && $this->album_obj->isOwnedByUser()))
 		{
 			$context['album_actions']['moderation']['deletealbum'] = array($txt['lgal_delete_album_title'], $album['url'] . 'delete/');
+		}
+
+		// Attempt to provide navigation back breadcrumbs when surfing albums
+		if (empty($_SERVER['HTTP_REFERER']) || !isset($_SESSION['levgal_breadcrumbs']))
+		{
+			$_SESSION['levgal_breadcrumbs'] = [];
+		}
+		$key = array_search($this->album_id, array_keys($_SESSION['levgal_breadcrumbs']));
+		if ($key !== false)
+		{
+			$key = $key === 0 ? 1 : $key;
+			$_SESSION['levgal_breadcrumbs'] = array_slice($_SESSION['levgal_breadcrumbs'], 0, $key, true);
+		}
+		else
+		{
+			$_SESSION['levgal_breadcrumbs'][$this->album_id] = [$this->album_slug, $context['album_details']['album_name']];
 		}
 	}
 
@@ -916,7 +937,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 
 	protected function handleNotify($type)
 	{
-		global $context, $txt;
+		global $context;
 
 		// First, guests can't do this whatever happens.
 		is_not_guest();
@@ -1081,6 +1102,20 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		$context['privacy_group'] = $context['album_details']['perms']['type'] === 'custom' ? $context['album_details']['perms']['groups'] : array();
 		$context['owner_member'] = array();
 		$context['owner_member_display'] = array();
+		$context['description'] = $context['album_details']['description_raw'];
+
+		// Setup the description
+		$context['description_box'] = new LevGal_Helper_Richtext('message');
+		$context['description_box']->createEditor(array(
+			'value' => $context['description_box']->getForForm($context['description']),
+			'labels' => array(
+				'post_button' => $txt['lgal_edit_album_title'],
+				'name' => 'save',
+			),
+			'js' => array(
+				'post_button' => 'return is_submittable() && submitThisOnce(this);',
+			),
+		));
 
 		$context['thumbnail_list'] = array(
 			'no_change' => 'no_change',
@@ -1115,14 +1150,15 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 
 			$changes = array();
 
-			// Name and slug, nice and easy.
+			// Name, description and slug, nice and easy.
 			$changes['album_name'] = LevGal_Helper_Sanitiser::sanitiseThingNameFromPost('album_name');
 			$changes['album_slug'] = LevGal_Helper_Sanitiser::sanitiseSlugFromPost('album_slug');
+			$changes['description'] = $this->album_obj->setAlbumDescription();
 
 			if ($context['display_featured'])
 			{
 				$context['now_featured'] = !empty($_POST['feature']);
-				$change_featured = $context['is_featured'] != $context['now_featured'];
+				$change_featured = $context['is_featured'] !== $context['now_featured'];
 				// And if we have an error...
 				$context['is_featured'] = $context['now_featured'];
 			}

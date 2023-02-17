@@ -25,17 +25,21 @@ class LevGal_Action_Home extends LevGal_Action_Abstract
 		$this->setTemplate('LevGal', 'main');
 
 		$context['page_title'] = $txt['levgal'];
+		$_SESSION['levgal_breadcrumbs'] = [];
 
 		// Featured items are very simple. And we even get to do some caching magic.
+		/** @var \LevGal_Model_AlbumList $albumList */
 		$albumList = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
 		$context['featured_albums'] = $albumList->getFeaturedAlbums();
 
 		// The main area is fairly dull.
 		$itemList = LevGal_Bootstrap::getModel('LevGal_Model_ItemList');
-		$context['latest_items'] = $itemList->getLatestItems(10);
+		/** @var \LevGal_Model_ItemList $itemList */
+		$context['latest_items'] = $itemList->getLatestItems(20);
 		$context['random_items'] = $itemList->getRandomItems(10);
 
 		// Sidebar not much better.
+		/** @var \LevGal_Model_Stats $statsModel */
 		$statsModel = LevGal_Bootstrap::getModel('LevGal_Model_Stats');
 		$context['stats'] = array(
 			'levgal_stats_total_items' => comma_format($statsModel->getTotalItems()),
@@ -45,7 +49,12 @@ class LevGal_Action_Home extends LevGal_Action_Abstract
 
 		$context['gallery_actions'] = array();
 
-		if (allowedTo(array('lgal_manage', 'lgal_adduseralbum', 'lgal_addgroupalbum')) || !empty($context['stats']['levgal_stats_total_albums']))
+		if (!$context['user']['is_guest'] && allowedTo(array('lgal_adduseralbum')))
+		{
+			$context['gallery_actions']['actions']['myalbums'] = array($txt['levgal_myalbums'], $scripturl . '?media/albumlist/' . $context['user']['id'] . '/member/', 'tab' => true, 'sidebar' => false);
+		}
+
+		if (!empty($context['stats']['levgal_stats_total_albums']) || allowedTo(array('lgal_manage', 'lgal_adduseralbum', 'lgal_addgroupalbum')))
 		{
 			$context['gallery_actions']['actions']['album'] = array($txt['lgal_see_albums'], $scripturl . '?media/albumlist/', 'tab' => true);
 		}
