@@ -138,6 +138,11 @@ class LevGal_Model_Importer_SGL extends LevGal_Model_Importer_Abstract
 		return array($count, ceil($count / self::ITEMS_PER_STEP));
 	}
 
+	public function importDocs($substep)
+	{
+		// TODO: Implement importDocs() method.
+	}
+
 	public function importItems($substep)
 	{
 		$db = database();

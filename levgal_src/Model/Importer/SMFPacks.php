@@ -333,6 +333,11 @@ class LevGal_Model_Importer_SMFPacks extends LevGal_Model_Importer_Abstract
 		return array($substep + 1 == $substeps, $substeps);
 	}
 
+	public function importDocs($substep)
+	{
+		// TODO: Implement importDocs() method.
+	}
+
 	public function countComments()
 	{
 		$db = database();

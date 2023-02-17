@@ -12,9 +12,10 @@
  */
 class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 {
+	const ITEMS_PER_STEP = 40;
 	// This can be 10-15 IF you are not using Imagick or if NOT creating pdf thumbnails.
 	// Imagick uses ghostscript to create pdf thumbs, which can be very slow on large PDF's
-	const ITEMS_PER_STEP = 4;
+	const DOCS_PER_STEP = 4;
 	const COMMENTS_PER_STEP = 50;
 
 	public function isValid()
@@ -39,13 +40,15 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 
 		list ($total_albums) = $this->countAlbums();
 		list ($total_items) = $this->countItems();
+		list ($total_docs) = $this->countItems('doc', self::DOCS_PER_STEP);
 
 		$steps['overwrite'] = true;
 		$steps['albums'] = LevGal_Helper_Format::numstring('lgal_albums', $total_albums);
 
 		if (!empty($total_items))
 		{
-			$steps['items'] = LevGal_Helper_Format::numstring('lgal_items', $total_items);
+			$steps['docs'] = LevGal_Helper_Format::numstring('lgal_docs', $total_docs);
+			$steps['items'] = LevGal_Helper_Format::numstring('lgal_items', $total_items - $total_docs);
 
 			list ($total_comments) = $this->countComments();
 			if (!empty($total_comments))
@@ -135,8 +138,8 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 		$request = $db->query('', '
 			SELECT 
 				aa.id_album, aa.album_of AS id_member, aa.name AS album_name, aa.approved, aa.featured,
-				aa.access, aa.a_order AS album_pos, aa.child_level AS album_level, aa.icon, af.filename,
-				af.directory
+				aa.access, aa.a_order AS album_pos, aa.child_level AS album_level, aa.icon, aa.description,
+				aa.master, af.filename, af.directory
 			FROM {db_prefix}aeva_albums AS aa
 				LEFT JOIN {db_prefix}aeva_files AS af ON (af.id_file = aa.icon)
 			WHERE album_of = {int:member}
@@ -149,16 +152,28 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 		{
 			$albums_to_insert[$row['id_album']] = array(
 				'id_album' => $row['id_album'],
-				'album_name' => $row['album_name'],
+				'album_name' => str_replace('&shy;', '', $row['album_name']),
 				'approved' => $row['approved'],
 				'featured' => $row['featured'],
+				'description' => $row['description'],
 			);
+			// Master appears to be a top level album that other albums with other ownership
+			// are part of.  We will use it to add to the owner_cache
+			$owners = array((int) $row['id_member']);
+			if (!empty($row['master']) && $row['master'] !== $row['id_album'])
+			{
+				$other_owners = $this->getAevaAlbumByID($row);
+				if (!empty($other_owners))
+				{
+					$owners = array((int) $row['id_member'], $other_owners);
+				}
+			}
 			// Ownership and access are a little bit trickier, but only just. See,
 			// we have to set up two sets of data here!
 			$albums_to_insert[$row['id_album']] += array(
-				'owner_cache' => array('member' => array((int) $row['id_member'])),
+				'owner_cache' => array('member' => $owners),
 				'owner_type' => 'member',
-				'owner_data' => (int) $row['id_member'],
+				'owner_data' => $owners,
 			);
 			// Access is even more weird-ass.
 			$groups = explode(',', $row['access']);
@@ -179,7 +194,12 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 
 			if (!empty($row['filename']) && !empty($row['directory']) && $row['directory'] !== 'generic_images')
 			{
+				// It appears there is a version which has icon and bigicon.  icon is clean, bigicon is enc, so check both even though we only pull icon
 				$physical_file = $gal_path . '/' . $row['directory'] . '/' . $this->getAevaEncryptedFilename($row['filename'], $row['icon']);
+				if (!file_exists($physical_file))
+				{
+					$physical_file = $gal_path . '/' . $row['directory'] . '/' . $this->getAevaEncryptedFilename($row['filename'], $row['icon'], false);
+				}
 				if (file_exists($physical_file))
 				{
 					$albums_to_insert[$row['id_album']]['thumbnail'] = array(
@@ -200,23 +220,28 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 		return array($substep + 1 == $substeps, $substeps);
 	}
 
-	public function countItems()
+	public function countItems($type = null, $per_step = self::ITEMS_PER_STEP)
 	{
 		$db = database();
 
-		static $count = null;
-
+		//static $count = null;
+		$count = null;
 		if ($count === null)
 		{
 			$request = $db->query('', '
 				SELECT 
 				    COUNT(id_media)
-				FROM {db_prefix}aeva_media');
+				FROM {db_prefix}aeva_media' . (isset($type) ? '
+				WHERE type = {string:type}' : ''),
+				array(
+					'type' => $type,
+				)
+			);
 			list ($count) = $db->fetch_row($request);
 			$db->free_result($request);
 		}
 
-		return array($count, ceil($count / self::ITEMS_PER_STEP));
+		return array($count, ceil($count / $per_step));
 	}
 
 	public function importItems($substep)
@@ -234,7 +259,7 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 		$gal_path = $this->getAevaSetting('data_dir_path');
 
 		$request = $db->query('', '
-			SELECT 
+			SELECT
 				am.id_media AS id_item, am.album_id as id_album, am.id_member, am.member_name AS poster_name,
 				am.title AS item_name, am.time_added, am.last_edited AS time_updated, am.approved, am.views AS num_views,
 				af.id_file, af.filename, af.filesize, af.directory, at.id_file AS id_thumb, at.directory AS thumb_dir,
@@ -242,11 +267,13 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 			FROM {db_prefix}aeva_media AS am
 				LEFT JOIN {db_prefix}aeva_files AS af ON (am.id_file = af.id_file)
 				LEFT JOIN {db_prefix}aeva_files AS at ON (am.id_thumb = at.id_file)
+			WHERE type != {string:type}
 			ORDER BY am.id_media
 			LIMIT {int:start}, {int:limit}',
 			array(
 				'start' => $substep * self::ITEMS_PER_STEP,
 				'limit' => self::ITEMS_PER_STEP,
+				'type' => 'doc'
 			)
 		);
 		while ($row = $db->fetch_assoc($request))
@@ -302,10 +329,14 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 			);
 
 			// Someone might have uploaded a custom thumbnail in place of what might be generated otherwise.
-			if (!empty($row['thumb_dir']) && $row['thumb_dir'] !== 'generic_images' && !empty($row['thumb_file']) && $row['filename'] !== 'thumb_' . $row['thumb_file'])
+			if (!empty($row['thumb_dir']) && $row['thumb_dir'] !== 'generic_images' && !empty($row['thumb_file']) && $row['thumb_file'] !== 'thumb_' . $row['filename'])
 			{
 				$thumb_path = $gal_path . '/' . $row['thumb_dir'] . '/' . $this->getAevaEncryptedFilename($row['thumb_file'], $row['id_thumb'], !$this->getAevaSetting('clear_thumbnames'));
-				if (@file_exists($thumb_path))
+				if (!file_exists($thumb_path))
+				{
+					$thumb_path = $gal_path . '/' . $row['thumb_dir'] . '/' . $this->getAevaEncryptedFilename($row['thumb_file'], $row['id_thumb'], $this->getAevaSetting('clear_thumbnames'));
+				}
+				if (file_exists($thumb_path))
 				{
 					$files_to_import[$row['id_item']]['import_thumb'] = $thumb_path;
 				}
@@ -318,6 +349,115 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 			$_SESSION['lgalimport']['items'] = 0;
 		}
 		$_SESSION['lgalimport']['items'] += $this->insertItems($files_to_import);
+
+		return array($substep + 1 == $substeps, $substeps);
+	}
+
+	public function importDocs($substep)
+	{
+		$db = database();
+
+		list (, $substeps) = $this->countItems('doc', self::DOCS_PER_STEP);
+
+		if ($substep >= $substeps || $substep < 0 || $substeps == 0)
+		{
+			return array(true, $substeps);
+		}
+
+		$files_to_import = array();
+		$gal_path = $this->getAevaSetting('data_dir_path');
+
+		$request = $db->query('', '
+			SELECT
+				am.id_media AS id_item, am.album_id as id_album, am.id_member, am.member_name AS poster_name,
+				am.title AS item_name, am.time_added, am.last_edited AS time_updated, am.approved, am.views AS num_views,
+				af.id_file, af.filename, af.filesize, af.directory, at.id_file AS id_thumb, at.directory AS thumb_dir,
+				at.filename AS thumb_file, am.embed_url, am.description
+			FROM {db_prefix}aeva_media AS am
+				LEFT JOIN {db_prefix}aeva_files AS af ON (am.id_file = af.id_file)
+				LEFT JOIN {db_prefix}aeva_files AS at ON (am.id_thumb = at.id_file)
+			WHERE am.type = {string:type}
+			ORDER BY am.id_media
+			LIMIT {int:start}, {int:limit}',
+			array(
+				'start' => $substep * self::DOCS_PER_STEP,
+				'limit' => self::DOCS_PER_STEP,
+				'type' => 'doc',
+			)
+		);
+		while ($row = $db->fetch_assoc($request))
+		{
+			$physical_file = false;
+			$url_data = false;
+			$external_url = false;
+
+			if (!empty($row['embed_url']))
+			{
+				if (preg_match('~^\[url=(.+?)\]~i', $row['embed_url'], $match) && !empty($match[1]))
+				{
+					if ($pos = strpos($match[1], '#'))
+					{
+						$match[1] = substr($match[1], 0, $pos);
+					}
+					$externalModel = LevGal_Bootstrap::getModel('LevGal_Model_External');
+					$url_data = $externalModel->getURLData($match[1]);
+
+					if (empty($url_data['provider']))
+					{
+						continue;
+					}
+
+					$external_url = $match[1];
+				}
+			}
+			else
+			{
+				$physical_file = $gal_path . '/' . $row['directory'] . '/' . $this->getAevaEncryptedFilename($row['filename'], $row['id_file']);
+				if (!file_exists($physical_file))
+				{
+					continue;
+				}
+			}
+
+			$files_to_import[$row['id_item']] = array(
+				'id_item' => $row['id_item'],
+				'id_album' => $row['id_album'],
+				'id_member' => $row['id_member'],
+				'description' => preg_replace('/\[smg id=(\d+)(.*?)\]/is', '[media]$1[/media]', $row['description']),
+				'poster_name' => $row['poster_name'],
+				'item_name' => $row['item_name'],
+				'time_added' => $row['time_added'],
+				'time_updated' => $row['time_updated'],
+				'num_views' => $row['num_views'],
+				'approved' => $row['approved'],
+				'comments_enabled' => true,
+				'filename' => $row['filename'],
+				'physical_file' => $physical_file,
+				'external_url' => $external_url,
+				'external_data' => $url_data,
+			);
+
+			// Someone might have uploaded a custom thumbnail in place of what might be generated otherwise.
+			if (!empty($row['thumb_dir']) && $row['thumb_dir'] !== 'generic_images' && !empty($row['thumb_file']) && $row['thumb_file'] !== 'thumb_' . $row['filename'])
+			{
+				$thumb_path = $gal_path . '/' . $row['thumb_dir'] . '/' . $this->getAevaEncryptedFilename($row['thumb_file'], $row['id_thumb'], !$this->getAevaSetting('clear_thumbnames'));
+				if (!file_exists($thumb_path))
+				{
+					$thumb_path = $gal_path . '/' . $row['thumb_dir'] . '/' . $this->getAevaEncryptedFilename($row['thumb_file'], $row['id_thumb'], $this->getAevaSetting('clear_thumbnames'));
+				}
+				if (file_exists($thumb_path))
+				{
+					$files_to_import[$row['id_item']]['import_thumb'] = $thumb_path;
+				}
+			}
+		}
+		$db->free_result($request);
+
+		if (empty($_SESSION['lgalimport']['docs']) || $substep === 0)
+		{
+			$_SESSION['lgalimport']['docs'] = 0;
+		}
+		$_SESSION['lgalimport']['docs'] += $this->insertItems($files_to_import);
 
 		return array($substep + 1 == $substeps, $substeps);
 	}
@@ -621,8 +761,8 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 			ORDER BY am.id_media
 			LIMIT {int:start}, {int:limit}',
 			array(
-				'start' => $substep * self::COMMENTS_PER_STEP,
-				'limit' => self::COMMENTS_PER_STEP,
+				'start' => $substep * self::ITEMS_PER_STEP,
+				'limit' => self::ITEMS_PER_STEP,
 			)
 		);
 		$item_tag_map = array();
@@ -726,5 +866,24 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 		}
 
 		return false;
+	}
+
+	protected function getAevaAlbumByID($row)
+	{
+		$db = database();
+
+		$request = $db->query('', '
+			SELECT 
+				album_of 
+			FROM {db_prefix}aeva_albums
+			WHERE id_album = {int:master}',
+			array(
+				'master' => $row['master']
+			)
+		);
+		list ($owner) = $db->fetch_row($request);
+		$db->free_result($request);
+
+		return (int) $owner;
 	}
 }

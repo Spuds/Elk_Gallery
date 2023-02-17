@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -89,6 +89,7 @@ function levgal_adminImport()
 
 				$list = array(
 					'albums' => 'lgal_albums',
+					'docs' => 'lgal_docs',
 					'items' => 'lgal_items',
 					'comments' => 'lgal_comments',
 				);
@@ -127,7 +128,7 @@ function levgal_adminImport()
 	<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '" />
 	<input type="hidden" name="substep" value="' . ($step_complete ? 0 : $substep + 1) . '" />';
 			$context['sub_template'] = 'not_done';
-			$context['continue_percent'] = round(($step + 1) / count($steps) * 100);
+			$context['continue_percent'] = round(($step + ($substep / $total_substeps)) / count($steps) * 100);
 
 			if ($context['substep_enabled'])
 			{
