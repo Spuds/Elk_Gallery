@@ -51,9 +51,12 @@ class LevGal_Model_External_Vimeo
 			'display_template' => 'external',
 			'external_url' => 'https://vimeo.com/' . $this->meta['id'],
 			'video_id' => $this->meta['id'],
+			'provider' => $this->meta['provider'],
 			'markup' => '
-	<iframe class="base_iframe" style="width: 500px; height: 281px" src="//player.vimeo.com/video/' . $this->meta['id'] . '?title=0" allowfullscreen></iframe>
-	<div class="centertext ext_link"><a href="https://vimeo.com/' . $this->meta['id'] . '">' . $txt['lgal_view_vimeo'] . '</a></div>',
+	<div class="lg_item">		
+		<iframe class="base_iframe" style="width: 500px; height: 281px" src="//player.vimeo.com/video/' . $this->meta['id'] . '?title=0" allowfullscreen></iframe>
+		<div class="centertext ext_link"><a href="https://vimeo.com/' . $this->meta['id'] . '">' . $txt['lgal_view_vimeo'] . '</a></div>
+	</div>',
 		);
 	}
 

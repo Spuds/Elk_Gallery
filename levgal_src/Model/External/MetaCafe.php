@@ -50,9 +50,12 @@ class LevGal_Model_External_MetaCafe
 			'display_template' => 'external',
 			'external_url' => 'https://www.metacafe.com/watch/' . $this->meta['id'] . '/',
 			'video_id' => $this->meta['id'],
+			'provider' => $this->meta['provider'],
 			'markup' => '
-	<iframe class="base_iframe" src="https://www.metacafe.com/embed/' . $this->meta['id'] . '/" style="width: 540px; height: 304px" allowFullScreen></iframe>
-	<div class="centertext ext_link"><a href="https://www.metacafe.com/watch/' . $this->meta['id'] . '/">' . $txt['lgal_view_metacafe'] . '</a></div>',
+	<div class="lg_item">		
+		<iframe class="base_iframe" src="https://www.metacafe.com/embed/' . $this->meta['id'] . '/" style="width: 540px; height: 304px" allowFullScreen></iframe>
+		<div class="centertext ext_link"><a href="https://www.metacafe.com/watch/' . $this->meta['id'] . '/">' . $txt['lgal_view_metacafe'] . '</a></div>
+	</div>',
 		);
 	}
 

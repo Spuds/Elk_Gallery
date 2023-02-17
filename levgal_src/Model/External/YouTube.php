@@ -53,14 +53,18 @@ class LevGal_Model_External_YouTube
 	{
 		global $txt;
 
-		$this->meta['start'] = $this->meta['start'] ?? '';
+		$this->meta['start'] = $this->meta['start'] ?? 0;
 		return array(
 			'display_template' => 'external',
 			'external_url' => 'https://www.youtube.com/watch?v=' . $this->meta['id'],
 			'video_id' => $this->meta['id'],
+			'start' => $this->meta['start'],
+			'provider' => $this->meta['provider'],
 			'markup' => '
-	<iframe class="base_iframe" style="width: 560px; height: 315px" src="//www.youtube-nocookie.com/embed/' . $this->meta['id'] . $this->meta['start'] . '" allowfullscreen></iframe>
-	<div class="centertext ext_link"><a href="https://www.youtube.com/watch?v=' . $this->meta['id'] . '">' . $txt['lgal_view_youtube'] . '</a></div>',
+	<div class="lg_item">
+		<iframe class="base_iframe" style="width: 560px; height: 315px" src="//www.youtube-nocookie.com/embed/' . $this->meta['id'] . '?start=' . $this->meta['start'] . '" allowfullscreen></iframe>
+		<div class="centertext ext_link"><a href="https://www.youtube.com/watch?v=' . $this->meta['id'] . '">' . $txt['lgal_view_youtube'] . '</a></div>
+	</div>',
 		);
 	}
 
@@ -87,10 +91,10 @@ class LevGal_Model_External_YouTube
 				$startAtSeconds += $match[3];
 			}
 
-			return '?start=' . $startAtSeconds;
+			return $startAtSeconds;
 		}
 
-		return '';
+		return 0;
 	}
 
 	public function getThumbnail()
