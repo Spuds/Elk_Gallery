@@ -354,8 +354,15 @@ dl.album_details dd, dl.album_info dd {
 	height: auto;
 }
 
-.album_featured .album_desc {
+.album_featured .album_desc  {
 	margin-top: 5px;
+	max-height: 6.5em;
+	line-clamp: 4 "...";
+	display: -webkit-box;
+	-webkit-line-clamp: 4;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .album_hierarchy, .album_hierarchy ul {
