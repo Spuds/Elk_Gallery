@@ -569,7 +569,7 @@ function template_main_item_sidebar_sorting()
 	{
 		$link = $context['album_details']['album_url'] . ($sort !== 'date' || $context['sort_criteria']['order'] !== 'desc' ? 'view_' . $sort . '_' . $context['sort_criteria']['order'] . '/' : '');
 		echo '
-						<a href="', $link, '">', $context['sort_criteria']['order_by'] == $sort ? '<strong>' . $txt['lgal_sort_by_' . $sort] . '</strong>' : $txt['lgal_sort_by_' . $sort], '</a><br />';
+						<span>&#9659;</span><a href="', $link, '">', $context['sort_criteria']['order_by'] == $sort ? '<strong>' . $txt['lgal_sort_by_' . $sort] . '</strong>' : $txt['lgal_sort_by_' . $sort], '</a><br />';
 	}
 	echo '
 					</dd>

@@ -329,7 +329,10 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 			);
 
 			// Someone might have uploaded a custom thumbnail in place of what might be generated otherwise.
-			if (!empty($row['thumb_dir']) && $row['thumb_dir'] !== 'generic_images' && !empty($row['thumb_file']) && $row['thumb_file'] !== 'thumb_' . $row['filename'])
+			if (!empty($row['thumb_dir'])
+				&& $row['thumb_dir'] !== 'generic_images'
+				&& !empty($row['thumb_file'])
+				&& $row['thumb_file'] !== 'thumb_' . $row['filename'])
 			{
 				$thumb_path = $gal_path . '/' . $row['thumb_dir'] . '/' . $this->getAevaEncryptedFilename($row['thumb_file'], $row['id_thumb'], !$this->getAevaSetting('clear_thumbnames'));
 				if (!file_exists($thumb_path))
@@ -438,16 +441,30 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 			);
 
 			// Someone might have uploaded a custom thumbnail in place of what might be generated otherwise.
-			if (!empty($row['thumb_dir']) && $row['thumb_dir'] !== 'generic_images' && !empty($row['thumb_file']) && $row['thumb_file'] !== 'thumb_' . $row['filename'])
+			if (!empty($row['thumb_dir'])
+				&& $row['thumb_dir'] !== 'generic_images'
+				&& !empty($row['thumb_file']) && $row['thumb_file'] !== 'thumb_' . $row['filename'])
 			{
-				$thumb_path = $gal_path . '/' . $row['thumb_dir'] . '/' . $this->getAevaEncryptedFilename($row['thumb_file'], $row['id_thumb'], !$this->getAevaSetting('clear_thumbnames'));
-				if (!file_exists($thumb_path))
+				$bad_generic = stripos($row['thumb_file'], 'zip.png.png') ||
+					stripos($row['thumb_file'], 'doc.png.png') ||
+					stripos($row['thumb_file'], 'docx.png.png') ||
+					stripos($row['thumb_file'], 'xls.png.png') ||
+					stripos($row['thumb_file'], 'pdf.png.png') ||
+					stripos($row['thumb_file'], 'txt.png.png') ||
+					stripos($row['thumb_file'], 'xml.png.png') ||
+					stripos($row['thumb_file'], 'ppt.png.png') ||
+					stripos($row['thumb_file'], 'ods.png.png');
+				if ($bad_generic === false)
 				{
-					$thumb_path = $gal_path . '/' . $row['thumb_dir'] . '/' . $this->getAevaEncryptedFilename($row['thumb_file'], $row['id_thumb'], $this->getAevaSetting('clear_thumbnames'));
-				}
-				if (file_exists($thumb_path))
-				{
-					$files_to_import[$row['id_item']]['import_thumb'] = $thumb_path;
+					$thumb_path = $gal_path . '/' . $row['thumb_dir'] . '/' . $this->getAevaEncryptedFilename($row['thumb_file'], $row['id_thumb'], !$this->getAevaSetting('clear_thumbnames'));
+					if (!file_exists($thumb_path))
+					{
+						$thumb_path = $gal_path . '/' . $row['thumb_dir'] . '/' . $this->getAevaEncryptedFilename($row['thumb_file'], $row['id_thumb'], $this->getAevaSetting('clear_thumbnames'));
+					}
+					if (file_exists($thumb_path))
+					{
+						$files_to_import[$row['id_item']]['import_thumb'] = $thumb_path;
+					}
 				}
 			}
 		}
