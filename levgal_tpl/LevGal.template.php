@@ -135,7 +135,7 @@ function get_child_count($album)
 	$child_albums = 0;
 	foreach ($album['owner_cache'] as $owner_type => $owners)
 	{
-		$owners = (array) $owners;
+		$owners = array_unique((array) $owners);
 		foreach ($owners as $owner)
 		{
 			$child_albums += $counts[$owner_type][$owner];
@@ -342,23 +342,28 @@ function colorize_actions($id_action)
 		case 'deleteitem':
 		case 'unbookmark':
 		case 'unnotify':
+		case 'moderate':
 			$id_action .= ' colorize-red';
 			break;
 		case 'editalbum':
 		case 'edititem':
 		case 'moveitem':
 		case 'edit':
+		case 'tag':
 			$id_action .= ' colorize-dark-yellow';
 			break;
 		case 'feature_album':
+		case 'stats':
 			$id_action .= ' colorize-gold';
 			break;
 		case 'additem':
+		case 'addalbum':
 		case 'addbulk':
 		case 'open':
 			$id_action .= ' colorize-green';
 			break;
 		case 'movealbum':
+		case 'search':
 			$id_action .= ' colorize-blue';
 			break;
 	}
