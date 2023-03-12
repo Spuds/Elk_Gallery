@@ -145,9 +145,10 @@ class ManageLevGalDash_Controller extends Action_Controller
 			}
 		}
 
-		if ($image->hasWebpSupport())
+		$support = $image->hasWebpSupport();
+		if ($support !== false)
 		{
-			$context['support']['webp'] = '<span class="lgaladmin i-check" title="' . $txt['levgal_support_available'] . '"></span>';
+			$context['support']['webp'] = '<span class="lgaladmin i-check" title="' . $txt['levgal_support_available'] . '"></span> (' . $support . ')';
 		}
 		else
 		{

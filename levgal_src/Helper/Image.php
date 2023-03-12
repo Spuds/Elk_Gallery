@@ -78,20 +78,23 @@ class LevGal_Helper_Image
 	public function hasWebpSupport()
 	{
 		$handlers = $this->availableHandlers();
+		$support = false;
 
 		if ($handlers['Imagick'] === true)
 		{
 			$check = Imagick::queryFormats();
-			return in_array('WEBP', $check);
+			if (in_array('WEBP', $check))
+				$support = 'Imagick';
 		}
 
-		if ($handlers['GD'] === true)
+		if ($support === false && $handlers['GD'] === true)
 		{
 			$check = gd_info();
-			return !empty($check['WebP Support']);
+			if (!empty($check['WebP Support']))
+				$support = 'GD';
 		}
 
-		return false;
+		return $support;
 	}
 
 	public function loadImageFromFile($file)
