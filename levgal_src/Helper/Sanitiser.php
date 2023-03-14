@@ -57,6 +57,8 @@ class LevGal_Helper_Sanitiser
 		$var = Util::htmlspecialchars($var);
 		$var = strtr($var, array("\r" => '', "\n" => '', "\t" => ''));
 		$var = preg_replace('~\s+~', ' ', $var);
+		// account for php_urlencode ' ' => '+'
+		$var = preg_replace('~(\w)[+](\w)~u', '$1 $2', $var);
 		$var = Util::strlen($var) > 100 ? Util::substr($var, 0, 100) : $var;
 
 		return Util::htmltrim($var);
