@@ -371,18 +371,27 @@ function template_main_album_display()
 		template_album_navigation();
 	}
 
-	echo '
-		<div class="levgal_navigation">';
-
-	if (!empty($context['album_pageindex']))
+	// Pages and slideshow option
+	if (!empty($context['album_items']) || !empty($context['album_pageindex']))
 	{
 		echo '
-			<div class="pagesection">', $context['album_pageindex'], '</div>';
-	}
+		<div class="levgal_navigation">';
 
-	echo '
-			<a class="linkbutton" style="margin-left: auto" href="#" onclick="myGallery.open();">', $txt['lgal_click_to_slideshow'], '</a>
+		if (!empty($context['album_pageindex']))
+		{
+			echo '
+			<div class="pagesection">', $context['album_pageindex'], '</div>';
+		}
+
+		if (!empty($context['album_items']))
+		{
+			echo '
+			<a class="linkbutton" style="margin-left: auto" href="#" onclick="myGallery.open();">', $txt['lgal_click_to_slideshow'], '</a>';
+		}
+
+		echo '
 		</div>';
+	}
 
 	if (empty($context['album_details']['approved']))
 	{
