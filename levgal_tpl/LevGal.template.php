@@ -387,7 +387,7 @@ function template_action_strip($actions)
 			</ul>';
 }
 
-function template_album_hierarchy($hierarchy)
+function template_album_hierarchy($hierarchy, $compact = false)
 {
 	global $txt;
 
@@ -425,7 +425,7 @@ function template_album_hierarchy($hierarchy)
 		}
 
 		echo '
-			<li id="album_', $id_album, '" class="album_hierarchy">
+			<li id="album_', $id_album, '" class="album_hierarchy' . ($compact ? ' compact' : '') . '">
 				<div class="well">
 					<p class="floatleft sortable_album_thumb">
 						<img src="', $album['thumbnail_url'], '" alt="" />
@@ -448,20 +448,25 @@ function template_album_hierarchy($hierarchy)
 					</p>';
 		}
 
-		echo '
+		if (!$compact)
+		{
+			echo '
 					<br />
 					<p class="lgal_profile_album_contents floatleft">
 						', $album['description_short'], '<br />
 						<span class="lgalicon i-album" style="margin: 0"></span> ', LevGal_Helper_Format::numstring('lgal_items', $album['num_items']);
 
-		if (!empty($album['see_unapproved']))
-		{
-			echo ',
+			if (!empty($album['see_unapproved']))
+			{
+				echo ',
 						<span class="error"><i class="lgalicon i-flag colorize-red"></i>', $txt['lgal_unapproved'], ' [', LevGal_Helper_Format::numstring('lgal_items', $album['num_unapproved_items']), ']</span>';
+			}
+
+			echo '
+					</p>';
 		}
 
 		echo '
-					</p>
 				</div>';
 	}
 

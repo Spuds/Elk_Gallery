@@ -365,6 +365,11 @@ dl.album_details dd, dl.album_info dd {
 	text-overflow: ellipsis;
 }
 
+.album_hierarchy.compact img {
+	max-height: 30px;
+	width: 30px;
+}
+
 .album_hierarchy, .album_hierarchy ul {
 	list-style: none;
 }
@@ -606,7 +611,8 @@ li.album_hierarchy_compact ul {
 	display: flex;
 	flex-wrap: wrap;
 	min-width: 100%;
-	gap: 5px;
+	row-gap: 5px;
+	justify-content: space-between;
 }
 
 /* Child album card, name, image, description ... */

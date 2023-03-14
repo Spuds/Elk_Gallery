@@ -30,7 +30,7 @@ function template_movealbum()
 
 	template_movealbum_header();
 
-	template_album_hierarchy($context['hierarchy']);
+	template_album_hierarchy($context['hierarchy'], true);
 
 	echo '
 		<br />
