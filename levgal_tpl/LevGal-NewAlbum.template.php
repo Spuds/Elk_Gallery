@@ -59,7 +59,6 @@ function template_newalbum_description() {
 	$description_box = $context['description_box'];
 	$description_box->displayEditWindow();
 	$description_box->displayButtons();
-
 }
 
 function template_newalbum_errors()

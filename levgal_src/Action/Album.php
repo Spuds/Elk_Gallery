@@ -247,7 +247,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 			);
 		}
 
-		$filename = !empty($_POST['async_filename']) ? rawurldecode($_POST['async_filename']) : '';
+		$filename = empty($_POST['async_filename']) ? '' : rawurldecode($_POST['async_filename']);
 		$fileID = $_POST['async'] ?? 0;
 		$chunks = isset($_POST['async_chunks']) ? (int) $_POST['async_chunks'] : 0;
 
@@ -651,7 +651,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		elseif (!empty($context['allowed_formats']) && $context['upload_type'] === 'file')
 		{
 			// Grab the file details. These we need.
-			$context['filename'] = !empty($_POST['async_filename']) ? rawurldecode($_POST['async_filename']) : '';
+			$context['filename'] = empty($_POST['async_filename']) ? '' : rawurldecode($_POST['async_filename']);
 			$context['async_id'] = $_POST['async'] ?? 0;
 			$context['async_size'] = isset($_POST['async_size']) && (int) $_POST['async_size'] > 0 ? (int) $_POST['async_size'] : 0;
 			if (empty($context['filename']) || empty($context['async_id']) || empty($context['async_size']))
@@ -827,7 +827,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 				$itemModel->deleteItem();
 				$context['errors']['upload_no_move'] = $txt['lgal_upload_no_move'];
 			}
-			elseif ($result !== false)
+			elseif (is_string($result))
 			{
 				$context['errors'][$result] = $txt['lgal_' . $result];
 			}
