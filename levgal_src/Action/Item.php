@@ -574,7 +574,7 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 		{
 			checkSession();
 
-			if (!in_array($_POST['destalbum'], $album_count, true))
+			if (!in_array((int) $_POST['destalbum'], $album_count, true))
 			{
 				LevGal_Helper_Http::fatalError('lgal_no_album_destination');
 			}
