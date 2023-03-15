@@ -796,6 +796,8 @@ function template_add_single_item()
 		'uploading' => $txt['lgal_uploading'],
 		'upload_complete' => $txt['lgal_upload_complete'],
 		'item_drag_here' => $txt['lgal_item_drag_here'],
+		'processing' => $txt['lgal_processing'],
+		'processing_message' => $txt['lgal_processing_message'],
 	);
 
 	echo '
@@ -911,7 +913,7 @@ function template_add_single_item()
 					}
 				});
 				
-				// If its not an image, trigger thumbnail manually so the accept checks run
+				// If not an image then trigger thumbnail manually, so accept checks run
 				let ext = file.name.split(".").pop().toLowerCase();
 				if (ext !== \'png\' && ext !== \'jpeg\' && ext !== \'jpg\' && ext !== \'webp\')
 				{

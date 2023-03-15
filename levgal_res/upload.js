@@ -64,6 +64,11 @@ function is_submittable()
 	{
 		if (local_submittable && submittable)
 		{
+			new smc_Popup({
+				heading: txt.processing,
+				content: txt.processing_message,
+				icon: 'icon icon-spin i-spinner'
+			});
 			return true;
 		}
 

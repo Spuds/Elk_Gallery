@@ -46,6 +46,7 @@ $txt['lgal_file_name'] = 'Nome file';
 $txt['lgal_begin_upload'] = 'Inizia il caricamento';
 $txt['lgal_queue_empty'] = 'Non ci sono file da caricare in questo momento.';
 $txt['lgal_processing'] = 'In lavorazione...';
+$txt['lgal_processing_message'] = 'The server is validating the data.  Please wait.';
 
 // Additional options:
 $txt['lgal_additional_options'] = 'Ozioni aggiuntive';

@@ -46,6 +46,7 @@ $txt['lgal_file_name'] = 'Nom de fichier :';
 $txt['lgal_begin_upload'] = 'Commencer le téléversement';
 $txt['lgal_queue_empty'] = 'Il n\'y a aucun fichier à téléverser pour le moment.';
 $txt['lgal_processing'] = 'En cours...';
+$txt['lgal_processing_message'] = 'The server is validating the data.  Please wait.';
 
 // Additional options:
 $txt['lgal_additional_options'] = 'Options additionnelles';

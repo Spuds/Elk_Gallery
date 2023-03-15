@@ -46,6 +46,7 @@ $txt['lgal_file_name'] = 'Dateiname:';
 $txt['lgal_begin_upload'] = 'Mit dem Hochladen beginnen';
 $txt['lgal_queue_empty'] = 'Im Moment sind keine Dateien zum Hochladen vorhanden.';
 $txt['lgal_processing'] = 'Verarbeitung läuft ...';
+$txt['lgal_processing_message'] = 'The server is validating the data.  Please wait.';
 
 // Additional options:
 $txt['lgal_additional_options'] = 'Zusätzliche Optionen';

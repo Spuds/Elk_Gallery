@@ -50,6 +50,7 @@ $txt['lgal_file_name'] = 'File name:';
 $txt['lgal_begin_upload'] = 'Begin Upload';
 $txt['lgal_queue_empty'] = 'There are no files to be uploaded right now.';
 $txt['lgal_processing'] = 'Processing...';
+$txt['lgal_processing_message'] = 'The server is validating the data.  Please wait.';
 
 // Additional options:
 $txt['lgal_additional_options'] = 'Additional Options';
