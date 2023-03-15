@@ -584,7 +584,8 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 			);
 		}
 
-		$context['item_name'] = LevGal_Helper_Sanitiser::sanitiseThingNameFromPost('async_filename');
+		$item_name = trim(urldecode($_POST['async_filename']));
+		$context['item_name'] = LevGal_Helper_Sanitiser::sanitiseThingName($item_name);
 		// We don't want the extension in the item name.
 		$pos = strrpos($context['item_name'], '.');
 		if ($pos !== false)
