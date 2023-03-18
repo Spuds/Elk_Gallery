@@ -314,7 +314,7 @@ function template_main_item_sidebar()
 	}
 
 	echo '
-				<hr />
+				<hr class="clear" />
 				<div class="album_details">';
 
 	if (!empty($context['item_details']['time_added']))
@@ -1096,6 +1096,8 @@ function template_edit_item()
 			'uploading' => $txt['lgal_uploading'],
 			'upload_complete' => $txt['lgal_upload_complete'],
 			'item_drag_here' => $txt['lgal_item_drag_here'],
+			'processing' => $txt['lgal_processing'],
+			'processing_message' => $txt['lgal_processing_message'],
 		);
 		echo '
 	<script>

@@ -139,10 +139,11 @@
 
 #album_sidebar .user {
 	float: left;
-	width: auto;
+	width: calc(100% - 50px);
 	min-width: 51%;
 	height: auto;
 	margin-top: 3px;
+	word-break: break-all;
 }
 
 .posted_by {
