@@ -133,6 +133,7 @@ $txt['levgal_album_name'] = 'Album name:';
 $txt['levgal_album_slug'] = 'Album slug:';
 $txt['levgal_set_album_featured'] = 'Mark this album as a featured album?';
 $txt['levgal_album_lock_for_items'] = 'Allow new items in this album?';
+$txt['levgal_album_default_sort'] = 'Set the default item display order.';
 $txt['levgal_album_lock_for_comments'] = 'Allow new comments to the items in this album?';
 $txt['levgal_album_added_new'] = 'Added: %1$s to Album: %2$s';
 $txt['lgal_album_description'] = 'Description for this album (you don\'t have to put this in):';

@@ -578,7 +578,7 @@ function template_main_item_sidebar_sorting()
 	{
 		$link = $context['album_details']['album_url'] . ($sort !== 'date' || $context['sort_criteria']['order'] !== 'desc' ? 'view_' . $sort . '_' . $context['sort_criteria']['order'] . '/' : '');
 		echo '
-						<span>&#9659;</span><a href="', $link, '">', $context['sort_criteria']['order_by'] == $sort ? '<strong>' . $txt['lgal_sort_by_' . $sort] . '</strong>' : $txt['lgal_sort_by_' . $sort], '</a><br />';
+						<span>&#9659;</span><a href="', $link, '">', $context['sort_criteria']['order_by'] === $sort ? '<strong>' . $txt['lgal_sort_by_' . $sort] . '</strong>' : $txt['lgal_sort_by_' . $sort], '</a><br />';
 	}
 	echo '
 					</dd>
@@ -1355,6 +1355,22 @@ function template_edit_album()
 						<select name="lock_comments">
 							<option value="0"', $context['locked_for_comments'] ? '' : ' selected="selected"', '>', $txt['yes'], '</option>
 							<option value="1"', $context['locked_for_comments'] ? ' selected="selected"' : '', '>', $txt['no'], '</option>
+						</select>
+					</dd>
+					<dt>', $txt['levgal_album_default_sort'], '</dt>
+					<dd>
+						<select name="default_sort" id="default_sort">';
+
+	foreach ($context['sort_options'] as $sort)
+	{
+		echo '
+							<option value="', $sort, '"', $context['order_by'] === $sort ? ' selected="selected"' : '', '>', $txt['lgal_sort_by_' . $sort], '</option>';
+	}
+	echo '
+						</select>
+						<select name="default_sort_direction">
+							<option value="desc"', $context['order'] === 'desc' ? ' selected="selected"' : '', '>', $txt['lgal_sort_direction_desc'], '</option>
+							<option value="asc"', $context['order'] === 'asc' ? ' selected="selected"' : '', '>', $txt['lgal_sort_direction_asc'], '</option>
 						</select>
 					</dd>
 					<dt>', $txt['lgal_album_thumbnail'], '</dt>

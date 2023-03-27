@@ -18,6 +18,8 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 	private $album_slug;
 	/** @var \LevGal_Model_Album */
 	private $album_obj;
+	/** @var string */
+	private $order_by;
 
 	public function __construct()
 	{
@@ -44,11 +46,15 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		{
 			LevGal_Helper_Http::hardRedirect($context['album_details']['album_url'] . (!empty($_GET['sub']) ? $_GET['sub'] . '/' : ''));
 		}
+
+		// Set the default album sorting
+		$this->order_by = $context['album_details']['sort'];
 	}
 
 	public function actionIndex()
 	{
-		$this->processAlbums('date', 'desc');
+		[$order_by, $order] = explode('|', $this->order_by, 2);
+		$this->processAlbums($order_by, $order);
 	}
 
 	public function actionView_date_desc()
@@ -1105,6 +1111,11 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		$context['owner_member_display'] = array();
 		$context['description'] = $context['album_details']['description_raw'];
 
+		// Sorting options
+		$sort_options = $this->album_obj->getSortingOptions();
+		$context['sort_options'] = array_keys($sort_options);
+		[$context['order_by'], $context['order']] = explode('|', $context['album_details']['sort'], 2);
+
 		// Setup the description
 		$context['description_box'] = new LevGal_Helper_Richtext('message');
 		$context['description_box']->createEditor(array(
@@ -1167,6 +1178,8 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 			$context['locked_for_items'] = !empty($_POST['lock_items']);
 			$context['locked_for_comments'] = !empty($_POST['lock_comments']);
 			$changes['locked'] = ($context['locked_for_items'] ? LevGal_Model_Album::LOCKED_ITEMS : 0) | ($context['locked_for_comments'] ? LevGal_Model_Album::LOCKED_COMMENTS : 0);
+
+			$changes['sort'] = $this->album_obj->setAlbumDefaultSort($_POST['default_sort'], $_POST['default_sort_direction']);
 
 			if (isset($_POST['privacy']) && in_array($_POST['privacy'], array('guests', 'members', 'justme', 'custom')))
 			{
@@ -1250,7 +1263,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 						{
 							$context['remove_' . $type] = $values;
 							// Now, this is where it gets complicated.
-							if (count(array_diff($context['album_owner'][$type], $values)) == 0)
+							if (count(array_diff($context['album_owner'][$type], $values)) === 0)
 							{
 								if (in_array('site', $context['ownership_opts'], true))
 								{

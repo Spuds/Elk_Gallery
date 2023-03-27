@@ -40,7 +40,7 @@ class LevGal_Model_Album
 		$request = $db->query('', '
 			SELECT 
 				id_album, album_name, album_slug, thumbnail, editable, locked, approved, num_items, num_unapproved_items, num_comments,
-				num_unapproved_comments, featured, owner_cache, perms, description
+				num_unapproved_comments, featured, owner_cache, perms, description, sort
 			FROM {db_prefix}lgal_albums
 			WHERE id_album = {int:albumId}',
 			array(
@@ -69,6 +69,7 @@ class LevGal_Model_Album
 			$this->current_album['album_url'] = $this->getAlbumUrl();
 			$this->current_album['thumbnail_url'] = $this->getThumbnailUrl();
 			$this->current_album['description'] = $this->getAlbumDescription();
+			$this->current_album['sort'] = $this->getAlbumDefaultSort();
 		}
 		$db->free_result($request);
 
@@ -1204,7 +1205,7 @@ class LevGal_Model_Album
 		}
 
 		// Known strings
-		foreach (array('album_name', 'album_slug', 'description') as $var)
+		foreach (array('album_name', 'album_slug', 'description', 'sort') as $var)
 		{
 			if (isset($opts[$var]))
 			{
@@ -1500,6 +1501,25 @@ class LevGal_Model_Album
 		{
 			$this->updateAlbum(array('thumbnail' => $format . ',' . $hash));
 		}
+	}
+
+	public function getAlbumDefaultSort()
+	{
+		return $this->current_album['sort'] ?? 'date|desc';
+	}
+
+	public function setAlbumDefaultSort($order_by, $order)
+	{
+		$order_by = $order_by ?? 'date';
+		$order = $order ?? 'desc';
+
+		$sort_options = array_keys($this->getSortingOptions());
+		$sort_direction = ['asc', 'desc'];
+
+		$order_by = in_array($order_by, $sort_options, true) ? $order_by : 'date';
+		$order = in_array($order, $sort_direction, true) ? $order : 'desc';
+
+		return $order_by . '|' . $order;
 	}
 
 	protected function removeThumbnail()

@@ -94,6 +94,7 @@ $tables[] = array(
 		db_field('owner_cache', 'text'),
 		db_field('perms', 'text'),
 		db_field('description', 'text'),
+		db_field('sort', 'varchar', 16),
 	),
 	'indexes' => array(
 		array(
@@ -575,6 +576,13 @@ $new_columns = array();
 $new_columns[] = array(
 	'table_name' => '{db_prefix}lgal_albums',
 	'column_info' => db_field('description', 'text'),
+	'parameters' => array(),
+	'if_exists' => 'ignore',
+	'error' => 'fatal',
+);
+$new_columns[] = array(
+	'table_name' => '{db_prefix}lgal_albums',
+	'column_info' => db_field('sort', 'varchar', 16),
 	'parameters' => array(),
 	'if_exists' => 'ignore',
 	'error' => 'fatal',
