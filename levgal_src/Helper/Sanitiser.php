@@ -54,7 +54,7 @@ class LevGal_Helper_Sanitiser
 	public static function sanitiseThingName($var)
 	{
 		// htmlspecialchars it, strip icky whitespace, cut to length.
-		$var = Util::htmlspecialchars($var);
+		$var = Util::htmlspecialchars(trim($var));
 		$var = strtr($var, array("\r" => '', "\n" => '', "\t" => ''));
 		$var = preg_replace('~\s+~', ' ', $var);
 		// account for php_urlencode ' ' => '+'

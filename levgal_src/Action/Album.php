@@ -1084,7 +1084,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		}
 		foreach (array('member', 'group') as $type)
 		{
-			if ($context['ownership'] == $type)
+			if ($context['ownership'] === $type)
 			{
 				if (allowedTo('lgal_manage'))
 				{
