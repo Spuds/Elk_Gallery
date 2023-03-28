@@ -244,14 +244,14 @@ function template_item_list($list)
 
 			echo '
 							<a class="lgtip" href="', $item['item_url'], '" data-details="', $item['item_name'], '">
-								<img src="', $item['thumbnail'], '" alt="', $item['item_name'], '" />
+								<img src="', $item['thumbnail'], '"', $item['thumb_html'] ?? '', ' alt="', $item['item_name'], '" />
 							</a>';
 		}
 		elseif (!empty($item['thumbnail']))
 		{
 			echo '
 							<a class="lgtip" href="#" data-details="', $item['item_name'], '">
-								<img src="', $item['thumbnail'], '" alt="', $item['item_name'], '" />
+								<img src="', $item['thumbnail'], '"', $item['thumb_html'] ?? '', ' alt="', $item['item_name'], '" />
 							</a>';
 		}
 		else

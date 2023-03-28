@@ -105,6 +105,8 @@ class LevGal_Model_ItemList
 				'item_url' => $item_urls['item'],
 				'thumbnail' => $item_urls['thumb'],
 				'preview' => $item_urls['preview'],
+				'preview_html' => $item_urls['preview_html'] ?? '',
+				'thumb_html' => $item_urls['thumb_html'] ?? '',
 				'item_base' => $item_urls['raw'],
 				'album_url' => $scripturl . '?media/album/' . (!empty($row['album_slug']) ? $row['album_slug'] . '.' . $row['id_album'] : $row['id_album']) . '/',
 				'item_type' => $itemModel->getItemType(),

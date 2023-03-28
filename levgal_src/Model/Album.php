@@ -497,6 +497,8 @@ class LevGal_Model_Album
 			$row['thumbnail'] = !empty($urls['thumb']) ? $urls['thumb'] : '';
 			$row['preview'] = !empty($urls['preview']) ? $urls['preview'] : '';
 			$row['hide_mature'] = $item_surrogate->hidingMature();
+			$row['preview_html'] = $urls['preview_html'] ?? '';
+			$row['thumb_html'] = $urls['thumb_html'] ?? '';
 
 			$items[$row['id_item']] = $row;
 		}

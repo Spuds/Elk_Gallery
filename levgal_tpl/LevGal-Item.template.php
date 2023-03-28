@@ -701,7 +701,7 @@ function template_item_picture()
 		echo '
 					<div id="item_picture_container" class="lg_item">
 						<a class="glightbox" href="', $context['item_display']['urls']['raw'], '" data-glightbox="type: image" data-details="', $context['item_details']['item_name'], '" data-description=".custom-desc">
-							<img id="item_picture_contained" class="item_', $using, ' has_lightbox" src="', $context['item_display']['urls'][$using], '" alt="" />
+							<img id="item_picture_contained" class="item_', $using, ' has_lightbox" src="', $context['item_display']['urls'][$using], '" alt="preview" ', $context['item_display']['urls'][$using . '_html'] ?? '', ' />
 						</a>
 						<br />
 						<div class="centertext"><i class="icon i-search"></i>', $txt['lgal_click_to_expand'], '</div>
@@ -790,7 +790,7 @@ function template_item_generic()
 		echo '
 					<div class="lg_item">
 						<a href="' . (!empty($viewInline) ? substr($context['item_actions']['actions']['download'][1], 0, -10) : '') . '">
-							<img id="item_generic" class="generic_preview" src="', $context['item_display']['urls']['preview'], '" alt="" />
+							<img id="item_generic" class="generic_preview" src="', $context['item_display']['urls']['preview'], '" alt="preview"', $context['item_display']['urls']['preview_html'] ?? '', ' />
 						</a>
 						<br />
 						<div class="centertext">', $txt['lgal_click_to_view'], '</div>

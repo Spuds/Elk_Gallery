@@ -82,6 +82,7 @@ class LevGal_Model_File
 		}
 
 		// If you ever add 4 character filetype specs instead of _jpg and _png, update the file sender, please.
+		require_once(SUBSDIR . '/Attachments.subs.php');
 		$possibles = array(
 			'preview' => array('_preview.dat', '_preview_jpg.dat', '_preview_png.dat', '_preview_webp.dat'),
 			'thumb' => array('_thumb.dat', '_thumb_jpg.dat', '_thumb_png.dat', '_thumb_webp.dat'),
@@ -93,6 +94,12 @@ class LevGal_Model_File
 				if (file_exists($gal_dir . '/files/' . $file_path . $suffix))
 				{
 					$files[$possible_type] = $gal_dir . '/files/' . $file_path . $suffix;
+					$size = elk_getimagesize($gal_dir . '/files/' . $file_path . $suffix, false);
+					if ($size !== false)
+					{
+						$files[$possible_type . '_width'] = $size[0];
+						$files[$possible_type . '_height'] = $size[1];
+					}
 					break;
 				}
 			}
