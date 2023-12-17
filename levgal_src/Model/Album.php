@@ -836,9 +836,9 @@ class LevGal_Model_Album
 		$db->insert('insert',
 			'{db_prefix}lgal_albums',
 			array('album_name' => 'string', 'album_slug' => 'string', 'thumbnail' => 'string', 'editable' => 'int', 'locked' => 'int', 'approved' => 'int', 'num_items' => 'int',
-				  'num_unapproved_items' => 'int', 'num_comments' => 'int', 'num_unapproved_comments' => 'int', 'owner_cache' => 'string', 'perms' => 'string', 'description' => 'string'),
+				  'num_unapproved_items' => 'int', 'num_comments' => 'int', 'num_unapproved_comments' => 'int', 'owner_cache' => 'string', 'perms' => 'string', 'description' => 'string', 'sort' => 'string'),
 			array($name, $slug, '', 0, 0, !empty($approved) ? 1 : 0, 0,
-				  0, 0, 0, '', '', $description),
+				  0, 0, 0, '', '', $description, ''),
 			array('id_album')
 		);
 		$id = $db->insert_id('{db_prefix}lgal_albums');
@@ -1507,7 +1507,7 @@ class LevGal_Model_Album
 
 	public function getAlbumDefaultSort()
 	{
-		return $this->current_album['sort'] ?? 'date|desc';
+		return empty($this->current_album['sort']) ? 'date|desc' : $this->current_album['sort'];
 	}
 
 	public function setAlbumDefaultSort($order_by, $order)
