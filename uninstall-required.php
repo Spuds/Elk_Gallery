@@ -24,15 +24,17 @@
 */
 
 // If we have found SSI.php and we are outside of ElkArte, then we are running standalone.
-if (file_exists(dirname(__FILE__) . '/SSI.php') && !defined('ELK'))
+if (file_exists(__DIR__ . '/SSI.php') && !defined('ELK'))
 {
-	require_once(dirname(__FILE__) . '/SSI.php');
+	require_once(__DIR__ . '/SSI.php');
 }
 // If we are outside ELK and can't find SSI.php, then throw an error
 elseif (!defined('ELK'))
 {
 	die('<b>Error:</b> Cannot uninstall - please verify you put this file in the same place as ElkArte\'s SSI.php.');
 }
+
+global $modSettings;
 
 $db = database();
 $db_table = db_table();
@@ -119,6 +121,17 @@ if (matchTable('{db_prefix}tp_blocks'))
 		)
 	);
 }
+
+// 4. Remove mentions
+$current = !empty($modSettings['enabled_mentions']) ? explode(',', $modSettings['enabled_mentions']) : array();
+$updated = array('enabled_mentions' => implode(',', array_diff($current, array('lgcomment', 'lgnew', 'lglike'))));
+updateSettings($updated);
+
+// Turn off existing ones
+require_once(SUBSDIR . '/Mentions.subs.php');
+toggleMentionsVisibility('lgcomment', false);
+toggleMentionsVisibility('lgnew', false);
+toggleMentionsVisibility('lglike', false);
 
 function matchTable($table_name)
 {
