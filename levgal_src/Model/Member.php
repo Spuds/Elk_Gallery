@@ -424,7 +424,7 @@ class LevGal_Model_Member
 		// Then against the textual searchbox.
 		if (!empty($_POST[$autosuggest]))
 		{
-			require_once(SOURCEDIR . '/Auth.subs.php');
+			require_once(SUBSDIR . '/Auth.subs.php');
 			$found_members = findMembers($_POST[$autosuggest]);
 			foreach ($found_members as $id_member => $member)
 				{
