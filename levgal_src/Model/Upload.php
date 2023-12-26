@@ -562,7 +562,7 @@ class LevGal_Model_Upload
 				$valid = false;
 				if (!empty($this_quota['image']))
 				{
-					if ($this_quota['image'] === true)
+					if ($this_quota['image'] === true && $this_quota['file'] === true)
 					{
 						$valid = true;
 					}
@@ -573,11 +573,11 @@ class LevGal_Model_Upload
 						// check final size and dimensions on that image
 						if ($this->isResizingEnabled() && in_array($ext, ['png', 'jpg', 'jpeg', 'webp']))
 						{
-							$this->resizeUpload($local_file, $this_quota['image'], $size);
+							$this->resizeUpload($local_file, $this_quota, $size);
 						}
 						list ($width, $height) = elk_getimagesize($path . '/' . $local_file);
-						list ($quota_width, $quota_height) = explode('x', $this_quota['image']);
-						if ($width <= $quota_width && $height <= $quota_height)
+						list ($quota_width, $quota_height) = explode('x', $this_quota['image'] === true ? $width . 'x' . $height : $this_quota['image']);
+						if ($width <= $quota_width && $height <= $quota_height && ($this_quota['file'] === true || $size <= $this_quota['file']))
 						{
 							$valid = true;
 						}
@@ -624,13 +624,30 @@ class LevGal_Model_Upload
 		}
 
 		list ($width, $height) = elk_getimagesize($path . '/' . $local_file);
-		list ($quota_width, $quota_height) = explode('x', $this_quota);
-		if ($width > $quota_width || $height > $quota_height)
+		list ($quota_width, $quota_height) = explode('x', $this_quota['image']);
+
+		// Allowed to change the WxH ?
+		if ($this_quota['image'] !== true && ($width > $quota_width || $height > $quota_height))
 		{
 			$ext = $image->loadImageFromFile($path . '/' . $local_file);
 			if ($ext !== false)
 			{
 				$image->fixDimensions(min($quota_width, $quota_height), $path . '/' . $local_file, $ext);
+				clearstatcache(true);
+				$size = @filesize($path . '/' . $local_file);
+				$context['async_size'] = $size;
+			}
+
+			return;
+		}
+
+		// Just trying to enforce filesize, maybe our default compression will helpful
+		if ($this_quota['file'] !== true && $size > $this_quota['file'])
+		{
+			$ext = $image->loadImageFromFile($path . '/' . $local_file);
+			if ($ext !== false)
+			{
+				$image->fixDimensions(max($width, $height), $path . '/' . $local_file, $ext);
 				clearstatcache(true);
 				$size = @filesize($path . '/' . $local_file);
 				$context['async_size'] = $size;
