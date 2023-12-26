@@ -139,7 +139,7 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 			SELECT 
 				aa.id_album, aa.album_of AS id_member, aa.name AS album_name, aa.approved, aa.featured,
 				aa.access, aa.a_order AS album_pos, aa.child_level AS album_level, aa.icon, aa.description,
-				aa.master, af.filename, af.directory
+				aa.options, aa.master, af.filename, af.directory
 			FROM {db_prefix}aeva_albums AS aa
 				LEFT JOIN {db_prefix}aeva_files AS af ON (af.id_file = aa.icon)
 			WHERE album_of = {int:member}
@@ -150,12 +150,14 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 		);
 		while ($row = $db->fetch_assoc($request))
 		{
+			$sort = $this->parseSort($row['options']);
 			$albums_to_insert[$row['id_album']] = array(
 				'id_album' => $row['id_album'],
 				'album_name' => str_replace('&shy;', '', $row['album_name']),
 				'approved' => $row['approved'],
 				'featured' => $row['featured'],
 				'description' => $row['description'],
+				'sort' => $sort
 			);
 			// Master appears to be a top level album that other albums with other ownership
 			// are part of.  We will use it to add to the owner_cache
@@ -218,6 +220,25 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 		$_SESSION['lgalimport']['albums'] += $this->insertAlbums($albums_to_insert);
 
 		return array($substep + 1 == $substeps, $substeps);
+	}
+
+	public function parseSort($options)
+	{
+		$album_options = Util::unserialize($options);
+		if (!isset($album_options['sort']))
+		{
+			return 'date|desc';
+		}
+
+		// Aeva to lg conversion
+		// m.time_added => date, m.id_media => date, m.title => name, m.views => views
+		$sort = explode(' ', strtolower($album_options['sort']));
+		$sort[0] = str_replace('m.time_added', 'date', $sort[0]);
+		$sort[0] = str_replace('m.id_media', 'date', $sort[0]);
+		$sort[0] = str_replace('m.title', 'name', $sort[0]);
+		$sort[0] = str_replace('m.views', 'views', $sort[0]);
+
+		return implode('|', $sort);
 	}
 
 	public function countItems($type = null, $per_step = self::ITEMS_PER_STEP)

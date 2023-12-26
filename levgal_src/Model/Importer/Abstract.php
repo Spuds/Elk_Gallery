@@ -108,6 +108,7 @@ abstract class LevGal_Model_Importer_Abstract
 				'approved' => isset($album['approved']) ? (!empty($album['approved']) ? 1 : 0) : 1, // if the system doesn't have approval, assume approved
 				'featured' => !empty($album['featured']) ? 1 : 0, // not all support it, those that don't... can safely ignore it.
 				'description' => !empty($album['description']) ? $album['description'] : '',
+				'sort' => !empty($album['sort']) ? $album['sort'] : 'date|desc',
 			);
 			$new_album['album_slug'] = !empty($album['album_slug']) ? $album['album_slug'] : $this->_makeSlug($new_album['album_name']);
 
@@ -172,7 +173,7 @@ abstract class LevGal_Model_Importer_Abstract
 				'{db_prefix}lgal_albums',
 				array('id_album' => 'int', 'album_name' => 'string', 'album_slug' => 'string', 'thumbnail' => 'string', 'editable' => 'int',
 					  'locked' => 'int', 'num_items' => 'int', 'num_unapproved_items' => 'int', 'num_comments' => 'int', 'num_unapproved_comments' => 'int',
-					  'owner_cache' => 'string', 'perms' => 'string', 'approved' => 'int', 'featured' => 'int', 'description' => 'string'),
+					  'owner_cache' => 'string', 'perms' => 'string', 'approved' => 'int', 'featured' => 'int', 'description' => 'string', 'sort' => 'string'),
 				$insert_rows,
 				array('id_album')
 			);
