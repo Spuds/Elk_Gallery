@@ -29,13 +29,13 @@ function template_tags_sidebar()
 	// Information block
 	echo '
 			<h3 class="lgal_secondary_header secondary_header">
-				', $txt['levgal_tagcloud'], '
+				', $txt['lgal_tagged_as'], '
 			</h3>
 			<div class="content">
 				<dl class="album_details">
 					<dt></dt>
 					<dd>
-						<ul class="sidebar_actions">';
+						<ul class="sidebar_actions" style="column-count: 3">';
 	foreach ($context['tags'] as $id_tag => $tag)
 	{
 		echo '
