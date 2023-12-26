@@ -225,7 +225,7 @@ function onFileSend(data)
 				el.innerHTML = '<span class="error">' + txt.error_occurred + ': ' + error + '</span>';
 			}
 			else
-				el.innerHTML = '<button class="button_submit"><span class="icon i-external-link"></span> <a href="' + urls[i].url + '" target="_blank">' + txt.view_item + '</a></button>';
+				el.innerHTML = '<button type="button" class="button_submit"><a href="' + urls[i].url + '" target="_blank">' + '<span class="icon i-external-link"></span> ' + txt.view_item + '</a></button>';
 		}
 	}
 
