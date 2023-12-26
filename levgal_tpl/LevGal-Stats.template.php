@@ -79,8 +79,8 @@ function template_top_posters_albums()
 					<canvas id="topPosters"></canvas>
 				</div>';
 
-	[$data, $labels, $tooltips] = getChartData($context['top_posters'], 'count');
-	showChartData("topPosters", $data, $labels, $tooltips);
+	[$data, $labels, $tooltips, $links] = getChartData($context['top_posters'], 'count');
+	showChartData("topPosters", $data, $labels, $tooltips, $links);
 
 	echo '
 				<h2 class="category_header hdicon cat_img_stats_info">', $txt['levgal_stats_top_albums'], '</h2>
@@ -88,8 +88,8 @@ function template_top_posters_albums()
 					<canvas id="topAlbums"></canvas>
 				</div>';
 
-	[$data, $labels, $tooltips] = getChartData($context['top_albums'], 'count');
-	showChartData("topAlbums", $data, $labels, $tooltips);
+	[$data, $labels, $tooltips, $links] = getChartData($context['top_albums'], 'count');
+	showChartData("topAlbums", $data, $labels, $tooltips, $links);
 
 	echo '
 			</li>';
@@ -106,8 +106,8 @@ function template_top_items_comments_views()
 					<canvas id="topComments"></canvas>
 				</div>';
 
-	[$data, $labels, $tooltips] = getChartData($context['top_items_by_comments'], 'count');
-	showChartData("topComments", $data, $labels, $tooltips);
+	[$data, $labels, $tooltips, $links] = getChartData($context['top_items_by_comments'], 'count');
+	showChartData("topComments", $data, $labels, $tooltips, $links);
 
 	echo '
 				<h2 class="category_header hdicon cat_img_eye">', $txt['levgal_stats_top_items_views'], '</h2>
@@ -115,8 +115,8 @@ function template_top_items_comments_views()
 					<canvas id="topItems"></canvas>
 				</div>';
 
-	[$data, $labels, $tooltips] = getChartData($context['top_items_by_views'], 'count');
-	showChartData("topItems", $data, $labels, $tooltips);
+	[$data, $labels, $tooltips, $links] = getChartData($context['top_items_by_views'], 'count');
+	showChartData("topItems", $data, $labels, $tooltips, $links);
 
 	echo '
 			</li>';
@@ -128,6 +128,7 @@ function getChartData($stats, $num = 'count', $usePercent = false)
 	$labels = array_fill(0, 10, "' '");
 	$data = array_fill(0, 10, '0');
 	$tooltips = array_fill(0, 10, null);
+	$links = array_fill(0, 10, "'#'");
 
 	foreach ($stats as $i => $value)
 	{
@@ -140,14 +141,15 @@ function getChartData($stats, $num = 'count', $usePercent = false)
 			$data[$i] = !empty($value[$num]) ? removeComma($value[$num]) : '0';
 		}
 
-		$labels[$i] = "'" . Util::shorten_text(($value['real_name'] ?? strip_tags($value['item'])), 26, true, '...', true, 0) . "'";
+		$labels[$i] = "'" . Util::shorten_text((isset($value['real_name']) ? $value['real_name'] : strip_tags($value['item'])), 26, true, '...', true, 0) . "'";
 		$tooltips[$i] = "'" . $value[$num] . "'";
+		$links[$i] = $value['link'] ?? '';
 	}
 
-	return [$data, $labels, $tooltips];
+	return [$data, $labels, $tooltips, $links];
 }
 
-function showChartData($id, $data, $labels, $tooltips)
+function showChartData($id, $data, $labels, $tooltips, $links)
 {
 	// The use of var and not let, is intentional as we call this multiple times.
 	echo '
@@ -162,15 +164,31 @@ function showChartData($id, $data, $labels, $tooltips)
 		// Set these vars for easy use in the config object
 		var labels = [', implode(',', $labels), '],
 			tooltips = [', implode(',', $tooltips), '],
+			links = [', implode(',', $links), '],
 			bar_data = {
 				labels: labels,
+				links: links,
 				datasets: [{
 					data: [', implode(',', $data), '],
 					backgroundColor: background,
 				}]
 			};
 		
-		new Chart(bar_ctx' . $id . ', barConfig(bar_data, tooltips));
+		const chart_' . $id . ' = new Chart(bar_ctx' . $id . ', barConfig(bar_data, tooltips));
+		
+		// Click on the bar to navigate function
+		document.getElementById("' . $id . '").onclick = function(evt) {
+        	let activePoints = chart_' . $id . '.getElementsAtEventForMode(evt, "nearest", { intersect: true }, true);
+        	if (activePoints.length) {
+      			var firstPoint = activePoints[0],
+        			link = chart_' . $id . '.data.links[firstPoint.index];
+        			
+        		if (firstPoint !== undefined && link !== "#") {
+            		window.location = link;
+           		}	
+   			}
+		}
+		
 	</script>';
 }
 

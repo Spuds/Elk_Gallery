@@ -1254,7 +1254,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 		$meta['meta'] = $metaModel->getMetadata();
 		$raw_id3 = $meta['meta']['raw_id3'] ?? array();
 
-		// MakerNote found in some camera data, can be larger than our db field!
+		// MakerNote found in some camera data, it can be larger than our db field!
 		unset($meta['meta']['raw_id3'], $meta['meta']['exif']['SubIFD']['MakerNote']);
 
 		// If we got a thumbnail from the metadata, grab it, split it off and throw it back separately.

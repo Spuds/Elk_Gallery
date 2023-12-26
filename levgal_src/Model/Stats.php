@@ -145,9 +145,12 @@ class LevGal_Model_Stats
 			// Now to add percentages.
 			foreach ($temp as $k => $v)
 			{
+				$v['real_name'] = strtr($v['real_name'], array('&amp;' => '&', '&lt;' => '<', '&gt;' => '>', '&quot;' => '"', "'" => '`'));
+				$temp[$k]['real_name'] = $v['real_name'];
 				$temp[$k]['percent'] = $max > 0 ? round($v['count'] / $max * 100) : 0;
 				$temp[$k]['count_format'] = comma_format($v['count']);
 				$temp[$k]['item'] = '<a href="' . $scripturl . '?action=profile;u=' . $v['id_member'] . '">' . $v['real_name'] . '</a>';
+				$temp[$k]['link'] = json_encode($scripturl . '?action=profile;u=' . $v['id_member']);
 			}
 			cache_put_data('lgal_top_posters', $temp, $cache_ttl);
 		}
@@ -193,9 +196,12 @@ class LevGal_Model_Stats
 			// Now to add percentages.
 			foreach ($temp as $k => $v)
 			{
+				$v['album_name'] = strtr($v['album_name'], array('&amp;' => '&', '&lt;' => '<', '&gt;' => '>', '&quot;' => '"', "'" => '`'));
+				$temp[$k]['album_name'] = $v['album_name'];
 				$temp[$k]['percent'] = $max > 0 ? round($v['count'] / $max * 100) : 0;
 				$temp[$k]['count_format'] = comma_format($v['count']);
 				$temp[$k]['item'] = '<a href="' . $scripturl . '?media/album/' . (!empty($v['album_slug']) ? $v['album_slug'] . '.' . $v['id_album'] : $v['id_album']) . '/">' . $v['album_name'] . '</a>';
+				$temp[$k]['link'] = json_encode($scripturl . '?media/album/' . (!empty($v['album_slug']) ? $v['album_slug'] . '.' . $v['id_album'] : $v['id_album']));
 			}
 			cache_put_data($cache_key, $temp, $cache_ttl);
 		}
@@ -242,9 +248,12 @@ class LevGal_Model_Stats
 			// Now to add percentages.
 			foreach ($temp as $k => $v)
 			{
+				$v['item_name'] = strtr($v['item_name'], array('&amp;' => '&', '&lt;' => '<', '&gt;' => '>', '&quot;' => '"', "'" => '`'));
+				$temp[$k]['item_name'] = $v['item_name'];
 				$temp[$k]['percent'] = $max > 0 ? round($v['count'] / $max * 100) : 0;
 				$temp[$k]['count_format'] = comma_format($v['count']);
 				$temp[$k]['item'] = '<a href="' . $scripturl . '?media/item/' . (!empty($v['item_slug']) ? $v['item_slug'] . '.' . $v['id_item'] : $v['id_item']) . '/">' . $v['item_name'] . '</a>';
+				$temp[$k]['link'] = json_encode($scripturl . '?media/item/' . (!empty($v['item_slug']) ? $v['item_slug'] . '.' . $v['id_item'] : $v['id_item']));
 			}
 			cache_put_data($cache_key, $temp, $cache_ttl);
 		}
@@ -291,9 +300,12 @@ class LevGal_Model_Stats
 			// Now to add percentages.
 			foreach ($temp as $k => $v)
 			{
+				$v['item_name'] = strtr($v['item_name'], array('&amp;' => '&', '&lt;' => '<', '&gt;' => '>', '&quot;' => '"', "'" => '`'));
+				$temp[$k]['item_name'] = $v['item_name'];
 				$temp[$k]['percent'] = $max > 0 ? round($v['count'] / $max * 100) : 0;
 				$temp[$k]['count_format'] = comma_format($v['count']);
 				$temp[$k]['item'] = '<a href="' . $scripturl . '?media/item/' . (!empty($v['item_slug']) ? $v['item_slug'] . '.' . $v['id_item'] : $v['id_item']) . '/">' . $v['item_name'] . '</a>';
+				$temp[$k]['link'] = json_encode($scripturl . '?media/item/' . (!empty($v['item_slug']) ? $v['item_slug'] . '.' . $v['id_item'] : $v['id_item']));
 			}
 			cache_put_data($cache_key, $temp, $cache_ttl);
 		}
