@@ -571,11 +571,12 @@ $columns[] = array(
 	'error' => 'fatal',
 );
 
-// These columns were added after 1.1, we need to ensure they are added during an update
+// These columns were added after 1.1, we need to ensure they are added during any update
 $new_columns = array();
 $new_columns[] = array(
 	'table_name' => '{db_prefix}lgal_albums',
 	'column_info' => db_field('description', 'text'),
+	'column_name' => 'description',
 	'parameters' => array(),
 	'if_exists' => 'ignore',
 	'error' => 'fatal',
@@ -583,6 +584,7 @@ $new_columns[] = array(
 $new_columns[] = array(
 	'table_name' => '{db_prefix}lgal_albums',
 	'column_info' => db_field('sort', 'varchar', 16),
+	'column_name' => 'sort',
 	'parameters' => array(),
 	'if_exists' => 'ignore',
 	'error' => 'fatal',
@@ -590,6 +592,7 @@ $new_columns[] = array(
 $new_columns[] = array(
 	'table_name' => '{db_prefix}lgal_search_album',
 	'column_info' => db_field('description', 'text'),
+	'column_name' => 'description',
 	'parameters' => array(),
 	'if_exists' => 'ignore',
 	'error' => 'fatal',
@@ -598,7 +601,11 @@ $new_columns[] = array(
 // Create new columns from prior releases
 foreach ($new_columns as $column)
 {
-	$db_table->db_add_column($column['table_name'], $column['column_info'], $column['parameters'], $column['if_exists'], $column['error']);
+	// Table exists (previous install) and the column does not
+	if ($db_table->table_exists($column['table_name']) && !$db_table->column_exists($column['column_name']))
+	{
+		$db_table->db_add_column($column['table_name'], $column['column_info'], $column['parameters'], $column['if_exists'], $column['error']);
+	}
 }
 
 // Update mod settings if applicable
