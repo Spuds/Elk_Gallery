@@ -128,7 +128,7 @@ $txt['lgal_unapproved_item'] = 'This item has not been approved yet.';
 $txt['lgal_comment_was_reported'] = 'This comment has been reported.';
 $txt['lgal_item_was_reported'] = 'This item has been reported.';
 
-$txt['levgal_album_add_description'] = 'This page is about collecting enough information to be able to create a new album for you. More details will be available once the album is created, including arranging this as a child album of another album.';
+$txt['levgal_album_add_description'] = 'This page is about collecting enough information to be able to create a new album for you. <strong>More options</strong> will be available <i>once the album is created</i>, including arranging this as a child album of another album.';
 $txt['levgal_album_name'] = 'Album name:';
 $txt['levgal_album_slug'] = 'Album slug:';
 $txt['levgal_set_album_featured'] = 'Mark this album as a featured album?';
