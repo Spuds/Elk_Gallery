@@ -359,7 +359,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		$this->addLinkTree($txt['lgal_add_item'], $album['url'] . 'add/');
 		$context['canonical_url'] = $album['url'] . 'add/';
 
-		loadJavascriptFile(['/dropzone/dropzone.js', 'url_slug.js', 'upload.js', 'jquery.flexdatalist.min.js'], ['subdir' => 'levgal_res', 'defer' => false]);
+		loadJavascriptFile(['/dropzone/min/dropzone.min.js', 'url_slug.js', 'upload.js', 'jquery.flexdatalist.min.js'], ['subdir' => 'levgal_res', 'defer' => false]);
 		addInlineJavascript('
 		Dropzone.autoDiscover = false;
 			$(".flexdatalist").flexdatalist({
@@ -549,7 +549,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 
 		$this->setTemplate('LevGal-Album', 'add_bulk_items');
 
-		loadJavascriptFile(['/dropzone/dropzone.js', 'url_slug.js', 'upload.js'], ['subdir' => 'levgal_res', 'defer' => false]);
+		loadJavascriptFile(['/dropzone/min/dropzone.min.js', 'url_slug.js', 'upload.js'], ['subdir' => 'levgal_res', 'defer' => false]);
 		addInlineJavascript('Dropzone.autoDiscover = false;', true);
 		loadCSSFile(['/dropzone/dropzone.css'], ['subdir' => 'levgal_res']);
 
