@@ -914,8 +914,7 @@ function template_add_single_item()
 				});
 				
 				// If not an image then trigger thumbnail manually, so accept checks run
-				let ext = file.name.split(".").pop().toLowerCase();
-				if (ext !== \'png\' && ext !== \'jpeg\' && ext !== \'jpg\' && ext !== \'webp\')
+				if (!file.type.match(/image.*/))
 				{
 					let dataURL = get_upload_generic_thumbnail(file, this.options.lgal_quota);
 					this.emit("thumbnail", file, dataURL);
@@ -1182,7 +1181,6 @@ function template_add_bulk_items()
 					}
 				});
 				this.on("thumbnail", function(file) {
-					console.log("thumbnail");
 					let result = addFileFilter(file, this.options.lgal_quota, this.options.lgal_enable_resize);
 					if (result !== true)
 					{
@@ -1204,8 +1202,7 @@ function template_add_bulk_items()
     			file.rejectDimensions = function(error) {done(error);};
 
 				// If its not an image, trigger thumbnail manually so the accept checks run
-				let ext = file.name.split(".").pop().toLowerCase();
-				if (ext !== \'png\' && ext !== \'jpeg\' && ext !== \'jpg\' && ext !== \'webp\')
+				if (!file.type.match(/image.*/))
 				{
 					let dataURL = get_upload_generic_thumbnail(file, this.options.lgal_quota);
 					this.emit("thumbnail", file, dataURL);

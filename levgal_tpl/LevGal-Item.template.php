@@ -248,30 +248,32 @@ function template_mobile_item_navigation()
 	echo '
 			<div class="lgal_secondary_header secondary_header prev_next">
 				<div class="centertext" style="width: 50%">';
-		if (!empty($context['prev_next']['previous']))
-		{
-			echo '
+
+	if (!empty($context['prev_next']['previous']))
+	{
+		echo '
 					<a href="', $context['prev_next']['previous']['item_url'], '#item_main" title="', $context['prev_next']['previous']['item_name'], '">
 						<div>
 							<i class="icon i-chevron-circle-left"></i>', $txt['lgal_previous'], '
 						</div>
 					</a>';
-		}
-		echo '
+	}
+
+	echo '
 				</div>
 				<div class="centertext" style="width: 50%">';
 
-		if (!empty($context['prev_next']['next']))
-		{
-			echo '
+	if (!empty($context['prev_next']['next']))
+	{
+		echo '
 					<a href="', $context['prev_next']['next']['item_url'], '#item_main" title="', $context['prev_next']['next']['item_name'], '">
 						<div>',
 							$txt['lgal_next'], '<i class="icon i-chevron-circle-right"></i>
 						</div>
 					</a>';
-		}
+	}
 
-		echo '
+	echo '
 				</div>
 			</div>';
 }
@@ -1176,8 +1178,7 @@ function template_edit_item()
 				});
 				
 				// If its not an image, trigger thumbnail manually so the accept checks run
-				let ext = file.name.split(".").pop().toLowerCase();
-				if (ext !== \'png\' || ext !== \'jpeg\' || ext !== \'jpg\')
+				if (!file.type.match(/image.*/))
 				{
 					let dataURL = get_upload_generic_thumbnail(file, this.options.lgal_quota);
 					this.emit("thumbnail", file, dataURL);
