@@ -230,6 +230,8 @@ function levgal_adminSettings($return_config = false)
 		'',
 		'social' => array('callback', 'lgal_social'),
 		'metadata' => array('callback', 'lgal_metadata'),
+		'',
+		array('check', 'lgal_import_rendering')
 	);
 
 	$context['available_social_icons'] = array('facebook', 'twitter', 'tumblr', 'reddit', 'pinterest');

@@ -689,11 +689,24 @@ class LevGal_Bootstrap
 	 */
 	public static function hookBuffer($buffer)
 	{
-		global $scripturl, $context;
+		global $scripturl, $context, $modSettings;
 
 		if (!empty(self::$header))
 		{
 			$buffer = str_replace('</head>', self::$header . "\n" . '</head>', $buffer);
+		}
+
+		// Account for those 'other' gallery tags in certain areas
+		// If we could detect the smg tag as a standard BBC $code[], then we could set $context['lgal_embeds']
+		// when parse_bbc is called and [smg bla] is found.  However, it is a closed tag with options which
+		// the parser does not support.  Here we render only message display and profile (for signatures)
+		// and this is only to catch other (currently SMG) tags.
+		if (!empty($modSettings['lgal_import_rendering'])
+			&& empty($context['lgal_embeds'])
+			&& ($context['site_action'] === 'display' || ($context['site_action'] === 'profile' && $context['sub_template'] === 'action_summary')))
+		{
+			// This accounts for SMG tags on some pages that have no levgal tags
+			$context['lgal_embeds'] = new LevGal_Model_Embed();
 		}
 
 		// Now to fix any embeds.
