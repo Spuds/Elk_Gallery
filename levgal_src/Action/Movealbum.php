@@ -30,6 +30,11 @@ class LevGal_Action_Movealbum extends LevGal_Action_Abstract
 		LevGal_Helper_Http::fatalError('levgal_invalid_action');
 	}
 
+	/**
+	 * Performs actions related to rearranging the site albums in the gallery.
+	 *
+	 * @return void
+	 */
 	public function actionSite()
 	{
 		global $context, $txt, $scripturl;
@@ -39,10 +44,11 @@ class LevGal_Action_Movealbum extends LevGal_Action_Abstract
 
 		$album_list = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
 
+		/** @var $album_list \LevGal_Model_Albumlist */
 		$context['hierarchy'] = $album_list->getAlbumHierarchy('site');
 
 		// No albums? Only one album (nothing to arrange)? Bye.
-		if (empty($context['hierarchy']) || count($context['hierarchy']) == 1)
+		if (empty($context['hierarchy']) || count($context['hierarchy']) === 1)
 		{
 			LevGal_Helper_Http::fatalError('levgal_invalid_action');
 		}
@@ -58,7 +64,7 @@ class LevGal_Action_Movealbum extends LevGal_Action_Abstract
 		$this->addLinkTree($txt['lgal_arrange_albums'], '?media/movealbum/site/');
 		$context['canonical_url'] = $scripturl . '?media/movealbum/site/';
 
-		$context['return_url'] = 'media/albumlist/';
+		$context['return_url'] = 'media/albumlist/site/';
 		$context['form_url'] = 'media/movealbum/site/';
 	}
 
@@ -76,7 +82,8 @@ class LevGal_Action_Movealbum extends LevGal_Action_Abstract
 
 		// Next up: let's figure out whether we can actually be doing this.
 		// Gallery managers, people who can edit any album, or people who can edit their own albums (and this is us)
-		if (!allowedTo(array('lgal_manage', 'lgal_edit_album_any')) && !(allowedTo('lgal_edit_album_own') && $member_id == $context['user']['id']))
+		if (!allowedTo(array('lgal_manage', 'lgal_edit_album_any'))
+			&& !(allowedTo('lgal_edit_album_own') && (int) $member_id === (int) $context['user']['id']))
 		{
 			LevGal_Helper_Http::fatalError('levgal_invalid_action');
 		}
@@ -174,7 +181,7 @@ class LevGal_Action_Movealbum extends LevGal_Action_Abstract
 
 			// It comes in with the form album[1]=null&album[2]=1 to indicate 1 is top level and 2 is a child of 1.
 			// We know the keys are all legit, but we haven't sanitised the values yet.
-			if ($parent == 0)
+			if ($parent === 0)
 			{
 				// Parent of 0 means top level album. Easy one.
 				$newHierarchy[$id_album] = array('album_pos' => $current_pos++, 'album_level' => 0);
