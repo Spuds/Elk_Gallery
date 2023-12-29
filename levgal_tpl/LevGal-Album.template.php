@@ -272,7 +272,7 @@ function template_album_navigation()
 				{
 					echo '
 					<a class="album_child well" href="', $album['album_url'], '">
-						<img src="', $album['thumbnail_url'], '" alt="cover" />
+						<img src="', $album['thumbnail_url'], '" alt="cover" loading="lazy" />
 						<div class="album_child_details">
 							<div class="album_name">', $album['album_name'], '</div>
 							<div class="album_block_description">', $album['description_short'],

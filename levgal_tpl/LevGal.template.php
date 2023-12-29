@@ -244,14 +244,14 @@ function template_item_list($list)
 
 			echo '
 							<a class="lgtip" href="', $item['item_url'], '" data-details="', $item['item_name'], '">
-								<img src="', $item['thumbnail'], '"', $item['thumb_html'] ?? '', ' alt="', $item['item_name'], '" />
+								<img src="', $item['thumbnail'], '"', $item['thumb_html'] ?? '', ' alt="', $item['item_name'], '" loading="lazy" />
 							</a>';
 		}
 		elseif (!empty($item['thumbnail']))
 		{
 			echo '
 							<a class="lgtip" href="#" data-details="', $item['item_name'], '">
-								<img src="', $item['thumbnail'], '"', $item['thumb_html'] ?? '', ' alt="', $item['item_name'], '" />
+								<img src="', $item['thumbnail'], '"', $item['thumb_html'] ?? '', ' alt="', $item['item_name'], '" loading="lazy" />
 							</a>';
 		}
 		else
@@ -259,7 +259,7 @@ function template_item_list($list)
 			$title = sprintf($txt['lgal_missing_item'], $item['item_name']);
 			echo '
 							<a class="lgtip" href="#" title="', $title, '" >
-								<img src="', $settings['default_theme_url'], '/levgal_res/icons/_invalid.png" alt="', $title, '" />
+								<img src="', $settings['default_theme_url'], '/levgal_res/icons/_invalid.png" alt="', $title, '" loading="lazy" />
 							</a>';
 		}
 
@@ -431,7 +431,7 @@ function template_album_hierarchy($hierarchy, $compact = false)
 						<img src="', $album['thumbnail_url'], '" alt="" />
 					</p>
 					<p class="floatleft">
-						<a href="', $album['album_url'], '"><strong>', $album['album_name'], '</strong></a>
+						<a class="album_name" href="', $album['album_url'], '"><strong>', $album['album_name'], '</strong></a>
 					</p>';
 
 		if (empty($album['approved']))
