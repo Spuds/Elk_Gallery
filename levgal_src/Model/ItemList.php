@@ -207,12 +207,18 @@ class LevGal_Model_ItemList
 			return array();
 		}
 
-		return $this->getItemList(
-			array('id_member = {int:id_member}'),
-			array('id_member' => $user),
-			'id_item DESC',
-			$qty
-		);
+		return $this->getItemList(array('id_member = {int:id_member}'), array('id_member' => $user), 'id_item DESC', $qty);
+	}
+
+	public function getImagesForAlbum($album, $qty = 4, $order = "RAND()")
+	{
+		$album = (int) $album;
+		if (empty($album))
+		{
+			return array();
+		}
+
+		return $this->getItemList(array('mime_type LIKE "image/%" AND id_album = {int:id_album}'), array('id_album' => $album), $order, $qty);
 	}
 
 	protected function getItemList($criteria = array(), $values = array(), $order = 'id_item DESC', $qty = 4)
