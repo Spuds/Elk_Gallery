@@ -179,6 +179,7 @@ div.field_placement {
 
 #lev_news dt {
 	border-bottom: 1px dashed #000000;
+	font-weight: 600;
 }
 
 #lev_news dd {

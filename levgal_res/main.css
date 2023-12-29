@@ -527,6 +527,7 @@ li.album_hierarchy_compact ul {
 .comment {
 	display: table;
 	width: 100%;
+	margin-bottom: 4px;
 }
 
 .comment .centertext {
@@ -1182,6 +1183,12 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 	/* move prev next navigation to below item */
 	.main_item_container .lg_prev, .main_item_container .lg_next {
 		display: none;
+	}
+
+	.main_item_container {
+		max-width: 100%;
+		justify-content: center;
+		display: flex;
 	}
 
 	.main_item_container .lg_item {
