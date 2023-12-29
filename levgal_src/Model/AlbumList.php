@@ -199,6 +199,14 @@ class LevGal_Model_AlbumList
 		return $temp;
 	}
 
+	/**
+	 * Retrieves the hierarchy of albums for the specified type and ID.
+	 *
+	 * @param string $type The type of album ('site', 'member', 'group').
+	 * @param int $id The ID of the album.
+	 *
+	 * @return array The album hierarchy.
+	 */
 	public function getAlbumHierarchy($type = 'member', $id = 0)
 	{
 		global $modSettings;
