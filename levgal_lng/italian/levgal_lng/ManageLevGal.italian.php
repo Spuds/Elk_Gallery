@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.1
+ * @version 1.2
  * @package levgal
  * @since 1.0
  */
@@ -37,7 +37,7 @@ $txt['levgal_support_notavailable'] = '(not available)';
 $txt['levgal_support_available'] = '(available)';
 $txt['levgal_support_warning'] = '(not configured correctly)';
 $txt['levgal_uploaded_items'] = 'Uploaded Items';
-$txt['levgal_news_from_home'] = 'News from Levertine.com';
+$txt['levgal_news_from_home'] = 'News and Announcements';
 $txt['levgal_news_item'] = '%1$s by %2$s, %3$s';
 $txt['levgal_news_not_available'] = 'News is not currently available.';
 $txt['levgal_out_of_date'] = 'Your version is %1$s, the current version is %2$s, you should probably update the gallery.';
@@ -58,6 +58,7 @@ $txt['lgal_tag_items_list_more'] = 'Allow users to use their own tags in additio
 $txt['lgal_items_per_page'] = 'Number of items to show on a page view';
 $txt['lgal_comments_per_page'] = 'Number of comments to show per page';
 $txt['lgal_per_page_limits'] = '(10-50 items)';
+$txt['lgal_import_rendering'] = 'Enable (partial) rendering of other Gallery\'s BBC codes';
 $txt['lgal_settings_social'] = 'Allow users to easily share items on social networks';
 $txt['lgal_settings_select_networks'] = 'Select social networks';
 $txt['lgal_settings_metadata'] = 'Display additional metadata';

@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.2
+ * @version 1.2
  * @package levgal
  * @since 1.0
  */
@@ -63,6 +63,7 @@ $txt['lgal_arrange_albums'] = 'Arrange Albums';
 $txt['lgal_arrange_albums_desc'] = 'On this page, you can rearrange the different albums, <strong>including moving albums into sub-albums</strong>. Simply drag and drop the albums to where you want them to be.';
 $txt['lgal_arrange_albums_save'] = 'Save the new order';
 $txt['lgal_invalid_saving_order'] = 'Something went wrong with trying to save the new order. Please reload the page and try again.';
+$txt['lgal_arrange_albums_save_alpha'] = 'Confermare di voler salvare gli album in ordine alfa';
 
 $txt['lgal_empty_album'] = 'This album has no items in it.';
 $txt['lgal_viewing_album'] = 'Viewing album: %1$s';

@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.2
+ * @version 1.2
  * @package levgal
  * @since 1.0
  */
@@ -63,6 +63,7 @@ $txt['lgal_arrange_albums'] = 'Alben anordnen';
 $txt['lgal_arrange_albums_desc'] = 'Auf dieser Seite können Sie die verschiedenen Alben neu anordnen, auch in Unteralben. Ziehen Sie die Alben einfach per Drag & Drop an die gewünschte Stelle.';
 $txt['lgal_arrange_albums_save'] = 'Speichern Sie die neue Anordnung';
 $txt['lgal_invalid_saving_order'] = 'Beim Versuch, die neue Anordnung zu speichern, ist etwas schief gegangen. Bitte laden Sie die Seite neu und versuchen Sie es erneut.';
+$txt['lgal_arrange_albums_save_alpha'] = 'Bestätigen Sie, dass Sie die Alben in der Alpha-Reihenfolge speichern möchten';
 
 $txt['lgal_empty_album'] = 'In diesem Album sind keine Elemente enthalten.';
 $txt['lgal_viewing_album'] = 'Album betrachtend: %1$s';

@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.2
+ * @version 1.2
  * @package levgal
  * @since 1.0
  */
@@ -63,6 +63,7 @@ $txt['lgal_arrange_albums'] = 'Ordre des Albums';
 $txt['lgal_arrange_albums_desc'] = 'Sur cette page, vous pouvez réorganiser les différents albums, y compris transformer des albums en sous-albums. Faites simplement glisser et déposez les albums là où vous voulez qu\'ils soient.';
 $txt['lgal_arrange_albums_save'] = 'Enregistrer le nouvel ordre';
 $txt['lgal_invalid_saving_order'] = 'Une erreur s\'est produite lors de la tentative d\'enregistrement de l\'ordre des albums. Veuillez recharger la page et réessayer.';
+$txt['lgal_arrange_albums_save_alpha'] = 'Confirmez que vous souhaitez enregistrer les albums dans l\'ordre alpha';
 
 $txt['lgal_empty_album'] = 'Cet album ne contient aucun élément.';
 $txt['lgal_viewing_album'] = 'Affichage de l\'album: %1$s';

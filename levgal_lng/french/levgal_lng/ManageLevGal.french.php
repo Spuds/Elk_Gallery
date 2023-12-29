@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.1
+ * @version 1.2
  * @package levgal
  * @since 1.0
  */
@@ -37,7 +37,7 @@ $txt['levgal_support_notavailable'] = '(indisponible)';
 $txt['levgal_support_available'] = '(disponible)';
 $txt['levgal_support_warning'] = '(pas configuré correctement)';
 $txt['levgal_uploaded_items'] = 'Éléments téléversés';
-$txt['levgal_news_from_home'] = 'Actualités de Levertine.com';
+$txt['levgal_news_from_home'] = 'Nouvelles et annonces';
 $txt['levgal_news_item'] = '%1$s par %2$s, %3$s';
 $txt['levgal_news_not_available'] = 'Les actualités ne sont pas disponibles actuellement.';
 $txt['levgal_out_of_date'] = 'Votre version est %1$s, la version actuelle est %2$s, vous devriez probablement mettre à jour la médiathèque.';
@@ -58,6 +58,7 @@ $txt['lgal_tag_items_list_more'] = 'Allow users to use their own tags in additio
 $txt['lgal_items_per_page'] = 'Number of items to show on a page view';
 $txt['lgal_comments_per_page'] = 'Number of comments to show per page';
 $txt['lgal_per_page_limits'] = '(10-50 items)';
+$txt['lgal_import_rendering'] = 'Permettre le rendu (partiel) des codes BBC d\'autres galeries';
 $txt['lgal_settings_social'] = 'Permettre aux utilisateurs de partager facilement des éléments sur les réseaux sociaux';
 $txt['lgal_settings_select_networks'] = 'Sélectionnez les réseaux sociaux';
 $txt['lgal_settings_metadata'] = 'Afficher des métadonnées supplémentaires';
