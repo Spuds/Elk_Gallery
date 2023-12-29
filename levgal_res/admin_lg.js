@@ -649,6 +649,19 @@ function levgal_setAnnouncement(init_news, announcement)
 		sAnnouncementTemplate = '<dl>%content%</dl>',
 		sAnnouncementMessageTemplate = '<dt><a href="%href%">%subject%</a> :: %time%</dt><dd>%message%</dd>';
 
+	// Some markdown to html conversion
+	let re = new RegExp('^#{1,4}(.*)$', 'ugm');
+	announcement.body = announcement.body.replace(re, '<strong>$1</strong>');
+
+	re = new RegExp('\\*\\*(.*)\\*\\*', 'ug');
+	announcement.body = announcement.body.replace(re, '<strong>$1</strong>');
+
+	re = new RegExp('^\\* (.*)$', 'ugm');
+	announcement.body = announcement.body.replace(re, '&#x2022; $1');
+
+	re = new RegExp('^ {0,1}- (.*)$', 'ugm');
+	announcement.body = announcement.body.replace(re, '&#x2022; $1');
+
 	let sMessage = sAnnouncementMessageTemplate.replace('%href%', announcement.html_url).replace('%subject%', announcement.name).replace('%time%', announcement.published_at.replace(/[TZ]/g, ' ')).replace('%message%', announcement.body).replace(/\n/g, '<br />').replace(/\r/g, '');
 
 	oElem.innerHTML = sMessages + sAnnouncementTemplate.replace('%content%', sMessage);
