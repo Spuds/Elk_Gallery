@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.1
+ * @version 1.2
  * @package levgal
  * @since 1.0
  */
@@ -36,7 +36,7 @@ $txt['levgal_support_notavailable'] = '(nicht verfügbar)';
 $txt['levgal_support_available'] = '(verfügbar)';
 $txt['levgal_support_warning'] = 'nicht korrekt konfiguriert)';
 $txt['levgal_uploaded_items'] = 'Hochgeladene Elemente';
-$txt['levgal_news_from_home'] = 'Nachrichten von Levertine.com';
+$txt['levgal_news_from_home'] = 'Nachrichten und Ankündigungen';
 $txt['levgal_news_item'] = '%1$s von %2$s, %3$s';
 $txt['levgal_news_not_available'] = 'Nachrichten sind derzeit nicht verfügbar.';
 $txt['levgal_out_of_date'] = 'Ihre Version ist %1$s, die aktuelle Version ist %2$s, Sie sollten wahrscheinlich die Galerie aktualisieren.';
@@ -52,6 +52,12 @@ $txt['lgal_feed_items_album'] = 'Anzahl der neuesten Einträge, die im RSS-Feed 
 $txt['lgal_feed_enable_item'] = 'RSS-Feed für Kommentare zu einem Element einschalten';
 $txt['lgal_feed_items_item'] = 'Anzahl der neuesten Kommentare, die im RSS-Feed eines Elements angezeigt werden sollen';
 $txt['lgal_feed_items_limits'] = '(1-50 Einträge)';
+$txt['lgal_tag_items_list'] = 'Kommagetrennte Liste der zulässigen Tags';
+$txt['lgal_tag_items_list_more'] = 'Erlauben Sie den Nutzern, ihre eigenen Tags zusätzlich zu den oben genannten zu verwenden';
+$txt['lgal_items_per_page'] = 'Anzahl der Elemente, die auf einer Seitenansicht angezeigt werden';
+$txt['lgal_comments_per_page'] = 'Anzahl der anzuzeigenden Kommentare pro Seite';
+$txt['lgal_per_page_limits'] = '(10-50 Einträge)';
+$txt['lgal_import_rendering'] = 'Aktivieren Sie die (teilweise) Wiedergabe von BBC-Codes anderer Galerien';
 $txt['lgal_settings_social'] = 'Erlauben Sie den Benutzern, Elemente einfach in sozialen Netzwerken zu teilen';
 $txt['lgal_settings_select_networks'] = 'Soziale Netzwerke auswählen';
 $txt['lgal_settings_metadata'] = 'Zusätzliche Metadaten anzeigen';
