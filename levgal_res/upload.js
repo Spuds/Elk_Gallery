@@ -1,3 +1,20 @@
+/*!
+ * @package Levertine Gallery
+ * @copyright 2014 Peter Spicer (levertine.com)
+ * @license LGPL (v3)
+ *
+ * @version 1.2.0 / elkarte
+ */
+
+
+/**
+ * Filters a file based on its extension, size, and resize options.
+ *
+ * @param {File} file - The file to be filtered.
+ * @param {Object} quota - The quota object containing formats and quotas.
+ * @param {boolean} resize - Specifies if the file should be resized.
+ * @returns {boolean|string} - Returns true if the file passes the filter, or returns an error message if it does not.
+ */
 function addFileFilter(file, quota, resize)
 {
 	let ext = file.name.split(".").pop().toLowerCase();
@@ -29,7 +46,8 @@ function addFileFilter(file, quota, resize)
 				return true;
 			}
 
-			if (ext === 'png' || ext === 'jpeg' || ext === 'jpg')
+			const imageTypes = ['png', 'jpeg', 'jpg', 'webp', 'gif'];
+			if (imageTypes.includes(ext))
 			{
 				let dimensions = this_quota.image.split('x');
 
@@ -48,6 +66,11 @@ function addFileFilter(file, quota, resize)
 	}
 }
 
+/**
+ * Checks if a form is submittable.
+ *
+ * @returns {boolean} Returns true if the form is submittable, false otherwise.
+ */
 function is_submittable()
 {
 	var local_submittable = true;
@@ -96,6 +119,13 @@ function is_submittable()
 	}
 }
 
+/**
+ * Displays an error message on an HTML element with the id "error_list".
+ *
+ * @param {string} error - The error message to be displayed.
+ * @param {boolean} append - Determines whether to append the error message or replace the existing one.
+ * @return {boolean} - Returns true if the error message was successfully displayed, false otherwise.
+ */
 function display_error(error, append)
 {
 	let error_list = document.getElementById("error_list");
@@ -117,6 +147,18 @@ function display_error(error, append)
 	document.getElementById("errors").style.display = "block";
 }
 
+/**
+ * Retrieves the default options for file uploads.
+ *
+ * @returns {Object} - An object containing the default options for file uploads.
+ * - paramName (String): The name of the parameter used to send the file to the server.
+ * - chunking (Boolean): Specifies whether to enable file chunking during upload.
+ * - retryChunks (Boolean): Specifies whether to enable chunk retry during upload.
+ * - parallelUploads (Number): The number of files that can be uploaded in parallel.
+ * - chunkSize (Number): The size of each file chunk in bytes.
+ * - parallelChunkUploads (Boolean): Specifies whether to allow parallel chunk uploads.
+ * - maxThumbnailFilesize: (Number): The max image size (MB) for which a JS thumbnail will be generated.
+ */
 function get_upload_defaults()
 {
 	return {
@@ -126,9 +168,18 @@ function get_upload_defaults()
 		parallelUploads: 1,
 		chunkSize: 200000,
 		parallelChunkUploads: true,
+		maxThumbnailFilesize: 20,
 	};
 }
 
+/**
+ * Retrieves a generic thumbnail for the given file based on the quota.
+ *
+ * @param {string} file - The file to retrieve the thumbnail for.
+ * @param {number} quota - The quota associated with the file.
+ *
+ * @return {string} The URL of the generic thumbnail.
+ */
 function get_upload_generic_thumbnail(file, quota)
 {
 	let	images = {
@@ -156,6 +207,14 @@ function get_upload_generic_thumbnail(file, quota)
 	return images.generic;
 }
 
+/**
+ * Begins the file upload process.
+ *
+ * If there are files selected for upload, the method processes the upload queue
+ * and hides all elements with the class "begin_button".
+ *
+ * @returns {boolean} - Returns false to prevent the default form submission behavior.
+ */
 function beginUpload()
 {
 	if (uploader.files.length > 0)
@@ -168,6 +227,12 @@ function beginUpload()
 	return false;
 }
 
+/**
+ * This method is called when a chunk of data completes.
+ *
+ * @param {Object} data - The chunk of data that completed.
+ * @return {boolean} - Returns true if the chunk operation completed successfully, otherwise false.
+ */
 function onChunkComplete(data)
 {
 	if (typeof data === 'undefined')
@@ -200,6 +265,15 @@ function onChunkComplete(data)
 	return true;
 }
 
+/**
+ * Handles the event when a file is sent.
+ *
+ * @param {object} data - The data associated with the file being sent.
+ * @param {boolean} data.async - Indicates if the file upload is asynchronous.
+ * @param {string} data.url - The URL of the file being sent.
+ * @param {string} [data.error] - Optional error message associated with the file being sent.
+ * @returns {boolean} - Returns true if the method was executed successfully, otherwise false.
+ */
 function onFileSend(data)
 {
 	if (typeof data === 'undefined')
@@ -236,6 +310,12 @@ function onFileSend(data)
 	}
 }
 
+/**
+ * Returns the human-readable size of a file.
+ *
+ * @param {number} filesize - The size of the file in bytes.
+ * @return {string} The human-readable size representation of the file.
+ */
 function get_human_size(filesize)
 {
 	// Behaves like LevGal_Helper_Format::filesize
