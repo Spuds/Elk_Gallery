@@ -10,9 +10,12 @@
 
 use BBC\Codes;
 use BBC\ParserWrapper;
+use BBC\PreparseCode;
 
 /**
- * This file deals with some fundamental things for Levertine Gallery.
+ * Class LevGal_Bootstrap
+ *
+ * This class initializes the LevGal plugin and provides various helper functions.
  */
 class LevGal_Bootstrap
 {
@@ -104,10 +107,11 @@ class LevGal_Bootstrap
 			'integrate_delete_members' => 'LevGal_Model_Member::deleteMembers',
 			'integrate_delete_membergroups' => 'LevGal_Model_Group::deleteGroup',
 			'integrate_action_mentions_before' => 'LevGal_Bootstrap::hookLanguage',
-			'integrate_mailist_pre_parsebbc' => 'LevGal_Bootstrap::hookPreParsebbc',
+			'integrate_mailist_pre_parsebbc' => 'LevGal_Bootstrap::hookMailPreParsebbc',
 			'integrate_mailist_pre_markdown' => 'LevGal_Bootstrap::hookPreMarkdown',
 			'integrate_mailist_pre_sig_parsebbc' => 'LevGal_Bootstrap::hookPreSig',
 			'integrate_quickhelp' => 'LevGal_Bootstrap::hookLanguage',
+			'integrate_pre_bbc_parser' => 'LevGal_Bootstrap::hookPreParsebbc',
 		);
 
 		foreach ($hooks as $hook => $callable)
@@ -563,8 +567,9 @@ class LevGal_Bootstrap
 	/**
 	 * This declares the media bbcode items
 	 *
-	 * We define three bbcodes:
+	 * We define four bbcodes:
 	 * [media]1[/media] for simple thumbnail+link
+	 * [media type=album]1[/media] to display the thumbnails of a album
 	 * [media optionalOptions id=1]description[/media] for more complex embedding with description and stuff
 	 * optionalOptions:
 	 *  - align=left|right|center, left and right are floated
@@ -584,9 +589,11 @@ class LevGal_Bootstrap
 		}
 
 		$codes[] = array(
+			// This handles simple [media]123[/media]
 			Codes::ATTR_TAG => 'media',
 			Codes::ATTR_LENGTH => 5,
 			Codes::ATTR_TYPE => Codes::TYPE_UNPARSED_CONTENT,
+			Codes::ATTR_BLOCK_LEVEL => false,
 			Codes::ATTR_CONTENT => '!<lgalmediasimple: $1>',
 			Codes::ATTR_VALIDATE => function(&$tag, &$data, $disabledBBC) {
 				global $context, $settings, $txt;
@@ -601,11 +608,12 @@ class LevGal_Bootstrap
 				{
 					if (empty($context['lgal_embeds']))
 					{
-						$context['lgal_embeds'] = new LevGal_Model_Embed();
+						$context['lgal_embeds'] = self::getModel('LevGal_Model_Embed');
 					}
 
 					$count = $context['lgal_embeds']->setId($data);
 					$context['lgal_embeds']->addSimple();
+					$context['lgal_embeds']->setType('thumb');
 					$tag[Codes::ATTR_CONTENT] =	'!<lgalmediasimple: ' . $count . '>';
 				}
 				else
@@ -614,8 +622,80 @@ class LevGal_Bootstrap
 					$tag[Codes::ATTR_CONTENT] = '<img src="' . $settings['default_theme_url'] . '/levgal_res/icons/_invalid.png" alt="' . $txt['lgal_bbc_no_item'] . '" title="' . $txt['lgal_bbc_no_item'] . '" />';
 				}
 			},
-			Codes::ATTR_BLOCK_LEVEL => false,
 		);
+		$codes[] = array(
+			// This handles [media type=album id=123][/media] tags or [media type="album"]123][/media]
+			Codes::ATTR_TAG => 'media',
+			Codes::ATTR_LENGTH => 5,
+			Codes::ATTR_TYPE => Codes::TYPE_UNPARSED_CONTENT,
+			Codes::ATTR_BEFORE => '{id},{type}',
+			Codes::ATTR_BLOCK_LEVEL => false,
+			Codes::ATTR_PARAM => array(
+				'type' => array(
+					Codes::PARAM_ATTR_MATCH => '(album)',
+				),
+				'id' => array(
+					Codes::PARAM_ATTR_MATCH => '([1-9][0-9]*)',
+					Codes::PARAM_ATTR_OPTIONAL => true,
+				),
+			),
+			Codes::ATTR_CONTENT => '!<lgalmediasimple: {id}>',
+			Codes::ATTR_VALIDATE => function(&$tag, $data, $disabledBBC) {
+				global $context, $txt, $settings;
+
+				if (in_array('media', $disabledBBC, true))
+				{
+					return null;
+				}
+
+				[$id, $type] = explode(',', $tag[Codes::ATTR_BEFORE]);
+				$id = (int) $id;
+				unset($tag[Codes::ATTR_BEFORE]);
+
+				if (empty($id))
+				{
+					// Maybe [media type=album]123[/media]
+					$id = (int) trim($data);
+				}
+				if ($id > 0 && allowedTo('lgal_view'))
+				{
+					$album = new LevGal_Model_Album();
+					$albumDetails = $album->getAlbumById($id);
+					if ($album->isVisible() === false)
+					{
+						$tag[Codes::ATTR_CONTENT] = '<img class="item_image" src="' . $settings['default_theme_url'] . '/levgal_res/icons/unknown.png" alt="' . $txt['lgal_bbc_no_item'] . '" title="' . $txt['lgal_bbc_no_item'] . '" />';
+						return null;
+					}
+					[$sort, $direction] = explode('|', $albumDetails['sort']);
+
+					// Fetching up to 25 items from the album
+					$albumItems = $album->loadAlbumItems(25, 0, $sort, $direction);
+
+					if (empty($context['lgal_embeds']))
+					{
+						$context['lgal_embeds'] = self::getModel('LevGal_Model_Embed');
+					}
+
+					$expanded = '<br />';
+					foreach ($albumItems as $item)
+					{
+						$count = $context['lgal_embeds']->setId((int) $item['id_item']);
+						$context['lgal_embeds']->addSimple();
+						$context['lgal_embeds']->setType($type);
+						$expanded .= '!<lgalmediasimple: ' . $count . '>';
+					}
+
+					$tag[Codes::ATTR_CONTENT] =	$expanded;
+				}
+				else
+				{
+					loadLanguage('levgal_lng/LevGal');
+					$tag[Codes::ATTR_CONTENT] = '<img src="' . $settings['default_theme_url'] . '/levgal_res/icons/_invalid.png" alt="' . $txt['lgal_bbc_no_item'] . '" title="' . $txt['lgal_bbc_no_item'] . '" />';
+				}
+			},
+		);
+		// This handles [media id=123 align=left|center|right type=thumb|preview][/media] tags
+		// or [media align=left|center|right type=thumb|preview]123[/media] tags
 		$codes[] = array(
 			Codes::ATTR_TAG => 'media',
 			Codes::ATTR_LENGTH => 5,
@@ -633,6 +713,7 @@ class LevGal_Bootstrap
 					Codes::PARAM_ATTR_OPTIONAL => true,
 				),
 			),
+			Codes::ATTR_BLOCK_LEVEL => true,
 			Codes::ATTR_TYPE => Codes::TYPE_UNPARSED_CONTENT,
 			Codes::ATTR_CONTENT => '!<lgalmediacomplex: {id}>',
 			Codes::ATTR_BEFORE => '{id},{align},{type}',
@@ -649,7 +730,7 @@ class LevGal_Bootstrap
 
 				if (empty($id))
 				{
-					// allow for [media type=xxx]123[media] with a simple embed figure caption
+					// allow for [media type=xxx]123[/media] with a simple embed figure caption
 					$id = $data;
 					$data = '_lgal_simple_';
 				}
@@ -658,7 +739,7 @@ class LevGal_Bootstrap
 				{
 					if (empty($context['lgal_embeds']))
 					{
-						$context['lgal_embeds'] = new LevGal_Model_Embed();
+						$context['lgal_embeds'] = self::getModel('LevGal_Model_Embed');
 					}
 
 					$count = $context['lgal_embeds']->setId($id);
@@ -671,7 +752,6 @@ class LevGal_Bootstrap
 					$tag[Codes::ATTR_CONTENT] = '<img src="' . $settings['default_theme_url'] . '/levgal_res/icons/_invalid.png" alt="' . $txt['lgal_bbc_no_item'] . '" title="' . $txt['lgal_bbc_no_item'] . '" />';
 				}
 			},
-			Codes::ATTR_BLOCK_LEVEL => true,
 		);
 		$codes[] = array(
 			Codes::ATTR_TAG => 'clear',
@@ -689,24 +769,11 @@ class LevGal_Bootstrap
 	 */
 	public static function hookBuffer($buffer)
 	{
-		global $scripturl, $context, $modSettings;
+		global $scripturl, $context;
 
 		if (!empty(self::$header))
 		{
 			$buffer = str_replace('</head>', self::$header . "\n" . '</head>', $buffer);
-		}
-
-		// Account for those 'other' gallery tags in certain areas
-		// If we could detect the smg tag as a standard BBC $code[], then we could set $context['lgal_embeds']
-		// when parse_bbc is called and [smg bla] is found.  However, it is a closed tag with options which
-		// the parser does not support.  Here we render only message display and profile (for signatures)
-		// and this is only to catch other (currently SMG) tags.
-		if (!empty($modSettings['lgal_import_rendering'])
-			&& empty($context['lgal_embeds'])
-			&& ($context['site_action'] === 'display' || ($context['site_action'] === 'profile' && $context['sub_template'] === 'action_summary')))
-		{
-			// This accounts for SMG tags on some pages that have no levgal tags
-			$context['lgal_embeds'] = new LevGal_Model_Embed();
 		}
 
 		// Now to fix any embeds.
@@ -726,6 +793,37 @@ class LevGal_Bootstrap
 		}
 
 		return str_replace($scripturl . '?' . SID . '&amp;media', $scripturl . '?media', $buffer);
+	}
+
+
+	/**
+	 * Hook method executed before parsing the bbc.  Used to convert other
+	 * gallery tags to Levgal.  Currently only supports SMG tag conversion.
+	 *
+	 * @param string $message The bbc message to be pre-parsed, passed by reference
+	 * @param bool $previewing Whether the message is being previewed or not.
+	 *
+	 * @return void
+	 */
+	public static function hookPreParsebbc(&$message, $previewing)
+	{
+		global $modSettings;
+
+		// Not converting, easy
+		if (empty($modSettings['lgal_import_rendering']))
+		{
+			return;
+		}
+
+		// Don't render tags in code blocks
+       	PreparseCode::instance()->preparsecode($message, $previewing);
+
+		// Check for other gallery tags and convert them
+		$lgalOtherEmbeds = new LevGal_Model_Embed();
+		$lgalOtherEmbeds->convertSMG($message);
+
+		// Back we go
+		$message = PreparseCode::instance()->un_preparsecode($message);
 	}
 
 	/**
@@ -762,9 +860,9 @@ class LevGal_Bootstrap
 	/**
 	 * Used to interact with the message before its sent to parse_bbc as part of mail functions
 	 */
-	public static function hookPreParseBBC(&$message)
+	public static function hookMailPreParseBBC(&$message)
 	{
-		global $txt, $user_info;
+		global $txt, $user_info, $modSettings;
 
 		loadLanguage('levgal_lng/LevGal');
 
@@ -774,6 +872,11 @@ class LevGal_Bootstrap
 		{
 			// Replace the [media][/media] tag
 			$message = preg_replace('~\[media.*?\].*?\[\/media\]~s', '[ ' . $txt['levgal_email_photo_gallery'] . ' ]', $message);
+
+			if (!empty($modSettings['lgal_import_rendering']))
+			{
+				$message = preg_replace('~\[smg\s+([^]]*?(?:&quot;.+?&quot;.*?(?!&quot;))?)]( ?<br />)?[\r\n]?~is', '[ ' . $txt['levgal_email_photo_gallery'] . ' ]', $message);
+			}
 		}
 	}
 
@@ -798,7 +901,14 @@ class LevGal_Bootstrap
 	 */
 	public static function hookPreSig(&$signature)
 	{
+		global $modSettings;
+
 		// Remove Media tags in signatures
 		$signature = preg_replace('~\[media.*?\].*?\[/media]~s', '', $signature);
+
+		if (!empty($modSettings['lgal_import_rendering']))
+		{
+			$signature = preg_replace('~\[smg id=[0-9]{1,6}\]~siU', '', $signature);
+		}
 	}
 }

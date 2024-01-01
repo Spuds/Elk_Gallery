@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 /**
@@ -82,23 +82,21 @@ class LevGal_Model_Embed
 
 	public function setType($type)
 	{
-		$this->type = in_array($type, array('thumb', 'preview')) ? $type : 'thumb';
+		$this->type = in_array($type, array('thumb', 'preview', 'album')) ? $type : 'thumb';
 
 		return $this;
 	}
 
 	public function processBuffer(&$buffer)
 	{
-		global $modSettings;
-
-		// Account for other gallery tags
-		if (!empty($modSettings['lgal_import_rendering']))
-		{
-			$this->processSMG($buffer);
-		}
-
 		// First, load the items.
 		$items = $this->getItems();
+
+		// Prevent possibly finding items in the micro data
+		if (preg_match('~(.*?)(<body\b[^>]*>.*?<\/body>)(.*)~s', $buffer, $matches) !== 1)
+		{
+			return $buffer;
+		}
 
 		foreach (['simple', 'complex'] as $type)
 		{
@@ -111,69 +109,72 @@ class LevGal_Model_Embed
 					// Union the item array (id, id_msg) with the LevGal_Model_ItemList results
 					$item += $items[$item['id']];
 					$method = $type . 'Template';
-					$buffer = str_replace($search, $this->$method($counter, $item), $buffer);
+					$matches[2] = str_replace($search, $this->$method($counter, $item), $matches[2]);
 				}
 				else
 				{
-					$buffer = str_replace($search, $this->invalidTemplate(), $buffer);
+					$matches[2] = str_replace($search, $this->invalidTemplate(), $matches[2]);
 				}
 			}
 		}
+
+		$buffer = $matches[1] . $matches[2] . $matches[3];
 	}
 
 	/**
-	 * Processes the SMG tags in the given buffer.
+	 * Processes the SMG tags in the given message.
 	 *
-	 * This method searches for SMG tags in the buffer and replaces them with the corresponding
-	 * replacement values.
+	 * This method searches for SMG tags in the message and replaces them with the corresponding
+	 * [media] replacement tags.  Those are then processed (or not) as standard Levgal tags in parsebbc
 	 *
-	 * @param string &$buffer The buffer to process, passed by reference.
+	 * @param string &$message The message to process, passed by reference.
 	 * @return void
 	 */
-	public function processSMG(&$buffer)
+	public function convertSMG(&$message)
 	{
-		global $context;
-
-		// Just the <body> section
-		$toCheck = preg_match('~(.*?)(<body\b[^>]*>.*?<\/body>)(.*)~s', $buffer, $matches);
-		if ($toCheck !== false)
-		{
 			// Any [smg] bbc codes?
-			preg_match_all('~\[smg\s+([^]]*?(?:&quot;.+?&quot;.*?(?!&quot;))?)]( ?<br />)?[\r\n]?~i', $matches[2], $aeva_cruft);
-			if (!empty($aeva_cruft))
+		preg_match_all('~\[smg\s+([^]]*?(?:&quot;.+?&quot;.*?(?!&quot;))?)]( ?<br />)?[\r\n]?~i', $message, $aeva_tags);
+		if (empty($aeva_tags[1]))
 			{
-				foreach ($aeva_cruft[1] as $id => $aeva_tag)
+			return;
+		}
+
+		foreach ($aeva_tags[1] as $id => $aeva_tag)
 				{
 					$parsed = $this->aevaParse($aeva_tag);
 
 					if ($parsed !== false)
 					{
-						$count = $context['lgal_embeds']->setId($parsed['id']);
-						if (empty($parsed['align']) && empty($parse['type']))
+				// Simple tag
+				if (empty($parsed['type']) && empty($parsed['align']))
 						{
-							// Set up a simple tag for id=""
-							$context['lgal_embeds']->addSimple();
-							$replace = '!<lgalmediasimple: ' . $count . '>';
+					$replace = '[media]' . (int) $parsed['id'] . '[/media]';
 						}
+				// Complex tag
 						else
 						{
-							// Set up a more complex tag with some align/type options
-							$context['lgal_embeds']->setAlign($parsed['align'])->setType($parsed['type'])->addComplex('');
-							$replace = '!<lgalmediacomplex: ' . $count . '>';
+					$replace = '[media id=' . (int) $parsed['id'];
+					if (in_array($parsed['type'], ['album', 'thumb', 'preview']))
+					{
+						$replace .= ' type=' . $parsed['type'];
 						}
 
-						// Just like the parser would do, but less safe
-						$matches[2] = str_replace($aeva_cruft[0][$id], $replace, $matches[2]);
+					if (in_array($parsed['align'], ['left', 'center', 'right']))
+					{
+						$replace .= ' align=' . $parsed['align'];
 					}
-				}
+
+					$replace .= '][/media]';
 			}
 
-			$buffer = $matches[1] . $matches[2] . $matches[3];
+				// Just like the parser would do, but much less safe
+				$message = str_replace($aeva_tags[0][$id], $replace, $message);
 		}
+	}
 	}
 
 	/**
-	 * Parses the given [SMG} tag data and extracts the parameters we are interested in processing
+	 * Parses the given [SMG] tag data and extracts the parameters we are interested in processing
 	 *
 	 * @param string $data The data to be parsed.
 	 * @return array|false An associative array containing the extracted parameters, or false if the 'id' parameter is empty.
@@ -192,7 +193,7 @@ class LevGal_Model_Embed
 		{
 			if (preg_match('~' . $id . '=(?:&quot;)?' . $cond['match'] . '(?:&quot;)?~i', $data, $match))
 			{
-				$done[$id] = $match[1];
+				$done[$id] = trim($match[1]);
 			}
 		}
 
@@ -254,7 +255,7 @@ class LevGal_Model_Embed
 				<a href="' . $item['item_base'] . '" id="link_' . $counter . 'm" data-lightboximage="' . $counter . 'm" data-lightboxmessage="' . $item['id_msg'] . '">
 					<img class="bbc_image has_lightbox" src="' . $item['thumbnail'] . '" alt="' . $item['item_name'] . '" title="' . $item['item_name'] . '" loading="lazy" />
 				</a>
-				<figcaption class="item_link">
+				<figcaption class="item_link simple">
 					<a href="' . $item['item_url'] . '">
 						<i class="icon icon-big i-help" title="' . $txt['lgal_item_info'] . '"></i>
 					</a>
@@ -290,8 +291,11 @@ class LevGal_Model_Embed
 		if ($caption !== '_lgal_simple_')
 		{
 			$caption = '
-			<figcaption class="centertext">
-				<a class="bbc_link" href="' . $item['item_url'] . '" >' . $caption . '</a>
+			<figcaption class="centertext smalltext" style="max-width:100%">
+				<a class="bbc_link" href="' . $item['item_url'] . '" >
+					<i class="icon i-help" title="' . $txt['lgal_item_info'] . '"></i>' .
+					$caption . '
+				</a>
 			</figcaption>';
 		}
 		else
@@ -310,7 +314,7 @@ class LevGal_Model_Embed
 			return
 				$align . ($item['type'] === 'preview'
 				? '<a class="bbc_link" href="' . $item['item_url'] . '">'
-				: '<a href="' . $item['item_base'] . '" id="link_' . $counter . 'm" data-lightboximage="' . $counter . 'm" data-lightboxmessage="' . $item['id_msg'] . '">') . '
+					: '<a href="' . $item['item_base'] . '" id="link_' . $counter . 'm" data-lightboximage="' . $counter . 'm" data-lightboxmessage="' . $item['id_msg'] . '">') . '
 					<img class="bbc_img' . ($item['type'] === 'preview' ? '' : ' has_lightbox') . '" src="' . $using . '" alt="' . $item['item_name'] . '" title="' . $item['item_name'] . '" loading="lazy" />
 				</a>' . $caption . '</figure>';
 		}
