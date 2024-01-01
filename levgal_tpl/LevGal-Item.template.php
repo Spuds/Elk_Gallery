@@ -698,7 +698,7 @@ function template_item_picture()
 
 	// Maybe we're showing a preview of the thing, or maybe we're just inlining the thing.
 	$using = empty($context['item_display']['urls']['preview']) ? 'raw' : 'preview';
-	if (!empty($context['item_display']['needs_lightbox']))
+	if (!empty($context['item_display']['needs_lightbox']) && $context['item_details']['mime_type'] !== 'image/tiff')
 	{
 		echo '
 					<div id="item_picture_container" class="lg_item">
@@ -707,6 +707,19 @@ function template_item_picture()
 						</a>
 						<br />
 						<div class="centertext"><i class="icon i-search"></i>', $txt['lgal_click_to_expand'], '</div>
+						<div class="custom-desc hide">',
+							$context['item_details']['description'], '
+						</div>
+					</div>';
+	}
+	elseif ($context['item_display']['needs_lightbox'] && $context['item_details']['mime_type'] === 'image/tiff')
+	{
+		// Browser tiff support is very spotty so for now we dont want it in glightbox
+		echo '
+					<div id="item_picture_container" class="lg_item">
+						<a href="', $context['item_display']['urls']['raw'], '">
+							<img id="item_picture" class="item_', $using, '" src="', $context['item_display']['urls'][$using], '" alt="" />
+						</a>
 						<div class="custom-desc hide">',
 							$context['item_details']['description'], '
 						</div>
@@ -1112,6 +1125,7 @@ function template_edit_item()
 			lgal_quota: ' . (empty($context['quota_data']) ? '{}' : json_encode($context['quota_data'])) . ',
 			lgal_enable_resize: ' . (empty($context['lgal_enable_resize']) ? 'false' : 'true') . ',
 			maxFiles: 1,
+			maxThumbnailFilesize: defaults.maxThumbnailFilesize,
 			paramName: defaults.paramName,
 			chunking: defaults.chunking,
 			retryChunks: defaults.retryChunks,
@@ -1163,7 +1177,7 @@ function template_edit_item()
 				});
 			},
 			accept: function(file, done) {
-				this.on("thumbnail", function(file) {
+				this.on("thumbnail", function(file, dataURL) {
 					let result = addFileFilter(file, this.options.lgal_quota, this.options.lgal_enable_resize);
 					if (result !== true)
 					{
@@ -1173,6 +1187,13 @@ function template_edit_item()
 					}
 					else
 					{
+						// This is for tiff files, maybe others, which fail on creating a client side thumbnail
+						if (typeof dataURL === "object" && dataURL instanceof Event)
+						{
+							let dataURL = get_upload_generic_thumbnail(file, this.options.lgal_quota);
+      						file.previewElement.querySelector("img[data-dz-thumbnail]").src = dataURL;
+  						}
+						
 						done();
 					}
 				});
