@@ -236,6 +236,13 @@ dl.album_details dd, dl.album_info dd {
 
 .item_link {
 	margin-top: -28px;
+	text-align: left;
+}
+
+.item_link.simple {
+	height: 24px;
+	background: #EEEEEE;
+	border-radius: 4px;
 }
 
 .item_link > a > i.icon-big {
@@ -252,6 +259,12 @@ dl.album_details dd, dl.album_info dd {
 	display: inline-block;
 	margin: 0 .5em 5px .5em;
 	vertical-align: bottom;
+	min-width: 150px;
+	max-width: 150px;
+	text-align: center;
+	background: #EEEEEE;
+	border-radius: 4px;
+
 }
 
 .album_container {
