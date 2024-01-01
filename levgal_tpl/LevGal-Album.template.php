@@ -454,7 +454,7 @@ function template_main_album_display()
 
 function template_main_album_sidebar()
 {
-	global $context, $txt, $modSettings, $memberContext, $scripturl;
+	global $context, $txt, $modSettings, $memberContext, $scripturl, $settings;
 
 	// Start the sidebar container.
 	echo '
@@ -553,12 +553,61 @@ function template_main_album_sidebar()
 		template_sidebar_action_list($txt['lgal_album_actions'], $context['album_actions']);
 	}
 
+	// Sidebar Sharing.
+	template_main_item_sidebar_share();
+
 	// Sorting albums.
 	template_main_item_sidebar_sorting();
 
 	// And end the sidebar container.
 	echo '
 		</div>';
+
+	// Now we need the JavaScript for our copy to clipboard buttons.
+	echo '
+	<script src="', $settings['default_theme_url'], '/levgal_res/clipboard/clipboard.min.js"></script>
+	<script>
+		let items = ["lgal_share_simple_bbc"],
+			parentEl,
+			el;
+		
+		for (let i = 0, n = items.length; i < n; i++)
+		{
+			parentEl = document.querySelector("#" + items[i]  + "_container");
+			el = document.querySelector("#" + items[i] + "_container span.i-clipboard");
+			el.setAttribute("data-clipboard-target", "#" + items[i]);
+			parentEl.addEventListener("mouseleave", lgalClearTooltip);
+    		parentEl.addEventListener("blur", lgalClearTooltip);
+		}
+		
+		let clipboardSnippets = new ClipboardJS(".i-clipboard", {});
+ 		
+ 		clipboardSnippets.on("success", function(e) {
+   			let clip = e.trigger.parentElement;
+    		lgalShowTooltip(clip, "', $txt['lgal_copyied_to_clipboard'], '");
+		});
+	</script>';
+}
+
+function template_main_item_sidebar_share()
+{
+	global $context, $txt, $scripturl;
+
+	echo '
+			<h3 class="lgal_secondary_header secondary_header">
+				', $txt['lgal_share'], '
+			</h3>
+			<div class="content" style="overflow: visible;">
+				<dl class="album_details" style="overflow: visible;">
+					<dt>', $txt['lgal_share_simple_bbc'], '
+						<a href="', $scripturl, '?action=quickhelp;help=media_bbc" onclick="return reqOverlayDiv(this.href);" class="helpicon i-help"><s>', $txt['help'], '</s></a>
+					</dt>
+					<dd id="lgal_share_simple_bbc_container" class="lgal_share">
+						<input type="text" class="input_text" id="lgal_share_simple_bbc" value="[media type=album]', $context['album_details']['id_album'], '[/media]" readonly="readonly" />
+						<span class="lgalicon i-clipboard" title="', $txt['lgal_copy_to_clipboard'], '"></span>
+					</dd>
+				</dl>
+			</div>';
 }
 
 function template_main_item_sidebar_sorting()
@@ -832,6 +881,7 @@ function template_add_single_item()
 			lgal_quota: ' . (empty($context['quota_data']) ? '{}' : json_encode($context['quota_data'])) . ',
 			lgal_enable_resize: ' . (empty($context['lgal_enable_resize']) ? 'false' : 'true') . ',
 			maxFiles: 1,
+			maxThumbnailFilesize: defaults.maxThumbnailFilesize,
 			paramName: defaults.paramName,
 			chunking: defaults.chunking,
 			retryChunks: defaults.retryChunks,
@@ -899,7 +949,7 @@ function template_add_single_item()
 			},
 			accept: function(file, done) {
 				// We do not have the width / height until thumbnail completes
-				this.on("thumbnail", function(file) {
+				this.on("thumbnail", function(file, dataURL) {
 					let result = addFileFilter(file, this.options.lgal_quota, this.options.lgal_enable_resize);
 					if (result !== true)
 					{
@@ -909,6 +959,13 @@ function template_add_single_item()
 					}
 					else
 					{
+						// This is for tiff files, maybe others, which fail on creating a client side thumbnail
+					    if (typeof dataURL === "object" && dataURL instanceof Event)
+					    {
+					    	let dataURL = get_upload_generic_thumbnail(file, this.options.lgal_quota);
+      						file.previewElement.querySelector("img[data-dz-thumbnail]").src = dataURL;
+  						}
+  						
 						done();
 					}
 				});
@@ -1074,6 +1131,7 @@ function template_add_bulk_items()
 			lgal_quota: ' . (empty($context['quota_data']) ? '{}' : json_encode($context['quota_data'])) . ',
 			lgal_enable_resize: ' . (empty($context['lgal_enable_resize']) ? 'false' : 'true') . ',
 			maxFiles: 250,
+			maxThumbnailFilesize: defaults.maxThumbnailFilesize,
 			paramName: defaults.paramName,
 			chunking: defaults.chunking,
 			retryChunks: defaults.retryChunks,
@@ -1180,7 +1238,7 @@ function template_add_bulk_items()
 						uploader.disable();
 					}
 				});
-				this.on("thumbnail", function(file) {
+				this.on("thumbnail", function(file, dataURL) {
 					let result = addFileFilter(file, this.options.lgal_quota, this.options.lgal_enable_resize);
 					if (result !== true)
 					{
@@ -1189,6 +1247,12 @@ function template_add_bulk_items()
 					}
 					else
 					{
+						// This is for tiff files, maybe others, which fail on creating a client side thumbnail
+						if (typeof dataURL === "object" && dataURL instanceof Event)
+						{
+							let dataURL = get_upload_generic_thumbnail(file, this.options.lgal_quota);
+							file.previewElement.querySelector("img[data-dz-thumbnail]").src = dataURL;
+  						}
 						sessionStorage.setItem(file.upload.uuid, file.name);
 						file.acceptDimensions();
 					}
