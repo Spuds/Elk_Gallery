@@ -426,7 +426,7 @@ function template_main_item_sidebar_meta()
 				aSwapLinks: [
 					{
 						sId: \'sidebar_meta_toggle_link\',
-						msgExpanded: ', JavaScriptEscape($txt['lgal_additional_information']), ',
+						msgExpanded: ', JavaScriptEscape( $txt['lgal_additional_information']), ',
 						msgCollapsed: ', JavaScriptEscape($txt['lgal_additional_information']), '
 					}
 				]
@@ -468,7 +468,7 @@ function template_sidebar_share()
 					</dd>
 					<dt>', $txt['lgal_share_complex_bbc'], '</dt>
 					<dd id="lgal_share_complex_bbc_container" class="lgal_share">
-						<input type="text" class="input_text" id="lgal_share_complex_bbc" value="', sprintf($txt['lgal_share_complex_bbc_entry'], $context['item_details']['id_item'], $context['item_details']['item_name'], $poster_name, $context['item_details']['time_added_format']), '" readonly="readonly" />
+						<input type="text" class="input_text" id="lgal_share_complex_bbc" value="', sprintf($txt['lgal_share_complex_bbc_entry'], $context['item_details']['id_item'], $context['item_details']['item_name']), '" readonly="readonly" />
 						<span class="lgalicon i-clipboard" title="', $txt['lgal_copy_to_clipboard'], '"></span>
 					</dd>
 					<dt>', $txt['lgal_share_page'], '</dt>

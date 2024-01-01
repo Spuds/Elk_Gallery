@@ -7,6 +7,8 @@
  * @version 1.2.0 / elkarte
  */
 
+use BBC\BBCParser;
+use BBC\Codes;
 use BBC\ParserWrapper;
 
 /**
@@ -114,13 +116,14 @@ class LevGal_Model_Album
 
 	public function getAlbumDescription()
 	{
-		$parser = ParserWrapper::instance();
+		// As this may be called from within parse bbc, grab our own instance to avoid rendering issues.
+		$parser = new BBCParser(new Codes());
 
 		$this->current_album['description'] = $this->current_album['description'] ?? '';
 		$this->current_album['description_raw'] = $this->current_album['description'];
 
 		censor($this->current_album['description']);
-		$this->current_album['description'] = !empty($this->current_album['description']) ? $parser->parseMessage($this->current_album['description'], true) : '';
+		$this->current_album['description'] = !empty($this->current_album['description']) ? $parser->enableSmileys(true)->parse($this->current_album['description']) : '';
 		$this->current_album['description_short'] = Util::shorten_html($this->current_album['description'], 125);
 
 		return $this->current_album['description'];
