@@ -147,6 +147,7 @@ class LevGal_Model_Upload
 			'html' => array('htm', 'mhtm', 'mhtml'),
 			'iff' => array('lbm'),
 			'jpg' => array('jpeg'),
+			'tiff' => array('tif'),
 			'lz' => array('lzma'),
 			'm4a' => array('mp4'),
 			'm4v' => array('mp4'),
