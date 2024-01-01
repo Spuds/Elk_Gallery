@@ -301,7 +301,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 				'_audio' => array('flac', 'mp3', 'm4a', 'oga', 'ogg', 'wav'),
 				'_binary' => array('bin', 'dll', 'exe'),
 				'_font' => array('otf', 'ttf'),
-				'_image' => array('gif', 'iff', 'jpeg', 'jpg', 'webp', 'lbm', 'mng', 'png', 'psd', 'tiff'),
+				'_image' => array('gif', 'iff', 'jpeg', 'jpg', 'webp', 'lbm', 'mng', 'png', 'psd', 'tiff', 'tif'),
 				'_video' => array('ogv', 'm4v', 'mp4', 'mov', 'qt', 'mqv', 'webm'),
 				'doc' => array(
 					'doc', 'dot', 'docm', 'docx', 'dotm', 'dotx', // MS Word
