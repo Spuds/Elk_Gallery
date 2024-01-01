@@ -8,7 +8,7 @@
  * @package levgal
  * @since 1.0
  */
-// Version: 1.2 / elkarte
+// Version: 1.2; LevGal
 
 // Important! Before editing these language files please read the text at the top of index.english.php.
 
