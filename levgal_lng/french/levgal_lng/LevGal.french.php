@@ -312,7 +312,7 @@ $txt['lgal_copyied_to_clipboard'] = 'Copié';
 $txt['lgal_share_page'] = 'Partager la Page';
 $txt['lgal_share_simple_bbc'] = 'BB Code';
 $txt['lgal_share_complex_bbc'] = 'BB Code avec description';
-$txt['lgal_share_complex_bbc_entry'] = '[media id=%1$s]%2$s par %3$s posté le %4$s[/media]';
+$txt['lgal_share_complex_bbc_entry'] = '[media id=%1$s]%2$s[/media]';
 $txt['lgal_share_social_media'] = 'Médias Sociaux';
 $txt['lgal_share_facebook'] = 'Facebook';
 $txt['lgal_share_twitter'] = 'Twitter';

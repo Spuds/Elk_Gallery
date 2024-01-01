@@ -314,7 +314,7 @@ $txt['lgal_copyied_to_clipboard'] = 'Kopiert';
 $txt['lgal_share_page'] = 'Seite teilen';
 $txt['lgal_share_simple_bbc'] = 'BB-Code';
 $txt['lgal_share_complex_bbc'] = 'BB-Code mit Beschreibung';
-$txt['lgal_share_complex_bbc_entry'] = '[media id=%1$s]%2$s von %3$s veröffentlicht %4$s[/media]';
+$txt['lgal_share_complex_bbc_entry'] = '[media id=%1$s]%2$s[/media]';
 $txt['lgal_share_social_media'] = 'Soziale Medien';
 $txt['lgal_share_facebook'] = 'Facebook';
 $txt['lgal_share_twitter'] = 'Twitter';
