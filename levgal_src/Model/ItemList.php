@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.0 / elkarte
+ * @version 1.2.0 / elkarte
  */
 
 use BBC\ParserWrapper;

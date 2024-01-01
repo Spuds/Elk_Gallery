@@ -1,4 +1,21 @@
-// Expand ... in our page index
+/*!
+ * @package Levertine Gallery
+ * @copyright 2014 Peter Spicer (levertine.com)
+ * @license LGPL (v3)
+ *
+ * @version 1.2.0 / elkarte
+ */
+
+
+/**
+ * Expands the ... in the page index by replacing it with page links.
+ *
+ * @param {HTMLElement} spanNode - The HTML element that contains the ... to be expanded.
+ * @param {string} baseURL - The base URL for the page links.
+ * @param {number} firstPage - The first page number to be included in the expanded pages.
+ * @param {number} lastPage - The last page number to be included in the expanded pages.
+ * @return {void}
+ */
 function levgal_expandPages(spanNode, baseURL, firstPage, lastPage)
 {
 	let replacement = '', i, oldLastPage = 0,
@@ -26,7 +43,14 @@ function levgal_expandPages(spanNode, baseURL, firstPage, lastPage)
 	setInnerHTML(spanNode, replacement);
 }
 
-// Switch the file/link containers
+/**
+ * Switches the upload type based on the selected value.
+ * It displays the corresponding elements for the selected upload type and hides the elements for the not selected upload type.
+ *
+ * @param {string} selected - The selected upload type. It can be either 'file' or 'link'.
+ *
+ * @return {void}
+ */
 function switchUploadType(selected)
 {
 	let not_selected = selected === 'file' ? 'link' : 'file';
@@ -36,7 +60,15 @@ function switchUploadType(selected)
 	document.getElementById('upload_type_' + not_selected).style.display = 'none';
 }
 
-// Because this is better than using jQuery. Based on sendXMLDocument.
+/**
+ * Sends a JSON document to the specified URL using XMLHttpRequest. This is better than using jQuery.
+ * Based on sendXMLDocument.
+ *
+ * @param {string} sUrl - The URL to send the JSON document to.
+ * @param {string} sContent - The JSON document to send.
+ * @param {function} funcCallback - The callback function to be called when the request is complete. It accepts one parameter, the parsed JSON response.
+ * @return {boolean} - Returns true if the request was successfully sent.
+ */
 function sendJSONDocument(sUrl, sContent, funcCallback)
 {
 	let oSendDoc = new window.XMLHttpRequest(),
@@ -74,6 +106,12 @@ function sendJSONDocument(sUrl, sContent, funcCallback)
 	return true;
 }
 
+/**
+ * Handles the like functionality for a given link.
+ *
+ * @param {HTMLElement} link - The link element to handle the like functionality for.
+ * @return {boolean} Indicates whether the like functionality was handled successfully.
+ */
 function handleLike(link)
 {
 	if (link && link.href)
@@ -91,6 +129,14 @@ function handleLike(link)
 	}
 }
 
+/**
+ * Handles bookmark operation for a given link.
+ *
+ * @param {Object} link - The link object to be bookmarked.
+ * @param {string} link.href - The href property of the link.
+ *
+ * @return {boolean} - Whether the bookmark operation was successful or not.
+ */
 function handleBookmark(link)
 {
 	if (link && link.href)
@@ -122,6 +168,13 @@ function handleBookmark(link)
 	}
 }
 
+/**
+ * Configures options for a bar chart.
+ *
+ * @param {Array} bar_data - The data to be visualized in the bar chart.
+ * @param {Array} tooltips - An array of tooltips for each bar in the chart.
+ * @return {Object} - The configuration object for the bar chart.
+ */
 function barConfig(bar_data, tooltips)
 {
 	return {
@@ -162,11 +215,25 @@ function barConfig(bar_data, tooltips)
 	};
 }
 
+/**
+ * Clears the tooltip of the given element.
+ *
+ * @param {HTMLElement} elem - The element whose tooltip is to be cleared.
+ *
+ * @return {void}
+ */
 function lgalClearTooltip(elem) {
 	elem.currentTarget.setAttribute("class", "lgal_share");
 	elem.currentTarget.removeAttribute("aria-label");
 }
 
+/**
+ * Sets the tooltip message on the specified element.
+ *
+ * @param {Element} elem - The element to set the tooltip on.
+ * @param {string} msg - The tooltip message to be displayed.
+ * @returns {void}
+ */
 function lgalShowTooltip(elem, msg) {
 	elem.setAttribute("aria-label", msg);
 	elem.setAttribute("class", "lgal_share tooltipped tooltipped-s");

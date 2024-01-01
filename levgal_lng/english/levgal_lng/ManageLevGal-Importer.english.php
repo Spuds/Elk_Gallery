@@ -4,11 +4,11 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.0
+ * @version 1.2
  * @package levgal
  * @since 1.0
  */
-// Version: 1.2 / elkarte; ManageLevGal importers
+// Version: 1.2; ManageLevGal importers
 
 // Important! Before editing these language files please read the text at the top of index.english.php.
 
