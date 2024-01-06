@@ -619,6 +619,13 @@ function template_album_list_main($tree_view = false)
 				</div>';
 			}
 		}
+
+		if (!empty($context['item_pageindex']))
+		{
+			echo '
+				<div class="pagesection" style="width:100%;margin:0 10px">', $context['item_pageindex'], '</div>';
+		}
+
 		echo '
 			</div>';
 	}
