@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 1.2.1 / elkarte
  */
 
 use BBC\BBCParser;
@@ -72,6 +72,7 @@ class LevGal_Model_Album
 			$this->current_album['thumbnail_url'] = $this->getThumbnailUrl();
 			$this->current_album['description'] = $this->getAlbumDescription();
 			$this->current_album['sort'] = $this->getAlbumDefaultSort();
+			$this->current_album['num_items'] = $this->countAlbumItems();
 		}
 		$db->free_result($request);
 
@@ -124,9 +125,34 @@ class LevGal_Model_Album
 
 		censor($this->current_album['description']);
 		$this->current_album['description'] = !empty($this->current_album['description']) ? $parser->enableSmileys(true)->parse($this->current_album['description']) : '';
-		$this->current_album['description_short'] = Util::shorten_html($this->current_album['description'], 125);
+		$this->current_album['description'] = strtr($this->current_album['description'], array("\n" => '<br />', "\r" => ''));
+
+		// This will be nested in a <a>...</a> tag in the template, prepare for that
+		$this->current_album['description_short'] = $this->extractLinkTextOrOriginal($this->current_album['description']);
+		$this->current_album['description_short'] = Util::shorten_html($this->current_album['description_short'], 125);
 
 		return $this->current_album['description'];
+	}
+
+	/**
+	 * Extracts the link text from <a> tags or returns the original string if no replacements are made.
+	 *
+	 * @param string $inputString The input string to extract link text from.
+	 * @return string The modified string with extracted link text or the original string if no replacements are made.
+	 */
+	public function extractLinkTextOrOriginal($inputString) {
+		// Use preg_replace_callback() to replace <a> tags with their link text
+		$modifiedString = preg_replace_callback('/<a\s.*?>(.*?)<\/a>/', static function ($matches) {
+			// $matches[1] contains the link text
+			return $matches[1];
+		}, $inputString);
+
+		// If no replacements, return the original string
+		if ($modifiedString === $inputString) {
+			return $inputString;
+		}
+
+		return $modifiedString;
 	}
 
 	public function setAlbumDescription()
@@ -1362,39 +1388,12 @@ class LevGal_Model_Album
 				if (!empty($hierarchy))
 				{
 					$hierarchies[$owner_type][$owner] = $hierarchy;
-					$album_counts[$owner_type][$owner] = $this->getAlbumCounts($hierarchy, $this->current_album['id_album']);
+					$album_counts[$owner_type][$owner] = $hierarchy[$this->current_album['id_album']]['sub_albums'];
 				}
 			}
 		}
 
 		return array($hierarchies, $album_counts);
-	}
-
-	public function getAlbumCounts($hierarchy, $id_album)
-	{
-		$count = 0;
-
-		// Find this album in the hierarchy
-		$key = array_search((int) $id_album, array_keys($hierarchy), true);
-		if ($key !== false)
-		{
-			// All the items after this point in the hierarchy are children
-			// Before this point are parents
-			$slice = array_slice($hierarchy, $key, null);
-			$current = array_shift($slice);
-			foreach ($slice as $next)
-			{
-				// Just one level down
-				if ($next['album_level'] - 1 > $current['album_level'])
-				{
-					break;
-				}
-
-				$count++;
-			}
-		}
-
-		return $count;
 	}
 
 	public function getOwnershipOptions()
