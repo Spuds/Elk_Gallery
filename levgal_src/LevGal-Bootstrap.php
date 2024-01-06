@@ -663,6 +663,7 @@ class LevGal_Bootstrap
 					$albumDetails = $album->getAlbumById($id);
 					if ($album->isVisible() === false)
 					{
+						loadLanguage('levgal_lng/LevGal');
 						$tag[Codes::ATTR_CONTENT] = '<img class="item_image" src="' . $settings['default_theme_url'] . '/levgal_res/icons/unknown.png" alt="' . $txt['lgal_bbc_no_item'] . '" title="' . $txt['lgal_bbc_no_item'] . '" />';
 						return null;
 					}
@@ -756,6 +757,7 @@ class LevGal_Bootstrap
 		$codes[] = array(
 			Codes::ATTR_TAG => 'clear',
 			Codes::ATTR_TYPE => Codes::TYPE_CLOSED,
+			Codes::ATTR_DISALLOW_PARENTS => array("tt" => 1),
 			Codes::ATTR_CONTENT => '<div class="separator"></div>',
 			Codes::ATTR_BLOCK_LEVEL => true,
 			Codes::ATTR_AUTOLINK => false,
