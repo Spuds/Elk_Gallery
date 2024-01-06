@@ -3,7 +3,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 1.2.1 / elkarte
  */
 
 
@@ -330,3 +330,13 @@ function get_human_size(filesize)
 
 	return txt.size_gb.replace('%1$s', (filesize / 1024 / 1024 / 1024).toFixed(1));
 }
+
+function show_levgal_preloader() {
+	document.getElementById("levgal_preloader").style.display = "block";
+}
+
+function hide_levgal_preloader()
+{
+	document.getElementById("levgal_preloader").style.display = "none";
+}
+
