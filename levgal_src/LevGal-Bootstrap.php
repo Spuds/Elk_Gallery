@@ -5,7 +5,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 1.2.1 / elkarte
  */
 
 use BBC\Codes;
@@ -27,7 +27,7 @@ class LevGal_Bootstrap
 	 */
 	public static function initialize()
 	{
-		define('LEVGAL_VERSION', '1.2.0');
+		define('LEVGAL_VERSION', '1.2.1');
 
 		self::setDefaults();
 		self::defineAutoload();
