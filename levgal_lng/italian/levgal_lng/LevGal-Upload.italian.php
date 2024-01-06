@@ -15,7 +15,7 @@
 // General adding/editing:
 $txt['lgal_adding_to_album'] = 'Caricamento nell\'album: %1$s';
 $txt['lgal_editing_item'] = 'Modifica dell\'elemento: %1$s';
-$txt['lgal_item_slug'] = 'Slug elemento:';
+$txt['lgal_item_slug'] = 'Permalink elemento:';
 $txt['lgal_item_slug_note'] = 'This will be generated for you or you may use a custom one';
 $txt['lgal_item_description'] = 'Descrizione di questo elemento (non necessaria):';
 

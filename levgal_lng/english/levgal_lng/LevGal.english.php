@@ -202,8 +202,10 @@ $txt['lgal_set_thumbnail_desc'] = 'This set the album\'s thumbnail picture to us
 
 $txt['lgal_item_actions_actions'] = 'Actions';
 $txt['lgal_item_actions_moderation'] = 'Moderation';
-$txt['lgal_add_item'] = 'Save Single Item';
-$txt['lgal_add_bulk'] = 'Save Bulk Items';
+$txt['lgal_add_item'] = 'Add Single Item';
+$txt['lgal_add_bulk'] = 'Add Bulk Items';
+$txt['lgal_save_item'] = 'Save Single Item';
+$txt['lgal_save_bulk'] = 'Save Bulk Items';
 $txt['lgal_mark_album_seen'] = 'Mark Album Seen';
 $txt['lgal_mark_all_seen'] = 'Mark All Seen';
 $txt['lgal_bookmark_item'] = 'Bookmark Item';

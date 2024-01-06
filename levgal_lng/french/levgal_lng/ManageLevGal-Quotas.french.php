@@ -45,7 +45,7 @@ $txt['lgal_image_jpg'] = 'JPEG images (.jpg, .jpeg)';
 $txt['lgal_image_gif'] = 'GIF images (.gif)';
 $txt['lgal_image_png'] = 'PNG images (.png)';
 $txt['lgal_image_psd'] = 'Photoshop files (.psd)';
-$txt['lgal_image_tiff'] = 'TIFF images (.tiff)';
+$txt['lgal_image_tiff'] = 'TIFF images (.tiff, .tif)';
 $txt['lgal_image_mng'] = 'MNG images (.mng)';
 $txt['lgal_image_iff'] = 'IFF images (.iff, .lbm)';
 
