@@ -9,7 +9,7 @@
  * @license LGPL (v3)
  * @since 1.0
  *
- * @version 1.2.0 / elkarte
+ * @version 1.2.1 / elkarte
  */
 
 function template_main_album_view()
@@ -42,10 +42,9 @@ function template_main_tag_list()
 	}
 
 	echo '
-		<dt class="clear_left">', $txt['lgal_item_tag'], '</dt>
+		<dt class="clear_left">', $txt['lgal_item_tag'], '<br /><span class="smalltext">', $txt['lgal_item_tag_description'], '</span></dt>
 		<dd>
 			<input type="text" placeholder="', $txt['lgal_item_tag_input'], '" class="flexdatalist" data-min-length="0" multiple="multiple" list="tags" id="tag" name="tag" />
-			<span class="smalltext">', $txt['lgal_item_tag_description'], '</span>
 			<datalist id="tags">';
 
 	if (!empty($context['tags']))
@@ -272,13 +271,16 @@ function template_album_navigation()
 				{
 					echo '
 					<a class="album_child well" href="', $album['album_url'], '">
-						<img src="', $album['thumbnail_url'], '" alt="cover" loading="lazy" />
-						<div class="album_child_details">
-							<div class="album_name">', $album['album_name'], '</div>
-							<div class="album_block_description">', $album['description_short'],
+						<div>
+							<img style="float: left;" src="', $album['thumbnail_url'], '" alt="cover" loading="lazy" />
+							<p class="album_child_details">
+								<span class="album_name">', $album['album_name'], '</span><br />
+								<span class="album_block_description">', $album['description_short'],
 								!empty($album['description_short']) ? '<br />' : '', '
-								<span class="lgalicon i-album"></span> ', LevGal_Helper_Format::numstring('lgal_items', $album['num_items']), '
-							</div>
+									<span class="lgalicon i-album"></span> ', LevGal_Helper_Format::numstring('lgal_items', $album['num_items']),
+									empty($album['sub_albums']) ? '' : ' / ' . LevGal_Helper_Format::numstring('lgal_albums', $album['sub_albums']), '
+								</span>
+							</p>
 						</div>
 					</a>';
 				}
@@ -577,14 +579,14 @@ function template_main_album_sidebar()
 			el = document.querySelector("#" + items[i] + "_container span.i-clipboard");
 			el.setAttribute("data-clipboard-target", "#" + items[i]);
 			parentEl.addEventListener("mouseleave", lgalClearTooltip);
-    		parentEl.addEventListener("blur", lgalClearTooltip);
+			parentEl.addEventListener("blur", lgalClearTooltip);
 		}
 		
 		let clipboardSnippets = new ClipboardJS(".i-clipboard", {});
- 		
- 		clipboardSnippets.on("success", function(e) {
-   			let clip = e.trigger.parentElement;
-    		lgalShowTooltip(clip, "', $txt['lgal_copyied_to_clipboard'], '");
+		
+		clipboardSnippets.on("success", function(e) {
+			let clip = e.trigger.parentElement;
+			lgalShowTooltip(clip, "', $txt['lgal_copyied_to_clipboard'], '");
 		});
 	</script>';
 }
@@ -677,7 +679,7 @@ function template_add_single_item()
 						<dd>
 							<input type="text" id="item_name" name="item_name" tabindex="', $context['tabindex']++, '" size="80" maxlength="80" class="input_text" value="', $context['item_name'], '" style="width: 95%;" />
 						</dd>
-						<dt class="clear_left">', $txt['lgal_item_slug'], '</dt>
+						<dt class="clear_left">', $txt['lgal_item_slug'], '<br /><span class="smalltext">', $txt['lgal_item_slug_note'], '</span></dt>
 						<dd>
 							<span class="smalltext">', $scripturl, '?media/item/</span>
 							<input type="text" id="item_slug" name="item_slug" tabindex="', $context['tabindex']++, '" size="20" maxlength="40" class="input_text" value="', $context['item_slug'], '" />
@@ -787,7 +789,8 @@ function template_add_single_item()
 	else
 	{
 		echo '
-								<div id="dragdropcontainer" class="dropzone"></div>';
+								<div id="dragdropcontainer" class="dropzone"></div>
+								<input class="begin_button full" type="submit" value="', $txt['lgal_add_item'], '" onclick="return is_submittable() && submitThisOnce(this);" />';
 	}
 
 	echo '
@@ -798,7 +801,7 @@ function template_add_single_item()
 						</dd>
 					</dl>
 					<hr />
-					<div class="upload_desc" style="font-weight: 600">', $txt['lgal_item_description'], '</div>';
+					<div class="upload_desc">', $txt['lgal_item_description'], '</div>';
 
 	// Description box, Output buttons and session value.
 	$description_box->displayEditWindow();
@@ -888,8 +891,8 @@ function template_add_single_item()
 			parallelUploads: defaults.parallelUploads,
 			parallelChunkUploads: defaults.parallelChunkUploads,
 			chunkSize: defaults.chunkSize,
-		 	dictDefaultMessage: txt.item_drag_here,
-		  	dictFallbackMessage: txt.browser_not_supported,
+			dictDefaultMessage: txt.item_drag_here,
+			dictFallbackMessage: txt.browser_not_supported,
 			dictResponseError: txt.upload_failed,
 			thumbnailMethod: "contain",
 			init: function() 
@@ -900,6 +903,7 @@ function template_add_single_item()
 					document.getElementById(\'display_container\').innerHTML = file.name;
 					document.getElementById(\'upload_type\').value = "file";
 					document.getElementById(\'upload_type\').disabled = true;
+					document.querySelectorAll(".begin_button").forEach((elem) => {elem.style.display = "block"});
 
 					if (itemName.value === \'\')
 					{
@@ -919,9 +923,9 @@ function template_add_single_item()
 					submittable = true;
 				});
 				this.on("sending", function(file, xhr, formData) 
-      			{
-      				formData.append("' . $context['session_var'] . '", "' . $context['session_id'] . '");
-      				formData.append("async", file.upload.uuid);
+				{
+					formData.append("' . $context['session_var'] . '", "' . $context['session_id'] . '");
+					formData.append("async", file.upload.uuid);
 				});
 				this.on("error", function (file, msg, xhr)
 				{
@@ -960,12 +964,12 @@ function template_add_single_item()
 					else
 					{
 						// This is for tiff files, maybe others, which fail on creating a client side thumbnail
-					    if (typeof dataURL === "object" && dataURL instanceof Event)
-					    {
-					    	let dataURL = get_upload_generic_thumbnail(file, this.options.lgal_quota);
-      						file.previewElement.querySelector("img[data-dz-thumbnail]").src = dataURL;
-  						}
-  						
+						if (typeof dataURL === "object" && dataURL instanceof Event)
+						{
+							let dataURL = get_upload_generic_thumbnail(file, this.options.lgal_quota);
+							file.previewElement.querySelector("img[data-dz-thumbnail]").src = dataURL;
+						}
+						
 						done();
 					}
 				});
@@ -1001,7 +1005,7 @@ function template_add_single_item()
 						document.getElementsByClassName("dz-preview")[0].classList.add("dz-error");
 						document.getElementsByClassName("dz-progress")[0].classList.add("hide");
 					}
-    			});
+				});
 			}
 		})
 		</script>';
@@ -1017,9 +1021,6 @@ function template_add_bulk_items()
 			</h3>							
 			<form action="#" method="post" name="postmodify" id="postmodify" accept-charset="UTF-8">
 				<div class="well">	
-					<div>
-						<input type="button" value="' . $txt['lgal_begin_upload'] . '" style="display: none" class="right_submit begin_button" onclick="return beginUpload();" />
-					</div>
 					<dl class="settings" id="upload_container">
 						<dt>
 							<div id="allowed_type_file">';
@@ -1043,6 +1044,8 @@ function template_add_bulk_items()
 							<div id="display_container"></div>
 							<div id="upload_type_file">
 								<div id="dragdropcontainer" class="dropzone"></div>
+								<input type="button" value="' . $txt['lgal_begin_upload'] . '" class="begin_button full" onclick="return beginUpload();" />
+								<div id="levgal_preloader"><i class="levgal_preloader_icon"></i><div>
 							</div>
 						</dd>
 					</dl>';
@@ -1124,6 +1127,7 @@ function template_add_bulk_items()
 		let txt = ' . json_encode($lang) . ',
 			urls = {},
 			fileCount = 0,
+			processedFiles = 0,
 			defaults = get_upload_defaults();
 
 		let uploader = new Dropzone("#dragdropcontainer", {
@@ -1139,19 +1143,19 @@ function template_add_bulk_items()
 			parallelChunkUploads: defaults.parallelChunkUploads,
 			chunkSize: defaults.chunkSize,
 			dictDefaultMessage: txt.item_drag_here,
-		  	dictFallbackMessage: txt.browser_not_supported,
+			dictFallbackMessage: txt.browser_not_supported,
 			dictResponseError: txt.upload_failed,
 			previewTemplate: previewTemplate,
 			autoProcessQueue: false,
 			thumbnailWidth: 60,
-        	thumbnailHeight: 60,
+			thumbnailHeight: 60,
 			previewsContainer: "#previews",
 			init: function()
 			{
 				this.on("addedfiles", function(files)
 				{
 					fileCount = fileCount + files.length;
-					if (fileCount > 0)
+					if (fileCount == processedFiles)
 					{
 						document.querySelectorAll(".begin_button").forEach((elem) => {elem.style.display = "block"});
 					}
@@ -1159,35 +1163,37 @@ function template_add_bulk_items()
 				this.on("removedfile", function(file)
 				{
 					fileCount = fileCount - 1;
+					processedFiles = processedFiles -1;
 					sessionStorage.setItem(file.upload.uuid, file.name);
 					if (fileCount === 0)
 					{
+						hide_levgal_preloader();
 						document.querySelectorAll(".begin_button").forEach((elem) => {elem.style.display = "none"});
 					}
 				});
-			    this.on("totaluploadprogress", function(progress, totalBytes, totalBytesSent)
-			    {
-			    	let byteProgress = "<span>(" + get_human_size(totalBytesSent) + " / " + get_human_size(totalBytes) + ")</span>",
-			    	    current = document.querySelector("#total-progress .progress-bar").style.width;
+				this.on("totaluploadprogress", function(progress, totalBytes, totalBytesSent)
+				{
+					let byteProgress = "<span>(" + get_human_size(totalBytesSent) + " / " + get_human_size(totalBytes) + ")</span>",
+						current = document.querySelector("#total-progress .progress-bar").style.width;
 
-			    	current = parseInt(current.replace("%", ""));
-			    	if (progress > current)
-			    	{
-			    		document.querySelector("#total-progress .progress-bar").innerHTML = byteProgress;
-       					document.querySelector("#total-progress .progress-bar").style.width = progress + "%";
-       				}
-       			});
-      			this.on("sending", function(file, xhr, formData)
-      			{
-      				if (sessionStorage.getItem(file.upload.uuid) === file.name)
+					current = parseInt(current.replace("%", ""));
+					if (progress > current)
 					{
-      					formData.append("' . $context['session_var'] . '", "' . $context['session_id'] . '");
-      					formData.append("async", file.upload.uuid);
-      					formData.append("async_filename", file.name.php_urlencode());
-      				}
+						document.querySelector("#total-progress .progress-bar").innerHTML = byteProgress;
+						document.querySelector("#total-progress .progress-bar").style.width = progress + "%";
+					}
+				});
+				this.on("sending", function(file, xhr, formData)
+				{
+					if (sessionStorage.getItem(file.upload.uuid) === file.name)
+					{
+						formData.append("' . $context['session_var'] . '", "' . $context['session_id'] . '");
+						formData.append("async", file.upload.uuid);
+						formData.append("async_filename", file.name.php_urlencode());
+					}
 
-		      		document.getElementById("total-progress").style.opacity = "1";
-	      		});
+					document.getElementById("total-progress").style.opacity = "1";
+				});
 				this.on("success", function(file, response)
 				{
 					$.ajax({
@@ -1239,6 +1245,13 @@ function template_add_bulk_items()
 					}
 				});
 				this.on("thumbnail", function(file, dataURL) {
+					processedFiles = processedFiles + 1;
+					if (processedFiles >= fileCount)
+					{
+						document.querySelectorAll(".begin_button").forEach((elem) => {elem.style.display = "block"});
+						hide_levgal_preloader();
+					}
+					
 					let result = addFileFilter(file, this.options.lgal_quota, this.options.lgal_enable_resize);
 					if (result !== true)
 					{
@@ -1252,7 +1265,7 @@ function template_add_bulk_items()
 						{
 							let dataURL = get_upload_generic_thumbnail(file, this.options.lgal_quota);
 							file.previewElement.querySelector("img[data-dz-thumbnail]").src = dataURL;
-  						}
+						}
 						sessionStorage.setItem(file.upload.uuid, file.name);
 						file.acceptDimensions();
 					}
@@ -1262,8 +1275,8 @@ function template_add_bulk_items()
 			{
 				// We do not have the width / height until the thumbnail is done, so set up
 				// callbacks using the passed done function
-    			file.acceptDimensions = done;
-    			file.rejectDimensions = function(error) {done(error);};
+				file.acceptDimensions = done;
+				file.rejectDimensions = function(error) {done(error);};
 
 				// If its not an image, trigger thumbnail manually so the accept checks run
 				if (!file.type.match(/image.*/))
@@ -1271,6 +1284,8 @@ function template_add_bulk_items()
 					let dataURL = get_upload_generic_thumbnail(file, this.options.lgal_quota);
 					this.emit("thumbnail", file, dataURL);
 				}
+
+				show_levgal_preloader();
 			},
 			chunksUploaded: function(file, done)
 			{
@@ -1293,7 +1308,7 @@ function template_add_bulk_items()
 						onChunkComplete(xhr);
 						done();
 					}
-    			});
+				});
 			}
 		})
 	</script>';
@@ -1385,7 +1400,7 @@ function template_edit_album()
 					<dd>
 						<input type="text" id="album_name" name="album_name" tabindex="1" size="80" maxlength="80" class="input_text" value="', $context['album_details']['album_name'], '" style="width: 95%;" />
 					</dd>
-					<dt class="clear_left">', $txt['levgal_album_slug'], '</dt>
+					<dt class="clear_left">', $txt['levgal_album_slug'], '<br /><span class="smalltext">', $txt['levgal_album_slug_note'], '</span></dt>
 					<dd>
 						<span class="smalltext">', $scripturl, '?media/album/</span>
 						<input type="text" id="album_slug" name="album_slug" tabindex="2" size="20" maxlength="40" class="input_text" value="', $context['album_details']['album_slug'], '" />
