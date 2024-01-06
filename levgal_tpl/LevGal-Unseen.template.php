@@ -9,7 +9,7 @@
  * @license LGPL (v3)
  * @since 1.0
  *
- * @version 1.2.0 / elkarte
+ * @version 1.2.1 / elkarte
  */
 
 function template_unseen()
@@ -51,7 +51,7 @@ function template_unseen_sidebar()
 				<dl class="album_details">
 					<dt></dt>
 					<dd>
-						<ul class="sidebar_actions">';
+						<ul class="sidebar_actions columns">';
 	foreach ($context['unseen_albums'] as $id_album => $album)
 	{
 		echo '
