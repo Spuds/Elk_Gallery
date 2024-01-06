@@ -9,7 +9,7 @@
  * @license LGPL (v3)
  * @since 1.0
  *
- * @version 1.2.0 / elkarte
+ * @version 1.2.1 / elkarte
  */
 
 function template_main()
@@ -425,13 +425,16 @@ function template_album_hierarchy($hierarchy, $compact = false)
 		}
 
 		echo '
-			<li id="album_', $id_album, '" class="album_hierarchy' . ($compact ? ' compact' : '') . '">
+			<li id="album_', $id_album, '" class="album_hierarchy' . ($compact ? ' compact' : '') . '">',
+			$compact ? '' : '
+			<a href="' . $album['album_url'] . '">', '
 				<div class="well">
 					<p class="floatleft sortable_album_thumb">
 						<img src="', $album['thumbnail_url'], '" alt="" />
 					</p>
-					<p class="floatleft">
-						<a class="album_name" href="', $album['album_url'], '"><strong>', $album['album_name'], '</strong></a>
+					<p class="floatleft">', $compact
+						? '<a class="album_name" href="' . $album['album_url'] . '"><strong>' . $album['album_name'] . '</strong></a>'
+						: '<span class="album_name"><strong>' . $album['album_name'] . '</strong></span>', '
 					</p>';
 
 		if (empty($album['approved']))
@@ -467,7 +470,7 @@ function template_album_hierarchy($hierarchy, $compact = false)
 		}
 
 		echo '
-				</div>';
+				</div>', $compact ? '' : '</a>';
 	}
 
 	// And to finish off.
