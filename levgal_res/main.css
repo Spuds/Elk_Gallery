@@ -1,5 +1,5 @@
 /**
- This is the CSS for Levertine Gallery (LTR)
+ This is the CSS for Levertine Gallery (LTR) v1.2.1
 **/
 :root {
 	--shadow-color: rgba(158, 158, 158, .38);
@@ -171,6 +171,10 @@ dl.album_details dd, dl.album_info dd {
 	flex-wrap: nowrap;
 	margin-top: 0;
 	padding: 4px 10px 2px 10px;
+}
+
+.lgal_secondary_header + p.infobox {
+	font-size: 1.05em;
 }
 
 .main_item_container {
@@ -639,24 +643,28 @@ li.album_hierarchy_compact ul {
 	min-height: 70px;
 }
 
-.album_child.well:hover {
-	text-decoration: none;
+.album_child > div {
+	width: 100%;
+	overflow: hidden;
+	word-break: break-word;
+	line-clamp: 4 "...";
+
 }
 
-.album_child_details {
-	overflow: hidden;
+.album_child.well:hover {
+	text-decoration: none;
 }
 
 .album_child_details > .album_name {
 	font-weight: 600;
 	overflow: hidden;
 	min-width: 95%;
-	white-space: nowrap;
+	line-clamp: 2 "...";
 	text-overflow: ellipsis;
 }
 
-.album_child > img {
-	max-width: 50px;
+.album_child > img, .album_child img {
+	max-width: 48px;
 	padding: 0 5px;
 	object-fit: contain;
 }
@@ -697,8 +705,12 @@ ul.lgalactions li a {
 	list-style: none;
 }
 
+.sidebar_actions.columns {
+	column-count: 3;
+}
+
 .sidebar_actions li .lgalicon {
-	margin: 0 5px -2px 5px;
+	margin: 0 6px -1px 5px;
 }
 
 .lgal_share input {
@@ -712,6 +724,10 @@ ul.lgalactions li a {
 	cursor: pointer;
 }
 
+.upload_desc {
+	font-weight: 600;
+}
+
 #browse_button {
 	float: none;
 	margin-right: 0;
@@ -723,10 +739,32 @@ ul.lgalactions li a {
 }
 
 #upload_type_file {
-	position: absolute;
 	overflow: visible;
-	width: 45%;
-	min-height: 20px;
+	width: 95%;
+	min-height: 200px;
+	position: relative;
+}
+
+#levgal_preloader {
+	display: none;
+	position: absolute;
+	top: 0;
+	text-align: center;
+	width: 100%;
+	height: 100%;
+}
+
+.levgal_preloader_icon {
+	display: inline-block;
+	line-height: 4;
+	width: 4em;
+	height: 4em;
+	position: relative;
+	top: 25%;
+}
+
+.levgal_preloader_icon::before {
+	content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='darkgreen' viewBox='0 0 100 100' %3E%3Cpath d='M31.6 3.5C5.9 13.6-6.6 42.7 3.5 68.4c10.1 25.7 39.2 38.3 64.9 28.1l-3.1-7.9C44 97 19.9 86.6 11.5 65.3c-8.4-21.3 2-45.4 23.3-53.8l-3.2-8z'%3E%3CanimateTransform attributeName='transform' attributeType='XML' type='rotate' dur='2s' from='0 50 50' to='360 50 50' repeatCount='indefinite'/%3E%3C/path%3E%3Cpath fill='darkgreen' d='M42.3 39.6c5.7-4.3 13.9-3.1 18.1 2.7 4.3 5.7 3.1 13.9-2.7 18.1l4.1 5.5c8.8-6.5 10.6-19 4.1-27.7-6.5-8.8-19-10.6-27.7-4.1l4.1 5.5z'%3E%3CanimateTransform attributeName='transform' attributeType='XML' type='rotate' dur='1s' from='0 50 50' to='-360 50 50' repeatCount='indefinite'/%3E%3C/path%3E%3Cpath fill='green' d='M82 35.7C74.1 18 53.4 10.1 35.7 18S10.1 46.6 18 64.3l7.6-3.4c-6-13.5 0-29.3 13.5-35.3s29.3 0 35.3 13.5l7.6-3.4z'%3E%3CanimateTransform attributeName='transform' attributeType='XML' type='rotate' dur='2s' from='0 50 50' to='360 50 50' repeatCount='indefinite'/%3E%3C/path%3E%3C/svg%3E");
 }
 
 #progressbar, #total_progressbar {
@@ -902,6 +940,11 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 
 .begin_button {
 	margin: 5px 3%;
+}
+
+.begin_button.full {
+	width: 95%;
+	display: none;
 }
 
 .progress {
@@ -1221,8 +1264,8 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 	}
 }
 
-/* This one does 800 screens at default font size. */
-@media screen and (max-width: 50em) {
+/* This one does 834 screens at default font size. */
+@media screen and (max-width: 53em) {
 	.lgalicon.i-rss {
 		display: none;
 	}
@@ -1240,6 +1283,10 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 		width: 99%;
 	}
 
+	.album_details {
+		max-height: 12em;
+	}
+
 	.album_container > .album_featured, .album_container > .album_featured_compact, .album_container > .album_placard {
 		width: 49%;
 	}
@@ -1247,6 +1294,14 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 	.album_hierarchy_compact .lgal_profile_itemname {
 		max-width: 65%;
 		margin: 0 2px;
+	}
+
+	.album_thumb {
+		width: 80px;
+	}
+
+	.sidebar_actions.columns {
+		column-count: 2;
 	}
 }
 
@@ -1275,6 +1330,10 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 		width: 98%;
 		margin: 0 5px;
 		padding-right: 0;
+	}
+
+	.sidebar_actions.columns {
+		column-count: 1;
 	}
 }
 
