@@ -78,6 +78,10 @@ function template_search()
 	}
 
 	echo '
+					</ul>
+					<hr class="clear" />
+					<ul style="columns: 2">
+
 						<li class="lefttext">';
 
 	foreach ($context['search_types'] as $type)
