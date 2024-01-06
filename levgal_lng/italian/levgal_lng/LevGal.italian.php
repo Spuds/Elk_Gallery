@@ -131,7 +131,7 @@ $txt['lgal_item_was_reported'] = 'This item has been reported.';
 
 $txt['levgal_album_add_description'] = 'This page is about collecting enough information to be able to create a new album for you. More details will be available once the album is created, including arranging this as a child album of another album.';
 $txt['levgal_album_name'] = 'Album name:';
-$txt['levgal_album_slug'] = 'Album slug:';
+$txt['levgal_album_slug'] = 'Album Permalink:';
 $txt['levgal_album_slug_note'] = 'This will be generated for you or you may use a custom one';
 $txt['levgal_set_album_featured'] = 'Mark this album as a featured album?';
 $txt['levgal_album_lock_for_items'] = 'Allow new items in this album?';
@@ -203,6 +203,8 @@ $txt['lgal_item_actions_actions'] = 'Actions';
 $txt['lgal_item_actions_moderation'] = 'Moderation';
 $txt['lgal_add_item'] = 'Add Single Item';
 $txt['lgal_add_bulk'] = 'Add Bulk Items';
+$txt['lgal_save_item'] = 'Save Single Item';
+$txt['lgal_save_bulk'] = 'Save Bulk Items';
 $txt['lgal_mark_album_seen'] = 'Mark Album Seen';
 $txt['lgal_mark_all_seen'] = 'Mark All Seen';
 $txt['lgal_bookmark_item'] = 'Bookmark Item';
