@@ -132,6 +132,7 @@ $txt['lgal_item_was_reported'] = 'Dieses Element wurde gemeldet.';
 $txt['levgal_album_add_description'] = 'Auf dieser Seite geht es darum, genügend Informationen zu sammeln, damit wir ein neues Album für Sie erstellen können. Weitere Details werden verfügbar sein, sobald das Album erstellt ist.';
 $txt['levgal_album_name'] = 'Albumname:';
 $txt['levgal_album_slug'] = 'Album-Pfadname:';
+$txt['levgal_album_slug_note'] = 'This will be generated for you or you may use a custom one';
 $txt['levgal_set_album_featured'] = 'Markieren Sie dieses Album als ein vorgestelltes Album?';
 $txt['levgal_album_lock_for_items'] = 'Neue Elemente in diesem Album zulassen?';
 $txt['levgal_album_lock_for_comments'] = 'Neue Kommentare zu den Elementen in diesem Album zulassen?';
