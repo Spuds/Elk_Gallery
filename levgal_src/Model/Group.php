@@ -4,11 +4,11 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 1.2.1 / elkarte
  */
 
 /**
- * This file deals with getting group information since SMF has no suitable shared code.
+ * This file deals with getting group information.
  */
 class LevGal_Model_Group
 {
@@ -37,7 +37,7 @@ class LevGal_Model_Group
 				'stars_column' => 'icons',
 			)
 		);
-		$details = $this->processQueryResult($request, $orders[$order] ?? $orders['name']);
+		$details = $this->processQueryResult($request, $orders[$order] ?? $orders['name'], $db->num_rows($request) === 0);
 		$db->free_result($request);
 
 		return $details;
@@ -93,13 +93,15 @@ class LevGal_Model_Group
 		));
 	}
 
-	private function processQueryResult($request, $sort)
+	private function processQueryResult($request, $sort, $include_default = true)
 	{
 		global $context, $settings, $txt;
 
 		$db = database();
 
 		// Include Default Registered Members
+		if ($include_default === true)
+		{
 		$details = array(
 			0 => array(
 				'id_group' => 0,
@@ -109,6 +111,7 @@ class LevGal_Model_Group
 				'stars' => '',
 			)
 		);
+		}
 
 		while ($row = $db->fetch_assoc($request))
 		{
