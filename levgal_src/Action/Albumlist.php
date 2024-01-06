@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 1.2.1 / elkarte
  */
 
 /**
@@ -309,6 +309,32 @@ class LevGal_Action_Albumlist extends LevGal_Action_Abstract
 			$context['album_actions']['actions']['sitealbums'] = array($txt['lgal_albums_site'], $scripturl . '?media/albumlist/site/', 'tab' => true, 'sidebar' => false, 'active' => $sidebar_type === 'site' && $sub === 'site');
 		}
 
+		if (!empty($context['album_owners']['groups']))
+		{
+			// We need to rearrange this into name order.
+			$groups = array();
+			foreach ($context['album_owners']['groups'] as $id => $group)
+			{
+				$groups[$group['name']] = array(
+					'url' => $scripturl . '?media/albumlist/' . $id . '/group/',
+					'id' => $id,
+					'title' => $group['color_name'],
+					'count' => $group['count'],
+					'active' => $sidebar_type === 'group' && $sidebar_id === $id,
+				);
+				if ($sidebar_type === 'group' && $sidebar_id === $id)
+				{
+					$context['does_exist'] = true;
+				}
+				ksort($groups);
+				$context['sidebar']['groups'] = array(
+					'title' => $txt['lgal_albums_group'],
+					'items' => $groups,
+				);
+			}
+			$context['album_actions']['actions']['groupalbums'] = array($txt['lgal_albums_group'], $scripturl . '?media/albumlist/group/', 'tab' => true, 'sidebar' => false, 'active' => $sidebar_type === 'group');
+		}
+
 		if (!empty($context['album_owners']['members']))
 		{
 			// We need to rearrange this into name order.
@@ -347,32 +373,6 @@ class LevGal_Action_Albumlist extends LevGal_Action_Abstract
 				'title' => $txt['lgal_albums_member'],
 				'items' => $members,
 			);
-		}
-
-		if (!empty($context['album_owners']['groups']))
-		{
-			// We need to rearrange this into name order.
-			$groups = array();
-			foreach ($context['album_owners']['groups'] as $id => $group)
-			{
-				$groups[$group['name']] = array(
-					'url' => $scripturl . '?media/albumlist/' . $id . '/group/',
-					'id' => $id,
-					'title' => $group['color_name'],
-					'count' => $group['count'],
-					'active' => $sidebar_type === 'group' && $sidebar_id === $id,
-				);
-				if ($sidebar_type === 'group' && $sidebar_id === $id)
-				{
-					$context['does_exist'] = true;
-				}
-				ksort($groups);
-				$context['sidebar']['groups'] = array(
-					'title' => $txt['lgal_albums_group'],
-					'items' => $groups,
-				);
-			}
-			$context['album_actions']['actions']['groupalbums'] = array($txt['lgal_albums_group'], $scripturl . '?media/albumlist/group/', 'tab' => true, 'sidebar' => false, 'active' => $sidebar_type === 'group');
 		}
 
 		if (allowedTo(array('lgal_manage', 'lgal_adduseralbum', 'lgal_addgroupalbum')))
