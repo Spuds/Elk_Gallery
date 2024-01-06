@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 1.2.1 / elkarte
  */
 
 /**
@@ -302,6 +302,8 @@ class LevGal_Model_AlbumList
 		{
 			return array();
 		}
+
+		$sub_albums = $this->countChildrenAlbums($hierarchy, 1);
 		$album_level = $hierarchy[$album]['album_level'];
 		$level_shift = max($album_level - 1, 0);
 
@@ -365,9 +367,68 @@ class LevGal_Model_AlbumList
 		foreach (array_keys($hierarchy) as $id_album)
 		{
 			$hierarchy[$id_album]['album_level'] -= $level_shift;
+			$hierarchy[$id_album]['sub_albums'] = $sub_albums[$id_album] ?? 0;
 		}
 
 		return $hierarchy;
+	}
+
+	/**
+	 * Counts the number of children albums for each album in the given array up to the specified depth.
+	 *
+	 * @param array $yourArray The array of albums to count children albums for.
+	 * @param int $depth The maximum depth to look for children albums.
+	 *
+	 * @return array The counts of children albums for each album in the given array. The keys are the album IDs,
+	 *               and the values are the counts of children albums.
+	 */
+	public function countChildrenAlbums($yourArray, $depth)
+	{
+		$albumCounts = array();
+		foreach ($yourArray as $index => $album) {
+			$count = $this->countDescendants($yourArray, $index, $depth);
+
+			if ($count > 0) {
+				$albumCounts[$album['id_album']] = $count;
+			}
+		}
+
+		return $albumCounts;
+	}
+
+	/**
+	 * Counts the number of descendants for a given album in the hierarchy.
+	 *
+	 * @param array $albums The array of albums representing the hierarchy.
+	 * @param int $startIndex The index of the album to start counting from.
+	 * @param int $depth The maximum depth of descendants to count.
+	 * @param array $count Reference to an array to store the count for each album.
+	 *
+	 * @return int The number of descendants for the specified album.
+	 */
+	public function countDescendants($albums, $startIndex, $depth = 1, &$count = array())
+	{
+		$currentLevel = $albums[$startIndex]['album_level'];
+		$count[$startIndex] = 0;
+
+		$map = array_keys($albums);
+		$map_count = count($map);
+		$mapIndex = array_search((int)$startIndex, $map, true);
+
+		for ($i = $mapIndex + 1; $i < $map_count; $i++)
+		{
+			if ($albums[$map[$i]]['album_level'] > $currentLevel
+				&& $albums[$map[$i]]['album_level'] <= $currentLevel + $depth)
+			{
+				$count[$startIndex]++;
+			}
+			elseif ($albums[$map[$i]]['album_level'] <= $currentLevel)
+			{
+				break;
+			}
+		}
+
+		return $count[$startIndex];
 	}
 
 	public function getAlbumHierarchyByOwners()
