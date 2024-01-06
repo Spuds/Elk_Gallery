@@ -132,6 +132,7 @@ $txt['lgal_item_was_reported'] = 'Cet élément a été signalé.';
 $txt['levgal_album_add_description'] = 'Cette page a pour but de collecter suffisamment d\'informations pour pouvoir créer un nouvel album. Plus de détails seront disponibles une fois l\'album créé.';
 $txt['levgal_album_name'] = 'Nom de l\'album :';
 $txt['levgal_album_slug'] = 'Chemin de l\'album :';
+$txt['levgal_album_slug_note'] = 'This will be generated for you or you may use a custom one';
 $txt['levgal_set_album_featured'] = 'Marquer cet album comme album Favoris ?';
 $txt['levgal_album_lock_for_items'] = 'Autoriser les nouveaux éléments dans cet album ?';
 $txt['levgal_album_lock_for_comments'] = 'Autoriser les nouveaux commentaires sur les éléments de cet album?';

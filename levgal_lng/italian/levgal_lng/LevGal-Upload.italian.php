@@ -16,22 +16,24 @@
 $txt['lgal_adding_to_album'] = 'Caricamento nell\'album: %1$s';
 $txt['lgal_editing_item'] = 'Modifica dell\'elemento: %1$s';
 $txt['lgal_item_slug'] = 'Slug elemento:';
+$txt['lgal_item_slug_note'] = 'This will be generated for you or you may use a custom one';
 $txt['lgal_item_description'] = 'Descrizione di questo elemento (non necessaria):';
 
 // Quota strings:
 $txt['lgal_allowed_formats'] = '<u>Puoi aggiungere i seguenti tipi:</u>';
-$txt['lgal_allowed_format_image'] = '<em><b>Immagini</b></em>: %1$s';
-$txt['lgal_allowed_format_audio'] = '<em><b>Audio</b></em>: %1$s';
-$txt['lgal_allowed_format_video'] = '<em><b>Video</b></em>: %1$s';
-$txt['lgal_allowed_format_document'] = '<em><b>Documenti</b></em>: %1$s';
-$txt['lgal_allowed_format_archive'] = '<em><b>Archivi</b></em>: %1$s';
-$txt['lgal_allowed_format_generic'] = '<em><b>Altro</b></em>: %1$s';
+$txt['lgal_allowed_format_image'] = '<em><strong>Immagini</strong></em>: %1$s';
+$txt['lgal_allowed_format_audio'] = '<em><strong>Audio</strong></em>: %1$s';
+$txt['lgal_allowed_format_video'] = '<em><strong>Video</strong></em>: %1$s';
+$txt['lgal_allowed_format_document'] = '<em><strong>Documenti</strong></em>: %1$s';
+$txt['lgal_allowed_format_archive'] = '<em><strong>Archivi</strong></em>: %1$s';
+$txt['lgal_allowed_format_generic'] = '<em><strong>Altro</strong></em>: %1$s';
 $txt['lgal_allowed_external'] = 'Puoi aggiungere elementi da: %1$s';
 
 // Single uploading:
 $txt['lgal_item_name_and_slug_auto'] = 'Il nome e lo slug dell\'elemento verranno creati per te quando aggiungi un file, oppure puoi inserirne uno personalizzato.';
 $txt['lgal_item_press_browse'] = 'Per caricare, premere il pulsante Sfoglia - ';
 $txt['lgal_item_drag_here'] = 'Trascina un file qui per caricarlo o fai clic per selezionarne uno.';
+$txt['lgal_item_drag_replace'] = '<strong>Drag a file</strong> here to replace the existing, or <strong>click</strong> to select a new one.';
 $txt['lgal_item_browse'] = 'Sfoglia...';
 $txt['lgal_item_want_to_add_file'] = 'Voglio aggiungere un file ';
 $txt['lgal_item_want_to_edit_file'] = 'Voglio cambiare un file ';
