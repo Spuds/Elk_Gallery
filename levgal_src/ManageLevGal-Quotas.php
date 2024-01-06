@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 1.2.1 / elkarte
  */
 
 /**
@@ -165,7 +165,13 @@ class ManageLevGalQuotas_Controller extends Action_Controller
 		// And did we change anything? If so, update it.
 		foreach (array_keys($changed) as $quota_type)
 		{
+			if (empty($context[$quota_type]))
+			{
+				continue;
+			}
+
 			updateSettings(array('lgal_' . $quota_type . '_quotas' => serialize($context[$quota_type])));
+
 		}
 	}
 
