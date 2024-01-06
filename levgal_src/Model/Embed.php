@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 1.2.1 / elkarte
  */
 
 /**
@@ -132,32 +132,32 @@ class LevGal_Model_Embed
 	 */
 	public function convertSMG(&$message)
 	{
-			// Any [smg] bbc codes?
+		// Any [smg] bbc codes?
 		preg_match_all('~\[smg\s+([^]]*?(?:&quot;.+?&quot;.*?(?!&quot;))?)]( ?<br />)?[\r\n]?~i', $message, $aeva_tags);
 		if (empty($aeva_tags[1]))
-			{
+		{
 			return;
 		}
 
 		foreach ($aeva_tags[1] as $id => $aeva_tag)
-				{
-					$parsed = $this->aevaParse($aeva_tag);
+		{
+			$parsed = $this->aevaParse($aeva_tag);
 
-					if ($parsed !== false)
-					{
+			if ($parsed !== false)
+			{
 				// Simple tag
 				if (empty($parsed['type']) && empty($parsed['align']))
-						{
-					$replace = '[media]' . (int) $parsed['id'] . '[/media]';
-						}
+				{
+					$replace = '[media]' . (int)$parsed['id'] . '[/media]';
+				}
 				// Complex tag
-						else
-						{
-					$replace = '[media id=' . (int) $parsed['id'];
+				else
+				{
+					$replace = '[media id=' . (int)$parsed['id'];
 					if (in_array($parsed['type'], ['album', 'thumb', 'preview']))
 					{
 						$replace .= ' type=' . $parsed['type'];
-						}
+					}
 
 					if (in_array($parsed['align'], ['left', 'center', 'right']))
 					{
@@ -165,12 +165,12 @@ class LevGal_Model_Embed
 					}
 
 					$replace .= '][/media]';
-			}
+				}
 
 				// Just like the parser would do, but much less safe
 				$message = str_replace($aeva_tags[0][$id], $replace, $message);
+			}
 		}
-	}
 	}
 
 	/**
@@ -288,7 +288,17 @@ class LevGal_Model_Embed
 		$using = $item['type'] === 'preview' ? $item['preview'] : $item['thumbnail'];
 
 		// Process [media align=xxx]123[/media] as a "simple" aligned
-		if ($caption !== '_lgal_simple_')
+		if ($item['type'] !== 'preview')
+		{
+			$caption = '
+				<figcaption class="centertext smalltext" style="max-width:100%">
+				<a class="bbc_link" href="' . $item['item_url'] . '" >
+					<i class="icon i-help" title="' . $txt['lgal_item_info'] . '"></i>' .
+				($caption === '_lgal_simple_' ? '' : $caption) . '
+				</a>
+			</figcaption>';
+		}
+		elseif ($caption !== '_lgal_simple_')
 		{
 			$caption = '
 			<figcaption class="centertext smalltext" style="max-width:100%">
@@ -314,7 +324,7 @@ class LevGal_Model_Embed
 			return
 				$align . ($item['type'] === 'preview'
 				? '<a class="bbc_link" href="' . $item['item_url'] . '">'
-					: '<a href="' . $item['item_base'] . '" id="link_' . $counter . 'm" data-lightboximage="' . $counter . 'm" data-lightboxmessage="' . $item['id_msg'] . '">') . '
+				: '<a href="' . $item['item_base'] . '" id="link_' . $counter . 'm" data-lightboximage="' . $counter . 'm" data-lightboxmessage="' . $item['id_msg'] . '">') . '
 					<img class="bbc_img' . ($item['type'] === 'preview' ? '' : ' has_lightbox') . '" src="' . $using . '" alt="' . $item['item_name'] . '" title="' . $item['item_name'] . '" loading="lazy" />
 				</a>' . $caption . '</figure>';
 		}
