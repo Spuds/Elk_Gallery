@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 1.2.1 / elkarte
  */
 
 /**
@@ -946,8 +946,8 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 			// Which album it is in.
 			if (!empty($context['hierarchies']))
 			{
-				$moved_album = isset($_POST['destalbum'], $album_count) && in_array($_POST['destalbum'], $album_count, true) ? (int) $_POST['destalbum'] : 0;
-				if (!empty($moved_album) && $moved_album != $context['item_details']['id_album'])
+				$moved_album = isset($_POST['destalbum'], $album_count) && in_array((int) $_POST['destalbum'], $album_count, true) ? (int) $_POST['destalbum'] : 0;
+				if (!empty($moved_album) && $moved_album !== $context['item_details']['id_album'])
 				{
 					$changes['id_album'] = $moved_album;
 				}
@@ -1032,15 +1032,15 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 
 			if (empty($context['errors']))
 			{
-				if ($context['item_name'] != $context['item_details']['item_name'])
+				if ($context['item_name'] !== $context['item_details']['item_name'])
 				{
 					$changes['item_name'] = $context['item_name'];
 				}
-				if ($context['item_slug'] != $context['item_details']['item_slug'])
+				if ($context['item_slug'] !== $context['item_details']['item_slug'])
 				{
 					$changes['item_slug'] = $context['item_slug'];
 				}
-				if (isset($context['poster_name']) && $context['poster_name'] != $context['item_details']['poster_name'])
+				if (isset($context['poster_name']) && $context['poster_name'] !== $context['item_details']['poster_name'])
 				{
 					$changes['poster_name'] = $context['poster_name'];
 				}
