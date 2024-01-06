@@ -790,7 +790,7 @@ function template_add_single_item()
 	{
 		echo '
 								<div id="dragdropcontainer" class="dropzone"></div>
-								<input class="begin_button full" type="submit" value="', $txt['lgal_add_item'], '" onclick="return is_submittable() && submitThisOnce(this);" />';
+								<input class="begin_button full" type="submit" value="', $txt['lgal_save_item'], '" onclick="return is_submittable() && submitThisOnce(this);" />';
 	}
 
 	echo '
