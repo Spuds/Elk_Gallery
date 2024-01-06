@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 1.2.1 / elkarte
  */
 
 /**
@@ -146,7 +146,7 @@ class LevGal_Action_Search extends LevGal_Action_Abstract
 			// And now we do the testing to see if we are actually going to do any searching or not.
 			$context['errors'] = array();
 
-			if (empty($context['search_text']))
+			if (empty($context['search_text']) || $context['search_text'] === '*')
 			{
 				$context['errors'][] = $txt['lgal_error_no_text'];
 			}
@@ -154,7 +154,7 @@ class LevGal_Action_Search extends LevGal_Action_Abstract
 			{
 				$context['errors'][] = $txt['lgal_error_no_albums'];
 			}
-			if (empty($context['selected_search_types']))
+			if (empty($context['selected_search_types']) && !(empty($context['search_item_names']) && empty($context['search_item_descs'])))
 			{
 				$context['errors'][] = $txt['lgal_error_no_filetypes'];
 			}
