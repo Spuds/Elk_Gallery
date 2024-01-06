@@ -9,7 +9,7 @@
  * @license LGPL (v3)
  * @since 1.0
  *
- * @version 1.2.0 / elkarte
+ * @version 1.2.1 / elkarte
  */
 
 function template_newalbum()
@@ -82,9 +82,7 @@ function template_newalbum_details()
 						<dd>
 							<input type="text" id="album_name" name="album_name" tabindex="1" size="80" maxlength="80" class="input_text" value="', $context['album_name'], '" style="width: 95%;" />
 						</dd>
-						<dt class="clear_left">', $txt['levgal_album_slug'], '</dt>
-						<dd>
-							<span class="smalltext">', $scripturl, '?media/album/</span>
+						<dt class="clear_left">', $txt['levgal_album_slug'], '<br /><span class="smalltext">', $txt['levgal_album_slug_note'], '</span></dt>
 							<input type="text" id="album_slug" name="album_slug" tabindex="2" size="20" maxlength="40" class="input_text" value="', $context['album_slug'], '" /><span class="smalltext">.x/</span>
 						</dd>
 					</dl>

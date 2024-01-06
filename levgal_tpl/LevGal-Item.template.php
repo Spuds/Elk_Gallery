@@ -9,7 +9,7 @@
  * @license LGPL (v3)
  * @since 1.0
  *
- * @version 1.2.0 / elkarte
+ * @version 1.2.1 / elkarte
  */
 
 function template_main_item_view()
@@ -44,14 +44,14 @@ function template_main_item_view()
 			el = document.querySelector("#" + items[i] + "_container span.i-clipboard");
 			el.setAttribute("data-clipboard-target", "#" + items[i]);
 			parentEl.addEventListener("mouseleave", lgalClearTooltip);
-    		parentEl.addEventListener("blur", lgalClearTooltip);
+			parentEl.addEventListener("blur", lgalClearTooltip);
 		}
 		
 		let clipboardSnippets = new ClipboardJS(".i-clipboard", {});
- 		
- 		clipboardSnippets.on("success", function(e) {
-   			let clip = e.trigger.parentElement;
-    		lgalShowTooltip(clip, "', $txt['lgal_copyied_to_clipboard'], '");
+		
+		clipboardSnippets.on("success", function(e) {
+			let clip = e.trigger.parentElement;
+			lgalShowTooltip(clip, "', $txt['lgal_copyied_to_clipboard'], '");
 		});
 	</script>';
 }
@@ -973,10 +973,9 @@ function template_edit_tag_list()
 	}
 
 	echo '
-		<dt class="clear_left">', $txt['lgal_tagged_as'], '</dt>
+		<dt class="clear_left">', $txt['lgal_tagged_as'], '<br /><span class="smalltext">', $txt['lgal_item_tag_description'], '</span></dt>
 		<dd>
 			<input type="text" placeholder="', $txt['lgal_item_tag_input'], '" class="flexdatalist" data-min-length="0" multiple="multiple" list="tags" id="tag" name="tag" />
-			<span class="smalltext">', $txt['lgal_item_tag_description'], '</span>
 			<datalist id="tags">';
 
 	if (!empty($context['tags']))
@@ -1011,7 +1010,7 @@ function template_edit_item()
 						<dd>
 							<input type="text" id="item_name" name="item_name" tabindex="', $context['tabindex']++, '" size="80" maxlength="80" class="input_text" value="', $context['item_name'], '" style="width: 95%;" />
 						</dd>
-						<dt class="clear_left">', $txt['lgal_item_slug'], '</dt>
+						<dt class="clear_left">', $txt['lgal_item_slug'], '<br /><span class="smalltext">', $txt['lgal_item_slug_note'], '</span></dt>
 						<dd>
 							<span class="smalltext">', $scripturl, '?media/item/</span>
 							<input type="text" id="item_slug" name="item_slug" tabindex="', $context['tabindex']++, '" size="20" maxlength="40" class="input_text" value="', $context['item_slug'], '" />
@@ -1088,6 +1087,7 @@ function template_edit_item()
 		{
 			echo '
 								<div id="dragdropcontainer" class="dropzone"></div>
+								<input class="begin_button full" type="submit" value="', $txt['lgal_add_item'], '" onclick="return is_submittable() && submitThisOnce(this);" />
 								<br class="clear" />';
 		}
 
@@ -1110,7 +1110,7 @@ function template_edit_item()
 			'upload_image_too_big' => $txt['lgal_upload_image_too_big'],
 			'uploading' => $txt['lgal_uploading'],
 			'upload_complete' => $txt['lgal_upload_complete'],
-			'item_drag_here' => $txt['lgal_item_drag_here'],
+			'item_drag_here' => $txt['lgal_item_drag_replace'],
 			'processing' => $txt['lgal_processing'],
 			'processing_message' => $txt['lgal_processing_message'],
 		);
@@ -1132,8 +1132,8 @@ function template_edit_item()
 			parallelUploads: defaults.parallelUploads,
 			parallelChunkUploads: defaults.parallelChunkUploads,
 			chunkSize: defaults.chunkSize,
-		 	dictDefaultMessage: txt.item_drag_here,
-		  	dictFallbackMessage: txt.browser_not_supported,
+			dictDefaultMessage: txt.item_drag_here,
+			dictFallbackMessage: txt.browser_not_supported,
 			dictResponseError: txt.upload_failed,
 			thumbnailMethod: "contain",
 			init: function()
@@ -1142,6 +1142,7 @@ function template_edit_item()
 				{
 					document.getElementById(\'errors\').style.display = "none";
 					document.getElementById(\'display_container\').innerHTML = file.name;
+					document.querySelectorAll(".begin_button").forEach((elem) => {elem.style.display = "block"});
 				});
 				this.on("success", function (file, response)
 				{
@@ -1154,9 +1155,9 @@ function template_edit_item()
 					submittable = true;
 				});
 				this.on("sending", function(file, xhr, formData) 
-      			{
-      				formData.append("' . $context['session_var'] . '", "' . $context['session_id'] . '");
-      				formData.append("async", file.upload.uuid);
+				{
+					formData.append("' . $context['session_var'] . '", "' . $context['session_id'] . '");
+					formData.append("async", file.upload.uuid);
 				});
 				this.on("error", function (file, msg, xhr)
 				{
@@ -1191,8 +1192,8 @@ function template_edit_item()
 						if (typeof dataURL === "object" && dataURL instanceof Event)
 						{
 							let dataURL = get_upload_generic_thumbnail(file, this.options.lgal_quota);
-      						file.previewElement.querySelector("img[data-dz-thumbnail]").src = dataURL;
-  						}
+							file.previewElement.querySelector("img[data-dz-thumbnail]").src = dataURL;
+						}
 						
 						done();
 					}
@@ -1232,7 +1233,7 @@ function template_edit_item()
 						
 						uploader.disable();
 					}
-    			});
+				});
 			}
 		})
 		</script>';
@@ -1258,7 +1259,7 @@ function template_edit_item()
 	}
 
 	echo '
-						<div class="upload_desc" style="font-weight: 600">', $txt['lgal_item_description'], '</div>';
+						<div class="upload_desc">', $txt['lgal_item_description'], '</div>';
 
 	$context['description_box']->displayEditWindow();
 	// Output buttons and session value.
@@ -1277,7 +1278,9 @@ function template_edit_item()
 			if ($option['type'] === 'checkbox')
 			{
 				echo '
-								<li><label><input type="checkbox" name="', $opt_id, '" value="1"', empty($option['value']) ? '' : ' checked="checked"', ' class="input_check" />', $option['label'], '</label></li>';
+								<li>
+									<label><input type="checkbox" name="', $opt_id, '" value="1"', empty($option['value']) ? '' : ' checked="checked"', ' class="input_check" />', $option['label'], '</label>
+								</li>';
 			}
 			elseif ($option['type'] === 'select')
 			{
