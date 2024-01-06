@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 1.2.1 / elkarte
  */
 
 /**
@@ -501,7 +501,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		$context['description_box']->createEditor(array(
 			'value' => $context['description_box']->getForForm($context['description']),
 			'labels' => array(
-				'post_button' => $txt['lgal_add_item'],
+				'post_button' => $txt['lgal_save_item'],
 			),
 			'js' => array(
 				'post_button' => 'return is_submittable() && submitThisOnce(this);',
