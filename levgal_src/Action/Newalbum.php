@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 1.2.1 / elkarte
  */
 
 /**
@@ -85,6 +85,8 @@ class LevGal_Action_Newalbum extends LevGal_Action_Abstract
 				'post_button' => 'return is_submittable() && submitThisOnce(this);',
 			),
 		));
+
+		$context['requires_approval'] = !allowedTo(array('lgal_manage', 'lgal_addalbum_approve'));
 	}
 
 	public function actionSave()
