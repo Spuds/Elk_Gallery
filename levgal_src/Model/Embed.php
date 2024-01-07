@@ -288,13 +288,12 @@ class LevGal_Model_Embed
 		$using = $item['type'] === 'preview' ? $item['preview'] : $item['thumbnail'];
 
 		// Process [media align=xxx]123[/media] as a "simple" aligned
-		if ($item['type'] !== 'preview')
+		if ($item['type'] === 'preview')
 		{
 			$caption = '
 				<figcaption class="centertext smalltext" style="max-width:100%">
-				<a class="bbc_link" href="' . $item['item_url'] . '" >
-					<i class="icon i-help" title="' . $txt['lgal_item_info'] . '"></i>' .
-				($caption === '_lgal_simple_' ? '' : $caption) . '
+				<a class="bbc_link" href="' . $item['item_url'] . '" >' .
+				($caption === '_lgal_simple_' ? '' : '<i class="icon i-help" title="' . $txt['lgal_item_info'] . '"></i>' . $caption) . '
 				</a>
 			</figcaption>';
 		}
