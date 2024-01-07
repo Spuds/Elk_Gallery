@@ -1,5 +1,4 @@
 <?php
-// Version: 1.0.4; Levertine Gallery move album template
 
 /**
  * This file handles displaying the setup for editing album hierarchies.

@@ -1,5 +1,4 @@
 <?php
-// Version: 1.0.4; Levertine Gallery admin importers template
 
 /**
  * This file handles displaying the importers.

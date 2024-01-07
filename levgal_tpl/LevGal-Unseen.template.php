@@ -1,5 +1,4 @@
 <?php
-// Version: 1.0; Levertine Gallery unseen template
 
 /**
  * This file handles displaying the unseen items for a user.

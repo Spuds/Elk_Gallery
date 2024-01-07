@@ -1,5 +1,4 @@
 <?php
-// Version: 1.0.4; Levertine Gallery tags template
 
 /**
  * This file handles displaying the tagged items, either the cloud of all tags, or the items tagged with a single tag.

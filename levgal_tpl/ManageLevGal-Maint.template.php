@@ -1,5 +1,4 @@
 <?php
-// Version: 1.0.4; Levertine Gallery admin maintenance
 
 /**
  * This file handles displaying the gallery maintenance functions.

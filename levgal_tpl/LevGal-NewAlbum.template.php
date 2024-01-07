@@ -1,5 +1,4 @@
 <?php
-// Version: 1.0; Levertine Gallery new album template
 
 /**
  * This file handles displaying the form for creation new albums.

@@ -1,5 +1,4 @@
 <?php
-// Version: 1.1.0; Levertine Gallery admin custom fields template
 
 /**
  * This file handles displaying the custom fields configuration.

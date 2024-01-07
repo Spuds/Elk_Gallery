@@ -1,5 +1,4 @@
 <?php
-// Version: 1.0; Levertine Gallery admin quotas
 
 /**
  * This file handles displaying additional options within the quotas configuration.

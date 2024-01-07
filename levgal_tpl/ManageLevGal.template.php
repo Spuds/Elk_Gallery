@@ -1,5 +1,4 @@
 <?php
-// Version: 1.0; Levertine Gallery admin front page template
 
 /**
  * This file handles displaying the front page of the admin.

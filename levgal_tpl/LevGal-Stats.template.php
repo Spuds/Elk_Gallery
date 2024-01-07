@@ -1,5 +1,4 @@
 <?php
-// Version: 1.0; Levertine Gallery stats template
 
 /**
  * This file handles displaying the stats of the gallery.

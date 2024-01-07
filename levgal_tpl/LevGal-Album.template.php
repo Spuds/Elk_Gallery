@@ -1,5 +1,4 @@
 <?php
-// Version: 1.2.1; Levertine Gallery album template
 
 /**
  * This file handles displaying the album pages.

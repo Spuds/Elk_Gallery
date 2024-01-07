@@ -1,5 +1,4 @@
 <?php
-// Version: 1.1.1; Levertine Gallery front page template
 
 /**
  * This file handles displaying the front page of the gallery.

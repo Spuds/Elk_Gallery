@@ -1,5 +1,4 @@
 <?php
-// Version: 1.0; Levertine Gallery profile template
 
 /**
  * This file handles displaying the information from the gallery in a user's profile.

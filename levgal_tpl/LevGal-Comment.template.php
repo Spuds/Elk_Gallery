@@ -1,5 +1,4 @@
 <?php
-// Version: 1.0; Levertine Gallery comments template
 
 /**
  * This file handles displaying comment-related behaviours in the gallery.

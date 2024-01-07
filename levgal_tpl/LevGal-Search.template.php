@@ -1,5 +1,4 @@
 <?php
-// Version: 1.0.4; Levertine Gallery search template
 
 /**
  * This file handles displaying the search functionality.

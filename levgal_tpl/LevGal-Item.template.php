@@ -1,5 +1,4 @@
 <?php
-// Version: 1.2.0; Levertine Gallery item display template
 
 /**
  * This file handles displaying the item pages.

@@ -1,5 +1,4 @@
 <?php
-// Version: 1.0; Levertine Gallery moderation centre
 
 /**
  * This file handles displaying the moderation area for the gallery.
@@ -9,7 +8,7 @@
  * @license LGPL (v3)
  * @since 1.0
  *
- * @version 1.2.0 / elkarte
+ * @version 1.2.1 / elkarte
  */
 
 function template_moderate_main()
