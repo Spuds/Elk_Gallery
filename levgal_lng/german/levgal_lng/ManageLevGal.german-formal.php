@@ -8,7 +8,7 @@
  * @package levgal
  * @since 1.0
  */
-// Version: 1.0; ManageLevGal
+// Version: 1.2; ManageLevGal
 
 // Important! Before editing these language files please read the text at the top of index.english.php.
 
@@ -32,6 +32,7 @@ $txt['levgal_versions_lgal'] = 'Levertine Galerie:';
 $txt['levgal_versions_php'] = 'PHP:';
 $txt['levgal_versions_GD'] = 'GD-Bibliothek:';
 $txt['levgal_versions_Imagick'] = 'ImageMagick (Imagick):';
+$txt['levgal_versions_webp'] = 'Webp support:';
 $txt['levgal_support_notavailable'] = '(nicht verfügbar)';
 $txt['levgal_support_available'] = '(verfügbar)';
 $txt['levgal_support_warning'] = 'nicht korrekt konfiguriert)';
@@ -69,6 +70,7 @@ $txt['lgal_settings_metadata_video'] = 'Videodateien';
 $txt['lgal_opts_metadata_datetime'] = 'Aufgenommen';
 $txt['lgal_opts_metadata_make'] = 'Kameramarke/-modell';
 $txt['lgal_opts_metadata_flash'] = 'Blitzlicht-Einstellungen';$txt['lgal_opts_metadata_exposure_time'] = 'Belichtungszeit';
+$txt['lgal_opts_metadata_exposure_time'] = 'Exposure time';
 $txt['lgal_opts_metadata_fnumber'] = 'F-Nummer(e.g. <em>&#402;</em>/2.4, siehe <a href="https://en.wikipedia.org/wiki/F-number" class="new_win" target="_blank">Wikipedia</a> für mehr)';
 $txt['lgal_opts_metadata_shutter_speed'] = 'Verschlusszeit';
 $txt['lgal_opts_metadata_focal_length'] = 'Brennweite';

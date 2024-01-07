@@ -123,7 +123,8 @@ $txt['lgal_unapproved'] = 'nicht genehmigt: ';
 
 $txt['lgal_comment_feed'] = 'Kommentare %1$s auf %2$s';
 
-$txt['lgal_unapproved_album'] = 'Dieses Album ist noch nicht genehmigt worden.';
+$txt['lgal_album_waiting_approval'] = 'Your Album will need to be approved by a moderator before it is visible.';
+$txt['lgal_unapproved_album'] = 'This album has not been approved yet.';
 $txt['lgal_unapproved_comment'] = 'Dieser Kommentar wurde noch nicht genehmigt.';
 $txt['lgal_unapproved_item'] = 'Dieses Element ist noch nicht genehmigt worden.';
 $txt['lgal_comment_was_reported'] = 'Dieser Kommentar wurde gemeldet.';
@@ -135,6 +136,7 @@ $txt['levgal_album_slug'] = 'Album-Pfadname:';
 $txt['levgal_album_slug_note'] = 'This will be generated for you or you may use a custom one';
 $txt['levgal_set_album_featured'] = 'Markieren Sie dieses Album als ein vorgestelltes Album?';
 $txt['levgal_album_lock_for_items'] = 'Neue Elemente in diesem Album zulassen?';
+$txt['levgal_album_default_sort'] = 'Set the default item display order.';
 $txt['levgal_album_lock_for_comments'] = 'Neue Kommentare zu den Elementen in diesem Album zulassen?';
 $txt['levgal_album_added_new'] = 'Hinzugefügt: %1$s zu Album: %2$s';
 $txt['lgal_album_description'] = 'Description for this album (you don\'t have to put this in):';

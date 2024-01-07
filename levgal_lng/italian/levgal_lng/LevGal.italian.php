@@ -4,11 +4,11 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2
+ * @version 1.2.1
  * @package levgal
  * @since 1.0
  */
-// Version: 1.2 / elkarte
+// Version: 1.2.1; LevGal
 
 // Important! Before editing these language files please read the text at the top of index.english.php.
 
@@ -123,18 +123,20 @@ $txt['lgal_unapproved'] = 'unapproved: ';
 
 $txt['lgal_comment_feed'] = 'Comment %1$s on %2$s';
 
+$txt['lgal_album_waiting_approval'] = 'Your Album will need to be approved by a moderator before it is visible.';
 $txt['lgal_unapproved_album'] = 'This album has not been approved yet.';
 $txt['lgal_unapproved_comment'] = 'This comment has not been approved yet.';
 $txt['lgal_unapproved_item'] = 'This item has not been approved yet.';
 $txt['lgal_comment_was_reported'] = 'This comment has been reported.';
 $txt['lgal_item_was_reported'] = 'This item has been reported.';
 
-$txt['levgal_album_add_description'] = 'This page is about collecting enough information to be able to create a new album for you. More details will be available once the album is created, including arranging this as a child album of another album.';
+$txt['levgal_album_add_description'] = 'This page is about collecting enough information to be able to create a new album for you. <strong>More options</strong> will be available <i>once the album is created</i>, including arranging this as a child album of another album.';
 $txt['levgal_album_name'] = 'Album name:';
 $txt['levgal_album_slug'] = 'Album Permalink:';
 $txt['levgal_album_slug_note'] = 'This will be generated for you or you may use a custom one';
 $txt['levgal_set_album_featured'] = 'Mark this album as a featured album?';
 $txt['levgal_album_lock_for_items'] = 'Allow new items in this album?';
+$txt['levgal_album_default_sort'] = 'Set the default item display order.';
 $txt['levgal_album_lock_for_comments'] = 'Allow new comments to the items in this album?';
 $txt['levgal_album_added_new'] = 'Added: %1$s to Album: %2$s';
 $txt['lgal_album_description'] = 'Description for this album (you don\'t have to put this in):';

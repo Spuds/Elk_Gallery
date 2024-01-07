@@ -104,8 +104,7 @@ $txt['permissionname_lgal_manage'] = 'Groupes pouvant gérer la médiathèque';
 $txt['lgal_manage_note'] = 'Les gestionnaires de la médiathèque ont toutes les autorisations dans la médiathèque et peuvent faire n\'importe quoi.';
 $txt['levgal_perms_album'] = 'Permissions sur les albums';
 $txt['permissionname_lgal_adduseralbum'] = 'Groupes pouvant ajouter de nouveaux albums personnels';
-$txt['permissionname_lgal_addgroupalbum'] = 'Groupes pouvant ajouter de nouveaux albums appartenant à un groupe
-';
+$txt['permissionname_lgal_addgroupalbum'] = 'Groupes pouvant ajouter de nouveaux albums appartenant à un groupe';
 $txt['permissionname_lgal_addalbum_approve'] = 'Groupes pouvant ajouter des albums (sous réserve de ce qui précède) sans avoir à attendre l\'approbation';
 $txt['permissionname_lgal_approve_album'] = 'Groupes pouvant approuver de nouveaux albums dans la médiathèque';
 $txt['permissionname_lgal_edit_album_own'] = 'Groupes pouvant modifier leurs propres albums';

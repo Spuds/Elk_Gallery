@@ -4,11 +4,11 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0
+ * @version 1.2.1
  * @package levgal
  * @since 1.0
  */
-// Version: 1.0; LevGal uploads
+// Version: 1.2.1; LevGal uploads
 
 // Important! Before editing these language files please read the text at the top of index.english.php.
 
@@ -17,7 +17,11 @@ $txt['lgal_adding_to_album'] = 'Caricamento nell\'album: %1$s';
 $txt['lgal_editing_item'] = 'Modifica dell\'elemento: %1$s';
 $txt['lgal_item_slug'] = 'Permalink elemento:';
 $txt['lgal_item_slug_note'] = 'This will be generated for you or you may use a custom one';
+txt['lgal_item_tag'] = 'Item tags:';
+$txt['lgal_item_tag_input'] = 'Choose Tag';
+$txt['lgal_item_tag_description'] = 'Select tags for this item (you don\'t have to add any)';
 $txt['lgal_item_description'] = 'Descrizione di questo elemento (non necessaria):';
+$txt['lgal_item_tag_notfound'] = 'No results found for \"{keyword}\", Enter ? to add it as a new tag';
 
 // Quota strings:
 $txt['lgal_allowed_formats'] = '<u>Puoi aggiungere i seguenti tipi:</u>';
