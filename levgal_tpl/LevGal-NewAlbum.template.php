@@ -69,11 +69,17 @@ function template_newalbum_errors()
 	{
 		template_lgal_error_list($txt['levgal_album_create_error'], $context['errors']);
 	}
+
+	if (!empty($context['requires_approval']))
+	{
+		echo '
+					<div class="warningbox">', $txt['lgal_album_waiting_approval'], '</div>';
+	}
 }
 
 function template_newalbum_details()
 {
-	global $context, $txt, $scripturl;
+	global $context, $txt;
 
 	// First, general album details.
 	echo '
@@ -99,7 +105,7 @@ function template_newalbum_ownership()
 						<dt>', $txt['levgal_album_ownership'], '</dt>
 						<dd>';
 
-	if (count($context['ownership_opts']) == 1)
+	if (count($context['ownership_opts']) === 1)
 	{
 		echo '
 							<input type="hidden" id="ownership" name="ownership" value="', $context['ownership_opts'][0], '" />
