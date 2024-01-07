@@ -1256,14 +1256,16 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 				// Removing is actually a bit simpler than adding since it's the same either way.
 				foreach (array('member', 'group') as $type)
 				{
-					if (in_array('remove_owner_' . $type, $context['ownership_blocks'], true) && isset($_POST['remove_' . $type]) && is_array($_POST['remove_' . $type]))
+					if (in_array('remove_owner_' . $type, $context['ownership_blocks'], true)
+						&& isset($_POST['remove_' . $type]) && is_array($_POST['remove_' . $type]))
 					{
 						$values = array_intersect($_POST['remove_' . $type], $context['album_owner'][$type]);
 						if (!empty($values))
 						{
 							$context['remove_' . $type] = $values;
-							// Now, this is where it gets complicated.
-							if (count(array_diff($context['album_owner'][$type], $values)) === 0)
+							// Now, this is where it gets complicated, someone needs to own this
+							if (count(array_diff($context['album_owner'][$type], $values)) === 0
+								&& empty($context['add_group']))
 							{
 								if (in_array('site', $context['ownership_opts'], true))
 								{
