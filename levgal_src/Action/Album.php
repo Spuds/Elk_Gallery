@@ -216,7 +216,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 			}
 		}
 
-		if (allowedTo(array('lgal_manage', 'lgal_delete_album_any')) || (allowedTo('lgal_delete_album_own') && $this->album_obj->isOwnedByUser()))
+		if (allowedTo(array('lgal_manage', 'lgal_delete_album_any')) || (allowedTo('lgal_delete_album_own') && $this->album_obj->isEditable() && $this->album_obj->isOwnedByUser()))
 		{
 			$context['album_actions']['moderation']['deletealbum'] = array($txt['lgal_delete_album_title'], $album['url'] . 'delete/');
 		}
@@ -867,7 +867,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		// Perms checking is a bit hard here.
 		if (!allowedTo('lgal_manage')
 			&& !allowedTo('lgal_delete_album_any')
-			&& (!allowedTo('lgal_delete_album_own') || !$this->album_obj->isOwnedByUser()))
+			&& (!allowedTo('lgal_delete_album_own') || !$this->album_obj->isEditable()))
 		{
 			LevGal_Helper_Http::fatalError('cannot_lgal_delete_album');
 		}
