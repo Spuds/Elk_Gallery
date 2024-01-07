@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 1.2.1 / elkarte
  */
 
 /**
@@ -157,7 +157,7 @@ class ManageLevGalPerms_Controller extends Action_Controller
 
 		call_integration_hook('integrate_lgal_perms_config', array(&$config_vars));
 
-		// While permissionname_* is defined, ElkArtes expects groups_* for permissions-as-settings.
+		// While permissionname_* is defined, ElkArte's expects groups_* for permissions-as-settings.
 		// We are not exposing the permissionname strings to the permissions area anyway, so
 		// that's a non-issue. But we have to have the strings defined there regardless, so
 		// let's just quickly clone them.
