@@ -123,6 +123,7 @@ $txt['lgal_unapproved'] = 'unapproved: ';
 
 $txt['lgal_comment_feed'] = 'Comment %1$s on %2$s';
 
+$txt['lgal_album_waiting_approval'] = 'Your Album will need to be approved by a moderator before it is visible.';
 $txt['lgal_unapproved_album'] = 'This album has not been approved yet.';
 $txt['lgal_unapproved_comment'] = 'This comment has not been approved yet.';
 $txt['lgal_unapproved_item'] = 'This item has not been approved yet.';
