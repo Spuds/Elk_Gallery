@@ -174,10 +174,9 @@ $txt['levgal_error_invalid_email'] = 'You did not put in a valid email address.'
 $txt['levgal_last_edit'] = 'Last edit: %1$s by %2$s';
 
 $txt['lgal_edit_album_title'] = 'Edit Album';
-
 $txt['lgal_deleting_album'] = 'Deleting album: %1$s';
 $txt['lgal_delete_album_title'] = 'Delete Album';
-$txt['lgal_delete_album_desc'] = 'If you do not want this album and press the delete button, it will be removed - and all the items will be deleted permanently. There is no backup option for this.';
+$txt['lgal_delete_album_desc'] = 'If you do not want this album and press the delete button, it will be removed - and all the items will be <strong>DELETED PERMANENTLY.</strong><br />There is no backup / undo option for this.';
 $txt['lgal_delete_album_are_you_sure'] = 'Are you sure you wish to delete this album?';
 $txt['lgal_delete_album_delete'] = 'I do not want this album';
 $txt['lgal_delete_album_cancel'] = 'I want to keep this album';
