@@ -1331,7 +1331,7 @@ function template_delete_album()
 	echo '
 						<div class="delete_ays"><i class="icon i-warning"></i>', $txt['lgal_delete_album_are_you_sure'], '</div>
 						<div>
-							<input type="submit" name="delete" value="', $txt['lgal_delete_album_delete'], '" />
+							<input type="submit" name="delete" value="', $txt['lgal_delete_album_delete'], '" onclick="return confirm(\'', $txt['lgal_delete_album_are_you_sure'], '\');"/>
 							<input type="submit" name="cancel" value="', $txt['lgal_delete_album_cancel'], '" />
 							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 						</div>
