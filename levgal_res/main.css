@@ -528,6 +528,7 @@ li.album_hierarchy_compact ul {
 	max-height: 125px;
 	margin: 0 auto;
 	transform: translateY(-50%);
+    object-fit: contain;
 }
 
 .album_thumbnail {
