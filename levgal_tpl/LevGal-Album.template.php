@@ -1,5 +1,5 @@
 <?php
-// Version: 1.2.0; Levertine Gallery album template
+// Version: 1.2.1; Levertine Gallery album template
 
 /**
  * This file handles displaying the album pages.
@@ -69,7 +69,7 @@ function template_base_album_display()
 	$child_album_counts = get_child_count($context['album_details']);
 
 	echo '
-			<div class="album_block content">
+			<div class="album_block content', empty($context['album_details']['approved']) ? ' approvebg' : '', '">
 				<div class="album_thumbnail">
 					<img src="', $context['album_details']['thumbnail_url'], '" alt="" />
 				</div>
@@ -373,6 +373,14 @@ function template_main_album_display()
 		template_album_navigation();
 	}
 
+	if (empty($context['album_details']['approved']))
+	{
+		echo '
+		<div class="warningbox">',
+			$txt['lgal_unapproved_album'], '
+		</div>';
+	}
+
 	// Pages and slideshow option
 	if (!empty($context['album_items']) || !empty($context['album_pageindex']))
 	{
@@ -393,17 +401,6 @@ function template_main_album_display()
 
 		echo '
 		</div>';
-	}
-
-	if (empty($context['album_details']['approved']))
-	{
-		echo '
-			<div class="approvebg">
-				<div class="content">
-					<div class="centertext">', $txt['lgal_unapproved_album'], '</div>
-				</div>
-			</div>
-			<br />';
 	}
 
 	if (empty($context['album_items']))
@@ -668,7 +665,7 @@ function template_add_single_item()
 	if (!empty($context['requires_approval']))
 	{
 		echo '
-					<p class="information">', $txt['levgal_item_waiting_approval'], '</p>';
+					<div class="warningbox">', $txt['levgal_item_waiting_approval'], '</div>';
 	}
 
 	echo '
@@ -1388,6 +1385,12 @@ function template_edit_album()
 	if (!empty($context['errors']))
 	{
 		template_lgal_error_list($txt['levgal_album_edit_error'], $context['errors']);
+	}
+
+	if (empty($context['album_details']['approved']))
+	{
+		echo '
+		<div class="warningbox">', $txt['lgal_album_waiting_approval'], '</div>';
 	}
 
 	echo '
