@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0 / elkarte
+ * @version 1.2.1 / elkarte
  */
 
 /**
@@ -82,6 +82,9 @@ $to_remove = array(
 	'lgal_unapproved_items',
 	'lgal_unapproved_comments',
 	'lgal_unapproved_albums',
+	'lgal_import_rendering',
+	'lgal_tag_items_list',
+	'lgal_tag_items_list_more',
 );
 
 global $modSettings;
@@ -95,7 +98,7 @@ foreach ($to_remove as $setting)
 	}
 }
 
-// Remove from the database; updateSettings can't actually remove them, it seems :(
+// Remove from the database; updateSettings can actually remove them but this is easy :(
 if (!empty($to_remove))
 {
 	$db->query('', '

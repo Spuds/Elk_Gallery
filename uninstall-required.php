@@ -4,11 +4,11 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0.2 / elkarte
+ * @version 1.2.1 / elkarte
  */
 
 /**
- * This script removes all the extraneous data if the user requests it be removed on uninstall.
+ * This script removes all the basic data uninstall, allowing lossless reinstall
  *
  * NOTE: This script is meant to run using the <samp><code></code></samp> elements of our
  * package-info.xml file. This is because certain items in the database and within ElkArte will
@@ -36,23 +36,21 @@ elseif (!defined('ELK'))
 
 global $modSettings;
 
+// Clear in-situ mod settings that may cause temporary problems
+unset($modSettings['lgal_import_rendering'], $modSettings['lgal_installed']);
+
 $db = database();
 $db_table = db_table();
 
-// 1. Removing all the hooks.
-$hooks = array();
-$hooks[] = array(
-	'hook' => 'integrate_pre_include',
-	'function' => '$sourcedir/levgal_src/LevGal_Bootstrap.php',
-);
-$hooks[] = array(
-	'hook' => 'integrate_pre_load',
-	'function' => 'LevGal_Bootstrap::initialize',
+// 1. Removing the permanent hooks
+$hooks = array(
+	'integrate_pre_include' => '$sourcedir/levgal_src/LevGal_Bootstrap.php',
+	'integrate_pre_load' => 'LevGal_Bootstrap::initialize',
 );
 
-foreach ($hooks as $hook)
+foreach ($hooks as $hook => $callable)
 {
-	remove_integration_function($hook['hook'], $hook['function']);
+	remove_integration_function($hook, $callable);
 }
 
 // 2. Removing the scheduled task.
