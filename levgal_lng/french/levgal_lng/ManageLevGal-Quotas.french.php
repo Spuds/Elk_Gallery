@@ -4,11 +4,11 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.1
+ * @version 1.2.1
  * @package levgal
  * @since 1.0
  */
-// Version: 1.0; ManageLevGal quotas
+// Version: 1.2.1; ManageLevGal quotas
 
 // Important! Before editing these language files please read the text at the top of index.english.php.
 
@@ -44,6 +44,7 @@ $txt['lgal_allowed_types_image'] = 'Types de fichiers image que les utilisateurs
 $txt['lgal_image_jpg'] = 'JPEG images (.jpg, .jpeg)';
 $txt['lgal_image_gif'] = 'GIF images (.gif)';
 $txt['lgal_image_png'] = 'PNG images (.png)';
+$txt['lgal_image_webp'] = 'WEBP images (.webp)';
 $txt['lgal_image_psd'] = 'Photoshop files (.psd)';
 $txt['lgal_image_tiff'] = 'TIFF images (.tiff, .tif)';
 $txt['lgal_image_mng'] = 'MNG images (.mng)';
