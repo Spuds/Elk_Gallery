@@ -1,10 +1,11 @@
 <?php
+
 /**
  * @package Levertine Gallery
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.1 / elkarte
+ * @version 1.2.1 / elkarte
  */
 
 /**
@@ -37,6 +38,16 @@ class LevGal_Action_Moderate extends LevGal_Action_Abstract
 		// Yay for permissions checks.
 		$context['mod_blocks'] = array();
 
+		if (allowedTo(array('lgal_manage', 'lgal_approve_album')))
+		{
+			$context['mod_blocks'][] = 'unapproved_albums';
+		}
+
+		if (allowedTo(array('lgal_manage', 'lgal_approve_item')) || !empty($modSettings['lgal_selfmod_approve_item']))
+		{
+			$context['mod_blocks'][] = 'unapproved_items';
+		}
+
 		if (allowedTo('lgal_manage'))
 		{
 			$context['mod_blocks'][] = 'reported_comments';
@@ -46,16 +57,6 @@ class LevGal_Action_Moderate extends LevGal_Action_Abstract
 		if (allowedTo(array('lgal_manage', 'lgal_approve_comment')) || !empty($modSettings['lgal_selfmod_approve_comment']))
 		{
 			$context['mod_blocks'][] = 'unapproved_comments';
-		}
-
-		if (allowedTo(array('lgal_manage', 'lgal_approve_item')) || !empty($modSettings['lgal_selfmod_approve_item']))
-		{
-			$context['mod_blocks'][] = 'unapproved_items';
-		}
-
-		if (allowedTo(array('lgal_manage', 'lgal_approve_album')))
-		{
-			$context['mod_blocks'][] = 'unapproved_albums';
 		}
 
 		if (empty($context['mod_blocks']))
