@@ -9,7 +9,6 @@
 
 use BBC\BBCParser;
 use BBC\Codes;
-use BBC\ParserWrapper;
 
 /**
  * This file deals with album internals.
@@ -297,6 +296,12 @@ class LevGal_Model_Album
 	public function isEditable()
 	{
 		if (empty($this->current_album))
+		{
+			return false;
+		}
+
+		// If this is a group album, they must be able to add group albums in order to edit/remove one
+		if (!empty($this->current_album['owner_cache']['group']) && $this->isOwnedByUser() && !allowedTo('lgal_addgroupalbum'))
 		{
 			return false;
 		}
@@ -1432,12 +1437,18 @@ class LevGal_Model_Album
 			'exclude_postcount' => true,
 		);
 
-		// If user is not an admin/manager, they can only assign ownership to the groups they can see.
-		// Also exclude hidden groups.
-		if (!allowedTo('lgal_manage'))
+		// Also exclude hidden groups for all but admin
+		if (!$user_info['is_admin'])
 		{
 			$opts += array(
 				'exclude_hidden' => true,
+			);
+		}
+
+		// If user is not an admin/manager, they can only assign ownership to the groups they can see.
+		if (!allowedTo('lgal_manage'))
+		{
+			$opts += array(
 				'match_groups' => $user_info['groups'],
 			);
 		}
