@@ -41,7 +41,10 @@
 	</install>
 
 	<uninstall  for="1.1 - 1.1.99">
-		<!-- Dependencies -->
+        <!-- Hooks and Tasks -->
+        <code>uninstall-required.php</code>
+
+        <!-- Dependencies -->
 		<remove-dir name="SOURCEDIR/levgal_src">Removing source files</remove-dir>
 		<remove-dir name="THEMEDIR/levgal_tpl">Removing templates</remove-dir>
 		<remove-dir name="THEMEDIR/languages/english/levgal_lng">Removing language files</remove-dir>
@@ -61,7 +64,6 @@
 		<remove-file name="SUBSDIR/ScheduledTask/LevgalMaintenance.php">Removing Scheduled Task</remove-file>
 
 		<!-- Database -->
-		<code>uninstall-required.php</code>
 		<database>uninstall-optional.php</database>
 	</uninstall>
 
