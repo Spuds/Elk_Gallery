@@ -121,7 +121,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		$this->setTemplate('LevGal-Album', 'main_album_view');
 
 		loadCSSFile('glightbox.min.css', ['subdir' => 'levgal_res/lightbox']);
-		loadJavascriptFile('glightbox.min.js', ['subdir' => 'levgal_res/lightbox', 'defer' => true]);
+		loadJavascriptFile('glightbox.min.js', ['subdir' => 'levgal_res/lightbox']);
 
 		$context['album_owner'] = $this->album_obj->loadOwnerData();
 

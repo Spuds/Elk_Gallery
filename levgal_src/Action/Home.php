@@ -20,6 +20,10 @@ class LevGal_Action_Home extends LevGal_Action_Abstract
 		loadLanguage('levgal_lng/LevGal');
 		loadLanguage('levgal_lng/LevGal-Stats');
 
+		// Recent / Random Dependencies
+		loadCSSFile('glightbox.min.css', ['subdir' => 'levgal_res/lightbox']);
+		loadJavascriptFile('glightbox.min.js', ['subdir' => 'levgal_res/lightbox', 'defer => true']);
+
 		$this->addLinkTree($txt['levgal'], '?media/');
 		$context['canonical_url'] = $scripturl . '?media/';
 		$this->setTemplate('LevGal', 'main');

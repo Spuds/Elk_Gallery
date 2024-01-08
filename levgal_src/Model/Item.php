@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 1.2.1 / elkarte
  */
 
 use BBC\ParserWrapper;
@@ -262,12 +262,12 @@ class LevGal_Model_Item extends LevGal_Model_File
 		// Templates can make use of width/height information
 		if (isset($files['thumb_width'], $files['thumb_height']))
 		{
-			$urls['thumb_html'] = 'width="' . $files['thumb_width'] . '" height="' . $files['thumb_height'] . '"';
+			$urls['thumb_html'] = ' width="' . $files['thumb_width'] . '" height="' . $files['thumb_height'] . '"';
 		}
 
 		if (isset($files['preview_width'], $files['preview_height']))
 		{
-			$urls['preview_html'] = 'width="' . $files['preview_width'] . '" height="' . $files['preview_height'] . '"';
+			$urls['preview_html'] = ' width="' . $files['preview_width'] . '" height="' . $files['preview_height'] . '"';
 		}
 
 		return $urls;

@@ -1239,14 +1239,14 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 		{
 			loadCSSFile('glightbox.min.css', ['subdir' => 'levgal_res/lightbox']);
 			loadJavascriptFile('glightbox.min.js', ['subdir' => 'levgal_res/lightbox', 'defer' => true]);
-			addInlineJavascript('const lightbox = GLightbox({touchNavigation: true});', true);
+			addInlineJavascript('document.addEventListener("DOMContentLoaded", () => {const lightbox = GLightbox({touchNavigation: true});});', true);
 		}
 
 		if ($context['item_display']['display_template'] === 'audio' || $context['item_display']['display_template'] === 'video')
 		{
 			loadCSSFile('plyr.min.css', ['subdir' => 'levgal_res/plyr']);
 			loadJavascriptFile('plyr.min.js', ['subdir' => 'levgal_res/plyr', 'defer' => true]);
-			addInlineJavascript('const player = new Plyr("#plyr");', true);
+			addInlineJavascript('document.addEventListener("DOMContentLoaded", () => {const player = new Plyr("#plyr");});', true);
 		}
 	}
 }

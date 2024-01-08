@@ -149,14 +149,22 @@ function template_display_latest_items()
 	global $context, $txt;
 
 	echo '
-			<h3 class="lgal_secondary_header secondary_header">', $txt['lgal_latest_items'], '</h3>';
+			<h3 class="lgal_secondary_header secondary_header">',
+				$txt['lgal_latest_items'];
 
 	if (empty($context['latest_items']))
 	{
+		echo '
+			</h3>';
+
 		template_no_items();
 	}
 	else
 	{
+		echo '
+				<a class="linkbutton" style="margin-left: auto" href="#" onclick="myGallery_latest_items.open();">', $txt['lgal_click_to_slideshow'], '</a>
+			</h3>';
+
 		template_item_list('latest_items');
 	}
 }
@@ -166,14 +174,22 @@ function template_display_random_items()
 	global $context, $txt;
 
 	echo '
-			<h3 class="lgal_secondary_header secondary_header">', $txt['lgal_random_items'], '</h3>';
+			<h3 class="lgal_secondary_header secondary_header">',
+				$txt['lgal_random_items'];
 
 	if (empty($context['latest_items']))
 	{
+		echo '
+			</h3>';
+
 		template_no_items();
 	}
 	else
 	{
+		echo '
+				<a class="linkbutton" style="margin-left: auto" href="#" onclick="myGallery_random_items.open();">', $txt['lgal_click_to_slideshow'], '</a>
+			</h3>';
+
 		template_item_list('random_items');
 	}
 }
@@ -282,7 +298,7 @@ function template_item_list($list)
 			</div>';
 
 	addInlineJavascript('
-		const myGallery = GLightbox({elements: 
+		const myGallery_' . $list . ' = GLightbox({elements:
 		' . json_encode($slideshow, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . ',
 		preload: false,
 		touchNavigation: true

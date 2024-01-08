@@ -395,7 +395,7 @@ function template_main_album_display()
 		if (!empty($context['album_items']))
 		{
 			echo '
-			<a class="linkbutton" style="margin-left: auto" href="#" onclick="myGallery.open();">', $txt['lgal_click_to_slideshow'], '</a>';
+			<a class="linkbutton" style="margin-left: auto" href="#" onclick="myGallery_album_items.open();">', $txt['lgal_click_to_slideshow'], '</a>';
 		}
 
 		echo '
