@@ -29,7 +29,7 @@ class LevGal_Bootstrap
 	{
 		global $context;
 
-		define('LEVGAL_VERSION', '1.2.1');
+		define('LEVGAL_VERSION', '1.2.2');
 
 		self::setDefaults();
 		self::defineAutoload();
