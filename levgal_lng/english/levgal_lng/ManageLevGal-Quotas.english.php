@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.1
+ * @version 1.2.2
  * @package levgal
  * @since 1.0
  */
@@ -66,6 +66,8 @@ $txt['lgal_video_m4v'] = 'MP4 video (.mp4, .m4v)';
 $txt['lgal_video_ogv'] = 'Ogg video (.ogg, .ogv)';
 $txt['lgal_video_mov'] = 'QuickTime video (.mov, .qt, .mqv)';
 $txt['lgal_video_webm'] = 'WebM video (.webm)';
+$txt['lgal_video_mkv'] = 'Matroska video (.mkv)';
+
 
 $txt['levgal_quotas_document_title'] = 'Documents';
 $txt['lgal_enable_document'] = 'Allow users to upload documents';

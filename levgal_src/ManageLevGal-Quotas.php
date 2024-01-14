@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.1 / elkarte
+ * @version 1.2.2 / elkarte
  */
 
 /**
@@ -115,7 +115,7 @@ class ManageLevGalQuotas_Controller extends Action_Controller
 		$context['file_types'] = array(
 			'image' => array('jpg', 'gif', 'png',  'webp', 'psd', 'tiff', 'mng', 'iff'),
 			'audio' => array('mp3', 'm4a', 'oga', 'flac', 'wav'),
-			'video' => array('m4v', 'ogv', 'mov', 'webm'),
+			'video' => array('m4v', 'ogv', 'mov', 'webm', 'mkv'),
 			'document' => array('doc', 'xls', 'ppt', 'pdf', 'txt', 'html', 'xml'),
 			'archive' => array('zip', 'rar', 'targz', '7z', 'dmg', 'sit', 'lz'),
 			'generic' => array('exe', 'ttf'),

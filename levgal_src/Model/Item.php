@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.1 / elkarte
+ * @version 1.2.2 / elkarte
  */
 
 use BBC\ParserWrapper;
@@ -302,7 +302,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 				'_binary' => array('bin', 'dll', 'exe'),
 				'_font' => array('otf', 'ttf'),
 				'_image' => array('gif', 'iff', 'jpeg', 'jpg', 'webp', 'lbm', 'mng', 'png', 'psd', 'tiff', 'tif'),
-				'_video' => array('ogv', 'm4v', 'mp4', 'mov', 'qt', 'mqv', 'webm'),
+				'_video' => array('ogv', 'm4v', 'mp4', 'mov', 'qt', 'mqv', 'webm', 'mkv'),
 				'doc' => array(
 					'doc', 'dot', 'docm', 'docx', 'dotm', 'dotx', // MS Word
 					'fodt', 'odt', // OpenDocument / LibreOffice
