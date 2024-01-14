@@ -8,7 +8,7 @@
  * @license LGPL (v3)
  * @since 1.0
  *
- * @version 1.2.1 / elkarte
+ * @version 1.2.2 / elkarte
  */
 
 function template_main_item_view()
@@ -784,7 +784,7 @@ function template_item_video()
 	// Now for the video player.
 	echo '
 	<div class="lg_item">
-		<video id="plyr" class="lgal_video_player" playsinline controls preload="metadata" poster="', $poster, '">
+		<video id="plyr" class="lgal_video_player" playsinline controls preload="metadata" data-poster="', $poster, '">
 			<source src="', $context['item_display']['urls']['raw'], '" type="', $context['item_details']['mime_type'], '">,
 			Sorry, your browser doesn\'t support embedded videos
 		</video>
@@ -1141,10 +1141,11 @@ function template_edit_item()
 				{
 					document.getElementById(\'errors\').style.display = "none";
 					document.getElementById(\'display_container\').innerHTML = file.name;
-					document.querySelectorAll(".begin_button").forEach((elem) => {elem.style.display = "block"});
 				});
 				this.on("success", function (file, response)
 				{
+					document.querySelectorAll(".begin_button").forEach((elem) => {elem.style.display = "block"});
+
 					let container = document.getElementById("display_container"),
 						conhtml = container.innerHTML;
 					conhtml += \'<input type="hidden" name="async" value="\' + response.async + \'" />\';

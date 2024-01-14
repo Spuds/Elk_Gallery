@@ -8,7 +8,7 @@
  * @license LGPL (v3)
  * @since 1.0
  *
- * @version 1.2.1 / elkarte
+ * @version 1.2.2 / elkarte
  */
 
 function template_main_album_view()
@@ -495,13 +495,13 @@ function template_main_album_sidebar()
 		}
 	}
 	// a site owned album, use site logo if available.
-	elseif(!empty($context['header_logo_url_html_safe']))
+	elseif(!empty($context['favicon']))
 	{
 		echo '
 				<div class="posted_by">', $txt['lgal_owned_by'], '</div>
 				<div class="album_owner">
 					<span class="user_avatar">
-						<img class="avatar avatarresize" src="', $context['header_logo_url_html_safe'], '" alt="', $context['forum_name_html_safe'], '" />', '
+						<img class="avatar avatarresize" src="', $context['favicon'], '" alt="', $context['forum_name_html_safe'], '" />', '
 					</span>
 					<div class="">', $context['forum_name_html_safe'], '</div>
 					<div class="user smalltext">', sprintf($txt['lgal_see_more'], $scripturl . '?media/albumlist/site/'), '</div>
@@ -875,6 +875,10 @@ function template_add_single_item()
 		createEventListener(itemSlug);
 		itemSlug.addEventListener("keyup", function() { updateSlug = false; }, false);
 		
+		// Hide submit buttons until we have validated
+		document.querySelectorAll(".begin_button").forEach((elem) => {elem.style.display = "none"});
+		document.getElementById("post_confirm_buttons").style.display = "none";
+		
 		let uploader = new Dropzone("#dragdropcontainer", {
 			url: "' . $context['album_details']['album_url'] . 'async/",
 			lgal_quota: ' . (empty($context['quota_data']) ? '{}' : json_encode($context['quota_data'])) . ',
@@ -899,7 +903,6 @@ function template_add_single_item()
 					document.getElementById(\'display_container\').innerHTML = file.name;
 					document.getElementById(\'upload_type\').value = "file";
 					document.getElementById(\'upload_type\').disabled = true;
-					document.querySelectorAll(".begin_button").forEach((elem) => {elem.style.display = "block"});
 
 					if (itemName.value === \'\')
 					{
@@ -910,6 +913,9 @@ function template_add_single_item()
 				});
 				this.on("success", function (file, response)
 				{
+					document.querySelectorAll(".begin_button").forEach((elem) => {elem.style.display = "block"});
+					document.getElementById("post_confirm_buttons").style.display = "block";
+					
 					let container = document.getElementById("display_container"),
 						conhtml = container.innerHTML;
 					conhtml += \'<input type="hidden" name="async" value="\' + response.async + \'" />\';
