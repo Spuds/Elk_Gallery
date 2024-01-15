@@ -1584,6 +1584,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 		global $context, $user_info;
 
 		// So, get me some hierarchies.
+		/** @var $album_list LevGal_Model_AlbumList */
 		$album_list = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
 		$hierarchies = $album_list->getAllHierarchies();
 

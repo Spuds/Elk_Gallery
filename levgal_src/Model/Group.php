@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.1 / elkarte
+ * @version 1.2.2 / elkarte
  */
 
 /**
@@ -102,15 +102,15 @@ class LevGal_Model_Group
 		// Include Default Registered Members
 		if ($include_default === true)
 		{
-		$details = array(
-			0 => array(
-				'id_group' => 0,
-				'group_name' => $txt['levgal_registered_members'],
-				'online_color' => '',
-				'color_name' => $txt['levgal_registered_members'],
-				'stars' => '',
-			)
-		);
+			$details = array(
+				0 => array(
+					'id_group' => 0,
+					'group_name' => $txt['levgal_registered_members'],
+					'online_color' => '',
+					'color_name' => $txt['levgal_registered_members'],
+					'stars' => '',
+				)
+			);
 		}
 
 		while ($row = $db->fetch_assoc($request))
