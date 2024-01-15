@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.1
+ * @version 1.2.2
  * @package levgal
  * @since 1.0
  */
@@ -54,8 +54,9 @@ $txt['lgal_gallery_actions'] = 'Gallery Actions';
 $txt['lgal_gallery_stats'] = 'Gallery Stats';
 
 $txt['lgal_albums_list'] = 'Albums';
-$txt['lgal_albums_owned_site'] = 'Albums of %1$s';
+$txt['lgal_albums_owned_site'] = 'Site Albums of %1$s';
 $txt['lgal_albums_owned_someone'] = 'Albums of %1$s';
+$txt['lgal_albums_owned_group'] = 'Group Albums of %1$s';
 $txt['lgal_albums_site'] = 'Site Albums';
 $txt['lgal_albums_member'] = 'Member Albums';
 $txt['lgal_albums_group'] = 'Group Albums';

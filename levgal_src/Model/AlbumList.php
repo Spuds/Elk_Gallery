@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.1 / elkarte
+ * @version 1.2.2 / elkarte
  */
 
 /**
@@ -519,7 +519,7 @@ class LevGal_Model_AlbumList
 
 	public function getAllHierarchies()
 	{
-		global $scripturl;
+		global $scripturl, $txt;
 
 		$db = database();
 
@@ -621,6 +621,17 @@ class LevGal_Model_AlbumList
 
 		if (!empty($hierarchies['group_unsorted']))
 		{
+			$groups = array_keys($hierarchies['group_unsorted']);
+
+			// Handle default group
+			if (in_array(0, $groups, true))
+			{
+				$hierarchies['group'][0] = array(
+					'group_name' => $txt['levgal_registered_members'],
+					'albums' => $this->fixHierarchy($hierarchies['group_unsorted'][0]),
+				);
+			}
+
 			$request = $db->query('', '
 				SELECT 
 					id_group, group_name
@@ -628,7 +639,7 @@ class LevGal_Model_AlbumList
 				WHERE id_group IN ({array_int:groups})
 				ORDER BY group_name',
 				array(
-					'groups' => array_keys($hierarchies['group_unsorted']),
+					'groups' => $groups,
 				)
 			);
 			while ($row = $db->fetch_assoc($request))
