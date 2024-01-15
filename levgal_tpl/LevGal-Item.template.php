@@ -872,13 +872,13 @@ function template_display_hierarchy_dropdown()
 									</optgroup>';
 	}
 
-	if (!empty($context['hierarchies']['member']))
+	if (!empty($context['hierarchies']['group']))
 	{
-		foreach ($context['hierarchies']['member'] as $member)
+		foreach ($context['hierarchies']['group'] as $group)
 		{
 			echo '
-									<optgroup label="', sprintf($txt['lgal_albums_owned_someone'], $member['member_name']), '">';
-			foreach ($member['albums'] as $album)
+									<optgroup label="', sprintf($txt['lgal_albums_owned_group'], $group['group_name']), '">';
+			foreach ($group['albums'] as $album)
 			{
 				$indent = $album['album_level'] == 0 ? '' : str_repeat('&nbsp; ', $album['album_level']);
 				echo '
@@ -889,13 +889,13 @@ function template_display_hierarchy_dropdown()
 		}
 	}
 
-	if (!empty($context['hierarchies']['group']))
+	if (!empty($context['hierarchies']['member']))
 	{
-		foreach ($context['hierarchies']['group'] as $group)
+		foreach ($context['hierarchies']['member'] as $member)
 		{
 			echo '
-									<optgroup label="', sprintf($txt['lgal_albums_owned_someone'], $group['group_name']), '">';
-			foreach ($group['albums'] as $album)
+									<optgroup label="', sprintf($txt['lgal_albums_owned_someone'], $member['member_name']), '">';
+			foreach ($member['albums'] as $album)
 			{
 				$indent = $album['album_level'] == 0 ? '' : str_repeat('&nbsp; ', $album['album_level']);
 				echo '
