@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 1.2.2 / elkarte
  */
 
 use BBC\ParserWrapper;
@@ -180,34 +180,34 @@ class LevGal_Model_ItemList
 		return $item_list;
 	}
 
-	public function getLatestItems($qty = 4)
+	public function getLatestItems($qty = 8)
 	{
-		return $this->getItemList(array(), array(), 'id_item DESC', $qty);
+		return $this->getItemList(array(), array(), 'time_added DESC', $qty);
 	}
 
-	public function getRandomItems($qty = 4)
+	public function getRandomItems($qty = 8)
 	{
 		return $this->getItemList(array(), array(), 'RAND()', $qty);
 	}
 
-	public function getLatestImages($qty = 4)
+	public function getLatestImages($qty = 8)
 	{
-		return $this->getItemList(array('mime_type LIKE "image/%"'), array(), 'id_item DESC', $qty);
+		return $this->getItemList(array('mime_type LIKE "image/%"'), array(), 'time_added DESC', $qty);
 	}
 
-	public function getRandomImages($qty = 4)
+	public function getRandomImages($qty = 8)
 	{
 		return $this->getItemList(array('mime_type LIKE "image/%"'), array(), 'RAND()', $qty);
 	}
 
-	public function getLatestItemsForUser($user, $qty = 4)
+	public function getLatestItemsForUser($user, $qty = 8)
 	{
 		if (empty($user))
 		{
 			return array();
 		}
 
-		return $this->getItemList(array('id_member = {int:id_member}'), array('id_member' => $user), 'id_item DESC', $qty);
+		return $this->getItemList(array('id_member = {int:id_member}'), array('id_member' => $user), 'time_added DESC', $qty);
 	}
 
 	public function getImagesForAlbum($album, $qty = 4, $order = "RAND()")
