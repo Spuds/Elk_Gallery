@@ -151,7 +151,7 @@ class LevGalProfile_Controller extends Action_Controller
 		// Let's get the last 4 items they uploaded.
 		/* @var $item_list LevGal_Model_ItemList */
 		$item_list = LevGal_Bootstrap::getModel('LevGal_Model_ItemList');
-		$context['latest_items'] = $item_list->getLatestItemsForUser($memID, 4);
+		$context['latest_items'] = $item_list->getLatestItemsForUser($memID, 8);
 
 		// Let's get the albums they own.
 		$album_list = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
