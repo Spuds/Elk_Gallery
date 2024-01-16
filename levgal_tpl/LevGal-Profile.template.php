@@ -8,7 +8,7 @@
  * @license LGPL (v3)
  * @since 1.0
  *
- * @version 1.2.0 / elkarte
+ * @version 1.2.2 / elkarte
  */
 
 function template_levgal_profile_summary()
@@ -33,6 +33,7 @@ function template_levgal_profile_summary()
 		echo '
 			<h3 class="lgal_secondary_header secondary_header">
 				', sprintf($txt['levgal_latest_items_user'], $context['member']['name']), '
+				<a class="linkbutton" style="margin-left: auto" href="#" onclick="myGallery_latest_items.open();">', $txt['lgal_click_to_slideshow'], '</a>
 			</h3>';
 
 		template_item_list('latest_items');

@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 1.2.2 / elkarte
  */
 
 /**
@@ -22,6 +22,10 @@ class LevGalProfile_Controller extends Action_Controller
 	{
 		loadCSSFile(['main.css', 'profile.css'], ['stale' => LEVGAL_VERSION, 'subdir' => 'levgal_res']);
 		loadTemplate('levgal_tpl/LevGal-Profile');
+
+		loadCSSFile('glightbox.min.css', ['subdir' => 'levgal_res/lightbox']);
+		loadJavascriptFile('glightbox.min.js', ['subdir' => 'levgal_res/lightbox', 'defer => true']);
+
 		$this->memID = currentMemberID();
 	}
 
@@ -67,7 +71,6 @@ class LevGalProfile_Controller extends Action_Controller
 						'own' => array('profile_view_any', 'profile_view_own'),
 						'any' => array('profile_view_any'),
 					),
-					'icon' => 'media',
 				),
 				'mediaitems' => array(
 					'label' => $txt['levgal_profile_items'],
@@ -77,7 +80,6 @@ class LevGalProfile_Controller extends Action_Controller
 						'own' => array('profile_view_any', 'profile_view_own'),
 						'any' => array('profile_view_any'),
 					),
-					'icon' => 'media',
 					'subsections' => array(
 						'items' => array($txt['levgal_profile_items'], array('profile_view_any', 'profile_view_own')),
 						'likesgiven' => array($txt['levgal_profile_likes_issued'], array('profile_view_any', 'profile_view_own')),
@@ -92,7 +94,6 @@ class LevGalProfile_Controller extends Action_Controller
 						'own' => array('profile_view_any', 'profile_view_own'),
 						'any' => array('profile_view_any'),
 					),
-					'icon' => 'mediabookmarks',
 				),
 				'medianotify' => array(
 					'label' => $txt['levgal_profile_notify'],
@@ -102,7 +103,6 @@ class LevGalProfile_Controller extends Action_Controller
 						'own' => array('profile_extra_any', 'profile_view_own'),
 						'any' => array('profile_extra_any'),
 					),
-					'icon' => 'mail',
 				),
 				'mediaprefs' => array(
 					'label' => $txt['levgal_profile_prefs'],
@@ -112,14 +112,13 @@ class LevGalProfile_Controller extends Action_Controller
 						'own' => array('profile_view_own'),
 						'any' => array(),
 					),
-					'icon' => 'features',
 				),
 			),
 		);
 
 		// Bookmarks are kind of complicated if you're not the current user.
 		$allowed = false;
-		if ($context['id_member'] != $context['user']['id'])
+		if ((int) $context['id_member'] !== (int) $context['user']['id'])
 		{
 			// Is it actually set in their profile via theme options?
 			if (isset($context['member']['options']['lgal_show_bookmarks']))
@@ -150,6 +149,7 @@ class LevGalProfile_Controller extends Action_Controller
 		Templates::instance()->load('levgal_tpl/LevGal');
 
 		// Let's get the last 4 items they uploaded.
+		/* @var $item_list LevGal_Model_ItemList */
 		$item_list = LevGal_Bootstrap::getModel('LevGal_Model_ItemList');
 		$context['latest_items'] = $item_list->getLatestItemsForUser($memID, 4);
 
