@@ -1647,7 +1647,7 @@ function template_add_owner_member()
 	{
 		$context['loaded_autosuggest'] = true;
 		echo '
-	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/suggest.js?fin20"></script>';
+	<script src="', $settings['default_theme_url'], '/scripts/suggest.js?fin20"></script>';
 	}
 
 	echo '
