@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.1 / elkarte
+ * @version 1.2.2 / elkarte
  */
 
 /**
@@ -39,7 +39,7 @@ class LevGal_Model_Embed
 		$this->embed['simple'][self::$count++] = array(
 			'id_msg' => $this->getMsg(),
 			'id' => $this->id,
-		);
+			'signature' => $this->getSignature());
 	}
 
 	public function addComplex($description)
@@ -51,7 +51,14 @@ class LevGal_Model_Embed
 			'type' => $this->type,
 			'description' => trim($description),
 			'id_msg' => $this->getMsg(),
-		);
+			'signature' => $this->getSignature());
+	}
+
+	public function getSignature()
+	{
+		global $context;
+
+		return !empty($context['parserArea']) && $context['parserArea'] === 'signature';
 	}
 
 	public function getMsg()
@@ -104,11 +111,20 @@ class LevGal_Model_Embed
 			{
 				// Look for !<lgalmediasimple: and !<lgalmediacomplex: tags
 				$search = '!<lgalmedia' . $type . ': ' . $counter . '>';
+				$method = $type . 'Template';
+
+				// Special handling of items in signatures
+				if ($item['signature'] === true)
+				{
+					$item += $items[$item['id']];
+					$matches[2] = $this->signature_callback($matches[2], $search, $method, $item);
+					continue;
+				}
+
 				if (isset($items[$item['id']]))
 				{
 					// Union the item array (id, id_msg) with the LevGal_Model_ItemList results
 					$item += $items[$item['id']];
-					$method = $type . 'Template';
 					$matches[2] = str_replace($search, $this->$method($counter, $item), $matches[2]);
 				}
 				else
@@ -119,6 +135,38 @@ class LevGal_Model_Embed
 		}
 
 		$buffer = $matches[1] . $matches[2] . $matches[3];
+	}
+
+	/**
+	 * Signature parsing is done during the loadMemberData process, not the actual message rendering.  In normal
+	 * processing all uses of that signature would have the same !<lgalmediasimple: x> tag and would be
+	 * replaced with the same template, causing duplicate ID's in the HTML output.
+	 *
+	 * This function changes from a standard str_replace (all) with an individual replace, allowing us to vary the
+	 * counter and avoid duplication.
+	 *
+	 * Why not just drop having the ID?  Unfortunately core lightbox functionality requires it.
+	 *
+	 * @param string $string The original string to perform replacement on.
+	 * @param string $substring The substring to be replaced in the original string.
+	 * @param string $method The name of the method used to generate the replacement.
+	 * @param mixed $item The details of the gallery item.
+	 * @return string The modified string after performing the replacement.
+	 */
+	public function signature_callback($string, $substring, $method, $item)
+	{
+		$offset = 0;
+
+		while (($pos = strpos($string, $substring, $offset)) !== false)
+		{
+			$count = random_int(1, 100000) . 'g';
+			$replacement = $this->$method($count, $item);
+
+			$string = substr_replace($string, $replacement, $pos, strlen($substring));
+			$offset = $pos + strlen($replacement);
+		}
+
+		return $string;
 	}
 
 	/**
@@ -220,7 +268,7 @@ class LevGal_Model_Embed
 				$search = '!<lgalmedia' . $type . ': ' . $counter . '>';
 				if (isset($items[$item['id']]))
 				{
-					$item = $item + $items[$item['id']];
+					$item += $items[$item['id']];
 					$buffer = str_replace($search, '<a href="' . $item['item_url'] . '" class="levgal">' . $item['item_name'] . '</a>', $buffer);
 				}
 				else
@@ -322,8 +370,8 @@ class LevGal_Model_Embed
 			// Lightbox if a thumb, otherwise a link
 			return
 				$align . ($item['type'] === 'preview'
-				? '<a class="bbc_link" href="' . $item['item_url'] . '">'
-				: '<a href="' . $item['item_base'] . '" id="link_' . $counter . 'm" data-lightboximage="' . $counter . 'm" data-lightboxmessage="' . $item['id_msg'] . '">') . '
+					? '<a class="bbc_link" href="' . $item['item_url'] . '">'
+					: '<a href="' . $item['item_base'] . '" id="link_' . $counter . 'm" data-lightboximage="' . $counter . 'm" data-lightboxmessage="' . $item['id_msg'] . '">') . '
 					<img class="bbc_img' . ($item['type'] === 'preview' ? '' : ' has_lightbox') . '" src="' . $using . '" alt="' . $item['item_name'] . '" title="' . $item['item_name'] . '" loading="lazy" />
 				</a>' . $caption . '</figure>';
 		}
