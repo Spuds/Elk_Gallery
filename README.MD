@@ -1,3 +1,13 @@
+![Logo](sample_images/levertine.png?raw=true "Logo")
+
+[![Open Issues](https://img.shields.io/github/issues/Spuds/Elk_Gallery.svg?style=flat)](https://github.com/Spuds/Elk_Gallery/issues)
+[![Current Release](https://img.shields.io/github/release/Spuds/Elk_Gallery.svg?style=flat)](https://github.com/Spuds/Elk_Gallery/releases)
+[![License](https://img.shields.io/badge/License-LGPL3-green.svg?style=flat)](https://opensource.org/license/lgpl-3-0/)
+[![Build Status](https://scrutinizer-ci.com/g/Spuds/SimplePortal_ElkArte/badges/build.png?b=myDevel)](https://scrutinizer-ci.com/g/Spuds/SimplePortal_ElkArte/build-status/myDevel)
+[![Downloads](https://img.shields.io/github/downloads/Spuds/Elk_Gallery/total)](https://github.com/Spuds/Elk_Gallery/releases)
+[![GitHub commits](https://img.shields.io/github/commits-since/Spuds/Elk_Gallery/1.2.2.svg)](https://github.com/Spuds/Elk_Gallery/commit/)
+
+
 ## Levertine Gallery is a modern gallery solution for ElkArte 1.1.7+
 
 ### Features
