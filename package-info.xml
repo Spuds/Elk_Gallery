@@ -17,6 +17,7 @@
 		<require-dir name="levgal_lng/french" destination="THEMEDIR/languages/"></require-dir>
 		<require-dir name="levgal_lng/german" destination="THEMEDIR/languages/"></require-dir>
 		<require-dir name="levgal_lng/italian" destination="THEMEDIR/languages/"></require-dir>
+		<require-file name="other/MGalleryItem.php" destination="BOARDDIR">Compatability</require-file>
 
 		<!-- Resources -->
 		<require-dir name="levgal_res" destination="THEMEDIR/">CSS, JS, images</require-dir>
@@ -51,6 +52,7 @@
 		<remove-dir name="THEMEDIR/languages/french/levgal_lng"></remove-dir>
 		<remove-dir name="THEMEDIR/languages/german/levgal_lng"></remove-dir>
 		<remove-dir name="THEMEDIR/languages/italian/levgal_lng"></remove-dir>
+		<remove-file name="BOARDDIR/MGalleryItem.php" />
 
 		<!-- Resources -->
 		<remove-dir name="THEMEDIR/levgal_res">Removing CSS, JS, images</remove-dir>
