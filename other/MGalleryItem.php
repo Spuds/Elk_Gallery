@@ -99,10 +99,19 @@ function getFileInfo($item_details, $itemModel, $settings, $type)
  */
 function sendData($filename, $mime, $path)
 {
+	if (!empty($mime) && (strpos($mime, 'image/') === 0 || substr($mime, -4) === '/pdf'))
+	{
+		$mime = $mime;
+	}
+	else
+	{
+		$mime = 'application/octet-stream';
+	}
+
 	header('Expires: ' . gmdate('D, d M Y H:i:s', time() + 525600 * 60) . ' GMT');
 	header('Last-Modified: ' . gmdate('D, d M Y H:i:s', filemtime($path)) . ' GMT');
-	header('Content-Type: ' . (!empty($mime) && strpos($mime, 'image/') === 0 ? $mime : 'application/octet-stream'));
-	header('Content-Disposition: inline; filename="' . $filename . (preg_match('~[\x80-\xFF]~', $filename) ? "; filename*=UTF-8''" . rawurlencode($filename) : ''));
+	header('Content-Type: ' . $mime);
+	header('Content-Disposition: inline; filename="' . $filename . (preg_match('~[\x80-\xFF]~', $filename) ? "; filename*=UTF-8''" . rawurlencode($filename) : '"'));
 	header('Content-Length: ' . filesize($path));
 
 	echo file_get_contents($path);
