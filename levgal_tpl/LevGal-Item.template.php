@@ -793,9 +793,10 @@ function template_item_video()
 
 function template_item_generic()
 {
-	global $context, $txt;
+	global $context, $txt, $modSettings;
 
-	$viewInline = isset($context['item_actions']['actions']['download'][1]) ?? '';
+	$viewInline = isset($context['item_actions']['actions']['download'][1]) ?? false;
+	$sameTab = empty($modSettings['lgal_open_link_new_tab']) ? '' : 'target="_blank"';
 
 	// So, there might be a preview image, or there might only be a thumbnail.
 	// But one or other might be a generic icon fallback.
@@ -803,18 +804,20 @@ function template_item_generic()
 	{
 		echo '
 					<div class="lg_item">
-						<a href="' . (!empty($viewInline) ? substr($context['item_actions']['actions']['download'][1], 0, -10) : '') . '">
+						<a href="' . ($viewInline ? substr($context['item_actions']['actions']['download'][1], 0, -10) : '') . '" ' . $sameTab . '>
 							<img id="item_generic" class="generic_preview" src="', $context['item_display']['urls']['preview'], '" alt="preview"', $context['item_display']['urls']['preview_html'] ?? '', ' />
 						</a>
-						<br />
-						<div class="centertext">', $txt['lgal_click_to_view'], '</div>
+						<hr />
+						<div class="centertext">
+							<i class="icon i-eye-plus"></i>', $txt['lgal_click_to_view'], '
+						</div>
 					</div>';
 	}
 	else
 	{
 		echo '
 					<div class="lg_item">
-						<a href="' . (!empty($viewInline) ? substr($context['item_actions']['actions']['download'][1], 0, -10) : '') . '">
+						<a href="' . ($viewInline ? substr($context['item_actions']['actions']['download'][1], 0, -10) : '') . '" ' . $sameTab . '>
 							<img id="item_generic" class="generic_thumb" src="', $context['item_display']['urls']['thumb'], '" alt="" />
 						</a>
 					</div>';

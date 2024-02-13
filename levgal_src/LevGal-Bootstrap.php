@@ -82,6 +82,8 @@ class LevGal_Bootstrap
 			'lgal_reports' => 'a:2:{s:5:"items";i:0;s:8:"comments";i:0;}',
 			'lgal_count_author_views' => 1,
 			'lgal_enable_mature' => 0,
+			'lgal_open_link_new_tab' => 0,
+			'lgal_import_rendering' => 0,
 			'lgal_metadata' => 'a:3:{s:6:"images";a:21:{i:0;s:8:"datetime";i:1;s:4:"make";i:2;s:5:"flash";i:3;s:13:"exposure_time";i:4;s:7:"fnumber";i:5;s:13:"shutter_speed";i:6;s:12:"focal_length";i:7;s:11:"digitalzoom";i:8;s:10:"brightness";i:9;s:8:"contrast";i:10;s:9:"sharpness";i:11;s:8:"isospeed";i:12;s:11:"lightsource";i:13;s:13:"exposure_prog";i:14;s:13:"metering_mode";i:15;s:11:"sensitivity";i:16;s:5:"title";i:17;s:7:"subject";i:18;s:6:"author";i:19;s:8:"keywords";i:20;s:7:"comment";}s:5:"audio";a:8:{i:0;s:5:"title";i:1;s:6:"artist";i:2;s:12:"album_artist";i:3;s:5:"album";i:4;s:12:"track_number";i:5;s:5:"genre";i:6;s:8:"playtime";i:7;s:7:"bitrate";}s:5:"video";a:8:{i:0;s:5:"title";i:1;s:6:"artist";i:2;s:12:"album_artist";i:3;s:5:"album";i:4;s:12:"track_number";i:5;s:5:"genre";i:6;s:8:"playtime";i:7;s:7:"bitrate";}}',
 			'lgal_social' => 'facebook,twitter,tumblr,reddit,pinterest',
 			'lgal_feed_enable_item' => 1,
@@ -820,7 +822,7 @@ class LevGal_Bootstrap
 		}
 
 		// Don't render tags in code blocks
-       	PreparseCode::instance()->preparsecode($message, $previewing);
+		PreparseCode::instance()->preparsecode($message, $previewing);
 
 		// Check for other gallery tags and convert them
 		$lgalOtherEmbeds = new LevGal_Model_Embed();

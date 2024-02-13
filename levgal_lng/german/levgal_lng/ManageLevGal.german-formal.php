@@ -59,6 +59,7 @@ $txt['lgal_items_per_page'] = 'Anzahl der Elemente, die auf einer Seitenansicht 
 $txt['lgal_comments_per_page'] = 'Anzahl der anzuzeigenden Kommentare pro Seite';
 $txt['lgal_per_page_limits'] = '(10-50 Einträge)';
 $txt['lgal_import_rendering'] = 'Aktivieren Sie die (teilweise) Wiedergabe von BBC-Codes anderer Galerien';
+$txt['lgal_open_link_new_tab'] = '"Click to view" opens item in a new tab, otherwise the current one';
 $txt['lgal_settings_social'] = 'Erlauben Sie den Benutzern, Elemente einfach in sozialen Netzwerken zu teilen';
 $txt['lgal_settings_select_networks'] = 'Soziale Netzwerke auswählen';
 $txt['lgal_settings_metadata'] = 'Zusätzliche Metadaten anzeigen';

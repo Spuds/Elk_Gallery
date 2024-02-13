@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 1.2.2 / elkarte
  */
 
 /**
@@ -231,7 +231,8 @@ function levgal_adminSettings($return_config = false)
 		'social' => array('callback', 'lgal_social'),
 		'metadata' => array('callback', 'lgal_metadata'),
 		'',
-		array('check', 'lgal_import_rendering')
+		array('check', 'lgal_import_rendering'),
+		array('check', 'lgal_open_link_new_tab')
 	);
 
 	$context['available_social_icons'] = array('facebook', 'twitter', 'tumblr', 'reddit', 'pinterest');
@@ -239,9 +240,9 @@ function levgal_adminSettings($return_config = false)
 
 	$context['metadata'] = array(
 		'images' => array('datetime', 'make', 'flash', 'exposure_time', 'fnumber', 'shutter_speed',
-						  'focal_length', 'digitalzoom', 'brightness', 'contrast', 'sharpness',
-						  'isospeed', 'lightsource', 'exposure_prog', 'metering_mode', 'sensitivity',
-						  'title', 'subject', 'author', 'keywords', 'comment'),
+			'focal_length', 'digitalzoom', 'brightness', 'contrast', 'sharpness',
+			'isospeed', 'lightsource', 'exposure_prog', 'metering_mode', 'sensitivity',
+			'title', 'subject', 'author', 'keywords', 'comment'),
 		'audio' => array('title', 'artist', 'album_artist', 'album', 'track_number', 'genre', 'playtime', 'bitrate'),
 		'video' => array('title', 'artist', 'album_artist', 'album', 'track_number', 'genre', 'playtime', 'bitrate'),
 	);

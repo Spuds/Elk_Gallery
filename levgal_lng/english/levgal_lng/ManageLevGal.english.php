@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2
+ * @version 1.2.2
  * @package levgal
  * @since 1.0
  */
@@ -59,6 +59,7 @@ $txt['lgal_items_per_page'] = 'Number of items to show on a page view';
 $txt['lgal_comments_per_page'] = 'Number of comments to show per page';
 $txt['lgal_per_page_limits'] = '(10-50 items)';
 $txt['lgal_import_rendering'] = 'Enable (partial) rendering of other Gallery\'s BBC codes';
+$txt['lgal_open_link_new_tab'] = '"Click to view" opens item in a new tab, otherwise the current one';
 $txt['lgal_settings_social'] = 'Allow users to easily share items on social networks';
 $txt['lgal_settings_select_networks'] = 'Select social networks';
 $txt['lgal_settings_metadata'] = 'Display additional metadata';
