@@ -1,5 +1,5 @@
 /**
- This is the CSS for Levertine Gallery (LTR) v1.2.1
+ This is the CSS for Levertine Gallery (LTR) v1.2.2
 **/
 :root {
 	--shadow-color: rgba(158, 158, 158, .38);
@@ -198,6 +198,10 @@ dl.album_details dd, dl.album_info dd {
 	justify-self: center;
 	grid-column: item;
 	max-width: 90%;
+}
+
+.lg_item a #item_generic {
+	cursor: pointer;
 }
 
 .prev_next {
@@ -528,7 +532,7 @@ li.album_hierarchy_compact ul {
 	max-height: 125px;
 	margin: 0 auto;
 	transform: translateY(-50%);
-    object-fit: contain;
+	object-fit: contain;
 }
 
 .album_thumbnail {
