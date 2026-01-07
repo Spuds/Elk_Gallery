@@ -81,7 +81,7 @@ function getFileInfo($item_details, $itemModel, $settings, $type)
 	// Does the item exist? Can they see it if it does?
 	if (empty($item_details) || !$itemModel->isVisible())
 	{
-		return [$settings['theme_dir'] . '/levgal_res/icons/_invalid.png', 'denied.png', 'image/png'];
+		return [$settings['default_theme_dir'] . '/levgal_res/icons/_invalid.png', 'denied.png', 'image/png'];
 	}
 
 	$item_paths = $itemModel->getFilePaths();
