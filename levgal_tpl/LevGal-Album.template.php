@@ -8,7 +8,7 @@
  * @license LGPL (v3)
  * @since 1.0
  *
- * @version 1.2.2 / elkarte
+ * @version 1.2.3 / elkarte
  */
 
 function template_main_album_view()
@@ -671,7 +671,7 @@ function template_add_single_item()
 					<div class="infobox">', $txt['lgal_item_name_and_slug_auto'], '</div>
 
 					<dl id="lgal_settings">
-						<dt>', $txt['lgal_item_name'], '</dt>
+						<dt>', $txt['lgal_item_name'], '<br /><span class="smalltext">', $txt['lgal_item_slug_note'], '</span></dt>
 						<dd>
 							<input type="text" id="item_name" name="item_name" tabindex="', $context['tabindex']++, '" size="80" maxlength="80" class="input_text" value="', $context['item_name'], '" style="width: 95%;" />
 						</dd>
