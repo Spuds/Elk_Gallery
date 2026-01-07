@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 1.2.3 / elkarte
  */
 
 /**
@@ -101,6 +101,7 @@ class ManageLevGalMaint_Controller extends Action_Controller
 			'checkMissingFiles',
 			'checkExtraFiles',
 			'checkAlbumFiles',
+			'fixWrongFilesize',
 			'recount',
 		);
 		call_integration_hook('integrate_lgal_maint_findfix', array(&$steps));
