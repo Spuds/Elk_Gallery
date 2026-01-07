@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 1.2.3 / elkarte
  */
 
 /**
@@ -20,7 +20,8 @@ class LevGal_Model_Tag
 
 		$tags = array();
 		$request = $db->query('', '
-			SELECT lt.id_tag, lt.tag_name, lt.tag_slug
+			SELECT 
+				lt.id_tag, lt.tag_name, lt.tag_slug
 			FROM {db_prefix}lgal_tag_items AS lti
 				INNER JOIN {db_prefix}lgal_tags AS lt ON (lti.id_tag = lt.id_tag)
 			WHERE lti.id_item = {int:item}
@@ -263,7 +264,7 @@ class LevGal_Model_Tag
 		}
 
 		// Tags in use, in albums they have write permission on
-		if (!empty($modSettings['lgal_tag_items_list_more']))
+		if (!empty($modSettings['lgal_tag_items_list_more']) || allowedTo('lgal_manage'))
 		{
 			$cloudTags = $this->getTagCloud();
 			foreach ($cloudTags as $tag)
