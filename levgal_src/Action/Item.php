@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.1 / elkarte
+ * @version 1.2.3 / elkarte
  */
 
 /**
@@ -153,7 +153,7 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 
 		$share = array(
 			'facebook' => 'https://www.facebook.com/sharer.php?u=' . $context['item_details']['item_url'],
-			'twitter' => 'https://twitter.com/share?text=' . urlencode($context['item_details']['item_name']) . '&amp;url=' . urlencode($context['item_details']['item_url']),
+			'twitter' => 'https://x.com/share?text=' . urlencode($context['item_details']['item_name']) . '&amp;url=' . urlencode($context['item_details']['item_url']),
 			'tumblr' => 'https://www.tumblr.com/share/link?url=' . urlencode($context['item_details']['item_url']) . '&amp;name=' . urlencode($context['item_details']['item_name']),
 			'reddit' => 'https://reddit.com/submit?url=' . urlencode($context['item_details']['item_url']),
 			'pinterest' => 'https://pinterest.com/pin/create/button/?url=' . urlencode($context['item_details']['item_url']) . '&amp;description=' . urlencode($context['item_details']['item_name']),
@@ -171,9 +171,17 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 		// Get likes, if allowed to see profiles let's also linkify things.
 		$this->getItemLikes();
 
-		// The default order is by time added, although this should follow how the album was sorted.
-		$context['prev_next'] = $this->item_obj->getPreviousNext('time_added');
+		// The order follows how the album was sorted.
+		[$orderBy, $orderDir] = explode('|', $album_details['sort'], 2);
+		$sortMap = [
+			'name' => 'item_name',
+			'date' => 'time_added',
+			'views' => 'num_views',
+			'comments' => 'num_comments',
+		];
+		$orderBy = $sortMap[$orderBy] ?? 'id_item';
 
+		$context['prev_next'] = $this->item_obj->getPreviousNext($orderBy, $orderDir);
 		$context['item_display']['custom_fields'] = $this->item_obj->getCustomFields();
 		$context['item_display']['tags'] = $this->item_obj->getTags();
 
@@ -288,7 +296,17 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 
 		$this->setTemplate('LevGal-Item', 'mature_item');
 		$context['form_url'] = $item['url'] . 'mature/';
-		$context['prev_next'] = $this->item_obj->getPreviousNext('time_added');
+
+		// The order follows how the album was sorted.
+		[$orderBy, $orderDir] = explode('|', $album_details['sort'], 2);
+		$sortMap = [
+			'name' => 'item_name',
+			'date' => 'time_added',
+			'views' => 'num_views',
+			'comments' => 'num_comments',
+		];
+		$orderBy = $sortMap[$orderBy] ?? 'id_item';
+		$context['prev_next'] = $this->item_obj->getPreviousNext($orderBy, $orderDir);
 
 		if (isset($_POST['yes']))
 		{
@@ -842,6 +860,14 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 				'type' => 'checkbox',
 			);
 		}
+		if (allowedTo('lgal_manage'))
+		{
+			$context['new_options']['silent'] = array(
+				'label' => $txt['lgal_silent_update'],
+				'value' => true,
+				'type' => 'checkbox',
+			);
+		}
 
 		// Get all the places we could move this item to, and if we can't move, don't offer to move it.
 		list ($context['hierarchies'], $album_count) = $this->item_obj->getMoveDestinations();
@@ -851,11 +877,11 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 		}
 
 		// Tags are mildly fussy.
-		loadJavascriptFile(['jquery.flexdatalist.min.js'], ['subdir' => 'levgal_res', 'defer' => true]);
+		loadJavascriptFile(['jquery.flexdatalist.min.js'], ['subdir' => 'levgal_res', 'defer' => false]);
 		addInlineJavascript('
 			$(".flexdatalist").flexdatalist({
 				minLength: 0,
-				limitOfValues: 5,' . (!empty($modSettings['lgal_tag_items_list_more']) ? '
+				limitOfValues: 5,' . ((!empty($modSettings['lgal_tag_items_list_more']) || allowedTo('lgal_manage')) ? '
 				noResultsText: "' . $txt['lgal_item_tag_notfound'] . '"' : '
 				selectionRequired: true') . '
 			});', true);
@@ -864,7 +890,7 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 		/** @var $tagModel \LevGal_Model_Tag */
 		$tagModel = LevGal_Bootstrap::getModel('LevGal_Model_Tag');
 		$context['tags'] = $tagModel->getSiteTags();
-		$context['can_add_tags'] = !empty($modSettings['lgal_tag_items_list_more']);
+		$context['can_add_tags'] = !empty($modSettings['lgal_tag_items_list_more']) || allowedTo('lgal_manage');
 
 		// Existing item tags
 		$tags = $this->item_obj->getTags();
@@ -950,6 +976,7 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 				if (!empty($moved_album) && $moved_album !== $context['item_details']['id_album'])
 				{
 					$changes['id_album'] = $moved_album;
+					$changes['time_updated'] = time();
 				}
 			}
 
@@ -963,8 +990,8 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 			}
 
 			// Tags
-			$context['raw_tags'] = LevGal_Helper_Sanitiser::sanitiseTagFromPost('tags');
-			$context['tags'] = LevGal_Helper_Sanitiser::sanitiseTagFromPost('tags', true);
+			$context['raw_tags'] = LevGal_Helper_Sanitiser::sanitiseTagFromPost('tag');
+			$context['tags'] = LevGal_Helper_Sanitiser::sanitiseTagFromPost('tag', true);
 
 			// Changing up the file: URL first
 			if ($context['editing'] === 'link')
@@ -1045,6 +1072,7 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 					$changes['poster_name'] = $context['poster_name'];
 				}
 				$changes['description'] = $context['description'];
+
 				// Updating an existing URL is a bit tricky.
 				if (!empty($context['edit_url']) && $context['edit_url'] !== $context['original_url'])
 				{
@@ -1053,6 +1081,7 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 					$changes['mime_type'] = $context['url_data']['mime_type'];
 					unset ($context['url_data']['mime_type']);
 					$changes['meta'] = $context['url_data'];
+					$changes['time_updated'] = time();
 				}
 				// Updating a file is even more complicated.
 				elseif (!empty($context['filename']))
@@ -1063,6 +1092,7 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 						'hash' => $hash,
 						'extension' => $uploadModel->getExtension($context['filename']),
 						'filename' => $context['filename'],
+						'filesize' => $context['async_size'],
 					));
 					// Then we can do the fun of meta.
 					$meta = $this->item_obj->getMetadata();
@@ -1095,6 +1125,7 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 
 					// Now update the item.
 					$this->item_obj->updateItem($opts);
+					$changes['time_updated'] = time();
 
 					// Did we get a thumbnail from meta?
 					if (isset($meta['thumbnail']))
@@ -1145,7 +1176,11 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 				{
 					// We need to mark this as no longer editable and also update the edit time.
 					$changes['editable'] = 0;
-					$changes['time_updated'] = time();
+
+					if (isset($_POST['silent']) && allowedTo('lgal_manage'))
+					{
+						unset ($changes['time_updated']);
+					}
 
 					if (empty($context['raw_tags']))
 					{
@@ -1208,6 +1243,7 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 						$this->item_obj->setThumbnail($thumbnail);
 					}
 				}
+
 				// Since the slug might have changed, we should refresh what we have and leave.
 				$context['item_details'] = $this->item_obj->getItemInfoById($context['item_details']['id_item']);
 				// Make sure we mark it as seen because the new edit time may confuse it otherwise.
