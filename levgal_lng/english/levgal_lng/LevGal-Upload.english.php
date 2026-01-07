@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.1
+ * @version 1.2.3
  * @package levgal
  * @since 1.0
  */
