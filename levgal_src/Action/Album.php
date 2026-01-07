@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.1 / elkarte
+ * @version 1.2.3 / elkarte
  */
 
 /**
@@ -221,6 +221,8 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 			$context['album_actions']['moderation']['deletealbum'] = array($txt['lgal_delete_album_title'], $album['url'] . 'delete/');
 		}
 
+		$context['album_actions']['actions']['search'] = array($txt['levgal_search'], $scripturl . '?media/search/', 'tab' => true);
+
 		// Attempt to provide navigation back breadcrumbs when surfing albums
 		if (empty($_SERVER['HTTP_REFERER']) || !isset($_SESSION['levgal_breadcrumbs']))
 		{
@@ -364,7 +366,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		Dropzone.autoDiscover = false;
 			$(".flexdatalist").flexdatalist({
 				minLength: 0,
-				limitOfValues: 5,' . (!empty($modSettings['lgal_tag_items_list_more']) ? '
+				limitOfValues: 5,' . ((!empty($modSettings['lgal_tag_items_list_more']) || allowedTo('lgal_manage')) ? '
 				noResultsText: "' . $txt['lgal_item_tag_notfound'] . '"' : '
 				selectionRequired: true') . '
 			});', true);
@@ -383,7 +385,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		/** @var $tagModel \LevGal_Model_Tag */
 		$tagModel = LevGal_Bootstrap::getModel('LevGal_Model_Tag');
 		$context['tags'] = $tagModel->getSiteTags();
-		$context['can_add_tags'] = !empty($modSettings['lgal_tag_items_list_more']);
+		$context['can_add_tags'] = !empty($modSettings['lgal_tag_items_list_more']) || allowedTo('lgal_manage');
 
 		$context['requires_approval'] = !allowedTo(array('lgal_manage', 'lgal_additem_approve', 'lgal_approve_item'));
 
