@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.2 / elkarte
+ * @version 1.2.3 / elkarte
  */
 
 /**
@@ -143,6 +143,8 @@ class LevGal_Action_Albumlist extends LevGal_Action_Abstract
 		{
 			$context['album_actions']['actions']['movealbum'] = array($txt['lgal_arrange_albums'], $scripturl . '?media/movealbum/' . $member_id . '/member/', 'tab' => true);
 		}
+
+		$context['album_actions']['actions']['search'] = array($txt['levgal_search'], $scripturl . '?media/search/', 'tab' => true);
 	}
 
 	private function allMembersAlbumList()
@@ -241,6 +243,8 @@ class LevGal_Action_Albumlist extends LevGal_Action_Abstract
 		{
 			$context['album_actions']['actions']['movealbum'] = array($txt['lgal_arrange_albums'], $scripturl . '?media/movealbum/' . $group_id . '/group/', 'tab' => true);
 		}
+
+		$context['album_actions']['actions']['search'] = array($txt['levgal_search'], $scripturl . '?media/search/', 'tab' => true);
 	}
 
 	private function allGroupsAlbumList()
@@ -332,6 +336,7 @@ class LevGal_Action_Albumlist extends LevGal_Action_Abstract
 					'items' => $groups,
 				);
 			}
+
 			$context['album_actions']['actions']['groupalbums'] = array($txt['lgal_albums_group'], $scripturl . '?media/albumlist/group/', 'tab' => true, 'sidebar' => false, 'active' => $sidebar_type === 'group');
 		}
 
@@ -358,6 +363,7 @@ class LevGal_Action_Albumlist extends LevGal_Action_Abstract
 					$context['album_actions']['actions'] = array('myalbums' => array($txt['levgal_myalbums'], $scripturl . '?media/albumlist/' . $id . '/member/', 'tab' => true, 'sidebar' => false, 'active' => $sidebar_type === 'member' && $sidebar_id === $id)) + $context['album_actions']['actions'];
 				}
 			}
+
 			$context['album_actions']['actions']['memberalbums'] = array($txt['lgal_albums_member'], $scripturl . '?media/albumlist/member/', 'tab' => true, 'sidebar' => false, 'active' => (($sidebar_type === 'members' && $sidebar_id === 0) || ($sidebar_type === 'member' && $sidebar_id === $id)));
 
 			// For the sidebar
@@ -379,5 +385,7 @@ class LevGal_Action_Albumlist extends LevGal_Action_Abstract
 		{
 			$context['album_actions']['actions']['addalbum'] = array($txt['levgal_newalbum'], $scripturl . '?media/newalbum/', 'tab' => true);
 		}
+
+		$context['album_actions']['actions']['search'] = array($txt['levgal_search'], $scripturl . '?media/search/', 'tab' => true);
 	}
 }
