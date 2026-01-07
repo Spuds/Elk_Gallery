@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 1.2.3 / elkarte
  */
 
 /**
@@ -525,12 +525,16 @@ class LevGal_Model_Upload
 		for ($i = 0; $i < $chunks; $i++)
 		{
 			$in = $path . '/async_' . $user_ident . '_' . $fileID . '_part_' . $i . '.dat';
-			$success &= file_put_contents($out, file_get_contents($in), LOCK_EX | FILE_APPEND) !== false;
+			$writeResult = file_put_contents($out, file_get_contents($in), LOCK_EX | FILE_APPEND);
+			if ($writeResult === false)
+			{
+				$success = false;
+			}
+
 			@unlink($in);
 		}
 
-		// Often success feels empty
-		if (empty($success))
+		if (!$success)
 		{
 			return $this->errorAsyncFile( 'not_found', $fileID);
 		}
