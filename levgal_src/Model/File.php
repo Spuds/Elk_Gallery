@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 1.2.3 / elkarte
  */
 
 /**
@@ -210,6 +210,11 @@ class LevGal_Model_File
 			{
 				@unlink($file);
 			}
+		}
+
+		if (empty($this->current_item['filehash']))
+		{
+			return true;
 		}
 
 		// Now, is the folder empty? If so, delete it.
