@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 1.2.3 / elkarte
  */
 
 /**
@@ -726,6 +726,12 @@ class LevGal_Model_Maintenance
 		);
 		while ($row = $db->fetch_assoc($request))
 		{
+			if (empty($row['filehash']))
+			{
+				$items_without_files[] = $row['id_item'];
+				continue;
+			}
+
 			$base_folder = $base_path . '/files/' . $row['filehash'][0] . '/' . $row['filehash'][0] . $row['filehash'][1];
 
 			// External ones may not have any actual files.
@@ -940,6 +946,80 @@ class LevGal_Model_Maintenance
 		}
 
 		return array(true, 1, $files_deleted);
+	}
+
+	public function fixWrongFilesize($substep)
+	{
+		$db = database();
+
+		$items_per_step = 50;
+
+		$request = $db->query('', '
+			SELECT 
+			    COUNT(id_item)
+			FROM {db_prefix}lgal_items');
+		list ($count) = $db->fetch_row($request);
+		$db->free_result($request);
+
+		$substeps = ceil($count / $items_per_step);
+
+		if ($substep >= $substeps)
+		{
+			$substeps = empty($substeps) ? 1 : $substeps;
+			return array(true, $substeps, false);
+		}
+
+		$base_path = LevGal_Bootstrap::getGalleryDir();
+		$updated = 0;
+
+		$request = $db->query('', '
+			SELECT 
+				id_item, filehash, extension, mime_type, filesize
+			FROM {db_prefix}lgal_items
+			ORDER BY id_item
+			LIMIT {int:start}, {int:limit}',
+			array(
+				'start' => $substep * $items_per_step,
+				'limit' => $items_per_step,
+			)
+		);
+		while ($row = $db->fetch_assoc($request))
+		{
+			// Skip external items; they do not have a local core file.
+			if (strpos($row['mime_type'], 'external') === 0)
+			{
+				continue;
+			}
+
+			// Build the expected core file path e.g. files/a/ab/ID_HASH_ext.dat
+			$base_folder = $base_path . '/files/' . $row['filehash'][0] . '/' . $row['filehash'][0] . $row['filehash'][1];
+			$core_file = $row['id_item'] . '_' . $row['filehash'] . (!empty($row['extension']) ? '_' . $row['extension'] : '') . '.dat';
+			$full_path = $base_folder . '/' . $core_file;
+
+			if (!file_exists($full_path))
+			{
+				// Missing files are handled by checkMissingFiles.
+				continue;
+			}
+
+			$real_size = @filesize($full_path);
+			if ($real_size !== false && (int) $real_size !== (int) $row['filesize'])
+			{
+				$db->query('', '
+					UPDATE {db_prefix}lgal_items
+					SET filesize = {int:newsize}
+					WHERE id_item = {int:id_item}',
+					array(
+						'newsize' => (int) $real_size,
+						'id_item' => (int) $row['id_item'],
+					)
+				);
+				$updated++;
+			}
+		}
+		$db->free_result($request);
+
+		return array($substep + 1 >= $substeps, $substeps, $updated);
 	}
 
 	protected function findBrokenReferences($from_table, $from_column, $to_table, $to_column, $exclude_empty = false)

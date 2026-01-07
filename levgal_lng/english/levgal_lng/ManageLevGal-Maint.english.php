@@ -33,6 +33,7 @@ $txt['levgal_findfix_substep_fixOrphanCustomFields'] = 'Checking for custom fiel
 $txt['levgal_findfix_substep_checkMissingFiles'] = 'Checking for missing files...';
 $txt['levgal_findfix_substep_checkExtraFiles'] = 'Checking for extraneous files...';
 $txt['levgal_findfix_substep_checkAlbumFiles'] = 'Checking for extraneous album-related files...';
+$txt['levgal_findfix_substep_fixWrongFilesize'] = 'Checking and fixing wrong file sizes...';
 
 $txt['levgal_task_rebuildsearch'] = 'Rebuild Search Index';
 $txt['levgal_task_desc_rebuildsearch'] = 'A search index enables searching of the media items to happen quickly. If there are problems with the search function, it may mean the index has become corrupted; a rebuild should fix this.';
