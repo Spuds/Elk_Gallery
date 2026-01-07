@@ -4,13 +4,22 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.1 / elkarte
+ * @version 2.0.0 / elkarte
  */
+
+namespace Addons\Levertine\Source\Action;
+
+use Addons\Levertine\Source\Helper\Http;
+use Addons\Levertine\Source\Helper\Richtext;
+use Addons\Levertine\Source\Helper\Sanitiser;
+use Addons\Levertine\Source\Model\Album;
+use ElkArte\Languages\Txt;
+use ElkArte\User;
 
 /**
  * This file provides the handling for new albums, site/?media/newalbum/.
  */
-class LevGal_Action_Newalbum extends LevGal_Action_Abstract
+class Newalbum extends LevGalAbstract
 {
 	public function __construct()
 	{
@@ -20,13 +29,13 @@ class LevGal_Action_Newalbum extends LevGal_Action_Abstract
 		parent::__construct();
 
 		// Permissions check real quick.
-		if (!allowedTo(array('lgal_adduseralbum', 'lgal_addgroupalbum', 'lgal_manage')))
+		if (!allowedTo(['lgal_adduseralbum', 'lgal_addgroupalbum', 'lgal_manage']))
 		{
-			LevGal_Helper_Http::fatalError('cannot_lgal_addalbum');
+			Http::fatalError('cannot_lgal_addalbum');
 		}
 
 		// There are certain things we will need to have set up to make this work.
-		$albumModel = new LevGal_Model_Album();
+		$albumModel = new Album();
 		$context['ownership_opts'] = $albumModel->getOwnershipOptions();
 
 		// Now we need a list of groups, partly for ownership, partly for privacy.
@@ -35,7 +44,7 @@ class LevGal_Action_Newalbum extends LevGal_Action_Abstract
 
 		if (empty($context['group_list']))
 		{
-			$context['ownership_opts'] = array_diff($context['ownership_opts'], array('group'));
+			$context['ownership_opts'] = array_diff($context['ownership_opts'], ['group']);
 		}
 	}
 
@@ -48,7 +57,7 @@ class LevGal_Action_Newalbum extends LevGal_Action_Abstract
 		$this->addLinkTree($txt['levgal_newalbum'], '?media/newalbum/');
 
 		$this->setTemplate('LevGal-NewAlbum', 'newalbum', 'admin');
-		loadLanguage('levgal_lng/LevGal-AlbumEdit');
+		Txt::load('Levertine/LevGal-AlbumEdit');
 
 		$context['page_title'] = $txt['levgal_newalbum'];
 		$context['canonical_url'] = $scripturl . '?media/newalbum/';
@@ -63,30 +72,30 @@ class LevGal_Action_Newalbum extends LevGal_Action_Abstract
 
 	protected function getDefaults()
 	{
-		global $context, $user_info, $txt;
+		global $context, $txt;
 
 		$context['album_name'] = '';
 		$context['album_slug'] = '';
 		$context['ownership'] = in_array('member', $context['ownership_opts'], true) ? 'member' : (in_array('group', $context['ownership_opts'], true) ? 'group' : 'site');
 		// Take the user's primary group as default
-		$context['primary_group'] = (int) $user_info['groups'][0];
+		$context['primary_group'] = (int) User::$info['groups'][0];
 		$context['ownership_group'] = $context['primary_group'];
 		$context['privacy'] = 'members';
-		$context['privacy_group'] = array($context['primary_group']);
+		$context['privacy_group'] = [$context['primary_group']];
 
 		$context['album_description'] = '';
-		$context['description_box'] = new LevGal_Helper_Richtext('message');
-		$context['description_box']->createEditor(array(
+		$context['description_box'] = new Richtext('message');
+		$context['description_box']->createEditor([
 			'value' => $context['description_box']->getForForm($context['album_description']),
-			'labels' => array(
+			'labels' => [
 				'post_button' => $txt['levgal_newalbum'],
-			),
-			'js' => array(
+			],
+			'js' => [
 				'post_button' => 'return is_submittable() && submitThisOnce(this);',
-			),
-		));
+			],
+		]);
 
-		$context['requires_approval'] = !allowedTo(array('lgal_manage', 'lgal_addalbum_approve'));
+		$context['requires_approval'] = !allowedTo(['lgal_manage', 'lgal_addalbum_approve']);
 	}
 
 	public function actionSave()
@@ -98,10 +107,10 @@ class LevGal_Action_Newalbum extends LevGal_Action_Abstract
 		checkSession();
 
 		// First, the album name.
-		$context['album_name'] = LevGal_Helper_Sanitiser::sanitiseThingNameFromPost('album_name');
+		$context['album_name'] = Sanitiser::sanitiseThingNameFromPost('album_name');
 
 		// Next, dust off the slug.
-		$context['album_slug'] = LevGal_Helper_Sanitiser::sanitiseSlugFromPost('album_slug');
+		$context['album_slug'] = Sanitiser::sanitiseSlugFromPost('album_slug');
 
 		// Next, ownership
 		$default_ownership = $context['ownership'];
@@ -112,10 +121,10 @@ class LevGal_Action_Newalbum extends LevGal_Action_Abstract
 		}
 
 		// Next, privacy
-		$context['privacy'] = isset($_POST['privacy']) && in_array($_POST['privacy'], array('guests', 'members', 'justme', 'custom')) ? $_POST['privacy'] : 'justme'; // While the default is members, if in doubt, revert to 'just me' for safety.
+		$context['privacy'] = isset($_POST['privacy']) && in_array($_POST['privacy'], ['guests', 'members', 'justme', 'custom']) ? $_POST['privacy'] : 'justme'; // While the default is members, if in doubt, revert to 'just me' for safety.
 		if ($context['privacy'] === 'custom')
 		{
-			$groups = isset($_POST['privacy_group']) && is_array($_POST['privacy_group']) ? $_POST['privacy_group'] : array();
+			$groups = isset($_POST['privacy_group']) && is_array($_POST['privacy_group']) ? $_POST['privacy_group'] : [];
 			foreach ($groups as $k => $v)
 			{
 				$v = (int) $v;
@@ -127,7 +136,7 @@ class LevGal_Action_Newalbum extends LevGal_Action_Abstract
 			}
 			// We don't need to record admin access even though the form has it
 			// because, frankly, that's for show (group 1 auto has access anyway)
-			$context['privacy_group'] = array_diff(array_unique($groups), array(1));
+			$context['privacy_group'] = array_diff(array_unique($groups), [1]);
 			// And attach it against actual groups.
 			$context['privacy_group'] = array_intersect($context['privacy_group'], array_keys($context['access_list']));
 		}
@@ -149,9 +158,9 @@ class LevGal_Action_Newalbum extends LevGal_Action_Abstract
 			return;
 		}
 
-		$approved = allowedTo(array('lgal_manage', 'lgal_addalbum_approve'));
+		$approved = allowedTo(['lgal_manage', 'lgal_addalbum_approve']);
 
-		$album = new LevGal_Model_Album();
+		$album = new Album();
 		$album->createAlbum($context['album_name'], $context['album_slug'], $context['description'], $approved);
 		switch ($context['ownership'])
 		{
@@ -170,10 +179,10 @@ class LevGal_Action_Newalbum extends LevGal_Action_Abstract
 		// $editable in this context means we will be able to edit it any time. If we can't do that,
 		// we need to allow the user the choice to edit it as a 'finalising' operation because of
 		// the two-stage thing we do. So if that's the case, we need to flag it as editable by owner.
-		$editable = allowedTo(array('lgal_manage', 'lgal_edit_album_any', 'lgal_edit_album_own'));
+		$editable = allowedTo(['lgal_manage', 'lgal_edit_album_any', 'lgal_edit_album_own']);
 		if (!$editable)
 		{
-			$album->updateAlbum(array('editable' => 1));
+			$album->updateAlbum(['editable' => 1]);
 		}
 
 		// And now we want to go to the album editing page.
@@ -194,7 +203,7 @@ class LevGal_Action_Newalbum extends LevGal_Action_Abstract
 		}
 		else
 		{
-			LevGal_Helper_Http::fatalError('cannot_lgal_addalbum');
+			Http::fatalError('cannot_lgal_addalbum');
 		}
 	}
 }

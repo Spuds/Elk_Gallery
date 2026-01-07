@@ -1,5 +1,7 @@
 <?php
 
+use Addons\Levertine\Source\Helper\Format;
+
 /**
  * This file handles displaying the front page of the gallery.
  *
@@ -111,7 +113,7 @@ function template_display_album_list($list)
 						$album['album_name'], '<br />', $album['description_short'], '
 					</div>
 					<div class="centertext clear">
-						<span class="lgalicon i-album"></span> ', LevGal_Helper_Format::numstring('lgal_items', $album['num_items']), ' / ', LevGal_Helper_Format::numstring('lgal_albums', $album['album_count']), '
+						<span class="lgalicon i-album"></span> ', Format::numstring('lgal_items', $album['num_items']), ' / ', Format::numstring('lgal_albums', $album['album_count']), '
 					</div>
 				</a>';
 	}
@@ -274,7 +276,7 @@ function template_item_list($list)
 			$title = sprintf($txt['lgal_missing_item'], $item['item_name']);
 			echo '
 							<a class="lgtip" href="#" title="', $title, '" >
-								<img src="', $settings['default_theme_url'], '/levgal_res/icons/_invalid.png" alt="', $title, '" loading="lazy" />
+								<img src="', $settings['default_theme_url'], '/Levertine/icons/_invalid.png" alt="', $title, '" loading="lazy" />
 							</a>';
 		}
 
@@ -297,7 +299,7 @@ function template_item_list($list)
 	echo '
 			</div>';
 
-	addInlineJavascript('
+	theme()->addInlineJavascript('
 		const myGallery_' . $list . ' = GLightbox({elements:
 		' . json_encode($slideshow, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . ',
 		preload: false,
@@ -472,12 +474,12 @@ function template_album_hierarchy($hierarchy, $compact = false)
 					<br />
 					<p class="lgal_profile_album_contents floatleft">
 						', $album['description_short'], '<br />
-						<span class="lgalicon i-album" style="margin: 0"></span> ', LevGal_Helper_Format::numstring('lgal_items', $album['num_items']);
+						<span class="lgalicon i-album" style="margin: 0"></span> ', Format::numstring('lgal_items', $album['num_items']);
 
 			if (!empty($album['see_unapproved']))
 			{
 				echo ',
-						<span class="error"><i class="lgalicon i-flag colorize-red"></i>', $txt['lgal_unapproved'], ' [', LevGal_Helper_Format::numstring('lgal_items', $album['num_unapproved_items']), ']</span>';
+						<span class="error"><i class="lgalicon i-flag colorize-red"></i>', $txt['lgal_unapproved'], ' [', Format::numstring('lgal_items', $album['num_unapproved_items']), ']</span>';
 			}
 
 			echo '
@@ -721,14 +723,14 @@ function template_album_placecard($albumItems, $useAvatar = null)
 		else
 		{
 			echo '
-							<img src="', $settings['default_theme_url'], '/levgal_res/albums/folder-image.svg" alt="" />';
+							<img src="', $settings['default_theme_url'], '/Levertine/albums/folder-image.svg" alt="" />';
 		}
 
 		echo '
 						</div>
 						<div class="album_desc lefttext">
 							', $item['title'], '<br />
-							<span class="lgalicon i-album"></span> ', LevGal_Helper_Format::numstring('lgal_albums', $item['count']), '
+							<span class="lgalicon i-album"></span> ', Format::numstring('lgal_albums', $item['count']), '
 						</div>
 					</a>';
 	}

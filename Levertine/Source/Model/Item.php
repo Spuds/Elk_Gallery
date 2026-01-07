@@ -4,15 +4,28 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.2 / elkarte
+ * @version 2.0.0 / elkarte
  */
 
+namespace Addons\Levertine\Source\Model;
+
+use Addons\Levertine\Source\Helper\Format;
+use Addons\Levertine\Source\Helper\Image;
+use Addons\Levertine\Source\LevGalBootstrap;
+use Addons\Levertine\Source\Model\Metadata\Display;
+use Addons\Levertine\Source\Model\Mime\Rules;
 use BBC\ParserWrapper;
+use ElkArte\Cache\Cache;
+use ElkArte\Helper\Util;
+use ElkArte\MembersList;
+use ElkArte\Notifications\Notifications;
+use ElkArte\Notifications\NotificationsTask;
+use ElkArte\User;
 
 /**
  * This file deals with file internals.
  */
-class LevGal_Model_Item extends LevGal_Model_File
+class Item extends File
 {
 	/** @var int  */
 	public const SEEN_THRESHOLD = 120;
@@ -44,29 +57,29 @@ class LevGal_Model_Item extends LevGal_Model_File
 			FROM {db_prefix}lgal_items AS li
 				LEFT JOIN {db_prefix}members AS mem ON (li.id_member = mem.id_member)
 			WHERE id_item = {int:itemId}',
-			array(
+			[
 				'itemId' => $itemId,
-			)
+			]
 		);
 
-		if ($db->num_rows($request) > 0)
+		if ($request->num_rows() > 0)
 		{
 			$parser = ParserWrapper::instance();
-			$this->current_item = $db->fetch_assoc($request);
+			$this->current_item = $request->fetch_assoc();
 			$this->current_item['id_item'] = (int) $this->current_item['id_item'];
 			$this->current_item['id_album'] = (int) $this->current_item['id_album'];
 			censor($this->current_item['item_name']);
 			$this->current_item['description_raw'] = $this->current_item['description'];
 			censor($this->current_item['description']);
 			$this->current_item['description'] = !empty($this->current_item['description']) ? $parser->parseMessage($this->current_item['description'], true) : '';
-			$this->current_item['meta'] = !empty($this->current_item['meta']) ? Util::unserialize($this->current_item['meta']) : array();
+			$this->current_item['meta'] = !empty($this->current_item['meta']) ? Util::unserialize($this->current_item['meta']) : [];
 			$this->current_item['item_url'] = $scripturl . '?media/item/' . (!empty($this->current_item['item_slug']) ? $this->current_item['item_slug'] . '.' . $itemId : $itemId) . '/';
-			foreach (array('time_added', 'time_updated') as $item)
+			foreach (['time_added', 'time_updated'] as $item)
 			{
-				$this->current_item[$item . '_format'] = LevGal_Helper_Format::time($this->current_item[$item]);
+				$this->current_item[$item . '_format'] = Format::time($this->current_item[$item]);
 			}
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		return $this->current_item;
 	}
@@ -75,13 +88,13 @@ class LevGal_Model_Item extends LevGal_Model_File
 	{
 		if (empty($this->current_item))
 		{
-			return array();
+			return [];
 		}
 
-		return array(
+		return [
 			'name' => $this->current_item['item_name'],
 			'url' => $this->current_item['item_url'],
-		);
+		];
 	}
 
 	// This isn't pretty but it means we can reuse all the exciting other methods without having
@@ -91,7 +104,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 		global $scripturl;
 
 		$this->current_item = $details;
-		$this->current_item['meta'] = !empty($this->current_item['meta']) ? Util::unserialize($this->current_item['meta']) : array();
+		$this->current_item['meta'] = !empty($this->current_item['meta']) ? Util::unserialize($this->current_item['meta']) : [];
 		$this->current_item['item_url'] = $scripturl . '?media/item/' . (!empty($this->current_item['item_slug']) ? $this->current_item['item_slug'] . '.' . $this->current_item['id_item'] : $this->current_item['id_item']) . '/';
 		$this->current_item['is_surrogate'] = true;
 	}
@@ -105,7 +118,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 
 		if (empty($this->current_album))
 		{
-			$this->current_album = new LevGal_Model_Album();
+			$this->current_album = new Album();
 		}
 
 		return $this->current_album->getAlbumById($this->current_item['id_album']);
@@ -135,7 +148,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 			return false;
 		}
 
-		return allowedTo(array('lgal_manage', 'lgal_approve_item')) || (!empty($modSettings['lgal_selfmod_approve_item']) && $this->albumIsOwnedByUser());
+		return allowedTo(['lgal_manage', 'lgal_approve_item']) || (!empty($modSettings['lgal_selfmod_approve_item']) && $this->albumIsOwnedByUser());
 	}
 
 	public function isEditable()
@@ -147,7 +160,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 
 		// If they're a gallery manager, or they can edit any item, or they can edit their own
 		// items (and this is their item), let them edit.
-		if (allowedTo(array('lgal_manage', 'lgal_edit_item_any')) || (allowedTo('lgal_edit_item_own') && $this->isOwnedByUser()))
+		if (allowedTo(['lgal_manage', 'lgal_edit_item_any']) || (allowedTo('lgal_edit_item_own') && $this->isOwnedByUser()))
 		{
 			return true;
 		}
@@ -165,7 +178,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 	public function getItemURLs()
 	{
 		global $scripturl, $settings;
-		$urls = array();
+		$urls = [];
 
 		if (empty($this->current_item))
 		{
@@ -174,7 +187,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 
 		// We use existence of physical files to determine what is available.
 		$files = $this->getFilePaths();
-		if (empty($files['raw']) && strpos($this->current_item['mime_type'], 'external') !== 0)
+		if (empty($files['raw']) && !str_starts_with($this->current_item['mime_type'], 'external'))
 		{
 			return $urls;
 		}
@@ -184,7 +197,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 		// Everything has a download link and a raw link. Main difference is headers.
 		$urls['item'] = $scripturl . '?media/item/' . (!empty($this->current_item['item_slug']) ? $this->current_item['item_slug'] . '.' : '') . $this->current_item['id_item'] . '/';
 		// Can't have a download link for externals.
-		if (strpos($this->current_item['mime_type'], 'external') !== 0)
+		if (!str_starts_with($this->current_item['mime_type'], 'external'))
 		{
 			$urls['download'] = $base_url . 'download/';
 		}
@@ -192,14 +205,14 @@ class LevGal_Model_Item extends LevGal_Model_File
 
 		if ($this->isMature() && $this->hidingMature())
 		{
-			$urls['thumb'] = $settings['default_theme_url'] . '/levgal_res/icons/_mature.png';
+			$urls['thumb'] = $settings['default_theme_url'] . '/Levertine/icons/_mature.png';
 			$urls['preview'] = $urls['thumb'];
 
 			return $urls;
 		}
 
 		// So, the raw file itself. If this is an image, we want index.php?media/file/my-item.1/ not a download link
-		if (in_array($this->current_item['mime_type'], array('image/jpg', 'image/gif', 'image/jpeg', 'image/png', 'image/webp')))
+		if (in_array($this->current_item['mime_type'], ['image/jpg', 'image/gif', 'image/jpeg', 'image/png', 'image/webp']))
 		{
 			// Is there a preview? This is the tricky one. A preview image should exist only if the main image is big enough.
 			if (!empty($files['preview']))
@@ -217,7 +230,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 				$urls['thumb'] = $this->getIconUrl('jpg'); // Any image file will do.
 			}
 		}
-		elseif (strpos($this->current_item['mime_type'], 'external') === 0)
+		elseif (str_starts_with($this->current_item['mime_type'], 'external'))
 		{
 			if (!empty($files['thumb']))
 			{
@@ -225,7 +238,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 			}
 			else
 			{
-				$urls['thumb'] = $settings['default_theme_url'] . '/levgal_res/icons/' . substr($this->current_item['mime_type'], 9) . '.png';
+				$urls['thumb'] = $settings['default_theme_url'] . '/Levertine/icons/' . substr($this->current_item['mime_type'], 9) . '.png';
 				$urls['preview'] = $urls['thumb'];
 			}
 		}
@@ -248,7 +261,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 				// We need to determine which it is.
 				$extension = !empty($this->current_item['extension']) ? $this->current_item['extension'] : '';
 				$fallback_icon = $this->getIconUrl($extension);
-				foreach (array('preview', 'thumb') as $type)
+				foreach (['preview', 'thumb'] as $type)
 				{
 					if (empty($urls[$type]))
 					{
@@ -297,33 +310,33 @@ class LevGal_Model_Item extends LevGal_Model_File
 		// See also LevGal_Model_Upload::getAlternateExtensions for more.
 		if ($mapping === null)
 		{
-			$types = array(
-				'_audio' => array('flac', 'mp3', 'm4a', 'oga', 'ogg', 'wav'),
-				'_binary' => array('bin', 'dll', 'exe'),
-				'_font' => array('otf', 'ttf'),
-				'_image' => array('gif', 'iff', 'jpeg', 'jpg', 'webp', 'lbm', 'mng', 'png', 'psd', 'tiff', 'tif'),
-				'_video' => array('ogv', 'm4v', 'mp4', 'mov', 'qt', 'mqv', 'webm', 'mkv'),
-				'doc' => array(
+			$types = [
+				'_audio' => ['flac', 'mp3', 'm4a', 'oga', 'ogg', 'wav'],
+				'_binary' => ['bin', 'dll', 'exe'],
+				'_font' => ['otf', 'ttf'],
+				'_image' => ['gif', 'iff', 'jpeg', 'jpg', 'webp', 'lbm', 'mng', 'png', 'psd', 'tiff', 'tif'],
+				'_video' => ['ogv', 'm4v', 'mp4', 'mov', 'qt', 'mqv', 'webm', 'mkv'],
+				'doc' => [
 					'doc', 'dot', 'docm', 'docx', 'dotm', 'dotx', // MS Word
 					'fodt', 'odt', // OpenDocument / LibreOffice
 					'stw', 'sxg', 'sxw', // StarOffice/OpenOffice Writer
-				),
-				'html' => array('htm', 'html', 'mhtm', 'mhtml'),
-				'pdf' => array('pdf'),
-				'ppt' => array(
+				],
+				'html' => ['htm', 'html', 'mhtm', 'mhtml'],
+				'pdf' => ['pdf'],
+				'ppt' => [
 					'pot', 'potm', 'potx', 'ppam', 'pps', 'ppsm', 'ppsx', 'ppt', 'pptm', 'pptx', 'sldm', 'sldx', // MS Powerpoint
 					'fodp', 'odp', // OpenDocument / LibreOffice
 					'sti', 'sxi', // StarOffice/OpenOffice Impress
-				),
-				'txt' => array('txt'),
-				'xls' => array(
+				],
+				'txt' => ['txt'],
+				'xls' => [
 					'xla', 'xlam', 'xll', 'xlm', 'xls', 'xlw', 'xlsb', 'xlsm', 'xlsx', 'xlt', 'xltm', 'xltx', // MS Excel
 					'fods', 'ods', // OpenDocument / LibreOffice
 					'stc', 'sxc', // StarOffice/OpenOffice Calc
-				),
-				'xml' => array('xml'),
-				'zip' => array('7z', 'bz2', 'dmg', 'gz', 'lz', 'lzma', 'rar', 'sit', 'tar', 'tbz2', 'tgz', 'z', 'zip'),
-			);
+				],
+				'xml' => ['xml'],
+				'zip' => ['7z', 'bz2', 'dmg', 'gz', 'lz', 'lzma', 'rar', 'sit', 'tar', 'tbz2', 'tgz', 'z', 'zip'],
+			];
 			foreach ($types as $thumb => $exts)
 			{
 				foreach ($exts as $ext)
@@ -333,7 +346,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 			}
 		}
 
-		$icon_url = $settings['default_theme_url'] . '/levgal_res/icons';
+		$icon_url = $settings['default_theme_url'] . '/Levertine/icons';
 		$file_ext = strtolower($file_ext);
 
 		return $icon_url . '/' . ($mapping[$file_ext] ?? 'unknown') . '.png';
@@ -348,11 +361,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 
 		if (!empty($this->current_item['id_member']))
 		{
-			$loaded = loadMemberData($this->current_item['id_member']);
-			if (!empty($loaded))
-			{
-				loadMemberContext($this->current_item['id_member']);
-			}
+			$loaded = MembersList::loadMemberData($this->current_item['id_member']);
 		}
 
 		return !empty($loaded) ? (int) $this->current_item['id_member'] : $this->current_item['poster_name'];
@@ -366,7 +375,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 		}
 
 		$mime_type = !empty($this->current_item['mime_type']) ? $this->current_item['mime_type'] : 'application/octet-stream';
-		list ($mime_class) = explode('/', $mime_type);
+		[$mime_class] = explode('/', $mime_type);
 		if ($mime_class === 'image' && !empty($this->current_item['width']) && !empty($this->current_item['height']))
 		{
 			return 'image';
@@ -408,19 +417,19 @@ class LevGal_Model_Item extends LevGal_Model_File
 				return 'archive';
 		}
 
-		// Naturally, MSOffice couldn't be simple. As per LevGal_Model_Mime_Extension, there's a bunch of suffixes we don't care about.
+		// Naturally, MSOffice couldn't be simple. As per Model Mime Extension, there's a bunch of suffixes we don't care about.
 		// Open Document Format is at least a bit more sane about this for a single container MIME type as well as the old Sun vendor types.
-		$mime_type_prefixes = array(
+		$mime_type_prefixes = [
 			'application/vnd.ms-word',
 			'application/vnd.ms-excel',
 			'application/vnd.ms-powerpoint',
 			'application/vnd.openxmlformats-officedocument',
 			'application/vnd.sun.xml',
 			'application/vnd.oasis.opendocument',
-		);
+		];
 		foreach ($mime_type_prefixes as $prefix)
 		{
-			if (strpos($this->current_item['mime_type'], $prefix) === 0)
+			if (str_starts_with($this->current_item['mime_type'], $prefix))
 			{
 				return 'document';
 			}
@@ -440,14 +449,14 @@ class LevGal_Model_Item extends LevGal_Model_File
 
 		if (!empty($this->current_item['meta']))
 		{
-			$metaModel = new LevGal_Model_Metadata_Display($this->current_item['meta']);
+			$metaModel = new Display($this->current_item['meta']);
 		}
 
 		$type = $this->getItemType();
 		if ($type === 'image')
 		{
 			// If it's got a width + height, it's probably an image
-			return array(
+			return [
 				// Specifics that might be useful
 				'width' => $this->current_item['width'],
 				'width_format' => comma_format($this->current_item['width']),
@@ -460,45 +469,45 @@ class LevGal_Model_Item extends LevGal_Model_File
 				'display_size' => $this->getDisplayFilesize(),
 				'needs_lightbox' => $this->current_item['width'] > 500 || $this->current_item['height'] > 500,
 				'urls' => $this->getItemURLs(),
-				'meta' => $metaModel !== null ? $metaModel->getExifInfo() : array(),
-			);
+				'meta' => $metaModel !== null ? $metaModel->getExifInfo() : [],
+			];
 		}
 
 		if ($type === 'audio')
 		{
-			return array(
+			return [
 				'display_template' => 'audio',
 				'display_size' => $this->getDisplayFilesize(),
 				'urls' => $this->getItemURLs(),
-				'meta' => $metaModel !== null ? $metaModel->getAudioInfo() : array(),
-			);
+				'meta' => $metaModel !== null ? $metaModel->getAudioInfo() : [],
+			];
 		}
 
 		if ($type === 'video')
 		{
-			return array(
+			return [
 				'display_template' => 'video',
 				'display_size' => $this->getDisplayFilesize(),
 				'urls' => $this->getItemURLs(),
-				'meta' => $metaModel !== null ? $metaModel->getVideoInfo() : array(),
-			);
+				'meta' => $metaModel !== null ? $metaModel->getVideoInfo() : [],
+			];
 		}
 
 		if ($type === 'external')
 		{
-			$external = new LevGal_Model_External($this->current_item['meta']);
-			$array = array(
+			$external = new External($this->current_item['meta']);
+			$array = [
 				'urls' => $this->getItemURLs(),
-			);
+			];
 
 			return array_merge($array, $external->getDisplayProperties());
 		}
 
-		return array(
+		return [
 			'display_template' => 'generic',
 			'display_size' => $this->getDisplayFilesize(),
 			'urls' => $this->getItemURLs(),
-		);
+		];
 	}
 
 	public function getDisplayFilesize()
@@ -510,28 +519,28 @@ class LevGal_Model_Item extends LevGal_Model_File
 			return $txt['not_applicable'];
 		}
 
-		return LevGal_Helper_Format::filesize($this->current_item['filesize']);
+		return Format::filesize($this->current_item['filesize']);
 	}
 
 	public function getLikes()
 	{
 		if (empty($this->current_item))
 		{
-			return array();
+			return [];
 		}
 
-		return (new LevGal_Model_Like())->getLikesByItem($this->current_item['id_item']);
+		return (new Like())->getLikesByItem($this->current_item['id_item']);
 	}
 
 	public function likeItem()
 	{
-		$likeModel = new LevGal_Model_Like();
+		$likeModel = new Like();
 		$likeModel->likeItem($this->current_item['id_item']);
 	}
 
 	public function unlikeItem()
 	{
-		$likeModel = new LevGal_Model_Like();
+		$likeModel = new Like();
 		$likeModel->unlikeItem($this->current_item['id_item']);
 	}
 
@@ -557,16 +566,12 @@ class LevGal_Model_Item extends LevGal_Model_File
 			return 'no_new';
 		}
 
-		switch ($this->current_item['comment_state'])
+		return match ($this->current_item['comment_state'])
 		{
-			case 0:
-				return 'enabled';
-			case 1:
-				return 'no_new';
-			case 2:
-			default:
-				return 'disabled';
-		}
+			0 => 'enabled',
+			1 => 'no_new',
+			default => 'disabled',
+		};
 	}
 
 	public function canReceiveComments()
@@ -587,7 +592,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 		// They can comment. Is that with or without approval?
 		if (allowedTo('lgal_comment'))
 		{
-			return (allowedTo(array('lgal_approve_comment', 'lgal_comment_appr'))) ? 'yes' : 'approval';
+			return (allowedTo(['lgal_approve_comment', 'lgal_comment_appr'])) ? 'yes' : 'approval';
 		}
 
 		return 'no';
@@ -595,26 +600,26 @@ class LevGal_Model_Item extends LevGal_Model_File
 
 	public function getCountComments()
 	{
-		global $modSettings, $user_info;
+		global $modSettings;
 
 		$db = database();
 
 		// For other uses we reuse the pre-stored counts. But this time around, we need actual amounts.
 		// If you're an admin or manager, or you can approve comments, or it's your item (+ you get such approval)
 		// we can use the full count easily.
-		if (allowedTo(array('lgal_manage', 'lgal_approve_comment')) || ($this->isOwnedByUser() && !empty($modSettings['lgal_selfmod_approve_comment'])))
+		if (allowedTo(['lgal_manage', 'lgal_approve_comment']) || ($this->isOwnedByUser() && !empty($modSettings['lgal_selfmod_approve_comment'])))
 		{
 			return $this->current_item['num_comments'] + $this->current_item['num_unapproved_comments'];
 		}
 
 		// Guests on the other hand get it simple: they will only ever see the number of approved comments.
 		// Unless they made some comments... which we capture in session.
-		if ($user_info['is_guest'] && empty($_SESSION['lgal_comments']))
+		if (User::$info['is_guest'] && empty($_SESSION['lgal_comments']))
 		{
 			return $this->current_item['num_comments'];
 		}
 
-		$comments = !empty($_SESSION['lgal_comments']) ? $_SESSION['lgal_comments'] : array();
+		$comments = !empty($_SESSION['lgal_comments']) ? $_SESSION['lgal_comments'] : [];
 
 		$request = $db->query('', '
 			SELECT 
@@ -624,52 +629,52 @@ class LevGal_Model_Item extends LevGal_Model_File
 				AND (approved = {int:approved}' . (!empty($comments) ? '
 				OR id_comment IN ({array_int:comments})' : '') . '
 				OR id_author = {int:user_id})',
-			array(
+			[
 				'id_item' => $this->current_item['id_item'],
 				'approved' => 1,
 				'comments' => $comments,
-				'user_id' => $user_info['id'],
-			)
+				'user_id' => User::$info['id'],
+			]
 		);
-		list ($count) = $db->fetch_row($request);
-		$db->free_result($request);
+		[$count] = $request->fetch_row();
+		$request->free_result();
 
 		return $count;
 	}
 
 	public function getComments($start, $limit)
 	{
-		global $user_info, $memberContext, $scripturl, $context, $txt, $modSettings;
+		global $memberContext, $scripturl, $context, $txt, $modSettings;
 
 		$db = database();
 
 		// No item, no comments
 		if (empty($this->current_item))
 		{
-			return array();
+			return [];
 		}
 
-		$permissions = array('lgal_approve_comment', 'lgal_edit_comment_own', 'lgal_edit_comment_any', 'lgal_delete_comment_own', 'lgal_delete_comment_any');
+		$permissions = ['lgal_approve_comment', 'lgal_edit_comment_own', 'lgal_edit_comment_any', 'lgal_delete_comment_own', 'lgal_delete_comment_any'];
 		foreach ($permissions as $permission)
 		{
-			$perm_cache[$permission] = allowedTo(array('lgal_manage', $permission));
+			$perm_cache[$permission] = allowedTo(['lgal_manage', $permission]);
 		}
-		foreach (array('approve_comment', 'edit_comment', 'delete_comment') as $perm)
+		foreach (['approve_comment', 'edit_comment', 'delete_comment'] as $perm)
 		{
 			$perm_cache['lgal_selfmod_' . $perm] = !empty($modSettings['lgal_selfmod_' . $perm]);
 		}
 
-		$comments = array();
-		$clauses = array();
-		$session_comments = !empty($_SESSION['lgal_comments']) ? $_SESSION['lgal_comments'] : array();
+		$comments = [];
+		$clauses = [];
+		$session_comments = !empty($_SESSION['lgal_comments']) ? $_SESSION['lgal_comments'] : [];
 		$clauses[] = 'lc.id_item = {int:item}';
 		// Guests see only approved items, period.
-		if ($user_info['is_guest'])
+		if (User::$info['is_guest'])
 		{
 			$clauses[] = empty($session_comments) ? '(approved = {int:approved})' : '(approved = {int:approved} OR id_comment IN ({array_int:session_comments}))';
 		}
 		// People who aren't managers/approvers or specifically privileged... can only see their own.
-		elseif (!allowedTo(array('lgal_manage', 'lgal_approve_comment')) && (!$this->isOwnedByUser() || empty($modSettings['lgal_selfmod_approve_comment'])))
+		elseif (!allowedTo(['lgal_manage', 'lgal_approve_comment']) && (!$this->isOwnedByUser() || empty($modSettings['lgal_selfmod_approve_comment'])))
 		{
 			$clauses[] = '(approved = {int:approved} OR id_author = {int:user_id})';
 		}
@@ -683,18 +688,18 @@ class LevGal_Model_Item extends LevGal_Model_File
 			WHERE ' . implode(' AND ', $clauses) . '
 			ORDER BY id_comment DESC
 			LIMIT {int:start}, {int:limit}',
-			array(
+			[
 				'item' => $this->current_item['id_item'],
 				'approved' => 1,
-				'user_id' => $user_info['id'],
+				'user_id' => User::$info['id'],
 				'session_comments' => $session_comments,
 				'start' => $start,
 				'limit' => $limit,
-			)
+			]
 		);
-		$members = array();
+		$members = [];
 		$parser = ParserWrapper::instance();
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
 			$id_comment = array_shift($row);
 			// Comment unapproved = visible to admins/managers, people with approval, item owners
@@ -703,7 +708,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 			{
 				// Guests will never see unapproved comments except ones in their session. Failing that,
 				// anyone who is a manager/admin or approver will have approval permission.
-				if (($user_info['is_guest'] && !in_array($id_comment, $session_comments, true)) || (!$perm_cache['lgal_approve_comment'] && (!$perm_cache['lgal_selfmod_approve_comment'] || !$this->isOwnedByUser()) && ($row['id_author'] != $user_info['id'])))
+				if ((User::$info['is_guest'] && !in_array($id_comment, $session_comments, true)) || (!$perm_cache['lgal_approve_comment'] && (!$perm_cache['lgal_selfmod_approve_comment'] || !$this->isOwnedByUser()) && ($row['id_author'] != User::$info['id'])))
 				{
 					continue;
 				}
@@ -714,7 +719,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 			{
 				$members[] = $row['id_author'];
 			}
-			$comments[$id_comment] = array(
+			$comments[$id_comment] = [
 				'id_member' => $row['id_author'],
 				'author_name' => $row['author_name'],
 				'author_link' => $row['author_name'],
@@ -722,18 +727,19 @@ class LevGal_Model_Item extends LevGal_Model_File
 				'author_ip' => $row['author_ip'],
 				'modified_name' => $row['modified_name'],
 				'modified_time' => $row['modified_time'],
-				'modified_time_format' => LevGal_Helper_Format::time($row['modified_time']),
+				'modified_time_format' => Format::time($row['modified_time']),
 				'comment' => $parser->parseMessage($row['comment'], true),
 				'approved' => !empty($row['approved']),
 				'time_added' => $row['time_added'],
-				'time_added_format' => LevGal_Helper_Format::time($row['time_added']),
-				'options' => array(),
-			);
+				'time_added_format' => Format::time($row['time_added']),
+				'options' => [],
+			];
 			// Was this one reported before? If so, prune from session.
-			if (isset($_SESSION['lgal_rep']['c' . $id_comment]))
+			$session_check = 'c' . $id_comment;
+			if (isset($_SESSION['lgal_rep'][$session_check]))
 			{
 				$comments[$id_comment]['reported'] = true;
-				unset ($_SESSION['lgal_rep']['c' . $id_comment]);
+				unset ($_SESSION['lgal_rep'][$session_check]);
 				if (empty($_SESSION['lgal_rep']))
 				{
 					unset ($_SESSION['lgal_rep']);
@@ -741,33 +747,29 @@ class LevGal_Model_Item extends LevGal_Model_File
 			}
 
 			// So, now we need to assemble the buttons.
-			if (!$user_info['is_guest'])
+			if (!User::$info['is_guest'])
 			{
-				$comments[$id_comment]['options']['flag'] = array('title' => $txt['levgal_comment_flag'], 'url' => $scripturl . '?media/comment/' . $id_comment . '/flag/');
+				$comments[$id_comment]['options']['flag'] = ['title' => $txt['levgal_comment_flag'], 'url' => $scripturl . '?media/comment/' . $id_comment . '/flag/'];
 			}
 			if (empty($row['approved']) && ($perm_cache['lgal_approve_comment'] || ($perm_cache['lgal_selfmod_approve_comment'] && $this->isOwnedByUser())))
 			{
-				$comments[$id_comment]['options']['approve'] = array('title' => $txt['levgal_comment_approve'], 'url' => $scripturl . '?media/comment/' . $id_comment . '/approve/' . $context['session_var'] . '=' . $context['session_id'] . '/');
+				$comments[$id_comment]['options']['approve'] = ['title' => $txt['levgal_comment_approve'], 'url' => $scripturl . '?media/comment/' . $id_comment . '/approve/' . $context['session_var'] . '=' . $context['session_id'] . '/'];
 			}
-			if ($perm_cache['lgal_edit_comment_any'] || ($row['id_author'] == $user_info['id'] && ($perm_cache['lgal_edit_comment_own']) || ($perm_cache['lgal_selfmod_edit_comment'] && $this->isOwnedByUser())))
+			if ($perm_cache['lgal_edit_comment_any'] || (($row['id_author'] == User::$info['id'] && ($perm_cache['lgal_edit_comment_own'])) || ($perm_cache['lgal_selfmod_edit_comment'] && $this->isOwnedByUser())))
 			{
-				$comments[$id_comment]['options']['edit'] = array('title' => $txt['levgal_comment_edit'], 'url' => $scripturl . '?media/comment/' . $id_comment . '/edit/');
+				$comments[$id_comment]['options']['edit'] = ['title' => $txt['levgal_comment_edit'], 'url' => $scripturl . '?media/comment/' . $id_comment . '/edit/'];
 			}
-			if ($perm_cache['lgal_delete_comment_any'] || ($row['id_author'] == $user_info['id'] && ($perm_cache['lgal_delete_comment_own'] || ($perm_cache['lgal_selfmod_delete_comment'] && $this->isOwnedByUser()))))
+			if ($perm_cache['lgal_delete_comment_any'] || ($row['id_author'] == User::$info['id'] && ($perm_cache['lgal_delete_comment_own'] || ($perm_cache['lgal_selfmod_delete_comment'] && $this->isOwnedByUser()))))
 			{
-				$comments[$id_comment]['options']['delete'] = array('title' => $txt['levgal_comment_delete'], 'url' => $scripturl . '?media/comment/' . $id_comment . '/delete/' . $context['session_var'] . '=' . $context['session_id'] . '/');
+				$comments[$id_comment]['options']['delete'] = ['title' => $txt['levgal_comment_delete'], 'url' => $scripturl . '?media/comment/' . $id_comment . '/delete/' . $context['session_var'] . '=' . $context['session_id'] . '/'];
 			}
 		}
 
-		call_integration_hook('integrate_lgal_comments', array(&$comments));
+		call_integration_hook('integrate_lgal_comments', [&$comments]);
 
 		if (!empty($members))
 		{
-			$members = loadMemberData($members);
-			foreach ($members as $member)
-				{
-					loadMemberContext($member);
-				}
+			MembersList::loadMemberData($members);
 
 			// And splice in the member details.
 			foreach ($comments as $id_comment => $comment)
@@ -799,10 +801,10 @@ class LevGal_Model_Item extends LevGal_Model_File
 			UPDATE {db_prefix}lgal_items
 			SET {raw:column} = {raw:column} + 1
 			WHERE id_item = {int:item}',
-			array(
+			[
 				'column' => !empty($wasApproved) ? 'num_comments' : 'num_unapproved_comments',
 				'item' => $this->current_item['id_item'],
-			)
+			]
 		);
 
 		$this->increaseCommentCount();
@@ -821,7 +823,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 		$album = $this->getParentAlbum();
 		$comment = $comment_obj->getCommentById($comment_id);
 
-		$notifyModel = new LevGal_Model_Notify();
+		$notifyModel = new Notify();
 		$members = $notifyModel->getNotifyForItem($this->current_item['id_item']);
 
 		if ($comment['approved'])
@@ -832,7 +834,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 		else
 		{
 			// If not, it gets a lot more complex. Managers, approvers, and item owners if the relevant option is set can see this one.
-			$groupModel = new LevGal_Model_Group();
+			$groupModel = new Group();
 			$groups = $groupModel->allowedTo('lgal_manage');
 			$groups = array_merge($groups, $groupModel->allowedTo('lgal_approve_comment'));
 
@@ -854,17 +856,17 @@ class LevGal_Model_Item extends LevGal_Model_File
 
 		if (!empty($members))
 		{
-			$notifier = \Notifications::instance();
-			$notifier->add(new Notifications_Task(
+			$notifier = Notifications::instance();
+			$notifier->add(new NotificationsTask(
 				'lgcomment',
 				$comment_id,
 				$comment['id_author'],
-				array(
+				[
 					'id_members' => $members,
 					'subject' => $this->current_item['item_name'],
 					'url' => $comment_obj->getCommentURL(),
 					'status' => 'new',
-				)
+				]
 			));
 		}
 	}
@@ -885,9 +887,9 @@ class LevGal_Model_Item extends LevGal_Model_File
 			SET num_comments = num_comments + 1,
 				num_unapproved_comments = num_unapproved_comments - 1
 			WHERE id_item = {int:item}',
-			array(
+			[
 				'item' => $this->current_item['id_item'],
-			)
+			]
 		);
 
 		$this->increaseCommentCount();
@@ -903,7 +905,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 		global $modSettings;
 
 		// And the master stats.
-		updateSettings(array('lgal_total_comments' => !empty($modSettings['lgal_total_comments']) ? true : 1), !empty($modSettings['lgal_total_comments']));
+		updateSettings(['lgal_total_comments' => !empty($modSettings['lgal_total_comments']) ? true : 1], !empty($modSettings['lgal_total_comments']));
 	}
 
 	public function deletedComment($wasApproved)
@@ -919,10 +921,10 @@ class LevGal_Model_Item extends LevGal_Model_File
 			UPDATE {db_prefix}lgal_items
 			SET {raw:column} = {raw:column} - 1
 			WHERE id_item = {int:item}',
-			array(
+			[
 				'column' => !empty($wasApproved) ? 'num_comments' : 'num_unapproved_comments',
 				'item' => $this->current_item['id_item'],
-			)
+			]
 		);
 
 		$this->decreaseCommentCount();
@@ -938,13 +940,11 @@ class LevGal_Model_Item extends LevGal_Model_File
 		global $modSettings;
 
 		// And the master stats.
-		updateSettings(array('lgal_total_comments' => !empty($modSettings['lgal_total_comments']) ? false : 0), !empty($modSettings['lgal_total_comments']));
+		updateSettings(['lgal_total_comments' => !empty($modSettings['lgal_total_comments']) ? false : 0], !empty($modSettings['lgal_total_comments']));
 	}
 
 	public function markSeen($force = false)
 	{
-		global $user_info, $user_settings;
-
 		$db = database();
 
 		$time = time();
@@ -952,18 +952,18 @@ class LevGal_Model_Item extends LevGal_Model_File
 		{
 			$db->insert('replace',
 				'{db_prefix}lgal_log_seen',
-				array('id_item' => 'int', 'id_member' => 'int', 'view_time' => 'int'),
-				array($this->current_item['id_item'], $user_info['id'], $time),
-				array('id_item', 'id_member')
+				['id_item' => 'int', 'id_member' => 'int', 'view_time' => 'int'],
+				[$this->current_item['id_item'], User::$info['id'], $time],
+				['id_item', 'id_member']
 			);
 			$_SESSION['lgal_seen'][$this->current_item['id_item']] = $time;
 
 			// Now we need to mark that this person has seen it. Since we don't collate the actual amount of unseen normally, we have to guess.
 			// Only flag for recounting if we're not already flagged and if we think there are unseen items.
-			if (!empty($user_settings['lgal_unseen']) && empty($user_settings['lgal_new']))
+			if (!empty(User::$settings['lgal_unseen']) && empty(User::$settings['lgal_new']))
 			{
-				$unseenModel = new LevGal_Model_Unseen();
-				$unseenModel->markForRecount($user_info['id']);
+				$unseenModel = new Unseen();
+				$unseenModel->markForRecount(User::$info['id']);
 			}
 		}
 
@@ -993,9 +993,9 @@ class LevGal_Model_Item extends LevGal_Model_File
 			UPDATE {db_prefix}lgal_items
 			SET num_views = num_views + 1
 			WHERE id_item = {int:item}',
-			array(
+			[
 				'item' => $this->current_item['id_item'],
-			)
+			]
 		);
 
 		return true;
@@ -1007,22 +1007,22 @@ class LevGal_Model_Item extends LevGal_Model_File
 
 		if (empty($this->current_item))
 		{
-			return array();
+			return [];
 		}
 
 		$item_urls = $this->getItemURLs();
 		$description = $this->current_item['description'] ?? $this->current_item['item_name'];
 
-		$meta_og = array(
+		$meta_og = [
 			'title' => $this->current_item['item_name'],
 			'type' => 'article',
 			'url' => $this->current_item['item_url'],
 			'image' => $item_urls['thumb'],
 			'sitename' => Util::htmlspecialchars($mbname),
 			'description' => Util::htmlspecialchars(strip_tags($description)),
-		);
+		];
 
-		if (strpos($this->current_item['mime_type'], 'image') === 0 && !empty($this->current_item['width']) && !empty($this->current_item['height']))
+		if (str_starts_with($this->current_item['mime_type'], 'image') && !empty($this->current_item['width']) && !empty($this->current_item['height']))
 		{
 			$meta_og['image:width'] = $this->current_item['width'];
 			$meta_og['image:height'] = $this->current_item['height'];
@@ -1041,15 +1041,15 @@ class LevGal_Model_Item extends LevGal_Model_File
 
 		// Call the big scary delete-items routine just for this one. While there's some optimisation that could be had,
 		// the maintenance benefit of 'everything in one place' wins here. Just don't update the album there, we can do that.
-		$itemList = new LevGal_Model_ItemList();
-		$itemList->deleteItemsByIds($this->current_item['id_item'], false);
+		$itemList = new ItemList();
+		$itemList->deleteItemsByIds($this->current_item['id_item']);
 
 		// Then, notify the album with whether the item was approved or not, and the number of comments to adjust by.
 		$this->getParentAlbum();
 		$this->current_album->deletedItem($this->current_item['approved'], $this->current_item['num_comments'], $this->current_item['num_unapproved_comments']);
 
 		// And, log this in the event log.
-		LevGal_Model_ModLog::logEvent('delete_item', array('item_name' => $this->current_item['item_name']));
+		ModLog::logEvent('delete_item', ['item_name' => $this->current_item['item_name']]);
 
 		// Lastly, nuke the item itself.
 		$this->current_item = false;
@@ -1066,20 +1066,20 @@ class LevGal_Model_Item extends LevGal_Model_File
 
 		$db->insert('insert',
 			'{db_prefix}lgal_items',
-			array('id_album' => 'int', 'id_member' => 'int', 'poster_name' => 'string', 'item_name' => 'string', 'item_slug' => 'string',
+			['id_album' => 'int', 'id_member' => 'int', 'poster_name' => 'string', 'item_name' => 'string', 'item_slug' => 'string',
 				  'filename' => 'string', 'filehash' => 'string', 'extension' => 'string', 'mime_type' => 'string',
 				  'time_added' => 'int', 'time_updated' => 'int', 'description' => 'string', 'approved' => 'int', 'has_tag' => 'int',
 				  'comment_state' => 'int', 'filesize' => 'int', 'width' => 'int', 'height' => 'int', 'mature' => 'int',
 				  'num_views' => 'int', 'num_comments' => 'int', 'num_unapproved_comments' => 'int', 'meta' => 'string',
-			),
-			array(
+			],
+			[
 				$item_info['id_album'], $item_info['poster_info']['id'], $item_info['poster_info']['name'], $item_info['item_name'], $item_info['item_slug'],
 				$item_info['filename'], $item_info['filehash'] ?? '', $item_info['extension'] ?? '', $item_info['mime_type'] ?? '',
 				$time_added, $time_updated, $item_info['description'], $item_info['approved'] ? 1 : 0, $item_info['has_tags'] ? 1 : 0,
 				$item_info['comment_state'] ?? 0, $item_info['filesize'], 0, 0, !empty($item_info['mature']) ? 1 : 0,
 				0, 0, 0, !empty($item_info['meta']) && is_array($item_info['meta']) ? serialize($item_info['meta']) : '',
-			),
-			array('id_item')
+			],
+			['id_item']
 		);
 		$id = $db->insert_id('{db_prefix}lgal_albums');
 
@@ -1095,20 +1095,20 @@ class LevGal_Model_Item extends LevGal_Model_File
 			{
 				$db->insert('replace',
 					'{db_prefix}lgal_log_seen',
-					array('id_item' => 'int', 'id_member' => 'int', 'view_time' => 'int'),
-					array($id, $item_info['poster_info']['id'], time()),
-					array('id_item', 'id_member')
+					['id_item' => 'int', 'id_member' => 'int', 'view_time' => 'int'],
+					[$id, $item_info['poster_info']['id'], time()],
+					['id_item', 'id_member']
 				);
 			}
 
 			// Notify people about this.
-			$unseenModel = new LevGal_Model_Unseen();
+			$unseenModel = new Unseen();
 			$unseenModel->markForRecount();
 
 			// Update the total items.
 			if ($item_info['approved'])
 			{
-				updateSettings(array('lgal_total_items' => !empty($modSettings['lgal_total_items']) ? true : 1), !empty($modSettings['lgal_total_items']));
+				updateSettings(['lgal_total_items' => !empty($modSettings['lgal_total_items']) ? true : 1], !empty($modSettings['lgal_total_items']));
 			}
 			else
 			{
@@ -1116,21 +1116,21 @@ class LevGal_Model_Item extends LevGal_Model_File
 			}
 
 			// And add to the search index.
-			$searchModel = new LevGal_Model_Search();
+			$searchModel = new Search();
 			$searchModel->createItemEntries(
-				array(
-					array(
+				[
+					[
 						'id_item' => $id,
 						'item_name' => $item_info['item_name'],
 						'description' => $item_info['description'],
 						'item_type' => $this->getItemType(),
-					)
-				)
+					]
+				]
 			);
 
 			// Send a hook to notify people.
 			$item_info['id_item'] = $id;
-			call_integration_hook('integrate_lgal_create_item', array($item_info));
+			call_integration_hook('integrate_lgal_create_item', [$item_info]);
 		}
 
 		return $id;
@@ -1159,18 +1159,18 @@ class LevGal_Model_Item extends LevGal_Model_File
 		}
 
 		// First update the DB.
-		$this->updateItem(array(
+		$this->updateItem([
 			'approved' => !empty($state) ? 1 : 0,
-		));
+		]);
 
 		// Log the change
-		LevGal_Model_ModLog::logEvent(!empty($state) ? 'approve_item' : 'unapprove_item', array('id_item' => $this->current_item['id_item']));
+		ModLog::logEvent(!empty($state) ? 'approve_item' : 'unapprove_item', ['id_item' => $this->current_item['id_item']]);
 
 		// Update the stats.
 		$this->updateUnapprovedCount();
 
 		// Call a hook if we want to notify them about this kind of thing.
-		call_integration_hook(!empty($state) ? 'integrate_lgal_approve_item' : 'integrate_lgal_unapprove_item', array($this->current_item['id_item']));
+		call_integration_hook(!empty($state) ? 'integrate_lgal_approve_item' : 'integrate_lgal_unapprove_item', [$this->current_item['id_item']]);
 
 		// And notify the album.
 		$this->getParentAlbum();
@@ -1184,7 +1184,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 		$db = database();
 
 		// Regular strings
-		foreach (array('item_name', 'item_slug', 'description', 'mime_type', 'poster_name', 'filename', 'extension') as $string)
+		foreach (['item_name', 'item_slug', 'description', 'mime_type', 'poster_name', 'filename', 'extension'] as $string)
 		{
 			if (isset($opts[$string]))
 			{
@@ -1207,7 +1207,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 		}
 
 		// Ints
-		foreach (array('width', 'height', 'filesize', 'time_updated', 'comment_state') as $int)
+		foreach (['width', 'height', 'filesize', 'time_updated', 'comment_state'] as $int)
 		{
 			if (isset($opts[$int]) && is_int($opts[$int]))
 			{
@@ -1217,7 +1217,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 		}
 
 		// Pretend bools
-		foreach (array('approved', 'mature', 'editable', 'has_tag') as $bool)
+		foreach (['approved', 'mature', 'editable', 'has_tag'] as $bool)
 		{
 			if (isset($opts[$bool]))
 			{
@@ -1232,7 +1232,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 				UPDATE {db_prefix}lgal_items
 				SET ' . implode(', ', $criteria) . '
 				WHERE id_item = {int:id_item}',
-				array_merge(array('id_item' => $this->current_item['id_item']), $params)
+				array_merge(['id_item' => $this->current_item['id_item']], $params)
 			);
 			$this->current_item = array_merge($this->current_item, $params);
 			if (isset($original_meta))
@@ -1241,18 +1241,18 @@ class LevGal_Model_Item extends LevGal_Model_File
 			}
 		}
 
-		$searchModel = new LevGal_Model_Search();
+		$searchModel = new Search();
 		$searchModel->updateItemEntry($this->current_item['id_item'], $opts['item_name'] ?? null, $opts['description'] ?? null, isset($opts['mime_type']) ? $this->getItemType() : null);
 	}
 
 	public function getMetadata($updateModel = false)
 	{
 		$files = $this->getFilePaths();
-		$meta = array();
+		$meta = [];
 
-		$metaModel = new LevGal_Model_Metadata($files['raw'], $this->current_item['filename']);
+		$metaModel = new Metadata($files['raw'], $this->current_item['filename']);
 		$meta['meta'] = $metaModel->getMetadata();
-		$raw_id3 = $meta['meta']['raw_id3'] ?? array();
+		$raw_id3 = $meta['meta']['raw_id3'] ?? [];
 
 		// MakerNote found in some camera data, it can be larger than our db field!
 		unset($meta['meta']['raw_id3'], $meta['meta']['exif']['SubIFD']['MakerNote']);
@@ -1269,7 +1269,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 		{
 			$meta['mime_type'] = $meta['meta']['mime_type'];
 			// Sometimes, getID3 is actually a little *too* good.
-			$exceptions = new LevGal_Model_Mime_Rules($raw_id3, $this->current_item['extension']);
+			$exceptions = new Rules($raw_id3, $this->current_item['extension']);
 			$new_mime_type = $exceptions->applyExceptions();
 			if (!empty($new_mime_type))
 			{
@@ -1300,7 +1300,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 	public function getThumbnail()
 	{
 		$files = $this->getFilePaths();
-		$thumbModel = new LevGal_Model_Thumbnail($files['raw']);
+		$thumbModel = new Thumbnail($files['raw']);
 
 		return $thumbModel->createFromFile() && $thumbModel->generateThumbnails();
 	}
@@ -1316,12 +1316,12 @@ class LevGal_Model_Item extends LevGal_Model_File
 		// If we're building this for an actual file, we'll have an actual file. Otherwise... we will have to fake it.
 		if (!empty($files['raw']))
 		{
-			$thumbModel = new LevGal_Model_Thumbnail($files['raw']);
+			$thumbModel = new Thumbnail($files['raw']);
 		}
 		elseif (!empty($files['fake_raw']))
 		{
 			$this->makePath($files['filehash']); // If this is the case, we may not *have* a path.
-			$thumbModel = new LevGal_Model_Thumbnail($files['fake_raw']);
+			$thumbModel = new Thumbnail($files['fake_raw']);
 		}
 
 		if (empty($thumbModel))
@@ -1335,7 +1335,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 	public function fixOrientation($orientation)
 	{
 		$files = $this->getFilePaths();
-		$image = new LevGal_Helper_Image();
+		$image = new Image();
 		if ($image->loadImageFromFile($files['raw']))
 		{
 			if ($image->fixOrientation($orientation))
@@ -1353,25 +1353,28 @@ class LevGal_Model_Item extends LevGal_Model_File
 		return false;
 	}
 
-	public function getPreviousNext($order_by = 'id_item')
+	public function getPreviousNext($order_by, $direction)
 	{
 		global $scripturl;
 
 		$can_see_all = $this->current_album->canSeeAllItems();
-		$items = $this->getItemListByAlbum($this->current_item['id_album'], $can_see_all, true, $order_by);
+		$order_by = empty($order_by) ? 'id_item' : $order_by;
+		$direction = empty($direction) || $direction === 'desc';
+
+		$items = $this->getItemListByAlbum($this->current_item['id_album'], $can_see_all, $direction, $order_by);
 		if (empty($items))
 		{
-			return array();
+			return [];
 		}
 
 		$keys = array_keys($items);
 		$match = array_search($this->current_item['id_item'], $keys, true);
 		if ($match === false)
 		{
-			return array();
+			return [];
 		}
 
-		$return = array();
+		$return = [];
 		// Did we match on something that wasn't the very first item in the array?
 		if ($match > 0)
 		{
@@ -1396,18 +1399,16 @@ class LevGal_Model_Item extends LevGal_Model_File
 
 	public function getItemListByAlbum($album_id, $can_see_all = true, $descending = true, $order_by = 'id_item')
 	{
-		global $user_info;
-
 		$db = database();
 
-		$cache_key = 'lgal_itemlist_a' . $album_id . ($can_see_all ? '_all' : '') . ($user_info['is_guest'] ? '_guest' : '');
+		$cache_key = 'lgal_itemlist_a' . $album_id . ($can_see_all ? '_all' : '') . (User::$info['is_guest'] ? '_guest' : '');
 		$cache_ttl = 120;
-		if (($items = cache_get_data($cache_key, $cache_ttl)) === null)
+		if (($items = Cache::instance()->get($cache_key, $cache_ttl)) === null)
 		{
 			$criteria = 'id_album = {int:album_id}';
 			if (!$can_see_all)
 			{
-				if ($user_info['is_guest'])
+				if (User::$info['is_guest'])
 				{
 					if (!empty($_SESSION['lgal_items']))
 					{
@@ -1433,21 +1434,21 @@ class LevGal_Model_Item extends LevGal_Model_File
 				FROM {db_prefix}lgal_items
 				WHERE ' . $criteria . '
 				ORDER BY {raw:order}',
-				array(
+				[
 					'order' => $descending ? $order_by . ' DESC' : $order_by,
 					'album_id' => $album_id,
-					'current_member' => $user_info['id'],
-					'my_items' => !empty($_SESSION['lgal_items']) ? $_SESSION['lgal_items'] : array(),
-				)
+					'current_member' => User::$info['id'],
+					'my_items' => !empty($_SESSION['lgal_items']) ? $_SESSION['lgal_items'] : [],
+				]
 			);
-			$items = array();
-			while ($row = $db->fetch_assoc($request))
+			$items = [];
+			while ($row = $request->fetch_assoc())
 			{
 				$id_item = array_shift($row);
 				$items[$id_item] = $row;
 			}
-			$db->free_result($request);
-			cache_put_data($cache_key, $items, $cache_ttl);
+			$request->free_result();
+			Cache::instance()->put($cache_key, $items, $cache_ttl);
 		}
 
 		return $items;
@@ -1462,17 +1463,17 @@ class LevGal_Model_Item extends LevGal_Model_File
 				COUNT(*)
 			FROM {db_prefix}lgal_items
 			WHERE approved = {int:not_approved}',
-			array(
+			[
 				'not_approved' => 0,
-			)
+			]
 		);
-		list ($unapproved) = $db->fetch_row($request);
-		$db->free_result($request);
+		[$unapproved] = $request->fetch_row();
+		$request->free_result();
 
 		// Also, if we have a cache locally in session, dump it.
 		unset ($_SESSION['lgal_ui']);
 
-		updateSettings(array('lgal_unapproved_items' => $unapproved));
+		updateSettings(['lgal_unapproved_items' => $unapproved]);
 	}
 
 	public function getCustomFields()
@@ -1485,23 +1486,23 @@ class LevGal_Model_Item extends LevGal_Model_File
 			return $this->current_item['custom_fields'];
 		}
 
-		$this->current_item['custom_fields'] = array(
-			'main' => array(),
-			'meta' => array(),
-		);
+		$this->current_item['custom_fields'] = [
+			'main' => [],
+			'meta' => [],
+		];
 
 		if (empty($this->current_item) || empty($this->current_item['has_custom']))
 		{
 			return $this->current_item['custom_fields'];
 		}
 
-		$cfModel = LevGal_Bootstrap::getModel('LevGal_Model_Custom');
+		$cfModel = LevGalBootstrap::getModel('Custom');
 		$possible_fields = $cfModel->getCustomFieldsByAlbum($this->current_item['id_album']);
-		$placements = array(
+		$placements = [
 			0 => 'meta',
 			1 => 'main',
 			2 => 'desc',
-		);
+		];
 		if (!empty($possible_fields))
 		{
 			$custom_fields = $cfModel->getCustomFieldValues($this->current_item['id_item'], $this->current_item['id_album']);
@@ -1531,13 +1532,13 @@ class LevGal_Model_Item extends LevGal_Model_File
 			return $this->current_item['tags'];
 		}
 
-		$this->current_item['tags'] = array();
+		$this->current_item['tags'] = [];
 		if (empty($this->current_item) || empty($this->current_item['has_tag']))
 		{
 			return $this->current_item['tags'];
 		}
 
-		$tagModel = LevGal_Bootstrap::getModel('LevGal_Model_Tag');
+		$tagModel = LevGalBootstrap::getModel('Tag');
 		$this->current_item['tags'] = $tagModel->getTagsByItemId($this->current_item['id_item']);
 
 		return $this->current_item['tags'];
@@ -1553,21 +1554,21 @@ class LevGal_Model_Item extends LevGal_Model_File
 		$urls = $this->getItemURLs();
 		if (!empty($urls['generic']['thumb']))
 		{
-			$thumbnail = str_replace($settings['default_theme_url'] . '/levgal_res/icons/', '', $urls['thumb']);
+			$thumbnail = str_replace($settings['default_theme_url'] . '/Levertine/icons/', '', $urls['thumb']);
 			$this->current_album->setGenericThumbnail($thumbnail);
 		}
 		else
 		{
 			$files = $this->getFilePaths();
-			if (substr($files['thumb'], -7) === 'png.dat' || $this->current_item['mime_type'] === 'image/png')
+			if (str_ends_with($files['thumb'], 'png.dat') || $this->current_item['mime_type'] === 'image/png')
 			{
 				$format = 'png';
 			}
-			elseif (substr($files['thumb'], -7) === 'jpg.dat')
+			elseif (str_ends_with($files['thumb'], 'jpg.dat'))
 			{
 				$format = 'jpg';
 			}
-			elseif (substr($files['thumb'], -8) === 'webp.dat')
+			elseif (str_ends_with($files['thumb'], 'webp.dat'))
 			{
 				$format = 'webp';
 			}
@@ -1581,25 +1582,25 @@ class LevGal_Model_Item extends LevGal_Model_File
 
 	public function getMoveDestinations()
 	{
-		global $context, $user_info;
+		global $context;
 
 		// So, get me some hierarchies.
-		/** @var $album_list LevGal_Model_AlbumList */
-		$album_list = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
+		/** @var $album_list AlbumList */
+		$album_list = LevGalBootstrap::getModel('AlbumList');
 		$hierarchies = $album_list->getAllHierarchies();
 
 		// We don't necessarily want all hierarchies, though. If the user is not a special user, we only want the hierarchies they own.
-		if (allowedTo(array('lgal_manage', 'lgal_edit_item_any')))
+		if (allowedTo(['lgal_manage', 'lgal_edit_item_any']))
 		{
 			$result = $hierarchies;
 		}
 		else
 		{
-			$result = array(
-				'site' => array(),
-				'member' => array(),
-				'group' => array(),
-			);
+			$result = [
+				'site' => [],
+				'member' => [],
+				'group' => [],
+			];
 
 			if (isset($hierarchies['member'][$context['user']['id']]))
 			{
@@ -1610,7 +1611,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 			{
 				foreach (array_keys($hierarchies['group']) as $group)
 				{
-					if (in_array($group, $user_info['groups'], true))
+					if (in_array($group, User::$info['groups'], true))
 					{
 						$result['group'][$group] = $hierarchies['group'][$group];
 					}
@@ -1620,7 +1621,7 @@ class LevGal_Model_Item extends LevGal_Model_File
 
 		// Now see how many albums there are, so we can check there is somewhere other than the current album to move it to.
 		$album_count = array_keys($result['site']);
-		foreach (array('member', 'group') as $type)
+		foreach (['member', 'group'] as $type)
 		{
 			if (!empty($result[$type]))
 			{
@@ -1635,6 +1636,6 @@ class LevGal_Model_Item extends LevGal_Model_File
 		}
 		$album_count = array_unique($album_count);
 
-		return array($result, $album_count);
+		return [$result, $album_count];
 	}
 }

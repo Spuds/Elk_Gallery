@@ -4,13 +4,15 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 2.0.0 / elkarte
  */
+
+namespace Addons\Levertine\Source\Model\Metadata;
 
 /**
  * This file deals with getting Exif information.
  */
-class LevGal_Model_Metadata_Exif
+class Exif
 {
 	/** @var string */
 	private $file;
@@ -26,18 +28,18 @@ class LevGal_Model_Metadata_Exif
 	private $intelByteOrder = true;
 	/** @var int */
 	private $offset = 0;
-	/** @var \LevGal_Model_Metadata_ExifTag */
+	/** @var ExifTag */
 	private $tag;
 
 	public function __construct($file)
 	{
 		$this->file = $file;
-		$this->errors = array();
-		$this->data = array();
+		$this->errors = [];
+		$this->data = [];
 
 		if ($this->openFile())
 		{
-			$this->tag = new LevGal_Model_Metadata_ExifTag();
+			$this->tag = new ExifTag();
 		}
 	}
 
@@ -53,7 +55,7 @@ class LevGal_Model_Metadata_Exif
 			return false;
 		}
 
-		return array('errors' => $this->errors);
+		return ['errors' => $this->errors];
 	}
 
 	protected function openFile()
@@ -132,12 +134,12 @@ class LevGal_Model_Metadata_Exif
 		$this->offset = 0;
 		// Check it's a JPEG.
 		$data = $this->readBytes(2);
-		if ($data != "\xff\xd8")
+		if ($data !== "\xff\xd8")
 		{
 			$this->closeFile();
 			$this->errors['not_jpeg'] = true;
 
-			return array('errors' => $this->errors);
+			return ['errors' => $this->errors];
 		}
 
 		// Start looking for directory data.
@@ -204,7 +206,7 @@ class LevGal_Model_Metadata_Exif
 		}
 
 		// Right, is this one the Exif header? It should be the last one we found, if we found one.
-		if ($header != "Exif\x00\x00")
+		if ($header !== "Exif\x00\x00")
 		{
 			$this->closeFile();
 
@@ -248,7 +250,7 @@ class LevGal_Model_Metadata_Exif
 
 		// Now we hunt us some SubIFDs.
 		$seek = fseek($this->handle, $this->offset + $this->data['IFD0']['ExifOffset']);
-		if ($seek == -1)
+		if ($seek === -1)
 		{
 			$this->errors['no_SubIFD'] = true;
 		}
@@ -263,7 +265,7 @@ class LevGal_Model_Metadata_Exif
 		}
 
 		$seek = fseek($this->handle, $this->offset + $this->data['IFD1Offset']);
-		if ($seek == -1)
+		if ($seek === -1)
 		{
 			$this->errors['no_IFD1'] = true;
 		}
@@ -279,7 +281,7 @@ class LevGal_Model_Metadata_Exif
 		}
 
 		$seek = fseek($this->handle, $this->offset + $this->data['SubIFD']['ExifInteroperabilityOffset']);
-		if ($seek == -1)
+		if ($seek === -1)
 		{
 			$this->errors['no_InteroperabilityIFD'] = true;
 		}
@@ -320,7 +322,7 @@ class LevGal_Model_Metadata_Exif
 		$tag_name = $this->tag->identifyTag($tag_bytes);
 
 		$type_bytes = $this->readBytesEndianHex(2);
-		list ($type_name, $size) = $this->tag->identifyType($type_bytes);
+		[$type_name, $size] = $this->tag->identifyType($type_bytes);
 
 		$byte_count = $size * $this->readBytesAsInt(4);
 
@@ -365,19 +367,19 @@ class LevGal_Model_Metadata_Exif
 		static $type_list = null;
 		if ($type_list === null)
 		{
-			$type_list = array(
-				'rational' => array(LevGal_Model_Metadata_ExifTag::TYPE_UNS_RATIONAL, LevGal_Model_Metadata_ExifTag::TYPE_SGN_RATIONAL),
-				'numeric' => array(LevGal_Model_Metadata_ExifTag::TYPE_UNS_SHORT, LevGal_Model_Metadata_ExifTag::TYPE_SGN_SHORT, LevGal_Model_Metadata_ExifTag::TYPE_UNS_LONG, LevGal_Model_Metadata_ExifTag::TYPE_SGN_LONG, LevGal_Model_Metadata_ExifTag::TYPE_FLOAT, LevGal_Model_Metadata_ExifTag::TYPE_DOUBLE),
-			);
+			$type_list = [
+				'rational' => [ExifTag::TYPE_UNS_RATIONAL, ExifTag::TYPE_SGN_RATIONAL],
+				'numeric' => [ExifTag::TYPE_UNS_SHORT, ExifTag::TYPE_SGN_SHORT, ExifTag::TYPE_UNS_LONG, ExifTag::TYPE_SGN_LONG, ExifTag::TYPE_FLOAT, ExifTag::TYPE_DOUBLE],
+			];
 		}
 
-		if (($type == LevGal_Model_Metadata_ExifTag::TYPE_UNS_BYTE)
-			&& in_array($tag, array('XPTitle', 'XPComment', 'XPAuthor', 'XPKeywords', 'XPSubject')))
+		if (($type === ExifTag::TYPE_UNS_BYTE)
+			&& in_array($tag, ['XPTitle', 'XPComment', 'XPAuthor', 'XPKeywords', 'XPSubject']))
 		{
 			// These are all UCS-2 fields added by Windows Explorer.
 			$data = $this->parseUCS2toEntity($data);
 		}
-		if ($type == LevGal_Model_Metadata_ExifTag::TYPE_ASCII)
+		if ($type === ExifTag::TYPE_ASCII)
 		{
 			// Strings are null-terminated.
 			if (($pos = strpos($data, chr(0))) !== false)
@@ -390,7 +392,7 @@ class LevGal_Model_Metadata_Exif
 				$data = ucwords(strtolower(trim($data))); // The specification indicates this is 7-bit ASCII
 			}
 		}
-		elseif ($type == LevGal_Model_Metadata_ExifTag::TYPE_UNDEFINED)
+		elseif ($type === ExifTag::TYPE_UNDEFINED)
 		{
 			// We still want to preserve this, but we need to do it by way of base-64 encoding in the DB.
 			// Tags such as MakerNote (0x927c) come into this category.
@@ -412,7 +414,7 @@ class LevGal_Model_Metadata_Exif
 				$bottom = hexdec(substr($data, 8, 8));
 			}
 			// And allow for signed values.
-			$top -= ($type == LevGal_Model_Metadata_ExifTag::TYPE_SGN_RATIONAL && $top > 0x7FFFFFFF) ? 0x100000000 : 0;
+			$top -= ($type === ExifTag::TYPE_SGN_RATIONAL && $top > 0x7FFFFFFF) ? 0x100000000 : 0;
 			if ($bottom != 0)
 			{
 				$data = $top / $bottom;
@@ -433,15 +435,15 @@ class LevGal_Model_Metadata_Exif
 			{
 				$data = $this->switchEndian($data);
 			}
-			if (!$this->intelByteOrder && ($type == LevGal_Model_Metadata_ExifTag::TYPE_UNS_SHORT || $type == LevGal_Model_Metadata_ExifTag::TYPE_SGN_SHORT))
+			if (!$this->intelByteOrder && ($type == ExifTag::TYPE_UNS_SHORT || $type == ExifTag::TYPE_SGN_SHORT))
 			{
 				$data = substr($data, 0, 4);
 			}
 			$data = hexdec($data);
 
 			// If we're dealing with signed numbers, let's actually fix the sign.
-			$data -= ($type == LevGal_Model_Metadata_ExifTag::TYPE_SGN_SHORT && $data > 0x7FFF) ? 0x10000 : 0;
-			$data -= ($type == LevGal_Model_Metadata_ExifTag::TYPE_SGN_LONG && $data > 0x7FFFFFFF) ? 0x100000000 : 0;
+			$data -= ($type === ExifTag::TYPE_SGN_SHORT && $data > 0x7FFF) ? 0x10000 : 0;
+			$data -= ($type === ExifTag::TYPE_SGN_LONG && $data > 0x7FFFFFFF) ? 0x100000000 : 0;
 		}
 
 		// This just *gets* it. Formatting is handled by ExifTag not here.

@@ -4,41 +4,45 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.2 / elkarte
+ * @version 2.0.0 / elkarte
  */
 
+namespace Addons\Levertine\Source\Model;
+
+use Addons\Levertine\Source\LevGalBootstrap;
 use BBC\ParserWrapper;
+use ElkArte\User;
 
 /**
  * This file deals with getting information about items in bulk.
  */
-class LevGal_Model_ItemList
+class ItemList
 {
-	/** @var \LevGal_Model_AlbumList */
+	/** @var AlbumList */
 	private $album_list_model;
 
 	protected function getAlbumListModel()
 	{
 		if ($this->album_list_model === null)
 		{
-			$this->album_list_model = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
+			$this->album_list_model = LevGalBootstrap::getModel('AlbumList');
 		}
 	}
 
 	public function getItemsById($items, $bypass_check = null)
 	{
-		global $scripturl, $modSettings, $user_info;
+		global $scripturl, $modSettings;
 
 		$db = database();
 
 		if ($items === '')
 		{
-			return array();
+			return [];
 		}
 
 		if (!is_array($items))
 		{
-			$items = array($items);
+			$items = [$items];
 		}
 
 		if (allowedTo('lgal_manage') || !empty($bypass_check))
@@ -50,7 +54,7 @@ class LevGal_Model_ItemList
 		{
 			$this->getAlbumListModel();
 			$album_list = $this->album_list_model->getVisibleAlbums();
-			if ($user_info['is_guest'])
+			if (User::$info['is_guest'])
 			{
 				if (!empty($_SESSION['lgal_items']))
 				{
@@ -72,7 +76,7 @@ class LevGal_Model_ItemList
 
 		if (empty($album_list) || empty($items))
 		{
-			return array();
+			return [];
 		}
 
 		$request = $db->query('', '
@@ -86,31 +90,31 @@ class LevGal_Model_ItemList
 				INNER JOIN {db_prefix}lgal_albums AS la ON (li.id_album = la.id_album)
 			WHERE li.id_item IN ({array_int:items})' . ($album_list !== true ? '
 				AND li.id_album IN ({array_int:album_list})' : '') . $criteria,
-			array(
+			[
 				'items' => $items,
 				'album_list' => $album_list,
 				'approved' => 1,
-				'current_member' => $user_info['id'],
-				'my_items' => !empty($_SESSION['lgal_items']) ? $_SESSION['lgal_items'] : array(),
-			)
+				'current_member' => User::$info['id'],
+				'my_items' => !empty($_SESSION['lgal_items']) ? $_SESSION['lgal_items'] : [],
+			]
 		);
 
-		$item_list = array();
-		$itemModel = new LevGal_Model_Item();
-		while ($row = $db->fetch_assoc($request))
+		$item_list = [];
+		$itemModel = new Item();
+		while ($row = $request->fetch_assoc())
 		{
 			$itemModel->buildFromSurrogate($row);
 			$item_urls = $itemModel->getItemURLs();
-			$row += array(
+			$row += [
 				'item_url' => $item_urls['item'],
 				'thumbnail' => $item_urls['thumb'],
-				'preview' => $item_urls['preview'],
+				'preview' => $item_urls['preview'] ?? '',
 				'preview_html' => $item_urls['preview_html'] ?? '',
 				'thumb_html' => $item_urls['thumb_html'] ?? '',
 				'item_base' => $item_urls['raw'],
 				'album_url' => $scripturl . '?media/album/' . (!empty($row['album_slug']) ? $row['album_slug'] . '.' . $row['id_album'] : $row['id_album']) . '/',
 				'item_type' => $itemModel->getItemType(),
-			);
+			];
 			if (empty($modSettings['lgal_enable_mature']))
 			{
 				$row['mature'] = 0;
@@ -118,7 +122,7 @@ class LevGal_Model_ItemList
 
 			$item_list[$row['id_item']] = $row;
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		return $item_list;
 	}
@@ -129,12 +133,12 @@ class LevGal_Model_ItemList
 
 		if (!is_array($items))
 		{
-			$items = array($items);
+			$items = [$items];
 		}
 
 		if (empty($items))
 		{
-			return array();
+			return [];
 		}
 
 		if (allowedTo('lgal_manage') || !empty($bypass_check))
@@ -149,7 +153,7 @@ class LevGal_Model_ItemList
 
 		if (empty($album_list))
 		{
-			return array();
+			return [];
 		}
 
 		$request = $db->query('', '
@@ -158,56 +162,55 @@ class LevGal_Model_ItemList
 			FROM {db_prefix}lgal_items AS li
 			WHERE li.id_item IN ({array_int:items})' . ($album_list !== true ? '
 				AND li.id_album IN ({array_int:album_list})' : ''),
-			array(
+			[
 				'items' => $items,
 				'album_list' => $album_list,
-			)
+			]
 		);
-
-		$item_list = array();
+		$item_list = [];
 		// Set some defaults.
 		foreach ($items as $item_id)
 		{
 			$item_list[$item_id] = '';
 		}
 		$parser = ParserWrapper::instance();
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
 			$item_list[$row['id_item']] = !empty($row['description']) ? ($parse_bbc ? $parser->parseMessage($row['description'], true) : $row['description']) : '';
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		return $item_list;
 	}
 
 	public function getLatestItems($qty = 8)
 	{
-		return $this->getItemList(array(), array(), 'time_added DESC', $qty);
+		return $this->getItemList([], [], 'time_added DESC', $qty);
 	}
 
 	public function getRandomItems($qty = 8)
 	{
-		return $this->getItemList(array(), array(), 'RAND()', $qty);
+		return $this->getItemList([], [], 'RAND()', $qty);
 	}
 
 	public function getLatestImages($qty = 8)
 	{
-		return $this->getItemList(array('mime_type LIKE "image/%"'), array(), 'time_added DESC', $qty);
+		return $this->getItemList(['mime_type LIKE "image/%"'], [], 'time_added DESC', $qty);
 	}
 
 	public function getRandomImages($qty = 8)
 	{
-		return $this->getItemList(array('mime_type LIKE "image/%"'), array(), 'RAND()', $qty);
+		return $this->getItemList(['mime_type LIKE "image/%"'], [], 'RAND()', $qty);
 	}
 
 	public function getLatestItemsForUser($user, $qty = 8)
 	{
 		if (empty($user))
 		{
-			return array();
+			return [];
 		}
 
-		return $this->getItemList(array('id_member = {int:id_member}'), array('id_member' => $user), 'time_added DESC', $qty);
+		return $this->getItemList(['id_member = {int:id_member}'], ['id_member' => $user], 'time_added DESC', $qty);
 	}
 
 	public function getImagesForAlbum($album, $qty = 4, $order = "RAND()")
@@ -215,13 +218,13 @@ class LevGal_Model_ItemList
 		$album = (int) $album;
 		if (empty($album))
 		{
-			return array();
+			return [];
 		}
 
-		return $this->getItemList(array('mime_type LIKE "image/%" AND id_album = {int:id_album}'), array('id_album' => $album), $order, $qty);
+		return $this->getItemList(['mime_type LIKE "image/%" AND id_album = {int:id_album}'], ['id_album' => $album], $order, $qty);
 	}
 
-	protected function getItemList($criteria = array(), $values = array(), $order = 'id_item DESC', $qty = 4)
+	protected function getItemList($criteria = [], $values = [], $order = 'id_item DESC', $qty = 4)
 	{
 		$db = database();
 
@@ -237,16 +240,16 @@ class LevGal_Model_ItemList
 
 		if (empty($album_list))
 		{
-			return array();
+			return [];
 		}
 
 		$query_id = $order === 'RAND()' ? 'get_random_number' : '';
 
 		$criteria = array_merge(
-			array(
+			[
 				$album_list === true ? '1=1' : 'id_album IN ({array_int:album_list})',
 				'approved = 1',
-			),
+			],
 			$criteria
 		);
 
@@ -258,18 +261,18 @@ class LevGal_Model_ItemList
 			WHERE ' . implode(' AND ', $criteria) . '
 			ORDER BY ' . $order . ' 
 			LIMIT {int:qty}',
-			array_merge($values, array(
+			array_merge($values, [
 				'album_list' => $album_list,
 				'order' => $order,
 				'qty' => $qty,
-			))
+			])
 		);
-		$item_list = array();
-		while ($row = $db->fetch_assoc($request))
+		$item_list = [];
+		while ($row = $request->fetch_assoc())
 		{
-			$item_list[$row['id_item']] = array();
+			$item_list[$row['id_item']] = [];
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		// Then get the rest of the details and ultimately we'll want to order by this array.
 		$items = $this->getItemsById(array_keys($item_list));
@@ -289,17 +292,17 @@ class LevGal_Model_ItemList
 		$items = (array) $items;
 
 		// First, get the item details. We need to figure out how many comments and whatnot we're moving between things.
-		$stat_updates = array();
+		$stat_updates = [];
 		$request = $db->query('', '
 			SELECT id_item, id_album, approved, num_comments, num_unapproved_comments
 			FROM {db_prefix}lgal_items
 			WHERE id_item IN ({array_int:items})',
-			array(
+			[
 				'items' => $items,
-			)
+			]
 		);
-		$found_items = array();
-		while ($row = $db->fetch_assoc($request))
+		$found_items = [];
+		while ($row = $request->fetch_assoc())
 		{
 			// Already there?
 			if ($row['id_album'] == $album)
@@ -311,18 +314,18 @@ class LevGal_Model_ItemList
 
 			if (!isset($stat_updates[$row['id_album']]))
 			{
-				$stat_updates[$row['id_album']] = array(
+				$stat_updates[$row['id_album']] = [
 					'num_items' => 0,
 					'num_unapproved_items' => 0,
 					'num_comments' => 0,
 					'num_unapproved_comments' => 0,
-				);
+				];
 			}
 			$stat_updates[$row['id_album']][$row['approved'] ? 'num_items' : 'num_unapproved_items']--;
 			$stat_updates[$row['id_album']]['num_comments'] -= $row['num_comments'];
 			$stat_updates[$row['id_album']]['num_unapproved_comments'] -= $row['num_unapproved_comments'];
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		if (empty($found_items))
 		{
@@ -334,19 +337,19 @@ class LevGal_Model_ItemList
 			UPDATE {db_prefix}lgal_items
 			SET id_album = {int:new_album}
 			WHERE id_item IN ({array_int:items})',
-			array(
+			[
 				'new_album' => $album,
 				'items' => $found_items,
-			)
+			]
 		);
 
 		// Now fix the existing albums and bundle the new album, while we're at it.
-		$total_changes = array(
+		$total_changes = [
 			'num_items' => 0,
 			'num_unapproved_items' => 0,
 			'num_comments' => 0,
 			'num_unapproved_comments' => 0,
-		);
+		];
 		foreach ($stat_updates as $changes)
 		{
 			foreach (array_keys($total_changes) as $key)
@@ -357,7 +360,7 @@ class LevGal_Model_ItemList
 
 		// And since we now tallied everything, we can do that one too.
 		$stat_updates[$album] = $total_changes;
-		call_integration_hook('integrate_lgal_move_items', array($found_items, $album));
+		call_integration_hook('integrate_lgal_move_items', [$found_items, $album]);
 
 		foreach ($stat_updates as $this_album => $changes)
 		{
@@ -368,12 +371,12 @@ class LevGal_Model_ItemList
 					num_comments = num_comments + {int:num_comments},
 					num_unapproved_comments = num_unapproved_comments + {int:num_unapproved_comments}
 				WHERE id_album = {int:album}',
-				array_merge(array('album' => $this_album), $changes)
+				array_merge(['album' => $this_album], $changes)
 			);
 		}
 
 		// Also update any reports if we have any.
-		$report = new LevGal_Model_Report();
+		$report = new Report();
 		$report->itemsMovedAlbum($found_items, $album);
 
 		return count($found_items);
@@ -396,16 +399,16 @@ class LevGal_Model_ItemList
 			FROM {db_prefix}lgal_items AS li
 				LEFT JOIN {db_prefix}lgal_albums AS la ON (li.id_album = la.id_album)
 			WHERE id_item IN ({array_int:items})',
-			array(
+			[
 				'items' => $items,
-			)
+			]
 		);
-		$data = array();
-		while ($row = $db->fetch_assoc($request))
+		$data = [];
+		while ($row = $request->fetch_assoc())
 		{
 			$data[] = $row;
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		if (empty($data))
 		{
@@ -413,44 +416,44 @@ class LevGal_Model_ItemList
 		}
 
 		// Dispatch any hooks.
-		call_integration_hook('integrate_lgal_delete_items', array($items));
+		call_integration_hook('integrate_lgal_delete_items', [$items]);
 
 		// Now, as we have this, we can prune the DB contents for this.
 		$db->query('', '
 			DELETE FROM {db_prefix}lgal_items
 			WHERE id_item IN ({array_int:items})',
-			array(
+			[
 				'items' => $items,
-			)
+			]
 		);
 
 		// Now delete comments, bookmarks, likes, unseen, notify
-		$commentModel = new LevGal_Model_Comment();
+		$commentModel = new Comment();
 		$commentModel->deleteCommentsByItems($items);
 
-		$bookmarkModel = new LevGal_Model_Bookmark();
+		$bookmarkModel = new Bookmark();
 		$bookmarkModel->removeAllBookmarksFromItem($items);
 
-		$likeModel = new LevGal_Model_Like();
+		$likeModel = new Like();
 		$likeModel->deleteLikesByItems($items);
 
-		$unseenModel = new LevGal_Model_Unseen();
+		$unseenModel = new Unseen();
 		$unseenModel->removeItemsById($items);
 
-		$notifyModel = new LevGal_Model_Notify();
+		$notifyModel = new Notify();
 		$notifyModel->unsetAllNotifyItem($items);
 
-		$searchModel = new LevGal_Model_Search();
+		$searchModel = new Search();
 		$searchModel->deleteItemEntries($items);
 
-		$cfModel = new LevGal_Model_Custom();
+		$cfModel = new Custom();
 		$cfModel->deleteFieldsByItems($items);
 
 		// Now the files have to go. Do NOT use the getModel here for this. We may, or may not, be calling from an item model itself.
-		$itemModel = new LevGal_Model_Item();
+		$itemModel = new Item();
 		$approved = 0;
 		$comments = 0;
-		$log_events = array();
+		$log_events = [];
 		foreach ($data as $item)
 		{
 			$log_events[] = $item['item_name'];
@@ -467,7 +470,7 @@ class LevGal_Model_ItemList
 		$itemModel->updateUnapprovedCount();
 
 		// And prune any reports of this little lot.
-		$reportModel = new LevGal_Model_Report();
+		$reportModel = new Report();
 		$reportModel->deleteReportsByItems($items);
 
 		// Now fix the global stats. We only care about the items we knew were approved already.
@@ -478,7 +481,7 @@ class LevGal_Model_ItemList
 			{
 				$total_items = 0;
 			}
-			updateSettings(array('lgal_total_items' => $total_items));
+			updateSettings(['lgal_total_items' => $total_items]);
 		}
 
 		if (!empty($comments) && !empty($modSettings['lgal_total_comments']))
@@ -488,24 +491,24 @@ class LevGal_Model_ItemList
 			{
 				$total_comments = 0;
 			}
-			updateSettings(array('lgal_total_comments' => $total_comments));
+			updateSettings(['lgal_total_comments' => $total_comments]);
 		}
 
 		// We might need to update the album stats, we might not. Let's do this.
 		if ($update_album)
 		{
-			$changes = array();
+			$changes = [];
 			foreach ($data as $item)
 			{
 				if (!isset($changes[$item['id_album']]))
 				{
-					$changes[$item['id_album']] = array(
+					$changes[$item['id_album']] = [
 						'id_album' => $item['id_album'],
 						'num_items' => 0,
 						'num_unapproved_items' => 0,
 						'num_comments' => 0,
 						'num_unapproved_comments' => 0,
-					);
+					];
 				}
 
 				$changes[$item['id_album']][$item['approved'] ? 'num_items' : 'num_unapproved_items']++;
@@ -528,12 +531,12 @@ class LevGal_Model_ItemList
 
 			// Handle the moderation log: if we're not caring about album stats updates, we're not caring about the moderation log either
 			// i.e. deleting the album.
-			$log = array();
+			$log = [];
 			foreach ($log_events as $item_name)
 			{
-				$log[] = array('event' => 'delete_item', 'details' => array('item_name' => $item_name));
+				$log[] = ['event' => 'delete_item', 'details' => ['item_name' => $item_name]];
 			}
-			LevGal_Model_ModLog::logEvents($log);
+			ModLog::logEvents($log);
 		}
 	}
 }

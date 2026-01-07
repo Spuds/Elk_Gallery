@@ -4,26 +4,32 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 2.0.0 / elkarte
  */
+
+namespace Addons\Levertine\Source\Model;
+
+use Addons\Levertine\Source\Helper\Format;
+use Addons\Levertine\Source\LevGalBootstrap;
+use ElkArte\Helper\Util;
+use ElkArte\Languages\Txt;
+use ElkArte\User;
 
 /**
  * This file deals with logging and accessing the moderation log for media items.
  */
-class LevGal_Model_ModLog
+class ModLog
 {
-	public static function logEvent($event, $event_details = array())
+	public static function logEvent($event, $event_details = [])
 	{
-		self::logEvents(array(array('event' => $event, 'details' => $event_details,)));
+		self::logEvents([['event' => $event, 'details' => $event_details,]]);
 	}
 
 	public static function logEvents($events)
 	{
-		global $user_info;
-
 		$db = database();
 
-		$inserts = array();
+		$inserts = [];
 		$time = time();
 		foreach ($events as $id_event => $event)
 		{
@@ -34,29 +40,29 @@ class LevGal_Model_ModLog
 			}
 
 			// Prise some stuff out of the details if provided.
-			$album = isset($event['details']['id_album']) ? LevGal_Bootstrap::clamp((int) $event['details']['id_album'], 0, 16777215) : 0;
+			$album = isset($event['details']['id_album']) ? LevGalBootstrap::clamp((int) $event['details']['id_album'], 0, 16777215) : 0;
 			unset ($event['details']['id_album']);
 
-			$item = isset($event['details']['id_item']) ? LevGal_Bootstrap::clamp((int) $event['details']['id_item'], 0, 0x7FFFFFFF) : 0;
+			$item = isset($event['details']['id_item']) ? LevGalBootstrap::clamp((int) $event['details']['id_item'], 0, 0x7FFFFFFF) : 0;
 			unset ($event['details']['id_item']);
 
-			$comment = isset($event['details']['id_comment']) ? LevGal_Bootstrap::clamp((int) $event['details']['id_comment'], 0, 0x7FFFFFFF) : 0;
+			$comment = isset($event['details']['id_comment']) ? LevGalBootstrap::clamp((int) $event['details']['id_comment'], 0, 0x7FFFFFFF) : 0;
 			unset ($event['details']['id_comment']);
 
-			$inserts[] = array(
-				$time, $user_info['id'], $user_info['ip'], $event['event'], $album, $item, $comment, serialize($event['details']),
-			);
+			$inserts[] = [
+				$time, User::$info['id'], User::$info['ip'], $event['event'], $album, $item, $comment, serialize($event['details']),
+			];
 		}
 
 		if (!empty($inserts))
 		{
 			$db->insert('insert',
 				'{db_prefix}lgal_log_events',
-				array(
+				[
 					'timestamp' => 'int', 'id_member' => 'int', 'ip' => 'string', 'event' => 'string', 'id_album' => 'int', 'id_item' => 'int', 'id_comment' => 'int', 'details' => 'string',
-				),
+				],
 				$inserts,
-				array('id_event')
+				['id_event']
 			);
 		}
 	}
@@ -69,8 +75,8 @@ class LevGal_Model_ModLog
 			SELECT 
 			    COUNT(id_event)
 			FROM {db_prefix}lgal_log_events');
-		list ($count) = $db->fetch_row($request);
-		$db->free_result($request);
+		[$count] = $request->fetch_row();
+		$request->free_result();
 
 		return $count;
 	}
@@ -82,10 +88,10 @@ class LevGal_Model_ModLog
 		$db = database();
 
 		// We may have this, we may not. Get it anyway.
-		loadLanguage('levgal_lng/LevGal-ModLog');
+		Txt::load('Levertine/LevGal-ModLog');
 
 		$seeIP = allowedTo('moderate_forum');
-		$entries = array();
+		$entries = [];
 
 		$request = $db->query('', '
 			SELECT
@@ -98,16 +104,16 @@ class LevGal_Model_ModLog
 				LEFT JOIN {db_prefix}lgal_items AS li ON (li.id_item = le.id_item)
 			ORDER BY {raw:sort}
 			LIMIT {int:start}, {int:limit}',
-			array(
+			[
 				'reg_group_id' => 0,
 				'sort' => $sort,
 				'start' => $start,
 				'limit' => $items_per_page,
-			)
+			]
 		);
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
-			$row['details'] = !empty($row['details']) ? Util::unserialize($row['details']) : array();
+			$row['details'] = !empty($row['details']) ? Util::unserialize($row['details']) : [];
 			if (!empty($row['id_album']))
 			{
 				// An album was indicated but does it still exist?
@@ -154,7 +160,7 @@ class LevGal_Model_ModLog
 			$event_text = $txt['lgal_ev_' . $row['event']] ?? $row['event'];
 			if (preg_match_all('~\{([a-z_]+)\}~i', $event_text, $matches))
 			{
-				$replace = array();
+				$replace = [];
 				foreach ($matches[1] as $match)
 				{
 					$replace['{' . $match . '}'] = $row[$match] ?? $row['details'][$match] ?? $match;
@@ -162,18 +168,18 @@ class LevGal_Model_ModLog
 				$event_text = strtr($event_text, $replace);
 			}
 
-			$entries[$row['id_event']] = array(
+			$entries[$row['id_event']] = [
 				'id' => $row['id_event'],
 				'ip' => $seeIP ? $row['ip'] : $txt['logged'],
 				'member' => !empty($row['id_member']) && !empty($row['real_name']) ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>' : $txt['guest'],
 				'position' => empty($row['real_name']) && empty($row['group_name']) ? $txt['guest'] : $row['group_name'],
-				'time' => LevGal_Helper_Format::time($row['timestamp']),
+				'time' => Format::time($row['timestamp']),
 				'timestamp' => forum_time(true, $row['timestamp']),
 				'event' => $row['event'],
 				'event_text' => $event_text,
-			);
+			];
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		return $entries;
 	}
@@ -193,9 +199,9 @@ class LevGal_Model_ModLog
 		$db->query('', '
 			DELETE FROM {db_prefix}lgal_log_events
 			WHERE id_event IN ({array_string:delete_actions})',
-			array(
+			[
 				'delete_actions' => array_unique($items),
-			)
+			]
 		);
 	}
 }

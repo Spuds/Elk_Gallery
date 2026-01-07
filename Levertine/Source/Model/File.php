@@ -4,17 +4,24 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 2.0.0 / elkarte
  */
+
+namespace Addons\Levertine\Source\Model;
+
+use Addons\Levertine\Source\Helper\Http;
+use Addons\Levertine\Source\LevGalBootstrap;
+use ElkArte\User;
 
 /**
  * This file deals with actually fetching details about a file.
  */
-class LevGal_Model_File
+class File
 {
-	/** @var bool */
+	/** @var bool|array */
 	protected $current_item = false;
-	/** @var \LevGal_Model_Album */
+
+	/** @var Album */
 	protected $current_album = false;
 
 	public function getFileInfoById($itemId)
@@ -39,23 +46,23 @@ class LevGal_Model_File
 				time_added, time_updated, approved, filesize
 			FROM {db_prefix}lgal_items
 			WHERE id_item = {int:itemId}',
-			array(
+			[
 				'itemId' => $itemId,
-			)
+			]
 		);
 
-		if ($db->num_rows($request) > 0)
+		if ($request->num_rows() > 0)
 		{
-			$this->current_item = $db->fetch_assoc($request);
+			$this->current_item = $request->fetch_assoc();
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		return $this->current_item;
 	}
 
 	public function getFilePaths()
 	{
-		$files = array();
+		$files = [];
 
 		if (empty($this->current_item) || empty($this->current_item['filehash']))
 		{
@@ -65,7 +72,7 @@ class LevGal_Model_File
 		// This is mildly complicated. A .jpg file with filehash abcd and id 1 will have the following
 		// path: (default) BOARDDIR/lgal_items/files/a/ab/1_abcd_jpg.dat
 		$file_path = $this->current_item['filehash'][0] . '/' . $this->current_item['filehash'][0] . $this->current_item['filehash'][1] . '/' . $this->current_item['id_item'] . '_' . $this->current_item['filehash'] . (!empty($this->current_item['extension']) ? '_' . $this->current_item['extension'] : '');
-		$gal_dir = LevGal_Bootstrap::getGalleryDir();
+		$gal_dir = LevGalBootstrap::getGalleryDir();
 
 		$files['filehash'] = $this->current_item['filehash'];
 		$files['fake_raw'] = $gal_dir . '/files/' . $file_path . '.dat';
@@ -74,7 +81,7 @@ class LevGal_Model_File
 			$files['raw'] = $files['fake_raw'];
 		}
 		// External files have no physical local path but they may have thumbnails.
-		elseif (strpos($this->current_item['mime_type'], 'external') !== 0)
+		elseif (!str_starts_with($this->current_item['mime_type'], 'external'))
 		{
 			trigger_error('File with id ' . $this->current_item['id_item'] . ', files/' . $file_path . '.dat is missing');
 
@@ -83,10 +90,10 @@ class LevGal_Model_File
 
 		// If you ever add 4 character filetype specs instead of _jpg and _png, update the file sender, please.
 		require_once(SUBSDIR . '/Attachments.subs.php');
-		$possibles = array(
-			'preview' => array('_preview.dat', '_preview_jpg.dat', '_preview_png.dat', '_preview_webp.dat'),
-			'thumb' => array('_thumb.dat', '_thumb_jpg.dat', '_thumb_png.dat', '_thumb_webp.dat'),
-		);
+		$possibles = [
+			'preview' => ['_preview.dat', '_preview_jpg.dat', '_preview_png.dat', '_preview_webp.dat'],
+			'thumb' => ['_thumb.dat', '_thumb_jpg.dat', '_thumb_png.dat', '_thumb_webp.dat'],
+		];
 		foreach ($possibles as $possible_type => $possible_suffix)
 		{
 			foreach ($possible_suffix as $suffix)
@@ -110,20 +117,20 @@ class LevGal_Model_File
 
 	public function makePath($hash)
 	{
-		$path = LevGal_Bootstrap::getGalleryDir();
+		$path = LevGalBootstrap::getGalleryDir();
 
 		if (!file_exists($path . '/files/' . $hash[0])
 			&& !mkdir($concurrentDirectory = $path . '/files/' . $hash[0])
 			&& !is_dir($concurrentDirectory))
 		{
-			LevGal_Helper_Http::fatalError(sprintf('Directory "%s" was not created', $concurrentDirectory));
+			Http::fatalError(sprintf('Directory "%s" was not created', $concurrentDirectory));
 		}
 
 		if (!file_exists($path . '/files/' . $hash[0] . '/' . $hash[0] . $hash[1])
 			&& !mkdir($concurrentDirectory = $path . '/files/' . $hash[0] . '/' . $hash[0] . $hash[1])
 			&& !is_dir($concurrentDirectory))
 		{
-			LevGal_Helper_Http::fatalError(sprintf('Directory "%s" was not created', $concurrentDirectory));
+			Http::fatalError(sprintf('Directory "%s" was not created', $concurrentDirectory));
 		}
 
 		return $path . '/files/' . $hash[0] . '/' . $hash[0] . $hash[1];
@@ -148,8 +155,6 @@ class LevGal_Model_File
 
 	public function isVisible()
 	{
-		global $user_info;
-
 		// File invalid?
 		if (empty($this->current_item))
 		{
@@ -165,7 +170,7 @@ class LevGal_Model_File
 		// OK, so we need to check if the user can see the album it's in. For that we need the album model.
 		if (empty($this->current_album))
 		{
-			$this->current_album = new LevGal_Model_Album();
+			$this->current_album = new Album();
 			$this->current_album->getAlbumById($this->current_item['id_album']);
 		}
 
@@ -175,7 +180,7 @@ class LevGal_Model_File
 		}
 
 		// So the user can see the album. If the item is approved or they're the album owner, they can see it.
-		if ($this->isApproved() || $this->isOwnedByUser() || $this->current_album->isOwnedByUser() || ($user_info['is_guest'] && !empty($_SESSION['lgal_items']) && in_array($this->current_item['id_item'], $_SESSION['lgal_items'], true)))
+		if ($this->isApproved() || $this->isOwnedByUser() || $this->current_album->isOwnedByUser() || (User::$info['is_guest'] && !empty($_SESSION['lgal_items']) && in_array($this->current_item['id_item'], $_SESSION['lgal_items'], true)))
 		{
 			return true;
 		}
@@ -186,9 +191,7 @@ class LevGal_Model_File
 
 	public function isOwnedByUser()
 	{
-		global $user_info;
-
-		return !empty($this->current_item['id_member']) && $this->current_item['id_member'] == $user_info['id'];
+		return !empty($this->current_item['id_member']) && $this->current_item['id_member'] == User::$info['id'];
 	}
 
 	public function getETag()
@@ -201,7 +204,7 @@ class LevGal_Model_File
 		return !empty($this->current_item) && $this->current_item['time_updated'] > $timestamp;
 	}
 
-	public function deleteFiles($file_list = array())
+	public function deleteFiles($file_list = [])
 	{
 		$files = $this->getFilePaths();
 		foreach ($files as $key => $file)
@@ -212,8 +215,13 @@ class LevGal_Model_File
 			}
 		}
 
+		if (empty($this->current_item['filehash']))
+		{
+			return true;
+		}
+
 		// Now, is the folder empty? If so, delete it.
-		$parentfolder = LevGal_Bootstrap::getGalleryDir() . '/files/' . $this->current_item['filehash'][0];
+		$parentfolder = LevGalBootstrap::getGalleryDir() . '/files/' . $this->current_item['filehash'][0];
 		$subfolder = $parentfolder . '/' . $this->current_item['filehash'][0] . $this->current_item['filehash'][1];
 
 		// Subfolder first.
@@ -241,7 +249,7 @@ class LevGal_Model_File
 			return false;
 		}
 
-		foreach (new DirectoryIterator($path) as $fileInfo)
+		foreach (new \DirectoryIterator($path) as $fileInfo)
 		{
 			if (!$fileInfo->isDot())
 			{

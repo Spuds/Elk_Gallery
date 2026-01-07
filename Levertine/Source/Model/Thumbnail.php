@@ -4,19 +4,25 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 2.0.0 / elkarte
  */
+
+namespace Addons\Levertine\Source\Model;
+
+use Addons\Levertine\Source\Helper\Image;
 
 /**
  * This file deals with preparing thumbnails/previews for files.
  */
-class LevGal_Model_Thumbnail
+class Thumbnail
 {
 	/** @var string */
 	private $file;
+
 	/** @var string */
 	private $ext;
-	/** @var LevGal_Helper_Image */
+
+	/** @var Image */
 	private $image;
 
 	public function __construct($filepath)
@@ -26,27 +32,21 @@ class LevGal_Model_Thumbnail
 
 	public function createFromString($string, $mime_type)
 	{
-		$this->image = new LevGal_Helper_Image();
+		$this->image = new Image();
 
-		switch ($mime_type) {
-			case 'image/png':
-				$this->ext = 'png';
-				break;
-			case 'image/webp':
-				$this->ext = 'webp';
-				break;
-			case 'image/jpeg':
-			case 'image/jpg':
-			default:
-				$this->ext = 'jpg';
-		}
+		$this->ext = match ($mime_type)
+		{
+			'image/png' => 'png',
+			'image/webp' => 'webp',
+			default => 'jpg',
+		};
 
 		return $this->image->loadImageFromString($string);
 	}
 
 	public function createFromFile()
 	{
-		$this->image = new LevGal_Helper_Image();
+		$this->image = new Image();
 		if ($ext = $this->image->loadImageFromFile($this->file))
 		{
 			$this->ext = $ext;

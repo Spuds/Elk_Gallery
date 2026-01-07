@@ -82,23 +82,23 @@ function generate_quota_image()
 	// Now we add the admin/manager groups.
 	for (var i = 0, n = managers.length; i < n; i++)
 	{
-		content += (i != 0 ? ', ' : '') + groupList[managers[i]];
+		content += (i !== 0 ? ', ' : '') + groupList[managers[i]];
 	}
 	content += ' <span class="smalltext">' + langs.managers + '</span></td><td>' + langs.max_image_size_unlimited + '</td><td>' + langs.max_image_size_unlimited + '</td><td></td></tr>';
 
 	// Now we go through the rest of them.
-	for (var i = 0, n = quotas.image.length; i < n; i++)
+	for (i = 0, n = quotas.image.length; i < n; i++)
 	{
 		content += '<tr id="image_quota_row_' + i + '"><td class="group_list">';
 		// List of groups
 		for (var j = 0, m = quotas.image[i][0].length; j < m; j++)
 		{
-			content += (j != 0 ? ', ' : '') + groupList[quotas.image[i][0][j]];
+			content += (j !== 0 ? ', ' : '') + groupList[quotas.image[i][0][j]];
 		}
 		content += '</td>';
 
 		// Image size
-		if (quotas.image[i][1] == '0x0')
+		if (quotas.image[i][1] === '0x0')
 		{
 			content += '<td class="image_size">' + langs.max_image_size_unlimited + '</td>';
 		}
@@ -127,30 +127,30 @@ function generate_quota_image()
 	var groups_without_quotas = groups_no_quota('image');
 
 	// If there's some groups left, we can add a quota.
-	if (groups_without_quotas.length != 0)
+	if (groups_without_quotas.length !== 0)
 	{
 		content += '<div class="floatright add_quota"><input id="image_quota_add_btn" type="button" value="' + langs.add + '" class="button_submit" onclick="return add_quota_image();" /></div>';
 	}
 
 	// And display the list of which groups have no quota.
 	content += '<div class="groups_no_quota floatleft">' + langs.no_upload;
-	if (groups_without_quotas.length == 0)
+	if (groups_without_quotas.length === 0)
 	{
 		content += ' ' + langs.none;
 	}
 	else
 	{
 		content += '<div>';
-		for (var i = 0, n = groups_without_quotas.length; i < n; i++)
+		for (i = 0, n = groups_without_quotas.length; i < n; i++)
 		{
-			content += (i != 0 ? ', ' : '') + groupList[groups_without_quotas[i]];
+			content += (i !== 0 ? ', ' : '') + groupList[groups_without_quotas[i]];
 		}
 		content += '</div>';
 	}
 	content += '</div>';
 
 	// Now the really icky part.
-	for (var i = 0, n = quotas.image.length; i < n; i++)
+	for (i = 0, n = quotas.image.length; i < n; i++)
 	{
 		content += '<input type="hidden" name="image_quota_groups[' + i + ']" value="' + quotas.image[i][0].join(',') + '" />';
 		content += '<input type="hidden" name="image_quota_imagesize[' + i + ']" value="' + quotas.image[i][1] + '" />';
@@ -170,7 +170,7 @@ function add_quota_image()
 	// First, the memberlist columns.
 	var memberlist = row.insertCell(0);
 	groups_without_quotas = groups_no_quota('image');
-	memberlist.innerHTML = (groups_without_quotas.length == 0) ? langs.none : getGroupControl('image');
+	memberlist.innerHTML = (groups_without_quotas.length === 0) ? langs.none : getGroupControl('image');
 
 	// Now the selector for image size
 	var imagesize = row.insertCell(1);
@@ -309,12 +309,12 @@ function generate_quota_generic(type)
 	// Now we add the admin/manager groups.
 	for (var i = 0, n = managers.length; i < n; i++)
 	{
-		content += (i != 0 ? ', ' : '') + groupList[managers[i]];
+		content += (i !== 0 ? ', ' : '') + groupList[managers[i]];
 	}
 	content += ' <span class="smalltext">' + langs.managers + '</span></td><td>' + langs.max_image_size_unlimited + '</td><td></td></tr>';
 
 	// Now we go through the rest of them.
-	for (var i = 0, n = quotas[type].length; i < n; i++)
+	for (i = 0, n = quotas[type].length; i < n; i++)
 	{
 		content += '<tr id="' + type + '_quota_row_' + i + '"><td class="group_list">';
 		// List of groups
@@ -358,16 +358,16 @@ function generate_quota_generic(type)
 	else
 	{
 		content += '<div>';
-		for (var i = 0, n = groups_without_quotas.length; i < n; i++)
+		for (i = 0, n = groups_without_quotas.length; i < n; i++)
 		{
-			content += (i != 0 ? ', ' : '') + groupList[groups_without_quotas[i]];
+			content += (i !== 0 ? ', ' : '') + groupList[groups_without_quotas[i]];
 		}
 		content += '</div>';
 	}
 	content += '</div>';
 
 	// Now the really icky part.
-	for (var i = 0, n = quotas[type].length; i < n; i++)
+	for (i = 0, n = quotas[type].length; i < n; i++)
 	{
 		content += '<input type="hidden" name="' + type + '_quota_groups[' + i + ']" value="' + quotas[type][i][0].join(',') + '" />';
 		content += '<input type="hidden" name="' + type + '_quota_filesize[' + i + ']" value="' + quotas[type][i][1] + '" />';
@@ -550,14 +550,14 @@ function getGroupControl(section, row)
 
 function getImageSizeControl(size_setting, width, height)
 {
-	var imagesize_content = '<select name="max_image_size" id="max_image_size" onchange="document.getElementById(\'max_image_size_setting\').style.display = (this.value == \'defined\' ? \'\' : \'none\');">';
-	imagesize_content += '<option value="unlimited"' + (size_setting == 'unlimited' ? ' selected="selected"' : '') + '>' + langs.max_image_size_unlimited + '</option>';
-	imagesize_content += '<option value="defined"' + (size_setting == 'defined' ? ' selected="selected"' : '') + '>' + langs.max_image_size_defined + '</option>';
+	var imagesize_content = '<select name="max_image_size" id="max_image_size" onchange="document.getElementById(\'max_image_size_setting\').style.display = (this.value === \'defined\' ? \'\' : \'none\');">';
+	imagesize_content += '<option value="unlimited"' + (size_setting === 'unlimited' ? ' selected="selected"' : '') + '>' + langs.max_image_size_unlimited + '</option>';
+	imagesize_content += '<option value="defined"' + (size_setting === 'defined' ? ' selected="selected"' : '') + '>' + langs.max_image_size_defined + '</option>';
 	imagesize_content += '</select>';
-	imagesize_content += '<div id="max_image_size_setting"' + (size_setting == 'unlimited' ? ' style="display:none"' : '') + '>';
+	imagesize_content += '<div id="max_image_size_setting"' + (size_setting === 'unlimited' ? ' style="display:none"' : '') + '>';
 	var placeholder = langs.max_image_size_placeholder;
-	placeholder = placeholder.replace('%1$s', '<input type="text" id="max_image_size_width" value="' + (size_setting == 'unlimited' ? '' : width) + '" size="4" class="input_text" />');
-	placeholder = placeholder.replace('%2$s', '<input type="text" id="max_image_size_height" value="' + (size_setting == 'unlimited' ? '' : height) + '" size="4" class="input_text" />');
+	placeholder = placeholder.replace('%1$s', '<input type="text" id="max_image_size_width" value="' + (size_setting === 'unlimited' ? '' : width) + '" size="4" class="input_text" />');
+	placeholder = placeholder.replace('%2$s', '<input type="text" id="max_image_size_height" value="' + (size_setting === 'unlimited' ? '' : height) + '" size="4" class="input_text" />');
 	imagesize_content += placeholder + '</div>';
 
 	return imagesize_content;
@@ -591,9 +591,9 @@ function levgal_currentVersion()
 	let olgVersionContainer = document.getElementById("levgalCurrentVersion"),
 		oinstalledVersionContainer = document.getElementById("levgalYourVersion"),
 		sCurrentVersion = oinstalledVersionContainer.innerHTML,
-		lgIndex = new elk_AdminIndex(),
+		lgIndex = new Elk_AdminIndex(),
 		lgVersion = '???',
-		verCompare = new elk_ViewVersions();
+		verCompare = new Elk_ViewVersions();
 
 	$.getJSON('https://api.github.com/repos/Spuds/Elk_Gallery/releases', {format: "json"},
 		function (data, textStatus, jqXHR)

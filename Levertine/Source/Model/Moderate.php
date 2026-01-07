@@ -4,23 +4,28 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 2.0.0 / elkarte
  */
 
+namespace Addons\Levertine\Source\Model;
+
+use Addons\Levertine\Source\Helper\Format;
+use Addons\Levertine\Source\LevGalBootstrap;
 use BBC\ParserWrapper;
+use ElkArte\Helper\Util;
+use ElkArte\MembersList;
+use ElkArte\User;
 
 /**
  * This file deals with getting information about the moderation area.
  */
-class LevGal_Model_Moderate
+class Moderate
 {
 	/** @var int  */
 	public const SESSION_THRESHOLD = 120; // Indicates TTL on unapproved counts. Too much? Not enough?
 
 	public function getUnapprovedCommentsCount()
 	{
-		global $user_info;
-
 		$db = database();
 
 		if (isset($_SESSION['lgal_uc']) && (time() - $_SESSION['lgal_uc']['t'] < self::SESSION_THRESHOLD))
@@ -29,10 +34,10 @@ class LevGal_Model_Moderate
 		}
 
 		$unapproved = 0;
-		$album_list = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
+		$album_list = LevGalBootstrap::getModel('AlbumList');
 		$albums = $album_list->getVisibleAlbums();
 
-		$viewing_all = allowedTo(array('lgal_manage', 'lgal_approve_item'));
+		$viewing_all = allowedTo(['lgal_manage', 'lgal_approve_item']);
 
 		if (!empty($albums))
 		{
@@ -46,21 +51,21 @@ class LevGal_Model_Moderate
 					AND li.id_album IN ({array_int:albums})
 					AND li.approved = {int:approved}' . (!$viewing_all ? '
 					AND li.id_member = {int:current_member}' : ''),
-				array(
+				[
 					'not_approved' => 0,
 					'approved' => 1,
 					'albums' => $albums,
-					'current_member' => $user_info['id'],
-				)
+					'current_member' => User::$info['id'],
+				]
 			);
-			list ($unapproved) = $db->fetch_row($request);
-			$db->free_result($request);
+			[$unapproved] = $request->fetch_row();
+			$request->free_result();
 		}
 
-		$_SESSION['lgal_uc'] = array(
+		$_SESSION['lgal_uc'] = [
 			'n' => $unapproved,
 			't' => time(),
-		);
+		];
 
 		return $_SESSION['lgal_uc']['n'];
 	}
@@ -76,8 +81,8 @@ class LevGal_Model_Moderate
 
 		$unapproved = 0;
 		// If we have extended permissions, we can approve items anywhere, otherwise we're only interested in our own albums.
-		$viewing_all = allowedTo(array('lgal_manage', 'lgal_approve_item'));
-		$album_list = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
+		$viewing_all = allowedTo(['lgal_manage', 'lgal_approve_item']);
+		$album_list = LevGalBootstrap::getModel('AlbumList');
 		$albums = $viewing_all ? $album_list->getVisibleAlbums() : $album_list->getUserAlbums();
 
 		if (!empty($albums))
@@ -89,19 +94,19 @@ class LevGal_Model_Moderate
 				FROM {db_prefix}lgal_items AS li
 				WHERE li.approved = {int:not_approved}
 					AND li.id_album IN ({array_int:albums})',
-				array(
+				[
 					'not_approved' => 0,
 					'albums' => $albums,
-				)
+				]
 			);
-			list ($unapproved) = $db->fetch_row($request);
-			$db->free_result($request);
+			[$unapproved] = $request->fetch_row();
+			$request->free_result();
 		}
 
-		$_SESSION['lgal_ui'] = array(
+		$_SESSION['lgal_ui'] = [
 			'n' => $unapproved,
 			't' => time(),
-		);
+		];
 
 		return $_SESSION['lgal_ui']['n'];
 	}
@@ -117,24 +122,24 @@ class LevGal_Model_Moderate
 				COUNT(*)
 			FROM {db_prefix}lgal_albums
 			WHERE approved = {int:not_approved}',
-			array(
+			[
 				'not_approved' => 0,
-			)
+			]
 		);
-		list ($unapproved) = $db->fetch_row($request);
-		$db->free_result($request);
+		[$unapproved] = $request->fetch_row();
+		$request->free_result();
 
 		return $unapproved;
 	}
 
 	public function getVisibleUnapprovedComments($start, $limit, $order, $albums)
 	{
-		global $user_info, $scripturl;
+		global $scripturl;
 
 		$db = database();
 
 		// If can approve anything, it doesn't have to be just the user's own items
-		$viewing_all = allowedTo(array('lgal_manage', 'lgal_approve_comment'));
+		$viewing_all = allowedTo(['lgal_manage', 'lgal_approve_comment']);
 		$view_profile = allowedTo('profile_view_any');
 
 		// We are only interested in approved items with unapproved comments.
@@ -153,20 +158,20 @@ class LevGal_Model_Moderate
 				AND li.approved = {int:approved}
 			ORDER BY lc.id_comment ' . ($order === 'desc' ? 'DESC' : 'ASC') . '
 			LIMIT {int:start}, {int:limit}',
-			array(
+			[
 				'start' => $start,
 				'limit' => $limit,
 				'not_approved' => 0,
 				'approved' => 1,
 				'albums' => $albums,
-				'current_member' => $user_info['id'],
-			)
+				'current_member' => User::$info['id'],
+			]
 		);
-		$comments = array();
+		$comments = [];
 		$parser = ParserWrapper::instance();
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
-			$comments[$row['id_comment']] = array(
+			$comments[$row['id_comment']] = [
 				'comment_url' => $scripturl . '?media/comment/' . $row['id_comment'] . '/',
 				'author' => $view_profile && !empty($row['id_member']) ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['author_name'] . '</a>' : $row['author_name'],
 				'album_name' => $row['album_name'],
@@ -174,11 +179,11 @@ class LevGal_Model_Moderate
 				'item_name' => $row['item_name'],
 				'item_url' => $scripturl . '?media/item/' . (!empty($row['item_slug']) ? $row['item_slug'] . '.' . $row['id_item'] : $row['id_item']) . '/',
 				'time_added' => $row['time_added'],
-				'time_added_format' => LevGal_Helper_Format::time($row['time_added']),
+				'time_added_format' => Format::time($row['time_added']),
 				'comment_body' => $parser->parseMessage($row['comment'], true),
-			);
+			];
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		return $comments;
 	}
@@ -190,7 +195,7 @@ class LevGal_Model_Moderate
 		$db = database();
 
 		$view_profile = allowedTo('profile_view_any');
-		$items = array();
+		$items = [];
 
 		$request = $db->query('', '
 			SELECT 
@@ -203,26 +208,26 @@ class LevGal_Model_Moderate
 				AND li.id_album IN ({array_int:albums})' : '') . '
 			ORDER BY li.id_item ' . ($order === 'desc' ? 'DESC' : 'ASC') . '
 			LIMIT {int:start}, {int:limit}',
-			array(
+			[
 				'start' => $start,
 				'limit' => $limit,
 				'not_approved' => 0,
 				'albums' => $albums,
-			)
+			]
 		);
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
-			$items[$row['id_item']] = array(
+			$items[$row['id_item']] = [
 				'author' => $view_profile && !empty($row['id_member']) ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['poster_name'] . '</a>' : $row['poster_name'],
 				'album_name' => $row['album_name'],
 				'album_url' => $scripturl . '?media/album/' . (!empty($row['album_slug']) ? $row['album_slug'] . '.' . $row['id_album'] : $row['id_album']) . '/',
 				'item_name' => $row['item_name'],
 				'item_url' => $scripturl . '?media/item/' . (!empty($row['item_slug']) ? $row['item_slug'] . '.' . $row['id_item'] : $row['id_item']) . '/',
 				'time_added' => $row['time_added'],
-				'time_added_format' => LevGal_Helper_Format::time($row['time_added']),
-			);
+				'time_added_format' => Format::time($row['time_added']),
+			];
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		return $items;
 	}
@@ -234,45 +239,45 @@ class LevGal_Model_Moderate
 		$db = database();
 
 		$view_profile = allowedTo('profile_view_any');
-		$unapproved_albums = array();
+		$unapproved_albums = [];
 
 		$request = $db->query('', '
-			SELECT 
+			SELECT  
 				la.id_album, la.album_name, la.album_slug, la.owner_cache, la.description
 			FROM {db_prefix}lgal_albums AS la
 			WHERE la.approved = {int:not_approved}' . ($albums !== true ? '
 				AND la.id_album IN ({array_int:albums})' : '') . '
 			ORDER BY la.id_album ' . ($order === 'desc' ? 'DESC' : 'ASC') . '
 			LIMIT {int:start}, {int:limit}',
-			array(
+			[
 				'start' => $start,
 				'limit' => $limit,
 				'not_approved' => 0,
 				'albums' => $albums,
-			)
+			]
 		);
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
-			$unapproved_albums[$row['id_album']] = array(
+			$unapproved_albums[$row['id_album']] = [
 				'album_name' => $row['album_name'],
 				'description' => $row['description'],
 				'album_url' => $scripturl . '?media/album/' . (!empty($row['album_slug']) ? $row['album_slug'] . '.' . $row['id_album'] : $row['id_album']) . '/',
 				'owner_cache' => Util::unserialize($row['owner_cache']),
-				'owner' => array(),
-			);
+				'owner' => [],
+			];
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		// Getting the owners.
-		$members = array();
-		$groups = array();
+		$members = [];
+		$groups = [];
 		foreach ($unapproved_albums as $id_album => $album)
 		{
 			if (!empty($album['owner_cache']['member']))
 			{
 				if (in_array(0, $album['owner_cache']['member'], true))
 				{
-					$unapproved_albums[$id_album]['owner'] = array($context['forum_name']);
+					$unapproved_albums[$id_album]['owner'] = [$context['forum_name']];
 					unset ($unapproved_albums[$id_album]['owner_cache']);
 					continue;
 				}
@@ -285,11 +290,11 @@ class LevGal_Model_Moderate
 		}
 		if (!empty($members))
 		{
-			loadMemberData($members, false, 'minimal');
+			MembersList::load($members, false, 'minimal');
 		}
 		if (!empty($groups))
 		{
-			$groupModel = new LevGal_Model_Group();
+			$groupModel = new Group();
 			$group_data = $groupModel->getGroupsById($groups);
 		}
 
@@ -329,7 +334,7 @@ class LevGal_Model_Moderate
 		$db = database();
 
 		$view_profile = allowedTo('profile_view_any');
-		$reports = array();
+		$reports = [];
 
 		// At least we don't have to do permissions tests; this stuff is lgal_manage only so they can see everything.
 		$request = $db->query('', '
@@ -346,16 +351,16 @@ class LevGal_Model_Moderate
 				AND lr.id_comment != 0
 			ORDER BY lr.id_report ' . ($order === 'desc' ? 'DESC' : 'ASC') . '
 			LIMIT {int:start}, {int:limit}',
-			array(
+			[
 				'start' => $start,
 				'limit' => $limit,
 				'closed_state' => $state === 'open' ? 0 : 1,
-			)
+			]
 		);
 		$parser = ParserWrapper::instance();
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
-			$reports[$row['id_report']] = array(
+			$reports[$row['id_report']] = [
 				'author' => $view_profile && !empty($row['content_id_poster']) ? '<a href="' . $scripturl . '?action=profile;u=' . $row['content_id_poster'] . '">' . $row['content_poster_name'] . '</a>' : $row['content_poster_name'],
 				'report_url' => $scripturl . '?media/moderate/' . $row['id_report'] . '/report/',
 				'comment_url' => $scripturl . '?media/comment/' . $row['id_comment'] . '/',
@@ -365,14 +370,14 @@ class LevGal_Model_Moderate
 				'album_url' => $scripturl . '?media/album/' . (!empty($row['album_slug']) ? $row['album_slug'] . '.' . $row['id_album'] : $row['id_album']) . '/',
 				'comment' => $parser->parseMessage($row['comment'], true),
 				'comment_time' => $row['comment_time'],
-				'comment_time_format' => LevGal_Helper_Format::time($row['comment_time']),
+				'comment_time_format' => Format::time($row['comment_time']),
 				'time_started' => $row['time_started'],
-				'time_started_format' => LevGal_Helper_Format::time($row['time_started']),
+				'time_started_format' => Format::time($row['time_started']),
 				'time_updated' => $row['time_updated'],
-				'time_updated_format' => LevGal_Helper_Format::time($row['time_updated']),
-			);
+				'time_updated_format' => Format::time($row['time_updated']),
+			];
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		return $reports;
 	}
@@ -384,7 +389,7 @@ class LevGal_Model_Moderate
 		$db = database();
 
 		$view_profile = allowedTo('profile_view_any');
-		$reports = array();
+		$reports = [];
 
 		// At least we don't have to do permissions tests; this stuff is lgal_manage only so they can see everything.
 		$request = $db->query('', '
@@ -400,17 +405,17 @@ class LevGal_Model_Moderate
 				AND lr.id_comment = 0
 			ORDER BY lr.id_report ' . ($order === 'desc' ? 'DESC' : 'ASC') . '
 			LIMIT {int:start}, {int:limit}',
-			array(
+			[
 				'start' => $start,
 				'limit' => $limit,
 				'closed_state' => $state === 'open' ? 0 : 1,
-			)
+			]
 		);
-		$item_ids = array();
-		while ($row = $db->fetch_assoc($request))
+		$item_ids = [];
+		while ($row = $request->fetch_assoc())
 		{
 			$item_ids[] = $row['id_item'];
-			$reports[$row['id_report']] = array(
+			$reports[$row['id_report']] = [
 				'author' => $view_profile && !empty($row['content_id_poster']) ? '<a href="' . $scripturl . '?action=profile;u=' . $row['content_id_poster'] . '">' . $row['content_poster_name'] . '</a>' : $row['content_poster_name'],
 				'report_url' => $scripturl . '?media/moderate/' . $row['id_report'] . '/report/',
 				'id_item' => $row['id_item'],
@@ -419,19 +424,19 @@ class LevGal_Model_Moderate
 				'album_name' => $row['album_name'],
 				'album_url' => $scripturl . '?media/album/' . (!empty($row['album_slug']) ? $row['album_slug'] . '.' . $row['id_album'] : $row['id_album']) . '/',
 				'time_added' => $row['time_started'],
-				'time_added_format' => LevGal_Helper_Format::time($row['time_added']),
+				'time_added_format' => Format::time($row['time_added']),
 				'time_started' => $row['time_started'],
-				'time_started_format' => LevGal_Helper_Format::time($row['time_started']),
+				'time_started_format' => Format::time($row['time_started']),
 				'time_updated' => $row['time_updated'],
-				'time_updated_format' => LevGal_Helper_Format::time($row['time_updated']),
-			);
+				'time_updated_format' => Format::time($row['time_updated']),
+			];
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		// If doing the detailed list, we want thumbnails and descriptions.
 		if ($detailed)
 		{
-			$itemList = new LevGal_Model_ItemList();
+			$itemList = new ItemList();
 			$items = $itemList->getItemsById($item_ids);
 			$descriptions = $itemList->getItemDescriptionsById($item_ids);
 			foreach ($reports as $id_report => $report)

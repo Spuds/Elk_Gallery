@@ -4,19 +4,46 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.1 / elkarte
+ * @version 2.0.0 / elkarte
  */
+
+namespace Addons\Levertine\Source\Action;
+
+use Addons\Levertine\Source\Helper\Feed;
+use Addons\Levertine\Source\Helper\Http;
+use Addons\Levertine\Source\Helper\Richtext;
+use Addons\Levertine\Source\Helper\Sanitiser;
+use Addons\Levertine\Source\Helper\Verify;
+use Addons\Levertine\Source\LevGalBootstrap;
+use Addons\Levertine\Source\Model\Bookmark;
+use Addons\Levertine\Source\Model\Comment;
+use Addons\Levertine\Source\Model\Custom;
+use Addons\Levertine\Source\Model\External;
+use Addons\Levertine\Source\Model\Item as ItemModel;
+use Addons\Levertine\Source\Model\ModLog;
+use Addons\Levertine\Source\Model\Notify;
+use Addons\Levertine\Source\Model\Report;
+use Addons\Levertine\Source\Model\Tag;
+use Addons\Levertine\Source\Model\Upload;
+use ElkArte\Helper\DataValidator;
+use ElkArte\Helper\Util;
+use ElkArte\Languages\Txt;
+use ElkArte\Mentions\Mentioning;
+use ElkArte\User;
+use function Addons\Levertine\Source\levgal_pageindex;
 
 /**
  * This file provides the handling for items, site/?media/item/*.
  */
-class LevGal_Action_Item extends LevGal_Action_Abstract
+class Item extends LevGalAbstract
 {
 	/** @var bool */
 	private $item_id;
+
 	/** @var bool */
 	private $item_slug;
-	/** @var \LevGal_Model_Item */
+
+	/** @var ItemModel */
 	private $item_obj;
 
 	public function __construct()
@@ -27,28 +54,28 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 		parent::__construct();
 
 		// Attempt to get something useful.
-		list ($this->item_slug, $this->item_id) = $this->getSlugAndId();
+		[$this->item_slug, $this->item_id] = $this->getSlugAndId();
 
 		// Fetch some details.
-		$this->item_obj = new LevGal_Model_Item();
+		$this->item_obj = new ItemModel();
 		$context['item_details'] = $this->item_obj->getItemInfoById($this->item_id);
 
 		// Does the item even exist? Can they see it if it does?
 		if (!$context['item_details'] || !$this->item_obj->isVisible())
 		{
-			LevGal_Helper_Http::fatalError('error_no_item');
+			Http::fatalError('error_no_item');
 		}
 
 		// Does the item slug provided match the provided slug? If not, run away.
 		if ($context['item_details']['item_slug'] != $this->item_slug)
 		{
-			LevGal_Helper_Http::hardRedirect($context['item_details']['item_url'] . (empty($_GET['sub']) ? '' : $_GET['sub'] . '/'));
+			Http::hardRedirect($context['item_details']['item_url'] . (empty($_GET['sub']) ? '' : $_GET['sub'] . '/'));
 		}
 	}
 
 	public function actionIndex()
 	{
-		global $context, $txt, $user_info, $modSettings;
+		global $context, $txt, $modSettings;
 
 		if ($this->item_obj->isMature() && $this->item_obj->hidingMature())
 		{
@@ -61,7 +88,6 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 		// Now the linktree. This is a bit complicated since we need the album details.
 		$album_details = $this->item_obj->getParentAlbum();
 		$item = $this->item_obj->getLinkTreeDetails();
-
 		$this->addLinkTree($txt['levgal'], '?media/');
 		$this->addLinkTree($album_details['album_name'], $album_details['album_url']);
 		$this->addLinkTree($item['name'], $item['url']);
@@ -71,7 +97,8 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 		$context['item_owner_link'] = allowedTo('profile_view_any');
 		$context['item_display'] = $this->item_obj->getItemParticulars();
 
-		if (isset($_SESSION['lgal_rep']['i' . $context['item_details']['id_item']]))
+		$session_key = 'i' . $context['item_details']['id_item'];
+		if (isset($_SESSION['lgal_rep'][$session_key]))
 		{
 			$context['item_reported'] = true;
 			unset ($_SESSION['lgal_rep']['i' . $context['item_details']['id_item']]);
@@ -89,7 +116,7 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 		{
 			foreach ($meta_og as $property => $value)
 			{
-				LevGal_Bootstrap::addHtmlHeader('
+				LevGalBootstrap::addHtmlHeader('
 	<meta name="og:' . $property . '" content="' . $value . '" />');
 			}
 		}
@@ -102,84 +129,94 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 			$this->fetchComments();
 		}
 
-		$context['item_actions'] = array();
-		$context['item_actions']['actions']['album'] = array($txt['lgal_back_to_album'], $album_details['album_url'], 'tab' => true);
-		if (!$user_info['is_guest'])
+		$context['item_actions'] = [];
+		$context['item_actions']['actions']['album'] = [$txt['lgal_back_to_album'], $album_details['album_url'], 'tab' => true];
+		if (!User::$info['is_guest'])
 		{
 			// Bookmarks
-			$bookmark = new LevGal_Model_Bookmark();
+			$bookmark = new Bookmark();
 			$action = $bookmark->isBookmarked($this->item_id) ? 'unbookmark' : 'bookmark';
-			$context['item_actions']['actions'][$action] = array($txt['lgal_' . $action . '_item'], $item['url'] . $action . '/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'js' => 'onclick="return handleBookmark(this)"', 'tab' => true);
+			$context['item_actions']['actions'][$action] = [$txt['lgal_' . $action . '_item'], $item['url'] . $action . '/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'js' => 'onclick="return handleBookmark(this)"', 'tab' => true];
 
 			// Notifications
-			$notify = new LevGal_Model_Notify();
+			$notify = new Notify();
 			if (!empty($notify->getSiteEnableNotifications()['lgcomment']))
 			{
-				$action = $notify->getNotifyItemStatus($this->item_id, $user_info['id']) ? 'unnotify' : 'notify';
-				$context['item_actions']['actions'][$action] = array($txt['lgal_' . $action], $item['url'] . $action . '/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'title' => $txt['lgal_' . $action . '_item_desc']);
+				$action = $notify->getNotifyItemStatus($this->item_id, User::$info['id']) ? 'unnotify' : 'notify';
+				$context['item_actions']['actions'][$action] = [$txt['lgal_' . $action], $item['url'] . $action . '/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'title' => $txt['lgal_' . $action . '_item_desc']];
 			}
+
 			// The Download button is only for members to try to curtail bandwidth shenanigans.
 			if (!empty($context['item_display']['urls']['download']))
 			{
-				$context['item_actions']['actions']['download'] = array($txt['lgal_download_item'], $context['item_display']['urls']['download']);
+				$context['item_actions']['actions']['download'] = [$txt['lgal_download_item'], $context['item_display']['urls']['download']];
 			}
 
 			// And flagging for moderation.
-			$context['item_actions']['moderation']['flag'] = array($txt['lgal_flag_item_title'], $item['url'] . 'flag/');
+			$context['item_actions']['moderation']['flag'] = [$txt['lgal_flag_item_title'], $item['url'] . 'flag/'];
 		}
 
 		if (!$context['item_details']['approved'] && $this->item_obj->canChangeApproveStatus())
 		{
 			// We are not concerned with unapproval at this time.
-			$context['item_actions']['moderation']['approveitem'] = array($txt['lgal_approve_item_title'], $item['url'] . 'approve/' . $context['session_var'] . '=' . $context['session_id'] . '/');
+			$context['item_actions']['moderation']['approveitem'] = [$txt['lgal_approve_item_title'], $item['url'] . 'approve/' . $context['session_var'] . '=' . $context['session_id'] . '/'];
 		}
 
 		if ($this->item_obj->canUseThumbnail())
 		{
-			$context['item_actions']['moderation']['setthumbnail'] = array($txt['lgal_set_thumbnail_title'], $item['url'] . 'setthumbnail/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'title' => $txt['lgal_set_thumbnail_desc']);
+			$context['item_actions']['moderation']['setthumbnail'] = [$txt['lgal_set_thumbnail_title'], $item['url'] . 'setthumbnail/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'title' => $txt['lgal_set_thumbnail_desc']];
 		}
 
 		if ($this->item_obj->isEditable())
 		{
-			$context['item_actions']['actions']['edititem'] = array($txt['lgal_edit_item_title'], $item['url'] . 'edit/','tab' => true, 'sidebar' => false);
-			$context['item_actions']['moderation']['edititem'] = array($txt['lgal_edit_item_title'], $item['url'] . 'edit/');
-			$context['item_actions']['moderation']['moveitem'] = array($txt['lgal_move_item_title'], $item['url'] . 'move/');
+			$context['item_actions']['actions']['edititem'] = [$txt['lgal_edit_item_title'], $item['url'] . 'edit/','tab' => true, 'sidebar' => false];
+			$context['item_actions']['moderation']['edititem'] = [$txt['lgal_edit_item_title'], $item['url'] . 'edit/'];
+			$context['item_actions']['moderation']['moveitem'] = [$txt['lgal_move_item_title'], $item['url'] . 'move/'];
 		}
 
-		if (allowedTo(array('lgal_manage', 'lgal_delete_item_any')) || (allowedTo('lgal_delete_item_own') && $this->item_obj->isOwnedByUser()))
+		if (allowedTo(['lgal_manage', 'lgal_delete_item_any']) || (allowedTo('lgal_delete_item_own') && $this->item_obj->isOwnedByUser()))
 		{
-			$context['item_actions']['moderation']['deleteitem'] = array($txt['lgal_delete_item_title'], $item['url'] . 'delete/');
+			$context['item_actions']['moderation']['deleteitem'] = [$txt['lgal_delete_item_title'], $item['url'] . 'delete/'];
 		}
 
-		$share = array(
+		$share = [
 			'facebook' => 'https://www.facebook.com/sharer.php?u=' . $context['item_details']['item_url'],
-			'twitter' => 'https://twitter.com/share?text=' . urlencode($context['item_details']['item_name']) . '&amp;url=' . urlencode($context['item_details']['item_url']),
+			'twitter' => 'https://x.com/share?text=' . urlencode($context['item_details']['item_name']) . '&amp;url=' . urlencode($context['item_details']['item_url']),
 			'tumblr' => 'https://www.tumblr.com/share/link?url=' . urlencode($context['item_details']['item_url']) . '&amp;name=' . urlencode($context['item_details']['item_name']),
 			'reddit' => 'https://reddit.com/submit?url=' . urlencode($context['item_details']['item_url']),
 			'pinterest' => 'https://pinterest.com/pin/create/button/?url=' . urlencode($context['item_details']['item_url']) . '&amp;description=' . urlencode($context['item_details']['item_name']),
-		);
+		];
 		$sharing = empty($modSettings['lgal_social']) ? [] : explode(',', $modSettings['lgal_social']);
-		$context['social_icons'] = array();
+		$context['social_icons'] = [];
 		foreach ($share as $id => $link)
 		{
 			if (in_array($id, $sharing, true))
 			{
-				$context['social_icons']['actions'][$id] = array($txt['lgal_share_' . $id] ?? $id, $link, true);
+				$context['social_icons']['actions'][$id] = [$txt['lgal_share_' . $id] ?? $id, $link, true];
 			}
 		}
 
 		// Get likes, if allowed to see profiles let's also linkify things.
 		$this->getItemLikes();
 
-		// The default order is by time added, although this should follow how the album was sorted.
-		$context['prev_next'] = $this->item_obj->getPreviousNext('time_added');
+		// The order follows how the album was sorted.
+		[$orderBy, $orderDir] = explode('|', $album_details['sort'], 2);
+		$sortMap = [
+			'name' => 'item_name',
+			'date' => 'time_added',
+			'views' => 'num_views',
+			'comments' => 'num_comments',
+		];
+		$orderBy = $sortMap[$orderBy] ?? 'id_item';
 
+		$context['prev_next'] = $this->item_obj->getPreviousNext($orderBy, $orderDir);
 		$context['item_display']['custom_fields'] = $this->item_obj->getCustomFields();
 		$context['item_display']['tags'] = $this->item_obj->getTags();
 
-		if (!$user_info['is_guest'])
+		if (!User::$info['is_guest'])
 		{
 			$this->item_obj->markSeen();
+			$this->markNotificationRead();
 		}
 
 		if (empty($context['browser']['possibly_robot']) && (!empty($modSettings['lgal_count_author_views']) || !$this->item_obj->isOwnedByUser()))
@@ -190,7 +227,7 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 
 	protected function getItemLikes()
 	{
-		global $context, $user_info, $scripturl;
+		global $context, $scripturl;
 
 		// So, get the data, do linking of things if that's a thing and then set up some other stuff.
 		$context['likes'] = $this->item_obj->getLikes();
@@ -201,26 +238,26 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 				$context['likes'][$user_id] = '<a href="' . $scripturl . '?action=profile;u=' . $user_id . '">' . $user_name . '</a>';
 			}
 		}
-		$context['allowed_like'] = !$user_info['is_guest'];
+		$context['allowed_like'] = !User::$info['is_guest'];
 		$context['currently_liking'] = false;
-		if (isset($context['likes'][$user_info['id']]))
+		if (isset($context['likes'][User::$info['id']]))
 		{
 			$context['currently_liking'] = true;
-			unset ($context['likes'][$user_info['id']]);
+			unset ($context['likes'][User::$info['id']]);
 		}
 	}
 
 	protected function fetchComments()
 	{
-		global $context, $txt, $modSettings, $user_info;
+		global $context, $txt, $modSettings;
 
-		$context['item_comments'] = array();
+		$context['item_comments'] = [];
 		$context['num_comments'] = 0;
 		if (!empty($context['item_details']['num_comments']) || !empty($context['item_details']['num_unapproved_comments']))
 		{
 			$context['num_comments'] = $this->item_obj->getCountComments();
 			$num_pages = ceil($context['num_comments'] / $modSettings['lgal_comments_per_page']);
-			$context['this_page'] = isset($_GET['page']) ? LevGal_Bootstrap::clamp((int) $_GET['page'], 1, $num_pages) : 1;
+			$context['this_page'] = isset($_GET['page']) ? LevGalBootstrap::clamp((int) $_GET['page'], 1, $num_pages) : 1;
 			$context['item_comments'] = $this->item_obj->getComments(($context['this_page'] - 1) * $modSettings['lgal_comments_per_page'], $modSettings['lgal_comments_per_page']);
 
 			if ($num_pages > 1)
@@ -237,22 +274,22 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 		$context['display_comment_reply'] = $this->item_obj->canReceiveComments();
 		if ($context['display_comment_reply'] !== 'no')
 		{
-			$context['comment_box'] = new LevGal_Helper_Richtext('lgal_commentbox');
-			$context['comment_box']->createEditor(array(
+			$context['comment_box'] = new Richtext('lgal_commentbox');
+			$context['comment_box']->createEditor([
 				'value' => $context['comment_box_value'] ?? '',
-				'labels' => array(
+				'labels' => [
 					'post_button' => $txt['levgal_add_comment'],
-				),
-			));
+				],
+			]);
 			$context['form_url'] = $context['item_details']['item_url'] . 'comment/';
 
-			if ($user_info['is_guest'])
+			if (User::$info['is_guest'])
 			{
 				$context['comment_user_name'] = $context['comment_user_name'] ?? $_SESSION['guest_name'] ?? '';
 				$context['comment_user_email'] = $context['comment_user_email'] ?? $_SESSION['guest_email'] ?? '';
 				if (empty($context['verification']))
 				{
-					$context['verification'] = new LevGal_Helper_Verify('comment');
+					$context['verification'] = new Verify('comment');
 					$context['verification']->setupOnly();
 				}
 			}
@@ -260,7 +297,7 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 
 		if (!empty($modSettings['lgal_feed_enable_item']))
 		{
-			LevGal_Bootstrap::addHtmlHeader('
+			LevGalBootstrap::addHtmlHeader('
 	<link rel="alternate" type="application/atom+xml" title="' . sprintf($txt['lgal_comments_for'], $context['item_details']['item_name']) . '" href="' . $context['item_details']['item_url'] . 'feed/" />');
 		}
 	}
@@ -288,7 +325,16 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 
 		$this->setTemplate('LevGal-Item', 'mature_item');
 		$context['form_url'] = $item['url'] . 'mature/';
-		$context['prev_next'] = $this->item_obj->getPreviousNext('time_added');
+
+		[$orderBy, $orderDir] = explode('|', $album_details['sort'], 2);
+		$sortMap = [
+			'name' => 'item_name',
+			'date' => 'time_added',
+			'views' => 'num_views',
+			'comments' => 'num_comments',
+		];
+		$orderBy = $sortMap[$orderBy] ?? 'id_item';
+		$context['prev_next'] = $this->item_obj->getPreviousNext($orderBy, $orderDir);
 
 		if (isset($_POST['yes']))
 		{
@@ -321,13 +367,13 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 
 		is_not_guest();
 		checkSession('get');
-		$bookmark = new LevGal_Model_Bookmark();
+		$bookmark = new Bookmark();
 		$method = empty($state) ? 'unsetBookmark' : 'setBookmark';
 		$bookmark->$method($this->item_id);
 		if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest')
 		{
 			$action = empty($state) ? 'bookmark' : 'unbookmark';
-			LevGal_Helper_Http::jsonResponse(array('link' => '<a href="' . $context['item_details']['item_url'] . $action . '/' . $context['session_var'] . '=' . $context['session_id'] . '/" onclick="return handleBookmark(this)"><span class="lgalicon i-' . $action . ($action === 'unbookmark' ? ' colorize-red' : '') .'"></span>' . $txt['lgal_' . $action . '_item'] . '</a>'), 200);
+			Http::jsonResponse(['link' => '<a href="' . $context['item_details']['item_url'] . $action . '/' . $context['session_var'] . '=' . $context['session_id'] . '/" onclick="return handleBookmark(this)"><span class="lgalicon i-' . $action . ($action === 'unbookmark' ? ' colorize-red' : '') .'"></span>' . $txt['lgal_' . $action . '_item'] . '</a>'], 200);
 		}
 		else
 		{
@@ -337,14 +383,14 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 
 	public function actionLike()
 	{
-		global $user_info, $context;
+		global $context;
 
-		if (!$user_info['is_guest'])
+		if (!User::$info['is_guest'])
 		{
 			checkSession('get');
 
 			$likes = $this->item_obj->getLikes();
-			if (isset($likes[$user_info['id']]))
+			if (isset($likes[User::$info['id']]))
 			{
 				$this->item_obj->unlikeItem();
 			}
@@ -357,9 +403,9 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 		if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest')
 		{
 			$this->getItemLikes();
-			loadTemplate('levgal_tpl/LevGal-Item');
+			theme()->getTemplates()->load('Levertine/LevGal-Item');
 			$result = template_return_item_likers();
-			LevGal_Helper_Http::jsonResponse(array('likes' => $result), 200);
+			Http::jsonResponse(['likes' => $result], 200);
 		}
 		else
 		{
@@ -373,12 +419,12 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 
 		if (empty($modSettings['lgal_feed_enable_item']))
 		{
-			LevGal_Helper_Http::fatalError('cannot_lgal_feed');
+			Http::fatalError('cannot_lgal_feed');
 		}
 
 		$album_details = $this->item_obj->getParentAlbum();
 
-		$feed = new LevGal_Helper_Feed();
+		$feed = new Feed();
 		$feed->title = $context['item_details']['item_name'];
 		$feed->subtitle = $context['item_details']['description'];
 		$feed->alternateUrl = $context['item_details']['item_url'];
@@ -391,15 +437,15 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 			$comments = $this->item_obj->getComments(0, $modSettings['lgal_feed_items_item']);
 			foreach ($comments as $id_comment => $comment)
 			{
-				$entry = array(
+				$entry = [
 					'title' => sprintf($txt['lgal_comment_feed'], '#' . comma_format($countComments - $items), $context['item_details']['item_name']),
 					'link' => $scripturl . '?media/comment/' . $id_comment . '/', // cheeky, I know
 					'content' => $comment['comment'],
-					'category' => array($album_details['album_name'], $album_details['album_url']),
-					'author' => array($comment['author_name'], $comment['id_member']),
+					'category' => [$album_details['album_name'], $album_details['album_url']],
+					'author' => [$comment['author_name'], $comment['id_member']],
 					'published' => $comment['time_added'],
 					'updated' => empty($comment['modified_time']) ? $comment['time_added'] : $comment['modified_time'],
-				);
+				];
 				$feed->addEntry($entry);
 
 				$items++;
@@ -411,15 +457,15 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 
 	public function actionComment()
 	{
-		global $context, $user_info;
+		global $context;
 
-		$context['comment_errors'] = array();
+		$context['comment_errors'] = [];
 
 		// Helpfully, this also includes our permissions check.
 		$can_comment = $this->item_obj->canReceiveComments();
 		if ($can_comment === 'no')
 		{
-			LevGal_Helper_Http::fatalError('cannot_lgal_add_comment');
+			Http::fatalError('cannot_lgal_add_comment');
 		}
 
 		// Still in session?
@@ -429,7 +475,7 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 		}
 
 		// So, we can comment, and we already know whether we are going to be approving this one or not.
-		$wysiwyg = new LevGal_Helper_Richtext('lgal_commentbox');
+		$wysiwyg = new Richtext('lgal_commentbox');
 
 		// The user needed to type something in and it needed to contain something useful.
 		if ($wysiwyg->isEmpty() || !$wysiwyg->sanitizeContent())
@@ -438,17 +484,17 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 		}
 
 		// Guests have to fill out their verification like the good little people they are.
-		if ($user_info['is_guest'])
+		if (User::$info['is_guest'])
 		{
-			$context['verification'] = new LevGal_Helper_Verify('comment');
+			$context['verification'] = new Verify('comment');
 			$result = $context['verification']->setupAndTest();
 			if ($result !== true)
 			{
-				loadLanguage('Errors');
+				Txt::load('Errors');
 				$context['comment_errors'] = array_merge($context['comment_errors'], $result);
 			}
 
-			list($valid, $context['comment_user_name']) = LevGal_Helper_Sanitiser::sanitiseUsernameFromPost('guest_username');
+			[$valid, $context['comment_user_name']] = Sanitiser::sanitiseUsernameFromPost('guest_username');
 			if ($valid)
 			{
 				$_SESSION['guest_name'] = $context['comment_user_name'];
@@ -458,7 +504,7 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 				$context['comment_errors'][] = 'invalid_user';
 			}
 
-			list($valid, $context['comment_user_email']) = LevGal_Helper_Sanitiser::sanitiseEmailFromPost('guest_email');
+			[$valid, $context['comment_user_email']] = Sanitiser::sanitiseEmailFromPost('guest_email');
 			if ($valid)
 			{
 				$_SESSION['guest_email'] = $context['comment_user_email'];
@@ -478,28 +524,43 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 		}
 
 		// So we're all good. Time to create a model, I guess.
-		$comment = new LevGal_Model_Comment();
+		$comment = new Comment();
 		if ($context['user']['is_guest'])
 		{
-			$posterOptions = array(
+			$posterOptions = [
 				'id' => 0,
 				'name' => $context['comment_user_name'],
 				'email' => $context['comment_user_email'],
-				'ip' => $user_info['ip'],
-			);
+				'ip' => User::$info['ip'],
+			];
 		}
 		else
 		{
-			$posterOptions = array(
+			$posterOptions = [
 				'id' => $context['user']['id'],
 				'name' => $context['user']['name'],
 				'email' => $context['user']['email'],
-				'ip' => $user_info['ip'],
-			);
+				'ip' => User::$info['ip'],
+			];
 		}
 		$comment_id = $comment->createComment($context['item_details']['id_item'], $wysiwyg->getForDB(), $posterOptions, $can_comment);
 		$this->item_obj->notifyComments($comment_id, $comment);
 		redirectexit($comment->getCommentURL());
+	}
+
+	public function markNotificationRead()
+	{
+		global $modSettings;
+
+		// Mark the comment as read if requested
+		$nid = $this->_req->getQuery('lgread', 'intval');
+		if ($nid !== null && ($this->item_obj->isOwnedByUser() || $this->item_obj->isVisible()))
+		{
+			checkSession('get');
+
+			$mentions = new Mentioning(database(), User::$info['id'], new DataValidator(), $modSettings['enabled_mentions']);
+			$mentions->markread($nid);
+		}
 	}
 
 	public function actionApprove()
@@ -524,7 +585,7 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 		{
 			if (empty($modSettings['lgal_selfmod_approve_item']) || !$this->item_obj->albumIsOwnedByUser())
 			{
-				loadLanguage('levgal_lng/LevGal-Errors');
+				Txt::load('Levertine/LevGal-Errors');
 				isAllowedTo('lgal_approve_item');
 			}
 		}
@@ -541,7 +602,7 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 		// When it comes to moving items between albums, this is based off the edit item permission.
 		if (!$this->item_obj->isEditable())
 		{
-			LevGal_Helper_Http::fatalError('cannot_lgal_move_item');
+			Http::fatalError('cannot_lgal_move_item');
 		}
 
 		// Page title, this level of link tree, canonical URL
@@ -563,10 +624,10 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 		$context['form_url'] = $item['url'] . 'move/';
 		$context['canonical_url'] = $item['url'] . 'move/';
 
-		list ($context['hierarchies'], $album_count) = $this->item_obj->getMoveDestinations();
+		[$context['hierarchies'], $album_count] = $this->item_obj->getMoveDestinations();
 		if (count($album_count) < 2)
 		{
-			LevGal_Helper_Http::fatalError('lgal_no_album_destination');
+			Http::fatalError('lgal_no_album_destination');
 		}
 
 		// Are we saving?
@@ -576,15 +637,15 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 
 			if (!in_array((int) $_POST['destalbum'], $album_count, true))
 			{
-				LevGal_Helper_Http::fatalError('lgal_no_album_destination');
+				Http::fatalError('lgal_no_album_destination');
 			}
 
 			// If we're here at all, we already permission checked before we got here, and now we've session checked and validated input.
-			$itemList = LevGal_Bootstrap::getModel('LevGal_Model_ItemList');
+			$itemList = LevGalBootstrap::getModel('ItemList');
 			$itemList->moveItemsToAlbum($this->item_id, $_POST['destalbum']);
 
 			// And plonk it in the modlog.
-			LevGal_Model_ModLog::logEvent('move_item', array('id_item' => $this->item_id, 'old_album' => $album_details['album_name'], 'id_album' => $_POST['destalbum']));
+			ModLog::logEvent('move_item', ['id_item' => $this->item_id, 'old_album' => $album_details['album_name'], 'id_album' => $_POST['destalbum']]);
 
 			// And back to the item.
 			redirectexit($item['url']);
@@ -600,7 +661,7 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 			&& !allowedTo('lgal_delete_item_any')
 			&& (!allowedTo('lgal_delete_item_own') || !$this->item_obj->isOwnedByUser()))
 		{
-			LevGal_Helper_Http::fatalError('cannot_lgal_delete_item');
+			Http::fatalError('cannot_lgal_delete_item');
 		}
 
 		// Page title, this level of link tree, canonical URL
@@ -645,7 +706,7 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 			&& !allowedTo('lgal_delete_item_any')
 			&& (!allowedTo('lgal_delete_item_own') || !$this->item_obj->isOwnedByUser()))
 		{
-			LevGal_Helper_Http::fatalError('cannot_lgal_delete_item');
+			Http::fatalError('cannot_lgal_delete_item');
 		}
 		checkSession('get');
 
@@ -674,7 +735,7 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 		// Second, session check. Round 1: accepting via GET link.
 		if (checkSession('get', '', false) === '')
 		{
-			$notify = new LevGal_Model_Notify();
+			$notify = new Notify();
 			$method = $type === 'notify' ? 'setNotifyItem' : 'unsetNotifyItem';
 			$notify->$method($this->item_id, $context['user']['id']);
 			redirectexit($context['item_details']['item_url']);
@@ -682,7 +743,7 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 		// Round 2: accepting via POST form from media/item/blah.1/notify/
 		elseif (checkSession('post', '', false) === '' && (!empty($_POST['notify_yes']) || !empty($_POST['notify_no'])))
 		{
-			$notify = new LevGal_Model_Notify();
+			$notify = new Notify();
 			$method = empty($_POST['notify_yes']) ? 'unsetNotifyItem' : 'setNotifyItem';
 			$notify->$method($this->item_id, $context['user']['id']);
 			redirectexit($context['item_details']['item_url']);
@@ -706,14 +767,14 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 
 	public function actionFlag()
 	{
-		global $user_info, $context, $txt;
+		global $context, $txt;
 
-		if ($user_info['is_guest'])
+		if (User::$info['is_guest'])
 		{
-			LevGal_Helper_Http::fatalError('cannot_lgal_flag_item');
+			Http::fatalError('cannot_lgal_flag_item');
 		}
 
-		loadLanguage('levgal_lng/LevGal-Moderation');
+		Txt::load('Levertine/LevGal-Moderation');
 
 		// So now we're setting up for flagging.
 		$album_details = $this->item_obj->getParentAlbum();
@@ -731,21 +792,21 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 
 		$context['form_url'] = $context['item_details']['item_url'] . 'flag/';
 
-		$report = LevGal_Helper_Sanitiser::sanitiseTextFromPost('report_body');
+		$report = Sanitiser::sanitiseTextFromPost('report_body');
 		if (!empty($report))
 		{
 			// Saving?
 			checkSession();
 
-			$reportModel = new LevGal_Model_Report();
+			$reportModel = new Report();
 			$reportModel->createItemReport($context['item_details']['id_item'],
-				array(
-					'id_member' => $user_info['id'],
-					'member_name' => $user_info['name'],
-					'email_address' => $user_info['email'],
-					'ip_address' => $user_info['ip'],
+				[
+					'id_member' => User::$info['id'],
+					'member_name' => User::$info['name'],
+					'email_address' => User::$info['email'],
+					'ip_address' => User::$info['ip'],
 					'body' => $report,
-				)
+				]
 			);
 			$_SESSION['lgal_rep']['i' . $context['item_details']['id_item']] = true;
 			redirectexit($context['item_details']['item_url']);
@@ -758,7 +819,7 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 
 		if (!$this->item_obj->canUseThumbnail())
 		{
-			LevGal_Helper_Http::fatalError('cannot_lgal_setthumbnail');
+			Http::fatalError('cannot_lgal_setthumbnail');
 		}
 
 		checkSession('get');
@@ -769,14 +830,14 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 
 	public function actionEdit()
 	{
-		global $context, $txt, $user_info, $modSettings;
+		global $context, $txt, $modSettings;
 
 		if (!$this->item_obj->isEditable())
 		{
-			LevGal_Helper_Http::fatalError('cannot_lgal_edit_item');
+			Http::fatalError('cannot_lgal_edit_item');
 		}
 
-		loadLanguage('levgal_lng/LevGal-Upload');
+		Txt::load('Levertine/LevGal-Upload');
 		$context['page_title'] = sprintf($txt['lgal_editing_item'], $context['item_details']['item_name']);
 
 		$context['album_details'] = $this->item_obj->getParentAlbum();
@@ -802,89 +863,97 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 			$context['poster_name'] = $context['item_details']['poster_name'];
 		}
 
-		$context['description_box'] = new LevGal_Helper_Richtext('message');
+		$context['description_box'] = new Richtext('message');
 
-		$context['new_options'] = array();
+		$context['new_options'] = [];
 		if (!empty($modSettings['lgal_enable_mature']))
 		{
-			$context['new_options']['mature'] = array(
+			$context['new_options']['mature'] = [
 				'label' => $txt['lgal_mark_mature'],
 				'value' => !empty($context['item_details']['mature']),
 				'type' => 'checkbox',
-			);
+			];
 		}
 
 		if (!$this->item_obj->albumLockedForComments())
 		{
-			$context['new_options']['enable_comments'] = array(
+			$context['new_options']['enable_comments'] = [
 				'label' => $txt['lgal_edit_item_comments'],
 				'value' => $this->item_obj->getCommentState(),
 				'type' => 'select',
-				'opts' => array(
+				'opts' => [
 					'enabled' => $txt['lgal_comments_enabled'],
 					'no_new' => $txt['lgal_comments_no_new'],
 					'disabled' => $txt['lgal_comments_disabled'],
-				),
-			);
+				],
+			];
 
-			$notify = new LevGal_Model_Notify();
-			$context['new_options']['enable_notify'] = array(
+			$notify = new Notify();
+			$context['new_options']['enable_notify'] = [
 				'label' => $txt['lgal_enable_notify'],
-				'value' => $notify->getNotifyItemStatus($this->item_id, $user_info['id']),
+				'value' => $notify->getNotifyItemStatus($this->item_id, User::$info['id']),
 				'type' => 'checkbox',
-			);
+			];
 		}
 		if ($this->item_obj->canChangeApproveStatus())
 		{
-			$context['new_options']['approved'] = array(
+			$context['new_options']['approved'] = [
 				'label' => $txt['lgal_item_is_approved'],
 				'value' => $this->item_obj->isApproved(),
 				'type' => 'checkbox',
-			);
+			];
+		}
+		if (allowedTo('lgal_manage'))
+		{
+			$context['new_options']['silent'] = [
+				'label' => $txt['lgal_silent_update'],
+				'value' => true,
+				'type' => 'checkbox',
+			];
 		}
 
 		// Get all the places we could move this item to, and if we can't move, don't offer to move it.
-		list ($context['hierarchies'], $album_count) = $this->item_obj->getMoveDestinations();
+		[$context['hierarchies'], $album_count] = $this->item_obj->getMoveDestinations();
 		if (count($album_count) < 2)
 		{
 			unset ($context['hierarchies']);
 		}
 
 		// Tags are mildly fussy.
-		loadJavascriptFile(['jquery.flexdatalist.min.js'], ['subdir' => 'levgal_res', 'defer' => true]);
-		addInlineJavascript('
+		loadJavascriptFile(['jquery.flexdatalist.min.js'], ['subdir' => 'Levertine', 'defer' => false]);
+		theme()->addInlineJavascript('
 			$(".flexdatalist").flexdatalist({
 				minLength: 0,
-				limitOfValues: 5,' . (!empty($modSettings['lgal_tag_items_list_more']) ? '
+				limitOfValues: 5,' . ((!empty($modSettings['lgal_tag_items_list_more']) || allowedTo('lgal_manage')) ? '
 				noResultsText: "' . $txt['lgal_item_tag_notfound'] . '"' : '
 				selectionRequired: true') . '
 			});', true);
-		loadCSSFile(['jquery.flexdatalist.css'], ['subdir' => 'levgal_res']);
+		loadCSSFile(['jquery.flexdatalist.css'], ['subdir' => 'Levertine']);
 
-		/** @var $tagModel \LevGal_Model_Tag */
-		$tagModel = LevGal_Bootstrap::getModel('LevGal_Model_Tag');
+		/** @var $tagModel Tag */
+		$tagModel = LevGalBootstrap::getModel('Tag');
 		$context['tags'] = $tagModel->getSiteTags();
-		$context['can_add_tags'] = !empty($modSettings['lgal_tag_items_list_more']);
+		$context['can_add_tags'] = !empty($modSettings['lgal_tag_items_list_more']) || allowedTo('lgal_manage');
 
 		// Existing item tags
 		$tags = $this->item_obj->getTags();
 		if (!empty($tags))
 		{
-			$tag_list = array();
+			$tag_list = [];
 			foreach ($tags as $tag)
 			{
 				$tag_list[] = $tag['name'];
 			}
 
-			addInlineJavascript('
+			theme()->addInlineJavascript('
 			$(".flexdatalist").flexdatalist("add", "' . implode(', ', $tag_list) . '");', true);
 		}
 
 		// Now let's set up editing the file itself or URL.
-		/** @var $uploadModel \LevGal_Model_Upload */
-		$uploadModel = LevGal_Bootstrap::getModel('LevGal_Model_Upload');
+		/** @var $uploadModel Upload */
+		$uploadModel = LevGalBootstrap::getModel('Upload');
 		$context['allowed_formats'] = $uploadModel->getDisplayFileFormats();
-		$context['external_formats'] = array();
+		$context['external_formats'] = [];
 		if (!empty($context['allowed_formats']['external']))
 		{
 			$context['external_formats'] = $context['allowed_formats']['external'];
@@ -892,51 +961,51 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 		}
 
 		$context['editing'] = 'none';
-		if (!empty($context['external_formats']) && strpos($context['item_details']['mime_type'], 'external/') === 0)
+		if (!empty($context['external_formats']) && str_starts_with($context['item_details']['mime_type'], 'external/'))
 		{
 			$context['editing'] = 'link';
-			$context['external_model'] = new LevGal_Model_External($context['item_details']['meta']);
+			$context['external_model'] = new External($context['item_details']['meta']);
 			$link_details = $context['external_model']->getDisplayProperties();
 			$context['original_url'] = $context['edit_url'] = Util::htmlspecialchars($link_details['external_url']);
 		}
-		elseif (!empty($context['allowed_formats']) && strpos($context['item_details']['mime_type'], 'external') !== 0)
+		elseif (!empty($context['allowed_formats']) && !str_starts_with($context['item_details']['mime_type'], 'external'))
 		{
-			loadLanguage('levgal_lng/LevGal-Upload');
+			Txt::load('Levertine/LevGal-Upload');
 			$context['editing'] = 'file';
 			$context['lgal_enable_resize'] = !empty($modSettings['lgal_enable_resize']);
-			$context['quota_data'] = array(
+			$context['quota_data'] = [
 				'formats' => $uploadModel->getFormatMap(),
 				'quotas' => $uploadModel->getAllQuotas(),
-			);
-			loadJavascriptFile(['/dropzone/min/dropzone.min.js', 'upload.js'], ['subdir' => 'levgal_res', 'defer' => false]);
-			addInlineJavascript('Dropzone.autoDiscover = false;', true);
-			loadCSSFile(['/dropzone/dropzone.css'], ['subdir' => 'levgal_res']);
+			];
+			loadJavascriptFile(['/dropzone/min/dropzone.min.js', 'upload.js'], ['subdir' => 'Levertine', 'defer' => false]);
+			theme()->addInlineJavascript('Dropzone.autoDiscover = false;', true);
+			loadCSSFile(['/dropzone/dropzone.css'], ['subdir' => 'Levertine']);
 		}
 
 		// Custom fields
-		$context['custom_field_model'] = new LevGal_Model_Custom();
+		$context['custom_field_model'] = new Custom();
 		$context['custom_fields'] = $context['custom_field_model']->prepareFieldInputs($context['album_details']['id_album'], $context['item_details']['id_item']);
 
 		if (isset($_POST['save']))
 		{
 			checkSession();
 
-			$changes = array();
-			$context['errors'] = array();
+			$changes = [];
+			$context['errors'] = [];
 
 			// Name and slug.
-			$context['item_name'] = LevGal_Helper_Sanitiser::sanitiseThingNameFromPost('item_name');
+			$context['item_name'] = Sanitiser::sanitiseThingNameFromPost('item_name');
 			if (empty($context['item_name']))
 			{
 				$context['errors']['upload_no_title'] = $txt['lgal_upload_no_title'];
 			}
 
-			$context['item_slug'] = LevGal_Helper_Sanitiser::sanitiseSlugFromPost('item_slug');
+			$context['item_slug'] = Sanitiser::sanitiseSlugFromPost('item_slug');
 
 			// Poster's username
 			if (isset($context['poster_name']))
 			{
-				list ($valid_username, $context['poster_name']) = LevGal_Helper_Sanitiser::sanitiseUsernameFromPost('guest_username');
+				[$valid_username, $context['poster_name']] = Sanitiser::sanitiseUsernameFromPost('guest_username');
 				if (!$valid_username)
 				{
 					$context['errors']['invalid_user'] = $txt['levgal_error_invalid_user'];
@@ -950,6 +1019,7 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 				if (!empty($moved_album) && $moved_album !== $context['item_details']['id_album'])
 				{
 					$changes['id_album'] = $moved_album;
+					$changes['time_updated'] = time();
 				}
 			}
 
@@ -963,25 +1033,25 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 			}
 
 			// Tags
-			$context['raw_tags'] = LevGal_Helper_Sanitiser::sanitiseTagFromPost('tags');
-			$context['tags'] = LevGal_Helper_Sanitiser::sanitiseTagFromPost('tags', true);
+			$context['raw_tags'] = Sanitiser::sanitiseTagFromPost('tag');
+			$context['tags'] = Sanitiser::sanitiseTagFromPost('tag', true);
 
 			// Changing up the file: URL first
 			if ($context['editing'] === 'link')
 			{
-				$context['edit_url'] = LevGal_Helper_Sanitiser::sanitiseUrlFromPost('upload_url');
+				$context['edit_url'] = Sanitiser::sanitiseUrlFromPost('upload_url');
 				// It's actually different, right?
 				if ($context['edit_url'] !== $context['original_url'])
 				{
 					if (!empty($context['edit_url']))
 					{
-						$externalModel = new LevGal_Model_External();
+						$externalModel = new External();
 						$context['url_data'] = $externalModel->getURLData($context['edit_url']);
 					}
 
 					if (empty($context['url_data']['provider']))
 					{
-						$context['edit_url'] = LevGal_Helper_Sanitiser::sanitiseTextFromPost('upload_url');
+						$context['edit_url'] = Sanitiser::sanitiseTextFromPost('upload_url');
 						$context['errors']['upload_no_link'] = $txt['lgal_upload_no_link'];
 					}
 				}
@@ -1001,7 +1071,7 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 					else
 					{
 						$context['existing_upload'] = true;
-						$context['filename_display'] = LevGal_Helper_Sanitiser::sanitiseText($context['filename']);
+						$context['filename_display'] = Sanitiser::sanitiseText($context['filename']);
 						$context['filename_post'] = rawurlencode($context['filename']);
 
 						if (!$uploadModel->validateUpload($context['async_id'], $context['async_size'], $context['filename']))
@@ -1044,7 +1114,10 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 				{
 					$changes['poster_name'] = $context['poster_name'];
 				}
-				$changes['description'] = $context['description'];
+				if (isset($context['description']) && $context['description'] !== $context['item_details']['description'])
+				{
+					$changes['description'] = $context['description'];
+				}
 				// Updating an existing URL is a bit tricky.
 				if (!empty($context['edit_url']) && $context['edit_url'] !== $context['original_url'])
 				{
@@ -1053,29 +1126,31 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 					$changes['mime_type'] = $context['url_data']['mime_type'];
 					unset ($context['url_data']['mime_type']);
 					$changes['meta'] = $context['url_data'];
+					$changes['time_updated'] = time();
 				}
 				// Updating a file is even more complicated.
 				elseif (!empty($context['filename']))
 				{
 					$this->item_obj->deleteFiles();
 					$hash = $uploadModel->moveUpload($context['async_id'], $context['item_details']['id_item'], $context['filename']);
-					$this->item_obj->updateItem(array(
+					$this->item_obj->updateItem([
 						'hash' => $hash,
 						'extension' => $uploadModel->getExtension($context['filename']),
 						'filename' => $context['filename'],
-					));
+						'filesize' => $context['async_size'],
+					]);
 					// Then we can do the fun of meta.
 					$meta = $this->item_obj->getMetadata();
-					$opts = array(
+					$opts = [
 						'mime_type' => $meta['mime_type'],
-					);
+					];
 
 					// Did we get width/height? Make sure we fix if it had one before.
 					$opts['width'] = 0;
 					$opts['height'] = 0;
 					if (isset($meta['meta']['width'], $meta['meta']['height']))
 					{
-						foreach (array('width', 'height') as $var)
+						foreach (['width', 'height'] as $var)
 						{
 							$opts[$var] = $meta['meta'][$var];
 							unset ($meta['meta'][$var]);
@@ -1089,12 +1164,13 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 						$array = $this->item_obj->fixOrientation($meta['meta']['exif']['IFD0']['Orientation']);
 						if (!empty($array))
 						{
-							list($opts['width'], $opts['height'], $opts['filesize']) = $array;
+							[$opts['width'], $opts['height'], $opts['filesize']] = $array;
 						}
 					}
 
 					// Now update the item.
 					$this->item_obj->updateItem($opts);
+					$changes['time_updated'] = time();
 
 					// Did we get a thumbnail from meta?
 					if (isset($meta['thumbnail']))
@@ -1125,11 +1201,11 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 						}
 						if ($id === 'enable_comments')
 						{
-							$array = array(
+							$array = [
 								'enabled' => 0,
 								'no_new' => 1,
 								'disabled' => 2,
-							);
+							];
 							if ($array[$_POST[$id]] != $context['item_details']['comment_state'])
 							{
 								$changes['comment_state'] = $array[$_POST[$id]];
@@ -1145,7 +1221,11 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 				{
 					// We need to mark this as no longer editable and also update the edit time.
 					$changes['editable'] = 0;
-					$changes['time_updated'] = time();
+
+					if (isset($_POST['silent']) && allowedTo('lgal_manage'))
+					{
+						unset ($changes['time_updated']);
+					}
 
 					if (empty($context['raw_tags']))
 					{
@@ -1171,7 +1251,7 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 					// Notifications are not handled at the table level.
 					if (isset($changes['enable_notify']))
 					{
-						$notify = new LevGal_Model_Notify();
+						$notify = new Notify();
 						$method = $changes['enable_notify'] ? 'setNotifyItem' : 'unsetNotifyItem';
 						$notify->$method($context['item_details']['id_item'], $context['user']['id']);
 						unset ($changes['enable_notify']);
@@ -1188,9 +1268,9 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 					// Moving is complicated too.
 					if (!empty($changes['id_album']))
 					{
-						$itemList = LevGal_Bootstrap::getModel('LevGal_Model_ItemList');
+						$itemList = LevGalBootstrap::getModel('ItemList');
 						$itemList->moveItemsToAlbum($this->item_id, $changes['id_album']);
-						LevGal_Model_ModLog::logEvent('move_item', array('id_item' => $this->item_id, 'old_album' => $context['album_details']['album_name'], 'id_album' => $changes['id_album']));
+						ModLog::logEvent('move_item', ['id_item' => $this->item_id, 'old_album' => $context['album_details']['album_name'], 'id_album' => $changes['id_album']]);
 						unset ($changes['id_album']);
 					}
 
@@ -1220,15 +1300,15 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 			}
 		}
 
-		$context['description_box']->createEditor(array(
+		$context['description_box']->createEditor([
 			'value' => $context['description_box']->getForForm($context['description']),
-			'labels' => array(
+			'labels' => [
 				'post_button' => $txt['lgal_edit_item_title'],
-			),
-			'js' => array(
+			],
+			'js' => [
 				'post_button' => 'return is_submittable() && submitThisOnce(this);',
-			),
-		));
+			],
+		]);
 	}
 
 	private function loadDependencies()
@@ -1237,16 +1317,16 @@ class LevGal_Action_Item extends LevGal_Action_Abstract
 
 		if ($context['item_display']['display_template'] === 'picture' && !empty($context['item_display']['needs_lightbox']))
 		{
-			loadCSSFile('glightbox.min.css', ['subdir' => 'levgal_res/lightbox']);
-			loadJavascriptFile('glightbox.min.js', ['subdir' => 'levgal_res/lightbox', 'defer' => true]);
-			addInlineJavascript('document.addEventListener("DOMContentLoaded", () => {const lightbox = GLightbox({touchNavigation: true});});', true);
+			loadCSSFile('glightbox.min.css', ['subdir' => 'Levertine/lightbox']);
+			loadJavascriptFile('glightbox.min.js', ['subdir' => 'Levertine/lightbox', 'defer' => true]);
+			theme()->addInlineJavascript('document.addEventListener("DOMContentLoaded", () => {const lightbox = GLightbox({touchNavigation: true});});', true);
 		}
 
 		if ($context['item_display']['display_template'] === 'audio' || $context['item_display']['display_template'] === 'video')
 		{
-			loadCSSFile('plyr.min.css', ['subdir' => 'levgal_res/plyr']);
-			loadJavascriptFile('plyr.min.js', ['subdir' => 'levgal_res/plyr', 'defer' => true]);
-			addInlineJavascript('document.addEventListener("DOMContentLoaded", () => {const player = new Plyr("#plyr");});', true);
+			loadCSSFile('plyr.min.css', ['subdir' => 'Levertine/plyr']);
+			loadJavascriptFile('plyr.min.js', ['subdir' => 'Levertine/plyr', 'defer' => true]);
+			theme()->addInlineJavascript('document.addEventListener("DOMContentLoaded", () => {const player = new Plyr("#plyr");});', true);
 		}
 	}
 }

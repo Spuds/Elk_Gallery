@@ -1,5 +1,7 @@
 <?php
 
+use ElkArte\Helper\Util;
+
 /**
  * This file handles displaying the stats of the gallery.
  *
@@ -41,7 +43,7 @@ function template_general_statistics()
 
 	echo '
 			<li class="flow_hidden" id="top_row">
-				<h3 class="category_header hdicon cat_img_piechart">', $txt['levgal_stats_general'], '</h3>
+				<h3 class="category_header hdicon i-pie-chart">', $txt['levgal_stats_general'], '</h3>
 				<dl class="stats floatleft">';
 
 	foreach ($context['general_stats']['left'] as $key => $value)
@@ -73,7 +75,7 @@ function template_top_posters_albums()
 
 	echo '
 			<li class="flow_hidden">
-				<h2 class="category_header floatleft hdicon cat_img_star">', $txt['levgal_stats_top_uploaders'], '</h2>
+				<h2 class="category_header floatleft hdicon i-upload">', $txt['levgal_stats_top_uploaders'], '</h2>
 				<div class="stats floatleft">
 					<canvas id="topPosters"></canvas>
 				</div>';
@@ -82,7 +84,7 @@ function template_top_posters_albums()
 	showChartData("topPosters", $data, $labels, $tooltips, $links);
 
 	echo '
-				<h2 class="category_header hdicon cat_img_stats_info">', $txt['levgal_stats_top_albums'], '</h2>
+				<h2 class="category_header hdicon i-poll">', $txt['levgal_stats_top_albums'], '</h2>
 				<div class="stats">
 					<canvas id="topAlbums"></canvas>
 				</div>';
@@ -100,7 +102,7 @@ function template_top_items_comments_views()
 
 	echo '
 			<li class="flow_hidden">
-				<h2 class="category_header floatleft hdicon cat_img_write">', $txt['levgal_stats_top_items_comments'], '</h2>
+				<h2 class="category_header floatleft hdicon i-pencil">', $txt['levgal_stats_top_items_comments'], '</h2>
 				<div class="stats floatleft">
 					<canvas id="topComments"></canvas>
 				</div>';
@@ -109,7 +111,7 @@ function template_top_items_comments_views()
 	showChartData("topComments", $data, $labels, $tooltips, $links);
 
 	echo '
-				<h2 class="category_header hdicon cat_img_eye">', $txt['levgal_stats_top_items_views'], '</h2>
+				<h2 class="category_header hdicon i-eye">', $txt['levgal_stats_top_items_views'], '</h2>
 				<div class="stats">
 					<canvas id="topItems"></canvas>
 				</div>';

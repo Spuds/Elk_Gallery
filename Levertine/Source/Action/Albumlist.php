@@ -4,14 +4,23 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.2 / elkarte
+ * @version 2.0.0 / elkarte
  */
+
+namespace Addons\Levertine\Source\Action;
+
+use Addons\Levertine\Source\Helper\Http;
+use Addons\Levertine\Source\LevGalBootstrap;
+use Addons\Levertine\Source\Model\Group;
+use ElkArte\MembersList;
+use ElkArte\User;
+use function Addons\Levertine\Source\levgal_pageindex;
 
 /**
  * This file provides the lists of albums for the user, site/?media/albumlist/,
  * or site/?media/albumlist/x/member/.
  */
-class LevGal_Action_Albumlist extends LevGal_Action_Abstract
+class Albumlist extends LevGalAbstract
 {
 	/** @var int number of items to show on a page.  Used with member albums */
 	public $items_per_page = 30;
@@ -52,18 +61,14 @@ class LevGal_Action_Albumlist extends LevGal_Action_Abstract
 				$num_pages = ceil(count($toLoad) / $perPage);
 				if ($num_pages > 1)
 				{
-					$context['this_page'] = isset($_GET['page']) ? LevGal_Bootstrap::clamp((int) $_GET['page'], 1, $num_pages) : 1;
+					$context['this_page'] = isset($_GET['page']) ? LevGalBootstrap::clamp((int) $_GET['page'], 1, $num_pages) : 1;
 					$context['item_pageindex'] = levgal_pageindex($context['canonical_url'], $context['this_page'], $num_pages, '#members');
 
 					$start = ($context['this_page'] - 1) * $perPage;
 					$toLoad = array_slice($toLoad, $start, $perPage);
 				}
 
-				$toLoad = loadMemberData($toLoad);
-				foreach ($toLoad as $loaded_user)
-				{
-					loadMemberContext($loaded_user);
-				}
+				MembersList::loadMemberData($toLoad);
 			}
 		}
 	}
@@ -82,14 +87,14 @@ class LevGal_Action_Albumlist extends LevGal_Action_Abstract
 		// There's only one site item here, it needs to be highlighted.
 		if (!empty($context['sidebar']['site']))
 		{
-			$album_list = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
+			$album_list = LevGalBootstrap::getModel('AlbumList');
 			$context['hierarchy'] = $album_list->getAlbumHierarchy('site');
 
 			$this->setTemplate('LevGal', 'album_list_main');
 
-			if (count($context['hierarchy']) >= 2 && allowedTo(array('lgal_manage')))
+			if (count($context['hierarchy']) >= 2 && allowedTo(['lgal_manage']))
 			{
-				$context['album_actions']['actions']['movealbum'] = array($txt['lgal_arrange_albums'], $scripturl . '?media/movealbum/site', 'tab' => true);
+				$context['album_actions']['actions']['movealbum'] = [$txt['lgal_arrange_albums'], $scripturl . '?media/movealbum/site', 'tab' => true];
 			}
 		}
 		else
@@ -110,24 +115,25 @@ class LevGal_Action_Albumlist extends LevGal_Action_Abstract
 			return;
 		}
 
-		$loaded = loadMemberData($member_id, false, 'minimal');
+		$loaded = MembersList::load($member_id, false, 'minimal');
 		if (!$loaded)
 		{
 			// We don't have a legal id. Let's get out of here.
-			LevGal_Helper_Http::hardRedirect($scripturl . '?media/albumlist/');
+			Http::hardRedirect($scripturl . '?media/albumlist/');
 		}
 
 		// So, valid member. Let's do this.
+		$user_profile[$member_id] = MembersList::get($member_id);
 		$this->getSidebar('member', $member_id);
 		if (empty($context['does_exist']))
 		{
 			// There's no albums here, time to leave.
-			LevGal_Helper_Http::hardRedirect($scripturl . '?media/albumlist/');
+			Http::hardRedirect($scripturl . '?media/albumlist/');
 		}
 
 		$context['page_title'] = sprintf($txt['lgal_albums_owned_someone'], $user_profile[$member_id]['real_name']);
-		/** @var \LevGal_Model_AlbumList $album_list */
-		$album_list = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
+		/** @var \Addons\Levertine\Source\Model\AlbumList $album_list */
+		$album_list = LevGalBootstrap::getModel('AlbumList');
 		$context['hierarchy'] = $album_list->getAlbumHierarchy('member', $member_id);
 
 		$this->addLinkTree($txt['levgal'], '?media/');
@@ -138,16 +144,18 @@ class LevGal_Action_Albumlist extends LevGal_Action_Abstract
 		$this->setTemplate('LevGal', 'album_list_main');
 
 		if (count($context['hierarchy']) >= 2
-			&& (allowedTo(array('lgal_manage', 'lgal_edit_album_any'))
+			&& (allowedTo(['lgal_manage', 'lgal_edit_album_any'])
 				|| (allowedTo('lgal_edit_album_own') && $member_id === (int) $context['user']['id'])))
 		{
-			$context['album_actions']['actions']['movealbum'] = array($txt['lgal_arrange_albums'], $scripturl . '?media/movealbum/' . $member_id . '/member/', 'tab' => true);
+			$context['album_actions']['actions']['movealbum'] = [$txt['lgal_arrange_albums'], $scripturl . '?media/movealbum/' . $member_id . '/member/', 'tab' => true];
 		}
+
+		$context['album_actions']['actions']['search'] = [$txt['levgal_search'], $scripturl . '?media/search/', 'tab' => true];
 	}
 
 	private function allMembersAlbumList()
 	{
-		global $context, $txt, $scripturl, $user_profile;
+		global $context, $txt, $scripturl;
 
 		$context['page_title'] = $txt['lgal_albums_member'];
 
@@ -170,26 +178,27 @@ class LevGal_Action_Albumlist extends LevGal_Action_Abstract
 			$num_pages = ceil(count($toLoad) / $perPage);
 			if ($num_pages > 1)
 			{
-				$context['this_page'] = isset($_GET['page']) ? LevGal_Bootstrap::clamp((int) $_GET['page'], 1, $num_pages) : 1;
+				$context['this_page'] = isset($_GET['page']) ? LevGalBootstrap::clamp((int) $_GET['page'], 1, $num_pages) : 1;
 				$context['item_pageindex'] = levgal_pageindex($context['canonical_url'], $context['this_page'], $num_pages, '#album_sidebar');
 
 				$start = ($context['this_page'] - 1) * $perPage;
 				$toLoad = array_slice($toLoad, $start, $perPage);
 			}
 
-			$loaded = array_map('\intval', loadMemberData($toLoad));
+			MembersList::loadMemberData($toLoad);
 
 			$context['nested_hierarchy'] = [];
-			/** @var \LevGal_Model_AlbumList $album_list */
-			$album_list = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
+			/** @var \Addons\Levertine\Source\Model\AlbumList $album_list */
+			$album_list = LevGalBootstrap::getModel('AlbumList');
 			foreach ($toLoad as $loaded_user)
 			{
-				// We can not loop on $loaded, as it is not in the order we want to display
-				if (!in_array($loaded_user, $loaded, true))
+				// We cannot loop on $GLOBALS['memberContext'], as it is not in the same order as $toLoad that we want to display
+				// @todo still true ??
+				if (empty($GLOBALS['memberContext'][$loaded_user]))
 				{
 					continue;
 				}
-				$context['nested_hierarchy'][$user_profile[$loaded_user]['real_name']] = $album_list->getAlbumHierarchy('member', $loaded_user);
+				$context['nested_hierarchy'][$GLOBALS['memberContext'][$loaded_user]['real_name']] = $album_list->getAlbumHierarchy('member', $loaded_user);
 			}
 
 			$this->setTemplate('LevGal', 'album_list_main');
@@ -198,10 +207,10 @@ class LevGal_Action_Albumlist extends LevGal_Action_Abstract
 
 	public function actionGroup()
 	{
-		global $context, $txt, $scripturl, $user_info;
+		global $context, $txt, $scripturl;
 
 		$sub = $this->_req->getQuery('sub', 'trim', '');
-		$group_id = $this->_req->getQuery('item', 'intval', null);
+		$group_id = $this->_req->getQuery('item', 'intval');
 
 		if ($group_id === null && $sub === 'group')
 		{
@@ -209,13 +218,13 @@ class LevGal_Action_Albumlist extends LevGal_Action_Abstract
 			return;
 		}
 
-		/** @var $groupModel \LevGal_Model_Group */
-		$groupModel = LevGal_Bootstrap::getModel('LevGal_Model_Group');
+		/** @var $groupModel Group */
+		$groupModel = LevGalBootstrap::getModel('Group');
 		$groups = $groupModel->getGroupsById($group_id);
 		if (empty($groups))
 		{
 			// We don't have a legal id. Let's get out of here.
-			LevGal_Helper_Http::hardRedirect($scripturl . '?media/albumlist/');
+			Http::hardRedirect($scripturl . '?media/albumlist/');
 		}
 
 		// So, valid group. Let's do this.
@@ -223,11 +232,11 @@ class LevGal_Action_Albumlist extends LevGal_Action_Abstract
 		if (empty($context['does_exist']))
 		{
 			// There's no albums here, time to leave.
-			LevGal_Helper_Http::hardRedirect($scripturl . '?media/albumlist/');
+			Http::hardRedirect($scripturl . '?media/albumlist/');
 		}
 
 		$context['page_title'] = sprintf($txt['lgal_albums_owned_someone'], $groups[$group_id]['group_name']);
-		$album_list = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
+		$album_list = LevGalBootstrap::getModel('AlbumList');
 		$context['hierarchy'] = $album_list->getAlbumHierarchy('group', $group_id);
 
 		$this->addLinkTree($txt['levgal'], '?media/');
@@ -237,10 +246,12 @@ class LevGal_Action_Albumlist extends LevGal_Action_Abstract
 
 		$this->setTemplate('LevGal', 'album_list_main');
 
-		if (count($context['hierarchy']) >= 2 && (allowedTo(array('lgal_manage', 'lgal_edit_album_any')) || (allowedTo('lgal_edit_album_own') && in_array($group_id, $user_info['groups'], true))))
+		if (count($context['hierarchy']) >= 2 && (allowedTo(['lgal_manage', 'lgal_edit_album_any']) || (allowedTo('lgal_edit_album_own') && in_array($group_id, User::$info['groups'], true))))
 		{
-			$context['album_actions']['actions']['movealbum'] = array($txt['lgal_arrange_albums'], $scripturl . '?media/movealbum/' . $group_id . '/group/', 'tab' => true);
+			$context['album_actions']['actions']['movealbum'] = [$txt['lgal_arrange_albums'], $scripturl . '?media/movealbum/' . $group_id . '/group/', 'tab' => true];
 		}
+
+		$context['album_actions']['actions']['search'] = [$txt['levgal_search'], $scripturl . '?media/search/', 'tab' => true];
 	}
 
 	private function allGroupsAlbumList()
@@ -259,8 +270,8 @@ class LevGal_Action_Albumlist extends LevGal_Action_Abstract
 		else
 		{
 			$context['nested_hierarchy'] = [];
-			/** @var \LevGal_Model_AlbumList $album_list */
-			$album_list = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
+			/** @var \Addons\Levertine\Source\Model\AlbumList $album_list */
+			$album_list = LevGalBootstrap::getModel('AlbumList');
 			foreach ($context['album_owners']['groups'] as $group_id => $group_data)
 			{
 				$context['nested_hierarchy'][$group_data['name']] = $album_list->getAlbumHierarchy('group', $group_id);
@@ -277,88 +288,88 @@ class LevGal_Action_Albumlist extends LevGal_Action_Abstract
 
 	protected function getSidebar($sidebar_type, $sidebar_id = 0)
 	{
-		global $context, $txt, $scripturl, $user_info;
+		global $context, $txt, $scripturl;
 
-		/** @var $album_list \LevGal_Model_AlbumList */
-		$album_list = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
+		/** @var $album_list \Addons\Levertine\Source\Model\AlbumList */
+		$album_list = LevGalBootstrap::getModel('AlbumList');
 		$context['album_owners'] = $album_list->getAlbumHierarchyByOwners();
 
-		$context['sidebar'] = array();
-		$context['album_actions'] = array();
-		$context['album_actions']['actions'] = array();
+		$context['sidebar'] = [];
+		$context['album_actions'] = [];
+		$context['album_actions']['actions'] = [];
 
 		$sub = $this->_req->getQuery('sub', 'trim', '');
 
 		if (!empty($context['album_owners']['site']))
 		{
-			$context['sidebar']['site'] = array(
+			$context['sidebar']['site'] = [
 				'title' => $txt['lgal_albums_site'],
-				'items' => array(
-					array(
+				'items' => [
+					[
 						'url' => $scripturl . '?media/albumlist/site/',
 						'title' => $txt['lgal_albums_site'],
 						'count' => $context['album_owners']['site'],
 						'active' => $sidebar_type === 'site' && $sub === 'site',
-					),
-				),
-			);
+					],
+				],
+			];
 			if ($sidebar_type === 'site')
 			{
 				$context['does_exist'] = true;
 			}
-			$context['album_actions']['actions']['sitealbums'] = array($txt['lgal_albums_site'], $scripturl . '?media/albumlist/site/', 'tab' => true, 'sidebar' => false, 'active' => $sidebar_type === 'site' && $sub === 'site');
+			$context['album_actions']['actions']['sitealbums'] = [$txt['lgal_albums_site'], $scripturl . '?media/albumlist/site/', 'tab' => true, 'sidebar' => false, 'active' => $sidebar_type === 'site' && $sub === 'site'];
 		}
 
 		if (!empty($context['album_owners']['groups']))
 		{
 			// We need to rearrange this into name order.
-			$groups = array();
+			$groups = [];
 			foreach ($context['album_owners']['groups'] as $id => $group)
 			{
-				$groups[$group['name']] = array(
+				$groups[$group['name']] = [
 					'url' => $scripturl . '?media/albumlist/' . $id . '/group/',
 					'id' => $id,
 					'title' => $group['color_name'],
 					'count' => $group['count'],
 					'active' => $sidebar_type === 'group' && $sidebar_id === $id,
-				);
+				];
 				if ($sidebar_type === 'group' && $sidebar_id === $id)
 				{
 					$context['does_exist'] = true;
 				}
 				ksort($groups);
-				$context['sidebar']['groups'] = array(
+				$context['sidebar']['groups'] = [
 					'title' => $txt['lgal_albums_group'],
 					'items' => $groups,
-				);
+				];
 			}
-			$context['album_actions']['actions']['groupalbums'] = array($txt['lgal_albums_group'], $scripturl . '?media/albumlist/group/', 'tab' => true, 'sidebar' => false, 'active' => $sidebar_type === 'group');
+			$context['album_actions']['actions']['groupalbums'] = [$txt['lgal_albums_group'], $scripturl . '?media/albumlist/group/', 'tab' => true, 'sidebar' => false, 'active' => $sidebar_type === 'group'];
 		}
 
 		if (!empty($context['album_owners']['members']))
 		{
 			// We need to rearrange this into name order.
-			$members = array();
+			$members = [];
 			foreach ($context['album_owners']['members'] as $id => $member)
 			{
-				$members[$member['name']] = array(
+				$members[$member['name']] = [
 					'url' => $scripturl . '?media/albumlist/' . $id . '/member/',
 					'id' => $id,
 					'title' => $member['name'],
 					'count' => $member['count'],
 					'active' => $sidebar_type === 'member' && $sidebar_id === $id,
-				);
+				];
 				if ($sidebar_type === 'member' && $sidebar_id === $id)
 				{
 					$context['does_exist'] = true;
 				}
-				if ($id === $user_info['id'])
+				if ($id === User::$info['id'])
 				{
 					// Add My Albums as first
-					$context['album_actions']['actions'] = array('myalbums' => array($txt['levgal_myalbums'], $scripturl . '?media/albumlist/' . $id . '/member/', 'tab' => true, 'sidebar' => false, 'active' => $sidebar_type === 'member' && $sidebar_id === $id)) + $context['album_actions']['actions'];
+					$context['album_actions']['actions'] = ['myalbums' => [$txt['levgal_myalbums'], $scripturl . '?media/albumlist/' . $id . '/member/', 'tab' => true, 'sidebar' => false, 'active' => $sidebar_type === 'member' && $sidebar_id === $id]] + $context['album_actions']['actions'];
 				}
 			}
-			$context['album_actions']['actions']['memberalbums'] = array($txt['lgal_albums_member'], $scripturl . '?media/albumlist/member/', 'tab' => true, 'sidebar' => false, 'active' => (($sidebar_type === 'members' && $sidebar_id === 0) || ($sidebar_type === 'member' && $sidebar_id === $id)));
+			$context['album_actions']['actions']['memberalbums'] = [$txt['lgal_albums_member'], $scripturl . '?media/albumlist/member/', 'tab' => true, 'sidebar' => false, 'active' => (($sidebar_type === 'members' && $sidebar_id === 0) || ($sidebar_type === 'member' && $sidebar_id === $id))];
 
 			// For the sidebar
 			ksort($members, SORT_FLAG_CASE|SORT_STRING);
@@ -369,15 +380,17 @@ class LevGal_Action_Albumlist extends LevGal_Action_Abstract
 			array_multisort($names, SORT_ASC, SORT_FLAG_CASE|SORT_STRING, $context['album_owners']['members'], $keys);
 			$context['album_owners']['members'] = array_combine($keys, $context['album_owners']['members']);
 
-			$context['sidebar']['members'] = array(
+			$context['sidebar']['members'] = [
 				'title' => $txt['lgal_albums_member'],
 				'items' => $members,
-			);
+			];
 		}
 
-		if (allowedTo(array('lgal_manage', 'lgal_adduseralbum', 'lgal_addgroupalbum')))
+		if (allowedTo(['lgal_manage', 'lgal_adduseralbum', 'lgal_addgroupalbum']))
 		{
-			$context['album_actions']['actions']['addalbum'] = array($txt['levgal_newalbum'], $scripturl . '?media/newalbum/', 'tab' => true);
+			$context['album_actions']['actions']['addalbum'] = [$txt['levgal_newalbum'], $scripturl . '?media/newalbum/', 'tab' => true];
 		}
+
+		$context['album_actions']['actions']['search'] = [$txt['levgal_search'], $scripturl . '?media/search/', 'tab' => true];
 	}
 }

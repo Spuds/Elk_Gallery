@@ -34,13 +34,14 @@
 	display: flex;
 	align-items: center;
 	flex-wrap: wrap;
-	grid-column: main;
-	grid-row: tabs;
+	justify-content: flex-end;
 	padding: 2px 5px 2px 2px;
 	border: 1px solid #CCCCCC;
 	border-top-color: #DDDDDD;
 	background: #FAFAFA linear-gradient(to bottom, #FAFAFA, #EBEBEB);
 	text-shadow: 1px 1px 0 #FEFEFE;
+	grid-column: main;
+	grid-row: tabs;
 }
 
 /* menu sidebar */
@@ -66,7 +67,9 @@
 }
 
 .levgal_tabs {
-	margin-left: auto;
+	display: flex;
+	flex-wrap: wrap;
+	row-gap: 5px;
 }
 
 #album_sidebar > .content {
@@ -160,12 +163,12 @@ dl.album_info dt {
 }
 
 dl.album_details dd, dl.album_info dd {
-	margin-bottom: 10px;
+	margin-bottom: 6px;
 	margin-left: 2px;
 }
 
 .lgal_secondary_header {
-	line-height: 1.8em;
+	line-height: 1.8;
 	display: flex;
 	align-items: center;
 	flex-wrap: nowrap;
@@ -180,8 +183,8 @@ dl.album_details dd, dl.album_info dd {
 .main_item_container {
 	display: grid;
 	align-items: center;
-	grid-template-columns: [prev] 15% [item] 1fr [next] 15%;
 	white-space: nowrap;
+	grid-template-columns: [prev] 15% [item] 1fr [next] 15%;
 }
 
 .main_item_container .lg_prev {
@@ -195,9 +198,9 @@ dl.album_details dd, dl.album_info dd {
 }
 
 .main_item_container .lg_item {
+	max-width: 90%;
 	justify-self: center;
 	grid-column: item;
-	max-width: 90%;
 }
 
 .lg_item a #item_generic {
@@ -249,12 +252,12 @@ dl.album_details dd, dl.album_info dd {
 
 .item_link.simple {
 	height: 24px;
-	background: #EEEEEE;
 	border-radius: 4px;
+	background: #EEEEEE;
 }
 
 .item_link > a > i.icon-big {
-	line-height: 1em;
+	line-height: 1;
 	width: 1em;
 	height: 1em;
 	padding: 1px;
@@ -265,13 +268,13 @@ dl.album_details dd, dl.album_info dd {
 
 .item_image {
 	display: inline-block;
-	margin: 0 .5em 5px .5em;
-	vertical-align: bottom;
 	min-width: 150px;
 	max-width: 150px;
+	margin: 0 .5em 5px .5em;
 	text-align: center;
-	background: #EEEEEE;
+	vertical-align: bottom;
 	border-radius: 4px;
+	background: #EEEEEE;
 
 }
 
@@ -279,20 +282,20 @@ dl.album_details dd, dl.album_info dd {
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: center;
-	grid-column: main;
-	grid-row: container;
 	padding: 5px 5px 10px 5px;
 	text-align: center;
 	border: 1px solid transparent;
 	border-radius: 0 0 5px 5px;
 	background: linear-gradient(#FEFEFE, #FEFEFE) padding-box, linear-gradient(to bottom, #CCCCCC, transparent) border-box;
+	grid-column: main;
+	grid-row: container;
 	gap: 5px;
 }
 
 .album_block {
 	display: grid;
-	grid-template-columns: [thumb] 125px [info] 1fr;
 	margin-bottom: 5px;
+	grid-template-columns: [thumb] 125px [info] 1fr;
 }
 
 .album_block_details {
@@ -300,8 +303,8 @@ dl.album_details dd, dl.album_info dd {
 }
 
 .album_block_nav {
-	grid-column: 2;
 	padding: 0 10px;
+	grid-column: 2;
 }
 
 .album_block_description {
@@ -343,8 +346,8 @@ dl.album_details dd, dl.album_info dd {
 .album_entry > .well:hover, .album_featured.well:hover, .album_placard.well:hover, .album_child.well:hover {
 	transition: .3s ease;
 	transform: translate(0, -1px);
-	box-shadow: var(--shadow-elevation-medium);
 	text-decoration: none;
+	box-shadow: var(--shadow-elevation-medium);
 }
 
 .album_container > .album_featured {
@@ -377,19 +380,19 @@ dl.album_details dd, dl.album_info dd {
 }
 
 .album_featured .album_desc  {
-	margin-top: 5px;
-	max-height: 6.5em;
-	line-clamp: 4 "...";
 	display: -webkit-box;
+	overflow: hidden;
+	max-height: 6.5em;
+	margin-top: 5px;
+	text-overflow: ellipsis;
+	line-clamp: 4 "...";
 	-webkit-line-clamp: 4;
 	-webkit-box-orient: vertical;
-	overflow: hidden;
-	text-overflow: ellipsis;
 }
 
 .album_hierarchy.compact img {
-	max-height: 30px;
 	width: 30px;
+	max-height: 30px;
 }
 
 .album_hierarchy, .album_hierarchy ul {
@@ -443,7 +446,7 @@ ul.album_hierarchy, ul.album_hierarchy ul {
 }
 
 .album_hierarchy_compact {
-	line-height: 1.25em;
+	line-height: 1.25;
 	overflow: hidden;
 	text-align: left;
 	white-space: nowrap;
@@ -560,7 +563,6 @@ li.album_hierarchy_compact ul {
 	display: table-cell;
 	overflow: hidden;
 	width: 125px;
-	margin-right: 10px;
 	text-align: center;
 	vertical-align: top;
 }
@@ -569,6 +571,7 @@ li.album_hierarchy_compact ul {
 	display: table-cell;
 	width: 90%;
 	vertical-align: top;
+	padding-left: 1em;
 }
 
 .report_body, .mod_comment {
@@ -634,9 +637,9 @@ li.album_hierarchy_compact ul {
 .album_family {
 	display: flex;
 	flex-wrap: wrap;
+	justify-content: space-between;
 	min-width: 100%;
 	row-gap: 5px;
-	justify-content: space-between;
 }
 
 /* Child album card, name, image, description ... */
@@ -649,8 +652,8 @@ li.album_hierarchy_compact ul {
 }
 
 .album_child > div {
-	width: 100%;
 	overflow: hidden;
+	width: 100%;
 	word-break: break-word;
 	line-clamp: 4 "...";
 
@@ -664,8 +667,8 @@ li.album_hierarchy_compact ul {
 	font-weight: 600;
 	overflow: hidden;
 	min-width: 95%;
-	line-clamp: 2 "...";
 	text-overflow: ellipsis;
+	line-clamp: 2 "...";
 }
 
 .album_child > img, .album_child img {
@@ -689,7 +692,7 @@ ul.lgalactions li {
 }
 
 ul.lgalactions li a {
-	line-height: 18px;
+	line-height: 1.8;
 	display: inline-block;
 	height: 20px;
 }
@@ -731,6 +734,8 @@ ul.lgalactions li a {
 
 .upload_desc {
 	font-weight: 600;
+	max-width: 75%;
+	margin: 0 auto;
 }
 
 #browse_button {
@@ -744,28 +749,28 @@ ul.lgalactions li a {
 }
 
 #upload_type_file {
+	position: relative;
 	overflow: visible;
 	width: 95%;
 	min-height: 200px;
-	position: relative;
 }
 
 #levgal_preloader {
-	display: none;
 	position: absolute;
 	top: 0;
-	text-align: center;
+	display: none;
 	width: 100%;
 	height: 100%;
+	text-align: center;
 }
 
 .levgal_preloader_icon {
-	display: inline-block;
 	line-height: 4;
-	width: 4em;
-	height: 4em;
 	position: relative;
 	top: 25%;
+	display: inline-block;
+	width: 4em;
+	height: 4em;
 }
 
 .levgal_preloader_icon::before {
@@ -870,7 +875,7 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 
 /* SVG icons */
 .lgalicon {
-	line-height: 1.25em;
+	line-height: 1.25;
 	display: inline-block;
 	width: 1.15em;
 	height: auto;
@@ -931,6 +936,29 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 	width: 60%;
 }
 
+.dropzone .dz-preview .dz-image img {
+	max-height: initial;
+}
+
+.dropzone .dz-preview .dz-image {
+	display: flex !important;
+	justify-content: center;
+}
+
+.dropzone .dz-message .dz-button {
+	padding: 0 1rem !important;
+	background: none !important;
+	line-height: 2.5rem !important;
+	box-shadow: none !important;
+	white-space: normal;
+	word-wrap: break-word;
+}
+
+.dropzone .dz-message .dz-button:hover {
+	background: none !important;
+	box-shadow: none !important;
+}
+
 /* The total progress gets shown by event listeners */
 #total-progress {
 	transition: opacity 0.3s linear;
@@ -948,8 +976,9 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 }
 
 .begin_button.full {
-	width: 95%;
 	display: none;
+	width: 95%;
+	margin: 0 auto;
 }
 
 .progress {
@@ -970,7 +999,7 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 
 .progress-bar {
 	font-size: 1em;
-	line-height: 30px;
+	line-height: 3;
 	float: left;
 	width: 0;
 	height: 100%;
@@ -1231,6 +1260,10 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 	opacity: 1;
 }
 
+#item_comments .editor_wrapper {
+	margin-top: 1em;
+}
+
 /* -------------------------------------------------------
  *	$MEDIA
  * -------------------------------------------------------
@@ -1247,9 +1280,9 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 	}
 
 	.main_item_container {
-		max-width: 100%;
-		justify-content: center;
 		display: flex;
+		justify-content: center;
+		max-width: 100%;
 	}
 
 	.main_item_container .lg_item {
@@ -1345,7 +1378,8 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 /* This one does 480px screens at default font size. */
 @media screen and (max-width: 30em) {
 	.editor_wrapper {
-		min-width: 100%;
+		min-width: 98%;
+        margin: 0 1%;
 	}
 
 	div.sceditor-group {

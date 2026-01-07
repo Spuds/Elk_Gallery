@@ -4,13 +4,20 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 2.0.0 / elkarte
  */
+
+namespace Addons\Levertine\Source\Model;
+
+use Addons\Levertine\Source\LevGalBootstrap;
+use ElkArte\Helper\Util;
+use ElkArte\MembersList;
+use ElkArte\User;
 
 /**
  * This file deals with fixing things in the gallery's database.
  */
-class LevGal_Model_Maintenance
+class Maintenance
 {
 	public function recalculateTotalItems()
 	{
@@ -21,10 +28,10 @@ class LevGal_Model_Maintenance
 			    COUNT(id_item)
 			FROM {db_prefix}lgal_items
 			WHERE approved = 1');
-		list ($count) = $db->fetch_row($request);
-		$db->free_result($request);
+		[$count] = $request->fetch_row();
+		$request->free_result();
 
-		updateSettings(array('lgal_total_items' => $count));
+		updateSettings(['lgal_total_items' => $count]);
 	}
 
 	public function recalculateTotalComments()
@@ -36,10 +43,10 @@ class LevGal_Model_Maintenance
 			    COUNT(id_comment)
 			FROM {db_prefix}lgal_comments
 			WHERE approved = 1');
-		list ($count) = $db->fetch_row($request);
-		$db->free_result($request);
+		[$count] = $request->fetch_row();
+		$request->free_result();
 
-		updateSettings(array('lgal_total_comments' => $count));
+		updateSettings(['lgal_total_comments' => $count]);
 	}
 
 	public function fixItemStats()
@@ -47,21 +54,21 @@ class LevGal_Model_Maintenance
 		$db = database();
 
 		// First, get the items and their current stats. This seems to be faster than globbing queries together.
-		$items = array();
+		$items = [];
 		$request = $db->query('', '
 			SELECT 
 			    id_item, num_comments, num_unapproved_comments
 			FROM {db_prefix}lgal_items');
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
-			$items[$row['id_item']] = array(
+			$items[$row['id_item']] = [
 				'stored_comments' => $row['num_comments'],
 				'stored_unapproved' => $row['num_unapproved_comments'],
 				'actual_comments' => 0,
 				'actual_unapproved' => 0,
-			);
+			];
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		// Now get the actual amounts.
 		$request = $db->query('', '
@@ -69,7 +76,7 @@ class LevGal_Model_Maintenance
 			    id_item, COUNT(approved) AS comment_count, approved
 			FROM {db_prefix}lgal_comments
 			GROUP BY id_item, approved');
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
 			// We don't have it? This is not something we should deal with here.
 			if (!isset($items[$row['id_item']]))
@@ -79,7 +86,7 @@ class LevGal_Model_Maintenance
 
 			$items[$row['id_item']][$row['approved'] == 1 ? 'actual_comments' : 'actual_unapproved'] = $row['comment_count'];
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		// Any to fix?
 		foreach ($items as $id_item => $stats)
@@ -91,11 +98,11 @@ class LevGal_Model_Maintenance
 					SET num_comments = {int:actual_comments},
 						num_unapproved_comments = {int:actual_unapproved}
 					WHERE id_item = {int:id_item}',
-					array(
+					[
 						'id_item' => $id_item,
 						'actual_comments' => $stats['actual_comments'],
 						'actual_unapproved' => $stats['actual_unapproved'],
-					)
+					]
 				);
 			}
 		}
@@ -106,14 +113,14 @@ class LevGal_Model_Maintenance
 		$db = database();
 
 		// First, get the existing figures.
-		$albums = array();
+		$albums = [];
 		$request = $db->query('', '
 			SELECT 
 			    id_album, num_items, num_unapproved_items, num_comments, num_unapproved_comments
 			FROM {db_prefix}lgal_albums');
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
-			$albums[$row['id_album']] = array(
+			$albums[$row['id_album']] = [
 				'id_album' => $row['id_album'],
 				'stored_items' => $row['num_items'],
 				'stored_unapproved_items' => $row['num_unapproved_items'],
@@ -123,9 +130,9 @@ class LevGal_Model_Maintenance
 				'actual_unapproved_items' => 0,
 				'actual_comments' => 0,
 				'actual_unapproved_comments' => 0,
-			);
+			];
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		// Now, get the actual stats.
 		$request = $db->query('', '
@@ -133,7 +140,7 @@ class LevGal_Model_Maintenance
 			    id_album, COUNT(id_item) AS item_count, SUM(num_comments) AS total_comments, SUM(num_unapproved_comments) AS total_unapproved, approved
 			FROM {db_prefix}lgal_items
 			GROUP BY id_album, approved');
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
 			// We don't have it? This is not something we should deal with here.
 			if (!isset($albums[$row['id_album']]))
@@ -145,7 +152,7 @@ class LevGal_Model_Maintenance
 			$albums[$row['id_album']]['actual_comments'] += $row['total_comments'];
 			$albums[$row['id_album']]['actual_unapproved_comments'] += $row['total_unapproved'];
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		// Any to fix?
 		foreach ($albums as $stats)
@@ -171,8 +178,9 @@ class LevGal_Model_Maintenance
 
 		$count = 0;
 		$substeps = 4;
+		$substep = (int) $substep;
 
-		if ($substep == 0)
+		if ($substep === 0)
 		{
 			// This looks for cases of entries in the lgal_owner_* tables where albums don't exist.
 			$hierarchy = $this->findBrokenReferences('lgal_owner_member', 'id_album', 'lgal_albums', 'id_album');
@@ -181,7 +189,7 @@ class LevGal_Model_Maintenance
 			$hierarchy = $this->findBrokenReferences('lgal_owner_group', 'id_album', 'lgal_albums', 'id_album');
 			$count += $this->deleteRows('lgal_owner_group', 'id_album', $hierarchy);
 		}
-		elseif ($substep == 1)
+		elseif ($substep === 1)
 		{
 			// This looks for cases of entries in the lgal_owner_* tables where the relevant matching tables don't exist.
 			$hierarchy = $this->findBrokenReferences('lgal_owner_member', 'id_member', 'members', 'id_member', true);
@@ -190,23 +198,23 @@ class LevGal_Model_Maintenance
 			$hierarchy = $this->findBrokenReferences('lgal_owner_group', 'id_group', 'membergroups', 'id_group', true);
 			$count += $this->deleteRows('lgal_owner_group', 'id_group', $hierarchy);
 		}
-		elseif ($substep == 2)
+		elseif ($substep === 2)
 		{
 			// This looks at the owner_cache details and tries to verify the owners actually exist. We'll find lom/log later.
-			$members = array();
-			$groups = array();
-			$details = array();
+			$members = [];
+			$groups = [];
+			$details = [];
 
 			$request = $db->query('', '
 				SELECT 
 				    id_album, owner_cache
 				FROM {db_prefix}lgal_albums');
-			while ($row = $db->fetch_assoc($request))
+			while ($row = $request->fetch_assoc())
 			{
 				$owner_cache = Util::unserialize($row['owner_cache']);
 				$changed = false;
 
-				foreach (array('member', 'group') as $type)
+				foreach (['member', 'group'] as $type)
 				{
 					if (isset($owner_cache[$type]) && !is_array($owner_cache[$type]))
 					{
@@ -215,10 +223,10 @@ class LevGal_Model_Maintenance
 					}
 				}
 
-				if (isset($owner_cache['member']) && in_array(0, $owner_cache['member'], true) && count($owner_cache['member']) != 1)
+				if (isset($owner_cache['member']) && in_array(0, $owner_cache['member'], true) && count($owner_cache['member']) !== 1)
 				{
 					// We had multiple owners but one of them was the site. Should reset that to the members left.
-					$owner_cache['member'] = array_diff($owner_cache['member'], array(0));
+					$owner_cache['member'] = array_diff($owner_cache['member'], [0]);
 					$changed = true;
 				}
 
@@ -248,7 +256,7 @@ class LevGal_Model_Maintenance
 				if (empty($owner_cache) || (empty($owner_cache['member']) && empty($owner_cache['group'])))
 				{
 					// There was no valid owner at all before.
-					$owner_cache = array('member' => array(0));
+					$owner_cache = ['member' => [0]];
 					$changed = true;
 				}
 
@@ -258,23 +266,23 @@ class LevGal_Model_Maintenance
 						UPDATE {db_prefix}lgal_albums
 						SET owner_cache = {string:owner_cache}
 						WHERE id_album = {int:id_album}',
-						array(
+						[
 							'owner_cache' => serialize($owner_cache),
 							'id_album' => $row['id_album'],
-						)
+						]
 					);
 					$count++;
 				}
 
 				$details[$row['id_album']] = $owner_cache;
 			}
-			$db->free_result($request);
+			$request->free_result();
 
 			// So we had some member ids attached to albums but that don't actually exist? OH NOES.
-			$changed_albums = array();
+			$changed_albums = [];
 			if (!empty($members))
 			{
-				$loaded_members = loadMemberData(array_keys($members), false, 'minimal');
+				$loaded_members = MembersList::load(array_keys($members), false, 'minimal');
 				$loaded_members[] = 0; // Because we know 0 is a valid owner.
 				$not_loaded = array_diff(array_keys($members), $loaded_members);
 
@@ -282,7 +290,7 @@ class LevGal_Model_Maintenance
 				{
 					foreach ($members[$member] as $album)
 					{
-						$details[$album]['member'] = array_diff($details[$album]['member'], array($member));
+						$details[$album]['member'] = array_diff($details[$album]['member'], [$member]);
 						$changed_albums[$album] = true;
 					}
 				}
@@ -291,18 +299,18 @@ class LevGal_Model_Maintenance
 			// Do groups too.
 			if (!empty($groups))
 			{
-				$available_groups = array();
+				$available_groups = [];
 				// Can't have post count groups.
 				$request = $db->query('', '
 					SELECT 
 					    id_group
 					FROM {db_prefix}membergroups AS mg
 					WHERE mg.min_posts < 0');
-				while ($row = $db->fetch_assoc($request))
+				while ($row = $request->fetch_assoc())
 				{
 					$available_groups[] = (int) $row['id_group'];
 				}
-				$db->free_result($request);
+				$request->free_result();
 
 				$not_available = array_diff(array_keys($groups), $available_groups);
 
@@ -310,7 +318,7 @@ class LevGal_Model_Maintenance
 				{
 					foreach ($groups[$group] as $album)
 					{
-						$details[$album]['group'] = array_diff($details[$album]['group'], array($group));
+						$details[$album]['group'] = array_diff($details[$album]['group'], [$group]);
 						$changed_albums[$album] = true;
 					}
 				}
@@ -323,50 +331,50 @@ class LevGal_Model_Maintenance
 				foreach (array_keys($changed_albums) as $album)
 				{
 					// Get the details for this album... or if we ended up stripping everyone from it... reset to site ownership.
-					$owner_cache = !empty($details[$album]['member']) || !empty($details[$album]['group']) ? $details[$album] : array('member' => array(0));
+					$owner_cache = !empty($details[$album]['member']) || !empty($details[$album]['group']) ? $details[$album] : ['member' => [0]];
 
 					$db->query('', '
 						UPDATE {db_prefix}lgal_albums
 						SET owner_cache = {string:owner_cache}
 						WHERE id_album = {int:id_album}',
-						array(
+						[
 							'owner_cache' => serialize($owner_cache),
 							'id_album' => $album,
-						)
+						]
 					);
 				}
 			}
 		}
-		elseif ($substep == 3)
+		elseif ($substep === 3)
 		{
 			// This one matches what's in the albums table against what's in the lom/log tables.
-			$albums = array();
+			$albums = [];
 			$request = $db->query('', '
 				SELECT 
 				    id_album, id_member
 				FROM {db_prefix}lgal_owner_member');
-			while ($row = $db->fetch_assoc($request))
+			while ($row = $request->fetch_assoc())
 			{
 				$albums[$row['id_album']]['member'][] = $row['id_member'];
 			}
-			$db->free_result($request);
+			$request->free_result();
 
 			$request = $db->query('', '
 				SELECT 
 				    id_album, id_group
 				FROM {db_prefix}lgal_owner_group');
-			while ($row = $db->fetch_assoc($request))
+			while ($row = $request->fetch_assoc())
 			{
 				$albums[$row['id_album']]['group'][] = $row['id_group'];
 			}
-			$db->free_result($request);
+			$request->free_result();
 
-			$insert_rows = array();
+			$insert_rows = [];
 			$request = $db->query('', '
 				SELECT 
 				    id_album, owner_cache
 				FROM {db_prefix}lgal_albums');
-			while ($row = $db->fetch_assoc($request))
+			while ($row = $request->fetch_assoc())
 			{
 				$owner_cache = Util::unserialize($row['owner_cache']);
 
@@ -381,10 +389,10 @@ class LevGal_Model_Maintenance
 							UPDATE {db_prefix}lgal_albums
 							SET owner_cache = {string:owner_cache}
 							WHERE id_album = {int:id_album}',
-							array(
+							[
 								'owner_cache' => serialize($owner_cache),
 								'id_album' => $row['id_album'],
-							)
+							]
 						);
 					}
 					// Member owned albums shouldn't have group entries.
@@ -393,7 +401,7 @@ class LevGal_Model_Maintenance
 						$this->deleteRows('lgal_owner_group', 'id_album', $row['id_album']);
 					}
 
-					$owners = !empty($albums[$row['id_album']]['member']) ? $albums[$row['id_album']]['member'] : array();
+					$owners = !empty($albums[$row['id_album']]['member']) ? $albums[$row['id_album']]['member'] : [];
 
 					// Prune any records that shouldn't exist.
 					$shouldnt_exist = array_diff($owners, $owner_cache['member']);
@@ -403,10 +411,10 @@ class LevGal_Model_Maintenance
 							DELETE FROM {db_prefix}lgal_owner_member
 							WHERE id_album = {int:album}
 								AND id_member IN ({array_int:members})',
-							array(
+							[
 								'album' => $row['id_album'],
 								'members' => $shouldnt_exist,
-							)
+							]
 						);
 					}
 
@@ -414,7 +422,7 @@ class LevGal_Model_Maintenance
 					$should_exist = array_diff($owner_cache['member'], $owners);
 					foreach ($should_exist as $member)
 						{
-							$insert_rows['member'][$member][] = array($row['id_album'], $member);
+							$insert_rows['member'][$member][] = [$row['id_album'], $member];
 						}
 				}
 
@@ -428,10 +436,10 @@ class LevGal_Model_Maintenance
 							UPDATE {db_prefix}lgal_albums
 							SET owner_cache = {string:owner_cache}
 							WHERE id_album = {int:id_album}',
-							array(
+							[
 								'owner_cache' => serialize($owner_cache),
 								'id_album' => $row['id_album'],
-							)
+							]
 						);
 					}
 					// Group owned albums shouldn't have member entries.
@@ -440,7 +448,7 @@ class LevGal_Model_Maintenance
 						$this->deleteRows('lgal_owner_member', 'id_album', $row['id_album']);
 					}
 
-					$owners = !empty($albums[$row['id_album']]['group']) ? $albums[$row['id_album']]['group'] : array();
+					$owners = !empty($albums[$row['id_album']]['group']) ? $albums[$row['id_album']]['group'] : [];
 
 					// Prune any records that shouldn't exist.
 					$shouldnt_exist = array_diff($owners, $owner_cache['group']);
@@ -450,10 +458,10 @@ class LevGal_Model_Maintenance
 							DELETE FROM {db_prefix}lgal_owner_group
 							WHERE id_album = {int:album}
 								AND id_group IN ({array_int:groups})',
-							array(
+							[
 								'album' => $row['id_album'],
 								'groups' => $shouldnt_exist,
-							)
+							]
 						);
 					}
 
@@ -461,17 +469,17 @@ class LevGal_Model_Maintenance
 					$should_exist = array_diff((array) $owner_cache['group'], $owners);
 					foreach ($should_exist as $group)
 						{
-							$insert_rows['group'][$group][] = array($row['id_album'], $group);
+							$insert_rows['group'][$group][] = [$row['id_album'], $group];
 						}
 				}
 			}
-			$db->free_result($request);
+			$request->free_result();
 
 			// Lastly, we need to fix up some rows.
 			if (!empty($insert_rows['member']))
 			{
 				// Make some room first though.
-				$rows = array();
+				$rows = [];
 				$pos = 1;
 				foreach ($insert_rows['member'] as $member => $member_rows)
 				{
@@ -479,30 +487,30 @@ class LevGal_Model_Maintenance
 						UPDATE {db_prefix}lgal_owner_member
 						SET album_pos = album_pos + {int:rows}
 						WHERE id_member = {int:id_member}',
-						array(
+						[
 							'rows' => count($member_rows),
 							'id_member' => $member,
-						)
+						]
 					);
 					foreach ($member_rows as $member_row)
 					{
-						list ($id_album, $id_member) = $member_row;
-						$rows[] = array($id_album, $id_member, $pos++, 0);
+						[$id_album, $id_member] = $member_row;
+						$rows[] = [$id_album, $id_member, $pos++, 0];
 					}
 				}
 
 				$db->insert('insert',
 					'{db_prefix}lgal_owner_member',
-					array('id_album' => 'int', 'id_member' => 'int', 'album_pos' => 'int', 'album_level' => 'int'),
+					['id_album' => 'int', 'id_member' => 'int', 'album_pos' => 'int', 'album_level' => 'int'],
 					$rows,
-					array('id_album', 'id_member')
+					['id_album', 'id_member']
 				);
 			}
 
 			if (!empty($insert_rows['group']))
 			{
 				// Make some room.
-				$rows = array();
+				$rows = [];
 				$pos = 1;
 				foreach ($insert_rows['group'] as $group => $group_rows)
 				{
@@ -510,37 +518,37 @@ class LevGal_Model_Maintenance
 						UPDATE {db_prefix}lgal_owner_group
 						SET album_pos = album_pos + {int:rows}
 						WHERE id_group = {int:id_group}',
-						array(
+						[
 							'rows' => count($group_rows),
 							'id_group' => $group,
-						)
+						]
 					);
 					foreach ($group_rows as $group_row)
 					{
-						list ($id_album, $id_group) = $group_row;
-						$rows[] = array($id_album, $id_group, $pos++, 0);
+						[$id_album, $id_group] = $group_row;
+						$rows[] = [$id_album, $id_group, $pos++, 0];
 					}
 				}
 
 				$db->insert('insert',
 					'{db_prefix}lgal_owner_group',
-					array('id_album' => 'int', 'id_group' => 'int', 'album_pos' => 'int', 'album_level' => 'int'),
+					['id_album' => 'int', 'id_group' => 'int', 'album_pos' => 'int', 'album_level' => 'int'],
 					$rows,
-					array('id_album', 'id_group')
+					['id_album', 'id_group']
 				);
 			}
 		}
 
-		return array($substep + 1 >= $substeps, $substeps, $count);
+		return [$substep + 1 >= $substeps, $substeps, $count];
 	}
 
 	public function fixOrphanItems()
 	{
-		global $user_info, $txt;
+		global $txt;
 
 		$db = database();
 
-		$items = array();
+		$items = [];
 		$request = $db->query('', '
 			SELECT 
 			    li.id_item
@@ -548,35 +556,35 @@ class LevGal_Model_Maintenance
 				LEFT JOIN {db_prefix}lgal_albums AS la ON (li.id_album = la.id_album)
 			WHERE la.id_album IS NULL'
 		);
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
 			$items[] = $row['id_item'];
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		if (empty($items))
 		{
-			return array(true, 1, 0);
+			return [true, 1, 0];
 		}
 
 		// Oh dear. This makes life *very* complicated. We have items outside of an album, but we
 		// don't know anything about the state of play with them.
 		// Safest thing to do is create a new album.
-		$album = new LevGal_Model_Album();
+		$album = new Album();
 		$album_id = $album->createAlbum($txt['levgal_recovered_album'], '', '', true);
-		$album->setAlbumOwnership('member', $user_info['id']);
+		$album->setAlbumOwnership('member', User::$info['id']);
 		$album->setAlbumPrivacy('justme');
 
-		$itemList = new LevGal_Model_ItemList();
+		$itemList = new ItemList();
 
-		return array(true, 1, $itemList->moveItemsToAlbum($items, $album_id));
+		return [true, 1, $itemList->moveItemsToAlbum($items, $album_id)];
 	}
 
 	public function fixOrphanComments()
 	{
 		$db = database();
 
-		$comments = array();
+		$comments = [];
 		$request = $db->query('', '
 			SELECT 
 			    lc.id_comment
@@ -584,13 +592,13 @@ class LevGal_Model_Maintenance
 				LEFT JOIN {db_prefix}lgal_items AS li ON (lc.id_item = li.id_item)
 			WHERE li.id_item IS NULL'
 		);
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
 			$comments[] = $row['id_comment'];
 		}
-		$db->free_result($request);
+		$request->free_result();
 
-		return array(true, 1, $this->deleteRows('lgal_comments', 'id_comment', $comments));
+		return [true, 1, $this->deleteRows('lgal_comments', 'id_comment', $comments)];
 	}
 
 	public function fixOrphanBookmarks()
@@ -600,7 +608,7 @@ class LevGal_Model_Maintenance
 
 		$bookmarks = $this->findBrokenReferences('lgal_bookmarks', 'id_member', 'members', 'id_member');
 
-		return array(true, 1, $count + $this->deleteRows('lgal_bookmarks', 'id_member', $bookmarks));
+		return [true, 1, $count + $this->deleteRows('lgal_bookmarks', 'id_member', $bookmarks)];
 	}
 
 	public function fixOrphanLikes()
@@ -610,7 +618,7 @@ class LevGal_Model_Maintenance
 
 		$likes = $this->findBrokenReferences('lgal_likes', 'id_member', 'members', 'id_member');
 
-		return array(true, 1, $count + $this->deleteRows('lgal_likes', 'id_member', $likes));
+		return [true, 1, $count + $this->deleteRows('lgal_likes', 'id_member', $likes)];
 	}
 
 	public function fixOrphanTags()
@@ -620,7 +628,7 @@ class LevGal_Model_Maintenance
 
 		$tags = $this->findBrokenReferences('lgal_tag_items', 'id_tag', 'lgal_tags', 'id_tag');
 
-		return array(true, 1, $count + $this->deleteRows('lgal_tag_items', 'id_tag', $tags));
+		return [true, 1, $count + $this->deleteRows('lgal_tag_items', 'id_tag', $tags)];
 	}
 
 	public function fixOrphanNotify()
@@ -635,7 +643,7 @@ class LevGal_Model_Maintenance
 		$notify = $this->findBrokenReferences('lgal_notify', 'id_member', 'members', 'id_member');
 		$count += $this->deleteRows('lgal_notify', 'id_member', $notify);
 
-		return array(true, 1, $count);
+		return [true, 1, $count];
 	}
 
 	public function fixOrphanUnseen()
@@ -645,7 +653,7 @@ class LevGal_Model_Maintenance
 
 		$unseen = $this->findBrokenReferences('lgal_log_seen', 'id_member', 'members', 'id_member');
 
-		return array(true, 1, $count + $this->deleteRows('lgal_log_seen', 'id_member', $unseen));
+		return [true, 1, $count + $this->deleteRows('lgal_log_seen', 'id_member', $unseen)];
 	}
 
 	public function fixOrphanReports()
@@ -672,7 +680,7 @@ class LevGal_Model_Maintenance
 		$reports = $this->findBrokenReferences('lgal_reports', 'id_report', 'lgal_report_body', 'id_report');
 		$count += $this->deleteRows('lgal_reports', 'id_report', $reports);
 
-		return array(true, 1, $count);
+		return [true, 1, $count];
 	}
 
 	public function fixOrphanCustomFields()
@@ -686,7 +694,7 @@ class LevGal_Model_Maintenance
 		$values = $this->findBrokenReferences('lgal_custom_field_data', 'id_item', 'lgal_items', 'id_item');
 		$count += $this->deleteRows('lgal_custom_field_data', 'id_item', $values);
 
-		return array(true, 1, $count);
+		return [true, 1, $count];
 	}
 
 	public function checkMissingFiles($substep)
@@ -699,37 +707,42 @@ class LevGal_Model_Maintenance
 			SELECT 
 			    COUNT(id_item)
 			FROM {db_prefix}lgal_items');
-		list ($count) = $db->fetch_row($request);
-		$db->free_result($request);
+		[$count] = $request->fetch_row();
+		$request->free_result();
 
 		$substeps = ceil($count / $items_per_step);
 
 		if ($substep >= $substeps)
 		{
 			$substeps =  empty($substeps) ? 1 : $substeps;
-			return array(true, $substeps, false);
+			return [true, $substeps, false];
 		}
 
 		// So, there's something to do.
-		$base_path = LevGal_Bootstrap::getGalleryDir();
-		$items_without_files = array();
+		$base_path = LevGalBootstrap::getGalleryDir();
+		$items_without_files = [];
 		$request = $db->query('', '
 			SELECT 
 				id_item, filehash, extension, mime_type
 			FROM {db_prefix}lgal_items
 			ORDER BY id_item
 			LIMIT {int:start}, {int:limit}',
-			array(
+			[
 				'start' => $substep * $items_per_step,
 				'limit' => $items_per_step,
-			)
+			]
 		);
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
+			if (empty($row['filehash']))
+			{
+				$items_without_files[] = $row['id_item'];
+				continue;
+			}
 			$base_folder = $base_path . '/files/' . $row['filehash'][0] . '/' . $row['filehash'][0] . $row['filehash'][1];
 
 			// External ones may not have any actual files.
-			if (strpos($row['mime_type'], 'external') === 0)
+			if (str_starts_with($row['mime_type'], 'external'))
 			{
 				continue;
 			}
@@ -752,11 +765,11 @@ class LevGal_Model_Maintenance
 		// Since we don't have actual files (and externally embedded doesn't count), we need to go deleting.
 		if (!empty($items_without_files))
 		{
-			$item_list = new LevGal_Model_ItemList();
+			$item_list = new ItemList();
 			$item_list->deleteItemsByIds($items_without_files, true);
 		}
 
-		return array($substep + 1 >= $substeps, $substeps, count($items_without_files));
+		return [$substep + 1 >= $substeps, $substeps, count($items_without_files)];
 	}
 
 	public function checkExtraFiles($substep)
@@ -765,24 +778,24 @@ class LevGal_Model_Maintenance
 
 		if ($substep < 0 || $substep > 15)
 		{
-			return array(true, 16, false);
+			return [true, 16, false];
 		}
 
 		$files_deleted = 0;
 
-		$excludable = array('.', '..');
+		$excludable = ['.', '..'];
 
 		$base_folder = dechex($substep);
-		$base_path = LevGal_Bootstrap::getGalleryDir();
+		$base_path = LevGalBootstrap::getGalleryDir();
 		if (!file_exists($base_path . '/files/' . $base_folder))
 		{
 			// This section doesn't exist, nothing to do, except moving onwards!
-			return array($substep == 15, 16, 0);
+			return [$substep == 15, 16, 0];
 		}
 
 		$files = scandir($base_path . '/files/' . $base_folder);
 		$files = array_diff($files, $excludable);
-		$items = array();
+		$items = [];
 		foreach ($files as $file)
 		{
 			// First of all, search for things like files in files/x/ that shouldn't be there.
@@ -834,17 +847,17 @@ class LevGal_Model_Maintenance
 					id_item, filehash, extension
 				FROM {db_prefix}lgal_items
 				WHERE id_item IN ({array_int:items})',
-				array(
+				[
 					'items' => $item_ids,
-				)
+				]
 			);
-			while ($row = $db->fetch_assoc($request))
+			while ($row = $request->fetch_assoc())
 			{
 				$file_base = $row['filehash'][0] . '/' . $row['filehash'][0] . $row['filehash'][1] . '/' . $row['id_item'] . '_' . $row['filehash'] . (!empty($row['extension']) ? '_' . $row['extension'] : '');
 				foreach ($items[$row['id_item']] as $this_file)
 				{
 					// This is for deleting things that don't match the details supplied by the database (for a given item)
-					if (strpos($this_file, $file_base) !== 0)
+					if (!str_starts_with($this_file, $file_base))
 					{
 						@unlink($base_path . '/files/' . $this_file);
 						$files_deleted++;
@@ -852,7 +865,7 @@ class LevGal_Model_Maintenance
 					unset ($items[$row['id_item']]);
 				}
 			}
-			$db->free_result($request);
+			$request->free_result();
 
 			foreach ($items as $item_list)
 				{
@@ -864,42 +877,42 @@ class LevGal_Model_Maintenance
 				}
 		}
 
-		return array($substep == 15, 16, $files_deleted);
+		return [$substep === 15, 16, $files_deleted];
 	}
 
 	public function checkAlbumFiles()
 	{
 		$db = database();
 
-		$hashes = array();
+		$hashes = [];
 		$request = $db->query('', '
 			SELECT 
 				id_album, thumbnail
 			FROM {db_prefix}lgal_albums
 			WHERE thumbnail != {string:empty}',
-			array(
+			[
 				'empty' => '',
-			)
+			]
 		);
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
 			// Unspecified or generic thumbnails don't have files, so we will want to exclude these.
-			if (strpos($row['thumbnail'], 'folder') === 0 || strpos($row['thumbnail'], 'generic') === 0)
+			if (str_starts_with($row['thumbnail'], 'folder') || str_starts_with($row['thumbnail'], 'generic'))
 			{
 				continue;
 			}
-			list (, $hash) = explode(',', $row['thumbnail']);
+			[, $hash] = explode(',', $row['thumbnail']);
 			$hashes[$row['id_album']] = $hash;
 		}
-		$db->free_result($request);
+		$request->free_result();
 
-		$base_path = LevGal_Bootstrap::getGalleryDir();
+		$base_path = LevGalBootstrap::getGalleryDir();
 		$file_list = @scandir($base_path . '/albums');
-		$file_list = array_diff($file_list, array('.', '..', '.htaccess'));
+		$file_list = array_diff($file_list, ['.', '..', '.htaccess']);
 
 		$files_deleted = 0;
 
-		$located = array();
+		$located = [];
 
 		foreach ($file_list as $file)
 		{
@@ -916,7 +929,7 @@ class LevGal_Model_Maintenance
 		}
 
 		// OK, so we know that what's in the folder matches what the DB says. But is everything the DB says accurate?
-		$albums_not_found = array();
+		$albums_not_found = [];
 		foreach ($hashes as $id_album => $hash)
 		{
 			$actual_file = $id_album . '_' . $hash . '.dat';
@@ -932,14 +945,88 @@ class LevGal_Model_Maintenance
 				UPDATE {db_prefix}lgal_albums
 				SET thumbnail = {string:empty}
 				WHERE id_album IN ({array_int:albums})',
-				array(
+				[
 					'empty' => '',
 					'albums' => $albums_not_found,
-				)
+				]
 			);
 		}
 
-		return array(true, 1, $files_deleted);
+		return [true, 1, $files_deleted];
+	}
+
+	public function fixWrongFilesize($substep)
+	{
+		$db = database();
+
+		$items_per_step = 50;
+
+		$request = $db->query('', '
+			SELECT 
+			    COUNT(id_item)
+			FROM {db_prefix}lgal_items');
+		[$count] = $request->fetch_row();
+		$request->free_result();
+
+		$substeps = ceil($count / $items_per_step);
+
+		if ($substep >= $substeps)
+		{
+			$substeps = empty($substeps) ? 1 : $substeps;
+			return [true, $substeps, false];
+		}
+
+		$base_path = LevGalBootstrap::getGalleryDir();
+		$updated = 0;
+
+		$request = $db->query('', '
+			SELECT 
+				id_item, filehash, extension, mime_type, filesize
+			FROM {db_prefix}lgal_items
+			ORDER BY id_item
+			LIMIT {int:start}, {int:limit}',
+			[
+				'start' => $substep * $items_per_step,
+				'limit' => $items_per_step,
+			]
+		);
+		while ($row = $request->fetch_assoc())
+		{
+			// Skip external items; they do not have a local core file.
+			if (str_starts_with($row['mime_type'], 'external'))
+			{
+				continue;
+			}
+
+			// Build the expected core file path e.g. files/a/ab/ID_HASH_ext.dat
+			$base_folder = $base_path . '/files/' . $row['filehash'][0] . '/' . $row['filehash'][0] . $row['filehash'][1];
+			$core_file = $row['id_item'] . '_' . $row['filehash'] . (!empty($row['extension']) ? '_' . $row['extension'] : '') . '.dat';
+			$full_path = $base_folder . '/' . $core_file;
+
+			if (!file_exists($full_path))
+			{
+				// Missing files are handled by checkMissingFiles.
+				continue;
+			}
+
+			$real_size = @filesize($full_path);
+			if ($real_size !== false && (int) $real_size !== (int) $row['filesize'])
+			{
+				$db->query('', '
+					UPDATE {db_prefix}lgal_items
+					SET filesize = {int:newsize}
+					WHERE id_item = {int:id_item}',
+					[
+						'newsize' => (int) $real_size,
+						'id_item' => (int) $row['id_item'],
+					]
+				);
+				$updated++;
+			}
+		}
+		$request->free_result();
+
+		return [$substep + 1 >= $substeps, $substeps, $updated];
 	}
 
 	protected function findBrokenReferences($from_table, $from_column, $to_table, $to_column, $exclude_empty = false)
@@ -947,7 +1034,7 @@ class LevGal_Model_Maintenance
 		$db = database();
 
 		// Because I like more readable queries in my query log, thank you very much.
-		$aliases = array(
+		$aliases = [
 			'lgal_albums' => 'la',
 			'lgal_bookmarks' => 'lb',
 			'lgal_items' => 'li',
@@ -963,9 +1050,9 @@ class LevGal_Model_Maintenance
 			'lgal_tag_items' => 'lti',
 			'membergroups' => 'mg',
 			'members' => 'mem',
-		);
+		];
 
-		$matches = array();
+		$matches = [];
 		$request = $db->query('', '
 			SELECT 
 				{raw:from_table_alias}.{raw:from_column}
@@ -973,20 +1060,20 @@ class LevGal_Model_Maintenance
 				LEFT JOIN {db_prefix}{raw:to_table} AS {raw:to_table_alias} ON ({raw:from_table_alias}.{raw:from_column} = {raw:to_table_alias}.{raw:to_column})
 			WHERE {raw:to_table_alias}.{raw:to_column} IS NULL' . ($exclude_empty ? '
 				AND {raw:from_table_alias}.{raw:from_column} > 0' : ''),
-			array(
+			[
 				'from_table' => $from_table,
 				'from_table_alias' => $aliases[$from_table] ?? $from_table,
 				'from_column' => $from_column,
 				'to_table' => $to_table,
 				'to_table_alias' => $aliases[$to_table] ?? $to_table,
 				'to_column' => $to_column,
-			)
+			]
 		);
-		while ($row = $db->fetch_row($request))
+		while ($row = $request->fetch_row())
 		{
 			$matches[] = $row[0];
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		return $matches;
 	}
@@ -1001,16 +1088,16 @@ class LevGal_Model_Maintenance
 		}
 		$values = (array) $values;
 
-		$db->query('', '
+		$request = $db->query('', '
 			DELETE FROM {db_prefix}{raw:table}
 			WHERE {raw:column} IN ({array_int:values})',
-			array(
+			[
 				'table' => $table,
 				'column' => $column,
 				'values' => $values,
-			)
+			]
 		);
 
-		return $db->affected_rows();
+		return $request->affected_rows();
 	}
 }

@@ -4,20 +4,28 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.1 / elkarte
+ * @version 2.0.0 / elkarte
  */
+
+namespace Addons\Levertine\Source\Model;
+
+use Addons\Levertine\Source\LevGalBootstrap;
+use ElkArte\Cache\Cache;
+use ElkArte\Notifications\Notifications;
+use ElkArte\Notifications\NotificationsTask;
+use ElkArte\User;
 
 /**
  * This file deals with items that users have liked.
  */
-class LevGal_Model_Like
+class Like
 {
 	protected function clearCacheByItems($id_items)
 	{
 		$id_items = (array) $id_items;
 		foreach ($id_items as $id_item)
 		{
-			cache_put_data('lgal_likes_i' . $id_item, null);
+			Cache::instance()->put('lgal_likes_i' . $id_item, null);
 		}
 	}
 
@@ -28,7 +36,7 @@ class LevGal_Model_Like
 		$cache_key = 'lgal_likes_i' . $id_item;
 		$cache_ttl = 150;
 
-		if (($temp = cache_get_data($cache_key, $cache_ttl)) === null)
+		if (($temp = Cache::instance()->get($cache_key, $cache_ttl)) === null)
 		{
 			$request = $db->query('', '
 				SELECT
@@ -37,17 +45,17 @@ class LevGal_Model_Like
 					INNER JOIN {db_prefix}members AS mem ON (l.id_member = mem.id_member)
 				WHERE l.id_item = {int:item}
 				ORDER BY l.like_time ASC',
-				array(
+				[
 					'item' => $id_item,
-				)
+				]
 			);
-			$temp = array();
-			while ($row = $db->fetch_assoc($request))
+			$temp = [];
+			while ($row = $request->fetch_assoc())
 			{
 				$temp[$row['id_member']] = $row['real_name'];
 			}
 
-			cache_put_data($cache_key, $temp, $cache_ttl);
+			Cache::instance()->put($cache_key, $temp, $cache_ttl);
 		}
 
 		return $temp;
@@ -55,44 +63,42 @@ class LevGal_Model_Like
 
 	public function likeItem($id_item)
 	{
-		global $user_info;
-
 		$db = database();
 
 		$db->insert('replace',
 			'{db_prefix}lgal_likes',
-			array('id_item' => 'int', 'id_member' => 'int', 'like_time' => 'int'),
-			array($id_item, $user_info['id'], time()),
-			array('id_item', 'id_member')
+			['id_item' => 'int', 'id_member' => 'int', 'like_time' => 'int'],
+			[$id_item, User::$info['id'], time()],
+			['id_item', 'id_member']
 		);
 
-		call_integration_hook('integrate_lgal_like_item', array($id_item));
+		call_integration_hook('integrate_lgal_like_item', [$id_item]);
 		$this->likeMention($id_item);
 		$this->clearCacheByItems($id_item);
 	}
 
 	public function likeMention($itemID)
 	{
-		global $modSettings, $user_info;
+		global $modSettings;
 
 		if (empty($itemID) || empty($modSettings['mentions_enabled']))
 		{
 			return;
 		}
 
-		$itemModel = LevGal_Bootstrap::getModel('LevGal_Model_Item');
+		$itemModel = LevGalBootstrap::getModel('Item');
 		$item_details = $itemModel->getItemInfoById($itemID);
 
 		// Lets add in a mention to the member that just had their item liked
-		$notifier = \Notifications::instance();
-		$notifier->add(new Notifications_Task(
+		$notifier = Notifications::instance();
+		$notifier->add(new NotificationsTask(
 			'lglike',
 			$itemID,
-			$user_info['id'],
-			array(
+			User::$info['id'],
+			[
 				'id_members' => $item_details['id_member'],
 				'subject' => $item_details['item_name'],
-				'status' => $item_details['approved'] ? 'new' : 'unapproved')
+				'status' => $item_details['approved'] ? 'new' : 'unapproved']
 			));
 
 		// Need to call send this now as an ajax event and will not follow normal flow
@@ -101,21 +107,19 @@ class LevGal_Model_Like
 
 	public function unlikeItem($id_item)
 	{
-		global $user_info;
-
 		$db = database();
 
 		$db->query('', '
 			DELETE FROM {db_prefix}lgal_likes
 			WHERE id_item = {int:item}
 				AND id_member = {int:member}',
-			array(
+			[
 				'item' => $id_item,
-				'member' => $user_info['id'],
-			)
+				'member' => User::$info['id'],
+			]
 		);
 
-		call_integration_hook('integrate_lgal_unlike_item', array($id_item));
+		call_integration_hook('integrate_lgal_unlike_item', [$id_item]);
 		$this->clearCacheByItems($id_item);
 	}
 
@@ -128,9 +132,9 @@ class LevGal_Model_Like
 		$db->query('', '
 			DELETE FROM {db_prefix}lgal_likes
 			WHERE id_item IN ({array_int:item})',
-			array(
+			[
 				'item' => $id_items,
-			)
+			]
 		);
 
 		$this->clearCacheByItems($id_items);
@@ -141,31 +145,31 @@ class LevGal_Model_Like
 		$db = database();
 
 		$id_members = (array) $id_members;
-		$items = array();
+		$items = [];
 
 		$request = $db->query('', '
 			SELECT 
 				id_item
 			FROM {db_prefix}lgal_likes
 			WHERE id_member IN ({array_int:members})',
-			array(
+			[
 				'members' => $id_members,
-			)
+			]
 		);
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
 			$items[] = $row['id_item'];
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		if (!empty($items))
 		{
 			$db->query('', '
 				DELETE FROM {db_prefix}lgal_likes
 				WHERE id_member IN ({array_int:members})',
-				array(
+				[
 					'members' => $id_members,
-				)
+				]
 			);
 			$this->clearCacheByItems(array_unique($items));
 		}

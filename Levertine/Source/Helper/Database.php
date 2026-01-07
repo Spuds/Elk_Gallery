@@ -4,13 +4,15 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 2.0.0 / elkarte
  */
+
+namespace Addons\Levertine\Source\Helper;
 
 /**
  * This file deals with some database internals.
  */
-class LevGal_Helper_Database
+class Database
 {
 	public static function matchTable($table_name)
 	{
@@ -30,6 +32,6 @@ class LevGal_Helper_Database
 
 	private static function getTableList()
 	{
-		return database()->db_list_tables();
+		return database()->list_tables();
 	}
 }

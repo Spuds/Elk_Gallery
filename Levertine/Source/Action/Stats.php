@@ -4,13 +4,19 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 2.0.0 / elkarte
  */
+
+namespace Addons\Levertine\Source\Action;
+
+use Addons\Levertine\Source\Helper\Format;
+use Addons\Levertine\Source\Model\Stats as StatsModel;
+use ElkArte\Languages\Txt;
 
 /**
  * This file provides the stats page, site/?media/stats/.
  */
-class LevGal_Action_Stats extends LevGal_Action_Abstract
+class Stats extends LevGalAbstract
 {
 	public function actionIndex()
 	{
@@ -18,8 +24,8 @@ class LevGal_Action_Stats extends LevGal_Action_Abstract
 
 		// Stuff we will need
 		$this->setTemplate('LevGal-Stats', 'stats', 'admin_lg.css');
-		loadLanguage('levgal_lng/LevGal-Stats');
-		loadJavascriptFile('chart.min.js', ['subdir' => 'levgal_res', 'defer' => false]);
+		Txt::load('Levertine/LevGal-Stats');
+		loadJavascriptFile('chart.min.js', ['subdir' => 'Levertine', 'defer' => false]);
 
 		$this->addLinkTree($txt['levgal'], '?media/');
 		$this->addLinkTree($txt['levgal_stats_linktree'], '?media/stats/');
@@ -36,12 +42,12 @@ class LevGal_Action_Stats extends LevGal_Action_Abstract
 	{
 		global $context;
 
-		$statsModel = new LevGal_Model_Stats();
+		$statsModel = new StatsModel();
 
-		$context['general_stats'] = array(
-			'left' => array(),
-			'right' => array(),
-		);
+		$context['general_stats'] = [
+			'left' => [],
+			'right' => [],
+		];
 
 		// Easy ones.
 		$total_items = $statsModel->getTotalItems();
@@ -61,7 +67,7 @@ class LevGal_Action_Stats extends LevGal_Action_Abstract
 		$size = $statsModel->getTotalGallerySize();
 		if ($size !== false)
 		{
-			$context['general_stats']['right']['total_filesize'] = LevGal_Helper_Format::filesize($size);
+			$context['general_stats']['right']['total_filesize'] = Format::filesize($size);
 		}
 
 		// Top posters and top albums.

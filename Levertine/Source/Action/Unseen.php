@@ -4,13 +4,21 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 2.0.0 / elkarte
  */
+
+namespace Addons\Levertine\Source\Action;
+
+use Addons\Levertine\Source\Helper\Http;
+use Addons\Levertine\Source\LevGalBootstrap;
+use Addons\Levertine\Source\Model\Unseen as UnseenModel;
+use ElkArte\User;
+use function Addons\Levertine\Source\levgal_pageindex;
 
 /**
  * This file provides the unseen page, site/?media/unseen/.
  */
-class LevGal_Action_Unseen extends LevGal_Action_Abstract
+class Unseen extends LevGalAbstract
 {
 	public function __construct()
 	{
@@ -22,7 +30,7 @@ class LevGal_Action_Unseen extends LevGal_Action_Abstract
 
 	public function actionIndex()
 	{
-		global $context, $txt, $user_settings, $modSettings, $scripturl;
+		global $context, $txt, $modSettings, $scripturl;
 
 		// Stuff we will need
 		$this->setTemplate('LevGal-Unseen', 'unseen');
@@ -34,25 +42,26 @@ class LevGal_Action_Unseen extends LevGal_Action_Abstract
 		$context['canonical_url'] = $scripturl . '?media/unseen/';
 
 		// Only go looking for unseen things if we think there is something to see.
-		if (!empty($user_settings['lgal_unseen']))
+		if (!empty(User::$settings['lgal_unseen']))
 		{
-			$unseenModel = new LevGal_Model_Unseen();
+			$unseenModel = new UnseenModel();
 			$context['unseen_albums'] = $unseenModel->getUnseenCountByAlbum();
 
-			$num_pages = ceil($user_settings['lgal_unseen'] / $modSettings['lgal_items_per_page']);
-			$this_page = isset($_GET['page']) ? LevGal_Bootstrap::clamp((int) $_GET['page'], 1, $num_pages) : 1;
+			$num_pages = ceil(User::$settings['lgal_unseen'] / $modSettings['lgal_items_per_page']);
+			$this_page = isset($_GET['page']) ? LevGalBootstrap::clamp((int) $_GET['page'], 1, $num_pages) : 1;
 
 			// Are we filtering by album?
 			$base_url = $scripturl . '?media/unseen/';
-			list ($album_slug, $album_id) = $this->getSlugAndId();
+			[$album_slug, $album_id] = $this->getSlugAndId();
 			$context['album_filter'] = 0;
 			if (!empty($album_id) && isset($context['unseen_albums'][$album_id])) {
 				$base_url = $context['unseen_albums'][$album_id]['filter_url'];
 				$this->addLinkTree($context['unseen_albums'][$album_id]['album_name'], $context['unseen_albums'][$album_id]['filter_url']);
 				$context['canonical_url'] = $context['unseen_albums'][$album_id]['filter_url'];
+
 				// If we *are* filtering, we need to recalculate the page count.
 				$num_pages = ceil($context['unseen_albums'][$album_id]['unseen'] / $modSettings['lgal_items_per_page']);
-				$this_page = isset($_GET['page']) ? LevGal_Bootstrap::clamp((int) $_GET['page'], 1, $num_pages) : 1;
+				$this_page = isset($_GET['page']) ? LevGalBootstrap::clamp((int) $_GET['page'], 1, $num_pages) : 1;
 				if ($this_page > 1)
 				{
 					$context['canonical_url'] .= 'page-' . $this_page . '/';
@@ -60,11 +69,11 @@ class LevGal_Action_Unseen extends LevGal_Action_Abstract
 				// Check the slug is right otherwise redirect.
 				if ($album_slug !== $context['unseen_albums'][$album_id]['album_slug'])
 				{
-					LevGal_Helper_Http::hardRedirect($base_url . ($this_page > 1 ? 'page-' . $this_page . '/' : ''));
+					Http::hardRedirect($base_url . ($this_page > 1 ? 'page-' . $this_page . '/' : ''));
 				}
 				$context['album_filter'] = $album_id;
-				$context['unseen_actions']['actions']['album'] = array($txt['lgal_go_to_album'], $context['unseen_albums'][$album_id]['album_url']);
-				$context['unseen_actions']['actions']['markseen'] = array($txt['lgal_mark_album_seen'], $context['unseen_albums'][$album_id]['filter_url'] . 'markseen/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'tab' => true);
+				$context['unseen_actions']['actions']['album'] = [$txt['lgal_go_to_album'], $context['unseen_albums'][$album_id]['album_url']];
+				$context['unseen_actions']['actions']['markseen'] = [$txt['lgal_mark_album_seen'], $context['unseen_albums'][$album_id]['filter_url'] . 'markseen/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'tab' => true];
 			}
 
 			if ($num_pages > 1)
@@ -77,7 +86,7 @@ class LevGal_Action_Unseen extends LevGal_Action_Abstract
 			// Marking All seen
 			if (empty($album_id))
 			{
-				$context['unseen_actions']['actions']['markseen'] = array($txt['lgal_mark_all_seen'], '?media/unseen/all.1/markall/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'tab' => true, 'sidebar' => false);
+				$context['unseen_actions']['actions']['markseen'] = [$txt['lgal_mark_all_seen'], '?media/unseen/all.1/markall/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'tab' => true, 'sidebar' => false];
 			}
 		}
 	}
@@ -86,11 +95,11 @@ class LevGal_Action_Unseen extends LevGal_Action_Abstract
 	{
 		global $scripturl, $context;
 
-		list (, $album_id) = $this->getSlugAndId();
+		[, $album_id] = $this->getSlugAndId();
 		if (!empty($album_id))
 		{
 			checkSession('get');
-			$unseenModel = new LevGal_Model_Unseen();
+			$unseenModel = new UnseenModel();
 			$context['unseen_albums'] = $unseenModel->getUnseenCountByAlbum();
 			if (isset($context['unseen_albums'][$album_id]))
 			{
@@ -103,12 +112,12 @@ class LevGal_Action_Unseen extends LevGal_Action_Abstract
 
 	public function actionMarkall()
 	{
-		global $user_info, $user_settings, $scripturl;
+		global $scripturl;
 
-		if (!$user_info['is_guest'] && !empty($user_settings['lgal_unseen']))
+		if (!User::$info['is_guest'] && !empty(User::$settings['lgal_unseen']))
 		{
 			checkSession('get');
-			$unseenModel = new LevGal_Model_Unseen();
+			$unseenModel = new UnseenModel();
 			$unseen_albums = $unseenModel->getUnseenCountByAlbum();
 			foreach ($unseen_albums as $album_id => $album)
 			{

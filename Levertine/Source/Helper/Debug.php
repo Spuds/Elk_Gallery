@@ -7,10 +7,12 @@
  * @version 1.0 / elkarte
  */
 
+namespace Addons\Levertine\Source\Helper;
+
 /**
  * This file deals with debugging.
  */
-class LevGal_Helper_Debug
+class Debug
 {
 	public static function queryLog()
 	{

@@ -4,34 +4,50 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 2.0.0 / elkarte
  */
+
+namespace Addons\Levertine\Source\Action;
+
+use Addons\Levertine\Source\Helper\Http;
+use Addons\Levertine\Source\Model\File as FileModel;
+use Addons\Levertine\Source\Model\Item;
 
 /**
  * This file provides the handling for serving files, site/?media/file/*.
  */
-class LevGal_Action_File extends LevGal_Action_Abstract
+class File extends LevGalAbstract
 {
 	/** @var bool */
 	private $item_id;
+
 	/** @var bool */
 	private $item_slug;
-	/** @var \LevGal_Model_Item */
+
+	/** @var Item */
 	private $item_obj;
+
 	/** @var bool */
 	private $is_downloading = false;
+
 	/** @var string */
 	private $viewtype = 'raw';
-	/** @var \LevGal_Model_File */
+
+	/** @var FileModel */
 	private $file_model = false;
-	/** @var bool */
+
+	/** @var array */
 	private $file_details = false;
+
 	/** @var mixed */
 	private $file_paths = false;
+
 	/** @var int */
 	private $file_start = 0;
+
 	/** @var int */
 	private $file_end = 0;
+
 	/** @var bool */
 	private $whole_file = true;
 
@@ -43,22 +59,22 @@ class LevGal_Action_File extends LevGal_Action_Abstract
 		parent::__construct();
 
 		// Attempt to get something useful.
-		list ($this->item_slug, $this->item_id) = $this->getSlugAndId();
+		[$this->item_slug, $this->item_id] = $this->getSlugAndId();
 
 		// Fetch some details.
-		$this->item_obj = new LevGal_Model_Item();
+		$this->item_obj = new Item();
 		$context['item_details'] = $this->item_obj->getItemInfoById($this->item_id);
 
 		// Does the item even exist? Can they see it if it does?
 		if (!$context['item_details'] || !$this->item_obj->isVisible())
 		{
-			LevGal_Helper_Http::fatalError('error_no_item');
+			Http::fatalError('error_no_item');
 		}
 
 		// Does the item slug provided match the provided slug? If not, run away.
 		if ($context['item_details']['item_slug'] != $this->item_slug)
 		{
-			LevGal_Helper_Http::hardRedirect($context['item_details']['item_url'] . (empty($_GET['sub']) ? '' : $_GET['sub'] . '/'));
+			Http::hardRedirect($context['item_details']['item_url'] . (empty($_GET['sub']) ? '' : $_GET['sub'] . '/'));
 		}
 	}
 
@@ -67,20 +83,20 @@ class LevGal_Action_File extends LevGal_Action_Abstract
 		// First obtain the model of the file itself, which will also obtain the album id.
 		// This will, amongst other things, validate the item exists and prepare to do
 		// our redirect magic if needed.
-		$this->file_model = new LevGal_Model_File();
+		$this->file_model = new FileModel();
 		$this->file_details = $this->file_model->getFileInfoById($this->item_id);
 		$this->file_paths = $this->file_model->getFilePaths();
 
 		// Does the item exist?
 		if (empty($this->file_details) || empty($this->file_paths[$this->viewtype]))
 		{
-			LevGal_Helper_Http::setResponseExit(404, '404 File Not Found');
+			Http::setResponseExit(404, '404 File Not Found');
 		}
 
 		// Whereas with albums we can check permissions before redirection, for files we may not be able to.
 		if ($this->file_details['item_slug'] !== $this->item_slug)
 		{
-			LevGal_Helper_Http::hardRedirect($this->file_model->getFileUrl() . ($this->viewtype !== 'raw' ? $this->viewtype . '/' : ''));
+			Http::hardRedirect($this->file_model->getFileUrl() . ($this->viewtype !== 'raw' ? $this->viewtype . '/' : ''));
 		}
 
 		// Just let's make sure we get the actual size of what we're sending, since thumbnails will
@@ -111,7 +127,7 @@ class LevGal_Action_File extends LevGal_Action_Abstract
 		// caching headers. There's little truly useful information.
 		if (!$this->file_model->isVisible())
 		{
-			LevGal_Helper_Http::setResponseExit(404, '404 File Not Found');
+			Http::setResponseExit(404, '404 File Not Found');
 		}
 
 		// And so it begins.
@@ -133,7 +149,7 @@ class LevGal_Action_File extends LevGal_Action_Abstract
 		// Finally... sending chunks.
 		if (!$this->sendChunks())
 		{
-			LevGal_Helper_Http::setResponseExit(500, 'Something went wrong :(');
+			Http::setResponseExit(500, 'Something went wrong :(');
 		}
 
 		exit;
@@ -178,10 +194,10 @@ class LevGal_Action_File extends LevGal_Action_Abstract
 		header('Last-Modified: ' . gmdate('D, d M Y H:i:s', filemtime($this->file_paths[$this->viewtype])) . ' GMT');
 		if (!empty($_SERVER['HTTP_IF_MODIFIED_SINCE']))
 		{
-			list ($modified_since) = explode(';', $_SERVER['HTTP_IF_MODIFIED_SINCE']);
+			[$modified_since] = explode(';', $_SERVER['HTTP_IF_MODIFIED_SINCE']);
 			if ($this->file_model->modifiedSince(strtotime($modified_since)))
 			{
-				LevGal_Helper_Http::setResponseExit(304);
+				Http::setResponseExit(304);
 			}
 		}
 
@@ -191,7 +207,7 @@ class LevGal_Action_File extends LevGal_Action_Abstract
 		{
 			if (!empty($_SERVER['HTTP_IF_NONE_MATCH']) && $_SERVER['HTTP_IF_NONE_MATCH'] == $eTag)
 			{
-				LevGal_Helper_Http::setResponseExit(304);
+				Http::setResponseExit(304);
 			}
 			header('ETag: ' . $eTag);
 		}
@@ -219,24 +235,24 @@ class LevGal_Action_File extends LevGal_Action_Abstract
 		else
 		{
 			// Range request without a bytes header? That's sort of not valid.
-			LevGal_Helper_Http::setResponseExit(400);
+			Http::setResponseExit(400);
 		}
 
 		// Check it's in bounds.
 		if ($this->file_start > $this->file_details['filesize'] || $this->file_end > $this->file_details['filesize'])
 		{
-			LevGal_Helper_Http::setResponseExit(416);
+			Http::setResponseExit(416);
 		}
 
 		// Attempt to be all funky and cap the size being sent. Except on iOS which gets very upset if we try this.
 		if (!empty($_SERVER['HTTP_USER_AGENT'])
-			&& strpos($_SERVER['HTTP_USER_AGENT'], 'AppleCoreMedia') === false
+			&& !str_contains($_SERVER['HTTP_USER_AGENT'], 'AppleCoreMedia')
 			&& $this->file_end - $this->file_start + 1 > $modSettings['lgal_chunk_size'])
 		{
 			$this->file_end = $this->file_start + ($modSettings['lgal_chunk_size'] - 1);
 		}
 
-		LevGal_Helper_Http::setResponse(206);
+		Http::setResponse(206);
 		header('Content-Range: bytes ' . $this->file_start . '-' . $this->file_end . '/' . $this->file_details['filesize']);
 		$this->whole_file = false;
 	}
@@ -283,7 +299,7 @@ class LevGal_Action_File extends LevGal_Action_Abstract
 			$content_type = $this->file_details['mime_type'];
 
 			// There are some magic overrides we have to use for iOS devices even though what we record is basically right.
-			if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], 'iPad') !== false || strpos($_SERVER['HTTP_USER_AGENT'], 'iPhone') !== false))
+			if (isset($_SERVER['HTTP_USER_AGENT']) && (str_contains($_SERVER['HTTP_USER_AGENT'], 'iPad') || str_contains($_SERVER['HTTP_USER_AGENT'], 'iPhone')))
 			{
 				if ($content_type === 'audio/mp4' && $this->file_details['extension'] === 'm4a')
 				{
@@ -310,6 +326,7 @@ class LevGal_Action_File extends LevGal_Action_Abstract
 		$disposition = $this->is_downloading ? 'attachment' : 'inline';
 
 		$fileName = str_replace('"', '',  $this->file_details['filename']);
+		$fileName = preg_replace('~(?<=[a-z0-9])[+\-](?=[a-z0-9])~i', ' ', $fileName);
 
 		// Send as UTF-8 if the name requires that
 		$altName = '';
@@ -364,7 +381,7 @@ class LevGal_Action_File extends LevGal_Action_Abstract
 		if ($file_handle = @fopen($file_name, 'rb'))
 		{
 			fseek($file_handle, $this->file_start);
-			while (!feof($file_handle) && ($current_pos < $actual_end) && (connection_status() == CONNECTION_NORMAL))
+			while (!feof($file_handle) && ($current_pos < $actual_end) && (connection_status() === CONNECTION_NORMAL))
 			{
 				detectServer()->setTimeLimit(10);
 				$chunk = @fread($file_handle, min($segment_size, $actual_end - $current_pos));

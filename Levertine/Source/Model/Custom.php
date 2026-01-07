@@ -4,32 +4,38 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 2.0.0 / elkarte
  */
 
+namespace Addons\Levertine\Source\Model;
+
+use Addons\Levertine\Source\Helper\Sanitiser;
 use BBC\ParserWrapper;
+use ElkArte\Cache\Cache;
+use ElkArte\Helper\Util;
+use ElkArte\Languages\Txt;
 
 /**
  * This file deals with custom fields.
  */
-class LevGal_Model_Custom
+class Custom
 {
 	/** @var array  */
 	private $cache;
 
 	public function __construct()
 	{
-		$this->cache = array();
+		$this->cache = [];
 	}
 
 	public function getValidFieldTypes()
 	{
-		return array('integer', 'float', 'text', 'largetext', 'select', 'multiselect', 'radio', 'checkbox');
+		return ['integer', 'float', 'text', 'largetext', 'select', 'multiselect', 'radio', 'checkbox'];
 	}
 
 	public function getValidValidationTypes()
 	{
-		return array('nohtml', 'email', 'numbers', 'regex');
+		return ['nohtml', 'email', 'numbers', 'regex'];
 	}
 
 	public function getCustomFieldsByAlbum($album)
@@ -44,9 +50,9 @@ class LevGal_Model_Custom
 		$cache_key = 'lgal_cfield_a' . $album;
 		$cache_ttl = 150;
 
-		if (($temp = cache_get_data($cache_key, $cache_ttl)) === null)
+		if (($temp = Cache::instance()->get($cache_key, $cache_ttl)) === null)
 		{
-			$temp = array();
+			$temp = [];
 			$request = $db->query('', '
 				SELECT 
 				    id_field, field_name, description, field_type, field_options,
@@ -56,10 +62,10 @@ class LevGal_Model_Custom
 				ORDER BY field_pos, id_field'
 			);
 			$parser = ParserWrapper::instance();
-			while ($row = $db->fetch_assoc($request))
+			while ($row = $request->fetch_assoc())
 			{
-				$row['field_options'] = !empty($row['field_options']) ? explode(',', $row['field_options']) : array();
-				$row['field_config'] = !empty($row['field_config']) ? Util::unserialize($row['field_config']) : array();
+				$row['field_options'] = !empty($row['field_options']) ? explode(',', $row['field_options']) : [];
+				$row['field_config'] = !empty($row['field_config']) ? Util::unserialize($row['field_config']) : [];
 				$row['description_raw'] = $row['description'];
 				$row['description'] = $parser->parseMessage($row['description'], false);
 				if (!empty($row['field_config']['all_albums']) || (!empty($row['field_config']['albums']) && in_array($album, $row['field_config']['albums'], true)))
@@ -67,9 +73,9 @@ class LevGal_Model_Custom
 					$temp[$row['id_field']] = $row;
 				}
 			}
-			$db->free_result($request);
+			$request->free_result();
 
-			cache_put_data($cache_key, $temp, $cache_ttl);
+			Cache::instance()->put($cache_key, $temp, $cache_ttl);
 		}
 
 		$this->cache['albums'][$album] = $temp;
@@ -82,11 +88,11 @@ class LevGal_Model_Custom
 		$db = database();
 
 		$fields = $this->getCustomFieldsByAlbum($album);
-		$values = array();
+		$values = [];
 
 		if (empty($fields))
 		{
-			return array();
+			return [];
 		}
 
 		$request = $db->query('', '
@@ -95,13 +101,13 @@ class LevGal_Model_Custom
 			FROM {db_prefix}lgal_custom_field_data
 			WHERE id_item = {int:item}
 				AND id_field IN ({array_int:fields})',
-			array(
+			[
 				'item' => $item,
 				'fields' => array_keys($fields),
-			)
+			]
 		);
 		$parser = ParserWrapper::instance();
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
 			$values[$row['id_field']]['raw'] = $row['value'];
 			if ($fields[$row['id_field']]['field_type'] === 'multiselect')
@@ -121,7 +127,7 @@ class LevGal_Model_Custom
 				$values[$row['id_field']]['display'] = !empty($fields[$row['id_field']]['field_config']['bbc']) ? $parser->parseMessage($row['value'], false) : $row['value'];
 			}
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		return $values;
 	}
@@ -131,21 +137,21 @@ class LevGal_Model_Custom
 		$db = database();
 
 		// 1. Get all the items with this field
-		$items = array();
+		$items = [];
 		$request = $db->query('', '
 			SELECT 
 				id_item
 			FROM {db_prefix}lgal_custom_field_data
 			WHERE id_field = {int:field}',
-			array(
+			[
 				'field' => $id_field,
-			)
+			]
 		);
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
 			$items[] = $row['id_item'];
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		// 2. Delete all the entries for this field from data table
 		if (!empty($items))
@@ -154,10 +160,10 @@ class LevGal_Model_Custom
 				DELETE FROM {db_prefix}lgal_custom_field_data
 				WHERE id_item IN ({array_int:items})
 					AND id_field = {int:field}',
-				array(
+				[
 					'items' => $items,
 					'field' => $id_field,
-				)
+				]
 			);
 		}
 
@@ -165,13 +171,13 @@ class LevGal_Model_Custom
 		$db->query('', '
 			DELETE FROM {db_prefix}lgal_custom_field
 			WHERE id_field = {int:field}',
-			array(
+			[
 				'field' => $id_field,
-			)
+			]
 		);
 
 		// 4. Assess if, for those items we fetched in step 1, if any of them no longer have any fields - if not, update has_custom for those items.
-		$items_without_fields = array();
+		$items_without_fields = [];
 
 		if (!empty($items))
 		{
@@ -182,18 +188,18 @@ class LevGal_Model_Custom
 					LEFT JOIN {db_prefix}lgal_custom_field_data AS lcfd ON (li.id_item = lcfd.id_item)
 				WHERE li.id_item IN ({array_int:items})
 				GROUP BY li.id_item',
-				array(
+				[
 					'items' => $items,
-				)
+				]
 			);
-			while ($row = $db->fetch_assoc($request))
+			while ($row = $request->fetch_assoc())
 			{
 				if (empty($row['num_fields']))
 				{
 					$items_without_fields[] = $row['id_item'];
 				}
 			}
-			$db->free_result($request);
+			$request->free_result();
 
 			if (!empty($items_without_fields))
 			{
@@ -201,9 +207,9 @@ class LevGal_Model_Custom
 					UPDATE {db_prefix}lgal_items
 					SET has_custom = 0
 					WHERE id_item IN ({array_int:items})',
-					array(
+					[
 						'items' => $items_without_fields,
-					)
+					]
 				);
 			}
 		}
@@ -215,7 +221,7 @@ class LevGal_Model_Custom
 	{
 		$fields = $this->getAllCustomFields();
 
-		return $fields[$id] ?? array();
+		return $fields[$id] ?? [];
 	}
 
 	public function getAllCustomFields()
@@ -224,24 +230,24 @@ class LevGal_Model_Custom
 
 		$cache_key = 'lgal_custom_fields';
 		$cache_ttl = 120;
-		if (($fields = cache_get_data($cache_key, $cache_ttl)) === null)
+		if (($fields = Cache::instance()->get($cache_key, $cache_ttl)) === null)
 		{
-			$fields = array();
+			$fields = [];
 			$request = $db->query('', '
 				SELECT 
 				    id_field, field_name, description, field_type, field_options,
 					field_config, field_pos, active, can_search, default_val, placement
 				FROM {db_prefix}lgal_custom_field
 				ORDER BY field_pos, id_field');
-			while ($row = $db->fetch_assoc($request))
+			while ($row = $request->fetch_assoc())
 			{
-				$row['field_options'] = !empty($row['field_options']) ? explode(',', $row['field_options']) : array();
-				$row['field_config'] = !empty($row['field_config']) ? Util::unserialize($row['field_config']) : array();
+				$row['field_options'] = !empty($row['field_options']) ? explode(',', $row['field_options']) : [];
+				$row['field_config'] = !empty($row['field_config']) ? Util::unserialize($row['field_config']) : [];
 				$fields[$row['id_field']] = $row;
 			}
-			$db->free_result($request);
+			$request->free_result();
 
-			cache_put_data($cache_key, $fields, $cache_ttl);
+			Cache::instance()->put($cache_key, $fields, $cache_ttl);
 		}
 
 		return $fields;
@@ -250,14 +256,9 @@ class LevGal_Model_Custom
 	public function getSearchableFields()
 	{
 		$fields = $this->getAllCustomFields();
-		$searchable_fields = array();
-		foreach ($fields as $id_field => $field)
-		{
-			if (!empty($field['active']) && !empty($field['can_search']))
-			{
-				$searchable_fields[$id_field] = $field;
-			}
-		}
+		$searchable_fields = array_filter($fields, static function ($field) {
+			return !empty($field['active']) && !empty($field['can_search']);
+		});
 
 		return $searchable_fields;
 	}
@@ -272,9 +273,9 @@ class LevGal_Model_Custom
 			$db->query('', '
 				DELETE FROM {db_prefix}lgal_custom_field_data
 				WHERE id_item IN ({array_int:items})',
-				array(
+				[
 					'items' => $items,
-				)
+				]
 			);
 		}
 	}
@@ -288,9 +289,9 @@ class LevGal_Model_Custom
 			$opts['field_type'] = 'text';
 		}
 
-		list ($field_options, $field_config) = $this->buildConfig($opts);
+		[$field_options, $field_config] = $this->buildConfig($opts);
 
-		$row = array(
+		$row = [
 			'field_name' => $opts['field_name'],
 			'description' => !empty($opts['description']) ? $opts['description'] : '',
 			'field_type' => $opts['field_type'],
@@ -301,7 +302,7 @@ class LevGal_Model_Custom
 			'can_search' => !empty($opts['can_search']) ? 1 : 0,
 			'default_val' => !empty($opts['default_val']) ? $opts['default_val'] : '',
 			'placement' => !empty($opts['placement']) ? $opts['placement'] : 0,
-		);
+		];
 
 		// Make some room.
 		$db->query('', '
@@ -311,11 +312,11 @@ class LevGal_Model_Custom
 		// And... tada.
 		$db->insert('replace',
 			'{db_prefix}lgal_custom_field',
-			array('field_name' => 'string', 'description' => 'string', 'field_type' => 'string', 'field_options' => 'string',
+			['field_name' => 'string', 'description' => 'string', 'field_type' => 'string', 'field_options' => 'string',
 				  'field_config' => 'string', 'field_pos' => 'int', 'active' => 'int', 'can_search' => 'int',
-				  'default_val' => 'string', 'placement' => 'int'),
+				  'default_val' => 'string', 'placement' => 'int'],
 			$row,
-			array('id_field')
+			['id_field']
 		);
 
 		$this->recacheFields();
@@ -325,7 +326,7 @@ class LevGal_Model_Custom
 
 	protected function buildConfig($opts)
 	{
-		$field_config = array();
+		$field_config = [];
 		$field_options = '';
 		switch ($opts['field_type'])
 		{
@@ -339,10 +340,10 @@ class LevGal_Model_Custom
 				break;
 			case 'largetext':
 				$field_config['max_length'] = isset($opts['field_config']['max_length']) ? (int) $opts['field_config']['max_length'] : '';
-				$field_config['default_size'] = array(
+				$field_config['default_size'] = [
 					'columns' => isset($opts['field_config']['default_size']['columns']) ? (int) $opts['field_config']['default_size']['columns'] : 30,
 					'rows' => isset($opts['field_config']['default_size']['rows']) ? (int) $opts['field_config']['default_size']['rows'] : 4,
-				);
+				];
 				break;
 			case 'integer':
 				if (isset($opts['field_config']['min'], $opts['field_config']['max']))
@@ -371,7 +372,7 @@ class LevGal_Model_Custom
 				break;
 		}
 
-		if (!empty($opts['field_config']['bbc']) && in_array($opts['field_type'], array('text', 'largetext', 'radio', 'multiselect')))
+		if (!empty($opts['field_config']['bbc']) && in_array($opts['field_type'], ['text', 'largetext', 'radio', 'multiselect']))
 		{
 			$field_config['bbc'] = true;
 		}
@@ -386,21 +387,21 @@ class LevGal_Model_Custom
 		}
 		else
 		{
-			$field_config['albums'] = !empty($opts['field_config']['albums']) ? $opts['field_config']['albums'] : array();
+			$field_config['albums'] = !empty($opts['field_config']['albums']) ? $opts['field_config']['albums'] : [];
 		}
 
-		return array($field_options, $field_config);
+		return [$field_options, $field_config];
 	}
 
 	public function updateField($field, $opts)
 	{
 		$db = database();
 
-		$criteria = array();
-		$values = array();
+		$criteria = [];
+		$values = [];
 
 		// Strings.
-		foreach (array('field_name', 'description', 'default_val', 'field_type') as $opt)
+		foreach (['field_name', 'description', 'default_val', 'field_type'] as $opt)
 		{
 			if (isset($opts[$opt]))
 			{
@@ -412,7 +413,7 @@ class LevGal_Model_Custom
 		// Special strings
 		if (isset($opts['field_options'], $opts['field_config']))
 		{
-			list ($opts['field_options'], $opts['field_config']) = $this->buildConfig($opts);
+			[$opts['field_options'], $opts['field_config']] = $this->buildConfig($opts);
 			$criteria[] = 'field_options = {string:field_options}';
 			$criteria[] = 'field_config = {string:field_config}';
 			$values['field_options'] = $opts['field_options'];
@@ -420,24 +421,22 @@ class LevGal_Model_Custom
 		}
 
 		// Special integers we know about.
-		if (isset($opts['placement']) && in_array($opts['placement'], array(0, 1, 2), true))
+		if (isset($opts['placement']) && in_array($opts['placement'], [0, 1, 2], true))
 		{
 			$criteria[] = 'placement = {int:placement}';
 			$values['placement'] = $opts['placement'];
 		}
 
 		// Regular ints.
-		foreach (array('field_pos') as $opt)
+		$opt = 'field_pos';
+		if (isset($opts[$opt]))
 		{
-			if (isset($opts[$opt]))
-			{
-				$criteria[] = $opt . ' = {int:' . $opt . '}';
-				$values[$opt] = !empty($opts[$opt]) ? (int) $opts[$opt] : '';
-			}
+			$criteria[] = $opt . ' = {int:' . $opt . '}';
+			$values[$opt] = !empty($opts[$opt]) ? (int) $opts[$opt] : '';
 		}
 
 		// Pseudobools.
-		foreach (array('can_search', 'active') as $opt)
+		foreach (['can_search', 'active'] as $opt)
 		{
 			if (isset($opts[$opt]))
 			{
@@ -463,7 +462,7 @@ class LevGal_Model_Custom
 
 	protected function recacheFields()
 	{
-		cache_put_data('lgal_custom_fields', null);
+		Cache::instance()->put('lgal_custom_fields', null);
 	}
 
 	public function prepareFieldInputs($album, $item = null)
@@ -496,9 +495,9 @@ class LevGal_Model_Custom
 	{
 		global $txt;
 
-		loadLanguage('levgal_lng/LevGal-Errors');
-		$values = array();
-		$errors = array();
+		Txt::load('Levertine/LevGal-Errors');
+		$values = [];
+		$errors = [];
 
 		foreach ($fields as $id_field => $field)
 		{
@@ -535,7 +534,7 @@ class LevGal_Model_Custom
 				case 'text':
 				case 'largetext':
 					// Text is the most complex. Start by getting the field and applying an immediate nohtml validation.
-					$values[$id_field] = LevGal_Helper_Sanitiser::sanitiseTextFromPost('field_' . $id_field);
+					$values[$id_field] = Sanitiser::sanitiseTextFromPost('field_' . $id_field);
 					// First, check the length.
 					if (!empty($field['field_config']['max_length']))
 					{
@@ -610,7 +609,7 @@ class LevGal_Model_Custom
 					if (isset($_POST['field_' . $id_field]))
 					{
 						$raw = (array) $_POST['field_' . $id_field];
-						$possible = array();
+						$possible = [];
 						$count = count($field['field_options']);
 						foreach ($raw as $val)
 						{
@@ -641,7 +640,7 @@ class LevGal_Model_Custom
 			}
 		}
 
-		return array('values' => $values, 'errors' => $errors);
+		return ['values' => $values, 'errors' => $errors];
 	}
 
 	public function displayFieldInputs($fields)
@@ -737,33 +736,33 @@ class LevGal_Model_Custom
 		$db->query('', '
 			DELETE FROM {db_prefix}lgal_custom_field_data
 			WHERE id_item = {int:item}',
-			array(
+			[
 				'item' => $item,
-			)
+			]
 		);
-		$rows = array();
+		$rows = [];
 		foreach ($fields as $id_field => $field)
 		{
 			if (!empty($field['value']))
 			{
-				$rows[] = array($item, $id_field, $field['value']);
+				$rows[] = [$item, $id_field, $field['value']];
 			}
 		}
 		if (!empty($rows))
 		{
 			$db->insert('',
 				'{db_prefix}lgal_custom_field_data',
-				array('id_item' => 'int', 'id_field' => 'int', 'value' => 'text'),
+				['id_item' => 'int', 'id_field' => 'int', 'value' => 'text'],
 				$rows,
-				array('id_item', 'id_field')
+				['id_item', 'id_field']
 			);
 			$db->query('', '
 				UPDATE {db_prefix}lgal_items
 				SET has_custom = 1
 				WHERE id_item = {int:item}',
-				array(
+				[
 					'item' => $item,
-				)
+				]
 			);
 		}
 	}

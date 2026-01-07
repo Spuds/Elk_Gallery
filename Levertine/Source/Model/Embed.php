@@ -4,54 +4,61 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.2 / elkarte
+ * @version 2.0.0 / elkarte
  */
+
+namespace Addons\Levertine\Source\Model;
 
 /**
  * This file deals with the mechanics involved in embedding things inside posts.
  */
-class LevGal_Model_Embed
+class Embed
 {
 	/** @var array[] */
 	private $embed;
+
 	/** @var array[] */
 	private $item_list;
+
 	/** @var string */
 	private $type;
+
 	/** @var string */
 	private $align;
+
 	/** @var int */
 	private $id;
+
 	/** @var int */
 	private static $count = 1;
 
 	public function __construct()
 	{
-		$this->embed = array(
-			'simple' => array(),
-			'complex' => array(),
-		);
+		$this->embed = [
+			'simple' => [],
+			'complex' => [],
+		];
 	}
 
 	public function addSimple()
 	{
 		$this->item_list[$this->id] = true;
-		$this->embed['simple'][self::$count++] = array(
+		$this->embed['simple'][self::$count++] = [
 			'id_msg' => $this->getMsg(),
 			'id' => $this->id,
-			'signature' => $this->getSignature());
+			'signature' => $this->getSignature()];
 	}
 
 	public function addComplex($description)
 	{
 		$this->item_list[$this->id] = true;
-		$this->embed['complex'][self::$count++] = array(
+		$this->embed['complex'][self::$count++] = [
 			'id' => $this->id,
 			'align' => $this->align,
 			'type' => $this->type,
 			'description' => trim($description),
 			'id_msg' => $this->getMsg(),
-			'signature' => $this->getSignature());
+			'signature' => $this->getSignature()];
 	}
 
 	public function getSignature()
@@ -73,6 +80,11 @@ class LevGal_Model_Embed
 		return self::$count;
 	}
 
+	public function getEmbed()
+	{
+		return $this->embed;
+	}
+
 	public function setId($id_item)
 	{
 		$this->id = (int) $id_item;
@@ -82,14 +94,14 @@ class LevGal_Model_Embed
 
 	public function setAlign($align)
 	{
-		$this->align = in_array($align, array('left', 'center', 'right')) ? $align : 'center';
+		$this->align = in_array($align, ['left', 'center', 'right']) ? $align : 'center';
 
 		return $this;
 	}
 
 	public function setType($type)
 	{
-		$this->type = in_array($type, array('thumb', 'preview', 'album')) ? $type : 'thumb';
+		$this->type = in_array($type, ['thumb', 'preview', 'album']) ? $type : 'thumb';
 
 		return $this;
 	}
@@ -229,14 +241,14 @@ class LevGal_Model_Embed
 	 */
 	public function aevaParse($data)
 	{
-		$params = array(
-			'id' => array('match' => '(\d+(?:,\d+)*)'),
-			'type' => array('match' => '(normal|box|av|link|preview|full|album)'),
-			'align' => array('match' => '(none|right|left|center)'),
-		);
+		$params = [
+			'id' => ['match' => '(\d+(?:,\d+)*)'],
+			'type' => ['match' => '(normal|box|av|link|preview|full|album)'],
+			'align' => ['match' => '(none|right|left|center)'],
+		];
 
 		// This is a hack, but the smg tag is non-compliant to any standard tagging ElkArte supports
-		$done = array('id' => '', 'type' => '', 'align' => '');
+		$done = ['id' => '', 'type' => '', 'align' => ''];
 		foreach ($params as $id => $cond)
 		{
 			if (preg_match('~' . $id . '=(?:&quot;)?' . $cond['match'] . '(?:&quot;)?~i', $data, $match))
@@ -401,7 +413,7 @@ class LevGal_Model_Embed
 		global $settings, $txt;
 
 		return '
-		<img class="bbc_img" src="' . $settings['default_theme_url'] . '/levgal_res/icons/_invalid.png" alt="' . $txt['lgal_bbc_no_item'] . '" title="' . $txt['lgal_bbc_no_item'] . '" />';
+		<img class="bbc_img" src="' . $settings['default_theme_url'] . '/Levertine/icons/_invalid.png" alt="' . $txt['lgal_bbc_no_item'] . '" title="' . $txt['lgal_bbc_no_item'] . '" />';
 	}
 
 	/**
@@ -420,6 +432,6 @@ class LevGal_Model_Embed
 			return [];
 		}
 
-		return (new LevGal_Model_ItemList())->getItemsById(array_keys($this->item_list));
+		return (new ItemList())->getItemsById(array_keys($this->item_list));
 	}
 }

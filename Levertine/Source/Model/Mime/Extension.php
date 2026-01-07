@@ -4,18 +4,20 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.1 / elkarte
+ * @version 2.0.0 / elkarte
  */
+
+namespace Addons\Levertine\Source\Model\Mime;
 
 /**
  * This file deals with providing the list of extensions for MIME types. It's sort of a last-ditch thing and it's pretty unwieldy - so it gets its own model.
  */
-class LevGal_Model_Mime_Extension
+class Extension
 {
 	public static function getExtensionList()
 	{
 		// Courtesy of http://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types (14/9/14)
-		return array(
+		return [
 			'123' => 'application/vnd.lotus-1-2-3',
 			'3dml' => 'text/vnd.in3d.3dml',
 			'3ds' => 'image/x-3ds',
@@ -1016,6 +1018,6 @@ class LevGal_Model_Mime_Extension
 			'zir' => 'application/vnd.zul',
 			'zirz' => 'application/vnd.zul',
 			'zmm' => 'application/vnd.handheld-entertainment+xml',
-		);
+		];
 	}
 }

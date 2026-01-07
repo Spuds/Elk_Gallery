@@ -4,18 +4,20 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.1 / elkarte
+ * @version 2.0.0 / elkarte
  */
+
+namespace Addons\Levertine\Source\Model;
 
 /**
  * This file deals with getting information items imported from externally.
  */
-class LevGal_Model_External
+class External
 {
 	/** @var array|mixed  */
 	private $meta;
 
-	public function __construct($meta = array())
+	public function __construct($meta = [])
 	{
 		$this->meta = $meta;
 	}
@@ -27,9 +29,9 @@ class LevGal_Model_External
 			return $model->getDetails();
 		}
 
-		return array(
+		return [
 			'display_template' => 'generic',
-		);
+		];
 	}
 
 	public function getURLData($url, $bypass_check = false)
@@ -48,29 +50,29 @@ class LevGal_Model_External
 		$url_parts['scheme'] = strtolower($url_parts['scheme']);
 		if ($url_parts['scheme'] !== 'http' && $url_parts['scheme'] !== 'https')
 		{
-			return array();
+			return [];
 		}
 
 		// 2. Do something with the domain name.
 		$domain = strtolower($url_parts['host']);
 		$allowed_providers = explode(',', $modSettings['lgal_external_formats']);
 
-		$array = array(
-			'youtube' => array(
+		$array = [
+			'youtube' => [
 				'youtube.com' => 'YouTube',
 				'youtu.be' => 'YouTube',
-			),
-			'vimeo' => array(
+			],
+			'vimeo' => [
 				'vimeo.com' => 'Vimeo',
-			),
-			'dailymotion' => array(
+			],
+			'dailymotion' => [
 				'dailymotion.com' => 'DailyMotion',
 				'dai.ly' => 'DailyMotion',
-			),
-			'metacafe' => array(
+			],
+			'metacafe' => [
 				'metacafe.com' => 'MetaCafe',
-			),
-		);
+			],
+		];
 
 		foreach ($array as $provider => $details)
 		{
@@ -81,11 +83,11 @@ class LevGal_Model_External
 
 			foreach ($details as $known_domain => $class)
 			{
-				if (strpos($domain, $known_domain) !== false)
+				if (str_contains($domain, $known_domain))
 				{
 					try
 					{
-						$modelName = 'LevGal_Model_External_' . $class;
+						$modelName = '\Addons\Levertine\Source\Model\External\\' . $class;
 						$model = new $modelName();
 						if (method_exists($model, 'matchURL'))
 						{
@@ -98,7 +100,7 @@ class LevGal_Model_External
 							return $provider;
 						}
 					}
-					catch (RuntimeException $e)
+					catch (\RuntimeException $e)
 					{
 						// We don't really care if it's not found at this point.
 					}
@@ -106,7 +108,7 @@ class LevGal_Model_External
 			}
 		}
 
-		return array();
+		return [];
 	}
 
 	public function getThumbnail()
@@ -126,7 +128,7 @@ class LevGal_Model_External
 			return false;
 		}
 
-		$class = 'LevGal_Model_External_' . $this->meta['provider'];
+		$class = '\Addons\Levertine\Source\Model\External\\' . $this->meta['provider'];
 		try
 		{
 			$model = new $class($this->meta);
@@ -135,7 +137,7 @@ class LevGal_Model_External
 				return $model;
 			}
 		}
-		catch (RuntimeException $e)
+		catch (\RuntimeException $e)
 		{
 			// If this fails, that's fine. This is primarily to stop the autoloader complaining.
 		}

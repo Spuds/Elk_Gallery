@@ -4,15 +4,18 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 2.0.0 / elkarte
  */
 
+namespace Addons\Levertine\Source\Model;
+
 use BBC\ParserWrapper;
+use ElkArte\Helper\Util;
 
 /**
  * This file deals with getting information into and out of the search indexes.
  */
-class LevGal_Model_Search
+class Search
 {
 	/** @var array[] */
 	private $search_criteria;
@@ -34,16 +37,16 @@ class LevGal_Model_Search
 
 		$db->insert('replace',
 			'{db_prefix}lgal_search_album',
-			array('id_album' => 'int', 'album_name' => 'string', 'description' => 'string'),
+			['id_album' => 'int', 'album_name' => 'string', 'description' => 'string'],
 			$rows,
-			array('id_album', 'album_name', 'description')
+			['id_album', 'album_name', 'description']
 		);
 	}
 
 	public function updateAlbumEntry($id_album, $album_name, $description)
 	{
 		// At this point they are actually the same thing but in the future they might not be, but let's expose a sane sort of API first.
-		$this->createAlbumEntries(array(array($id_album, $album_name, $description)));
+		$this->createAlbumEntries([[$id_album, $album_name, $description]]);
 	}
 
 	public function deleteAlbumEntries($id_albums)
@@ -84,7 +87,7 @@ class LevGal_Model_Search
 			// We want the description to be bbc parsed and then only the actual text fed into the index. But we want to preserve line breaks as some kind of whitespace.
 			$rows[$k]['description'] = $this->prepareDescription($row['description']);
 
-			if (!in_array($row['item_type'], array('image', 'audio', 'video', 'document', 'archive', 'generic', 'external')))
+			if (!in_array($row['item_type'], ['image', 'audio', 'video', 'document', 'archive', 'generic', 'external']))
 			{
 				$rows[$k]['item_type'] = 'generic';
 			}
@@ -92,9 +95,9 @@ class LevGal_Model_Search
 
 		$db->insert('replace',
 			'{db_prefix}lgal_search_item',
-			array('id_item' => 'int', 'item_name' => 'string', 'description' => 'string', 'item_type' => 'string'),
+			['id_item' => 'int', 'item_name' => 'string', 'description' => 'string', 'item_type' => 'string'],
 			$rows,
-			array('id_item')
+			['id_item']
 		);
 	}
 
@@ -102,7 +105,7 @@ class LevGal_Model_Search
 	{
 		$db = database();
 
-		$changes = array();
+		$changes = [];
 		if ($item_name !== null)
 		{
 			$changes['item_name'] = $item_name;
@@ -113,7 +116,7 @@ class LevGal_Model_Search
 		}
 		if ($item_type !== null)
 		{
-			$changes['item_type'] = in_array($item_type, array('image', 'audio', 'video', 'document', 'archive', 'generic', 'external')) ? $item_type : 'generic';
+			$changes['item_type'] = in_array($item_type, ['image', 'audio', 'video', 'document', 'archive', 'generic', 'external']) ? $item_type : 'generic';
 		}
 
 		if (empty($changes))
@@ -121,7 +124,7 @@ class LevGal_Model_Search
 			return;
 		}
 
-		$criteria = array();
+		$criteria = [];
 		foreach (array_keys($changes) as $column)
 		{
 			$criteria[] = $column . ' = {string:' . $column . '}';
@@ -149,10 +152,10 @@ class LevGal_Model_Search
 
 		$entries = (array) $entries;
 
-		$indexes = array(
-			'album' => array('table' => '{db_prefix}lgal_search_album', 'column' => 'id_album'),
-			'item' => array('table' => '{db_prefix}lgal_search_item', 'column' => 'id_item'),
-		);
+		$indexes = [
+			'album' => ['table' => '{db_prefix}lgal_search_album', 'column' => 'id_album'],
+			'item' => ['table' => '{db_prefix}lgal_search_item', 'column' => 'id_item'],
+		];
 
 		if (empty($entries) || !isset($indexes[$index]))
 		{
@@ -162,9 +165,9 @@ class LevGal_Model_Search
 		$db->query('', '
 			DELETE FROM ' . $indexes[$index]['table'] . '
 			WHERE ' . $indexes[$index]['column'] . ' IN ({array_int:entries})',
-			array(
+			[
 				'entries' => $entries,
-			)
+			]
 		);
 	}
 
@@ -192,16 +195,16 @@ class LevGal_Model_Search
 				WHERE MATCH(album_name) AGAINST ({string:terms})
 					AND id_album IN ({array_int:albums})
 				ORDER BY score DESC',
-				array(
+				[
 					'terms' => $data['search_text'],
 					'albums' => $data['selected_albums'],
-				)
+				]
 			);
-			while ($row = $db->fetch_assoc($request))
+			while ($row = $request->fetch_assoc())
 			{
 				$data['results']['albums'][] = (int) $row['id_album'];
 			}
-			$db->free_result($request);
+			$request->free_result();
 		}
 
 		// Search in album descriptions
@@ -214,16 +217,16 @@ class LevGal_Model_Search
 				WHERE MATCH(description) AGAINST ({string:terms})
 					AND id_album IN ({array_int:albums})
 				ORDER BY score DESC',
-				array(
+				[
 					'terms' => $data['search_text'],
 					'albums' => $data['selected_albums'],
-				)
+				]
 			);
-			while ($row = $db->fetch_assoc($request))
+			while ($row = $request->fetch_assoc())
 			{
 				$data['results']['albums'][] = (int) $row['id_album'];
 			}
-			$db->free_result($request);
+			$request->free_result();
 		}
 
 		if (!empty($data['results']['albums']))
@@ -246,18 +249,18 @@ class LevGal_Model_Search
 					AND item_type IN ({array_string:types})' . (!empty($data['search_member']) ? '
 					AND li.id_member IN ({array_int:search_member})' : '') . '
 				ORDER BY score DESC',
-				array(
+				[
 					'terms' => $data['search_text'],
 					'albums' => $data['selected_albums'],
 					'types' => $data['selected_search_types'],
-					'search_member' => !empty($data['search_member']) ? $data['search_member'] : array(),
-				)
+					'search_member' => !empty($data['search_member']) ? $data['search_member'] : [],
+				]
 			);
-			while ($row = $db->fetch_assoc($request))
+			while ($row = $request->fetch_assoc())
 			{
 				$data['results']['items'][] = (int) $row['id_item'];
 			}
-			$db->free_result($request);
+			$request->free_result();
 		}
 
 		if (!empty($this->search_criteria['search_item_descs']))
@@ -272,18 +275,18 @@ class LevGal_Model_Search
 					AND item_type IN ({array_string:types})' . (!empty($data['search_member']) ? '
 					AND li.id_member IN ({array_int:search_member})' : '') . '
 				ORDER BY score DESC',
-				array(
+				[
 					'terms' => $data['search_text'],
 					'albums' => $data['selected_albums'],
 					'types' => $data['selected_search_types'],
-					'search_member' => !empty($data['search_member']) ? $data['search_member'] : array(),
-				)
+					'search_member' => !empty($data['search_member']) ? $data['search_member'] : [],
+				]
 			);
-			while ($row = $db->fetch_assoc($request))
+			while ($row = $request->fetch_assoc())
 			{
 				$data['results']['items'][] = (int) $row['id_item'];
 			}
-			$db->free_result($request);
+			$request->free_result();
 		}
 
 		// Now searching by way of custom fields.
@@ -300,19 +303,19 @@ class LevGal_Model_Search
 					AND lcfd.value LIKE {string:terms}
 					AND lsi.item_type IN ({array_string:types})' . (!empty($data['search_member']) ? '
 					AND li.id_member IN ({array_int:search_member})' : ''),
-				array(
-					'terms' => '%' . preg_replace('~\s+~', '%', strtr($data['search_text'], array('_' => '\\_', '%' => '\\%', '*' => '%'))) . '%',
+				[
+					'terms' => '%' . preg_replace('~\s+~', '%', strtr($data['search_text'], ['_' => '\\_', '%' => '\\%', '*' => '%'])) . '%',
 					'albums' => $data['selected_albums'],
 					'fields' => $data['selected_fields'],
 					'types' => $data['selected_search_types'],
-					'search_member' => !empty($data['search_member']) ? $data['search_member'] : array(),
-				)
+					'search_member' => !empty($data['search_member']) ? $data['search_member'] : [],
+				]
 			);
-			while ($row = $db->fetch_assoc($request))
+			while ($row = $request->fetch_assoc())
 			{
 				$data['results']['items'][] = (int) $row['id_item'];
 			}
-			$db->free_result($request);
+			$request->free_result();
 		}
 
 		if (!empty($data['results']['items']))
@@ -324,14 +327,14 @@ class LevGal_Model_Search
 		// Now shove it into the table.
 		$db->insert('',
 			'{db_prefix}lgal_search_results',
-			array('id_member' => 'int', 'timestamp' => 'int', 'searchdata' => 'string'),
-			array($context['user']['id'], time(), serialize($data)),
-			array('id_search')
+			['id_member' => 'int', 'timestamp' => 'int', 'searchdata' => 'string'],
+			[$context['user']['id'], time(), serialize($data)],
+			['id_search']
 		);
 
 		$id = $db->insert_id('{db_prefix}lgal_search_results');
 
-		return array(!empty($id) ? $id : false, !empty($data['results']));
+		return [!empty($id) ? $id : false, !empty($data['results'])];
 	}
 
 	public function fetchSearchResult($id)
@@ -346,20 +349,20 @@ class LevGal_Model_Search
 			FROM {db_prefix}lgal_search_results
 			WHERE id_search = {int:id_search}
 				AND id_member = {int:id_member}',
-			array(
+			[
 				'id_search' => $id,
 				'id_member' => $context['user']['id'],
-			)
+			]
 		);
 
-		if ($db->num_rows($request) != 0)
+		if ($request->num_rows() !== 0)
 		{
-			list ($data) = $db->fetch_row($request);
+			[$data] = $request->fetch_row();
 			$result = Util::unserialize($data);
 		}
-		$db->free_result($request);
+		$request->free_result();
 
-		return !empty($result) ? $result : array();
+		return !empty($result) ? $result : [];
 	}
 
 	public function deleteExistingSearches()
@@ -377,9 +380,9 @@ class LevGal_Model_Search
 		$db->query('', '
 			DELETE FROM {db_prefix}lgal_search_results
 			WHERE timestamp < {int:timestamp}',
-			array(
+			[
 				'timestamp' => $timestamp,
-			)
+			]
 		);
 	}
 }

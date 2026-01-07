@@ -4,43 +4,50 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.1
+ * @version 2.0.0
  */
+
+namespace Addons\Levertine\Source\Model\Importer;
+
+use Addons\Levertine\Source\Helper\Database;
+use Addons\Levertine\Source\Helper\Format;
+use ElkArte\Helper\Util;
 
 /**
  * This file deals with providing foundations for importing data into Levertine Gallery from SMF Gallery Lite.
  */
-class LevGal_Model_Importer_SGL extends LevGal_Model_Importer_Abstract
+class SGL extends Importer
 {
-	const ITEMS_PER_STEP = 20;
-	const COMMENTS_PER_STEP = 50;
+	public const ITEMS_PER_STEP = 20;
+
+	public const COMMENTS_PER_STEP = 50;
 
 	public function isValid()
 	{
 		// SMF Gallery Lite only has basic categories, SMF Gallery Pro has basic categories and user categories.
-		return LevGal_Helper_Database::matchTable('{db_prefix}gallery_cat') && !LevGal_Helper_Database::matchTable('{db_prefix}gallery_usercat');
+		return Database::matchTable('{db_prefix}gallery_cat') && !Database::matchTable('{db_prefix}gallery_usercat');
 	}
 
 	public function stepsForImport()
 	{
 		global $txt;
 
-		$steps = array();
+		$steps = [];
 
-		list ($total_albums) = $this->countAlbums();
-		list ($total_items) = $this->countItems();
+		[$total_albums] = $this->countAlbums();
+		[$total_items] = $this->countItems();
 
 		$steps['overwrite'] = true;
-		$steps['albums'] = LevGal_Helper_Format::numstring('lgal_albums', $total_albums);
+		$steps['albums'] = Format::numstring('lgal_albums', $total_albums);
 
 		if (!empty($total_items))
 		{
-			$steps['items'] = LevGal_Helper_Format::numstring('lgal_items', $total_items);
+			$steps['items'] = Format::numstring('lgal_items', $total_items);
 
-			list ($total_comments) = $this->countComments();
+			[$total_comments] = $this->countComments();
 			if (!empty($total_comments))
 			{
-				$steps['comments'] = LevGal_Helper_Format::numstring('lgal_comments', $total_comments);
+				$steps['comments'] = Format::numstring('lgal_comments', $total_comments);
 			}
 			$steps['tags'] = $txt['levgal_importer_results_tags'];
 		}
@@ -63,11 +70,11 @@ class LevGal_Model_Importer_SGL extends LevGal_Model_Importer_Abstract
 				SELECT 
 				    COUNT(id_cat)
 				FROM {db_prefix}gallery_cat');
-			list ($count) = $db->fetch_row($request);
-			$db->free_result($request);
+			[$count] = $request->fetch_row();
+			$request->free_result();
 		}
 
-		return array($count, 1);
+		return [$count, 1];
 	}
 
 	public function importAlbums($substep)
@@ -76,40 +83,40 @@ class LevGal_Model_Importer_SGL extends LevGal_Model_Importer_Abstract
 
 		if ($substep > 0)
 		{
-			return array(true, 1);
+			return [true, 1];
 		}
 
-		$albums_to_insert = array();
+		$albums_to_insert = [];
 
 		$request = $db->query('', '
 			SELECT 
 			    id_cat AS id_album, title AS album_name, roworder
 			FROM {db_prefix}gallery_cat
 			ORDER BY roworder');
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
 			// SGL cats have almost nothing of interest for us.
-			$albums_to_insert[$row['id_album']] = array(
+			$albums_to_insert[$row['id_album']] = [
 				'id_album' => $row['id_album'],
 				'album_name' => $row['album_name'],
-			);
+			];
 			// Ownership is straightforward enough; everything is site owned (therefore member = 0)
-			$albums_to_insert[$row['id_album']] += array(
-				'owner_cache' => array('member' => array(0)),
+			$albums_to_insert[$row['id_album']] += [
+				'owner_cache' => ['member' => [0]],
 				'owner_type' => 'member',
 				'owner_data' => 0,
-			);
+			];
 			// Access is simple, there's absolutely nothing in the way of access control to deal with.
-			$albums_to_insert[$row['id_album']]['perms'] = array(
+			$albums_to_insert[$row['id_album']]['perms'] = [
 				'type' => 'guests',
-			);
+			];
 			// The hierarchy is easy.
-			$albums_to_insert[$row['id_album']] += array(
+			$albums_to_insert[$row['id_album']] += [
 				'album_pos' => $row['roworder'],
 				'album_level' => 0,
-			);
+			];
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		if (empty($_SESSION['lgalimport']['albums']))
 		{
@@ -117,7 +124,7 @@ class LevGal_Model_Importer_SGL extends LevGal_Model_Importer_Abstract
 		}
 		$_SESSION['lgalimport']['albums'] += $this->insertAlbums($albums_to_insert);
 
-		return array(true, 1);
+		return [true, 1];
 	}
 
 	public function countItems()
@@ -131,11 +138,11 @@ class LevGal_Model_Importer_SGL extends LevGal_Model_Importer_Abstract
 				SELECT 
 				    COUNT(id_picture)
 				FROM {db_prefix}gallery_pic');
-			list ($count) = $db->fetch_row($request);
-			$db->free_result($request);
+			[$count] = $request->fetch_row();
+			$request->free_result();
 		}
 
-		return array($count, ceil($count / self::ITEMS_PER_STEP));
+		return [$count, ceil($count / self::ITEMS_PER_STEP)];
 	}
 
 	public function importDocs($substep)
@@ -147,14 +154,14 @@ class LevGal_Model_Importer_SGL extends LevGal_Model_Importer_Abstract
 	{
 		$db = database();
 
-		list (, $substeps) = $this->countItems();
+		[, $substeps] = $this->countItems();
 
 		if ($substep >= $substeps || $substep < 0 || $substeps == 0)
 		{
-			return array(true, $substeps);
+			return [true, $substeps];
 		}
 
-		$files_to_import = array();
+		$files_to_import = [];
 		$gal_path = $this->getSGLSetting('gallery_path');
 
 		$request = $db->query('', '
@@ -166,12 +173,12 @@ class LevGal_Model_Importer_SGL extends LevGal_Model_Importer_Abstract
 				LEFT JOIN {db_prefix}members AS mem ON (gp.id_member = mem.id_member)
 			ORDER BY gp.id_picture
 			LIMIT {int:start}, {int:limit}',
-			array(
+			[
 				'start' => $substep * self::ITEMS_PER_STEP,
 				'limit' => self::ITEMS_PER_STEP,
-			)
+			]
 		);
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
 			$physical_file = $gal_path . $row['filename'];
 			if (!file_exists($physical_file))
@@ -179,7 +186,7 @@ class LevGal_Model_Importer_SGL extends LevGal_Model_Importer_Abstract
 				continue;
 			}
 
-			$files_to_import[$row['id_item']] = array(
+			$files_to_import[$row['id_item']] = [
 				'id_item' => $row['id_item'],
 				'id_album' => $row['id_album'],
 				'id_member' => $row['id_member'],
@@ -191,9 +198,9 @@ class LevGal_Model_Importer_SGL extends LevGal_Model_Importer_Abstract
 				'comments_enabled' => !empty($row['allowcomments']),
 				'filename' => $row['filename'],
 				'physical_file' => $physical_file,
-			);
+			];
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		if (empty($_SESSION['lgalimport']['items']))
 		{
@@ -201,7 +208,7 @@ class LevGal_Model_Importer_SGL extends LevGal_Model_Importer_Abstract
 		}
 		$_SESSION['lgalimport']['items'] += $this->insertItems($files_to_import);
 
-		return array($substep + 1 == $substeps, $substeps);
+		return [$substep + 1 === $substeps, $substeps];
 	}
 
 	public function countComments()
@@ -218,25 +225,25 @@ class LevGal_Model_Importer_SGL extends LevGal_Model_Importer_Abstract
 				    COUNT(gc.id_comment)
 				FROM {db_prefix}gallery_comment AS gc
 					INNER JOIN {db_prefix}gallery_pic AS gp ON (gc.id_picture = gp.id_picture)');
-			list ($count) = $db->fetch_row($request);
-			$db->free_result($request);
+			[$count] = $request->fetch_row();
+			$request->free_result();
 		}
 
-		return array($count, ceil($count / self::COMMENTS_PER_STEP));
+		return [$count, ceil($count / self::COMMENTS_PER_STEP)];
 	}
 
 	public function importComments($substep)
 	{
 		$db = database();
 
-		list (, $substeps) = $this->countComments();
+		[, $substeps] = $this->countComments();
 
-		if ($substep >= $substeps || $substep < 0 || $substeps == 0)
+		if ($substep >= $substeps || $substep < 0 || $substeps === 0)
 		{
-			return array(true, $substeps);
+			return [true, $substeps];
 		}
 
-		$comments_to_import = array();
+		$comments_to_import = [];
 
 		$request = $db->query('', '
 			SELECT 
@@ -248,14 +255,14 @@ class LevGal_Model_Importer_SGL extends LevGal_Model_Importer_Abstract
 				LEFT JOIN {db_prefix}members AS mem ON (gc.id_member = mem.id_member)
 			ORDER BY id_comment ASC
 			LIMIT {int:start}, {int:limit}',
-			array(
+			[
 				'start' => $substep * self::COMMENTS_PER_STEP,
 				'limit' => self::COMMENTS_PER_STEP,
-			)
+			]
 		);
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
-			$comments_to_import[$row['id_comment']] = array(
+			$comments_to_import[$row['id_comment']] = [
 				'id_comment' => $row['id_comment'],
 				'id_item' => $row['id_item'],
 				'id_author' => $row['id_author'],
@@ -264,9 +271,9 @@ class LevGal_Model_Importer_SGL extends LevGal_Model_Importer_Abstract
 				'author_ip' => $row['author_ip'],
 				'comment' => $row['comment'],
 				'time_added' => $row['time_added'],
-			);
+			];
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		if (empty($_SESSION['lgalimport']['comments']))
 		{
@@ -274,18 +281,18 @@ class LevGal_Model_Importer_SGL extends LevGal_Model_Importer_Abstract
 		}
 		$_SESSION['lgalimport']['comments'] += $this->insertComments($comments_to_import);
 
-		return array($substep + 1 == $substeps, $substeps);
+		return [$substep + 1 === $substeps, $substeps];
 	}
 
 	public function importTags($substep)
 	{
 		$db = database();
 
-		list (, $substeps) = $this->countItems();
+		[, $substeps] = $this->countItems();
 
-		if ($substep >= $substeps || $substep < 0 || $substeps == 0)
+		if ($substep >= $substeps || $substep < 0 || $substeps === 0)
 		{
-			return array(true, $substeps);
+			return [true, $substeps];
 		}
 
 		$request = $db->query('', '
@@ -295,16 +302,16 @@ class LevGal_Model_Importer_SGL extends LevGal_Model_Importer_Abstract
 				INNER JOIN {db_prefix}lgal_items AS li ON (gp.id_picture = li.id_item)
 			ORDER BY gp.id_picture
 			LIMIT {int:start}, {int:limit}',
-			array(
+			[
 				'start' => $substep * self::ITEMS_PER_STEP,
 				'limit' => self::ITEMS_PER_STEP,
-			)
+			]
 		);
-		$item_tag_map = array();
-		while ($row = $db->fetch_assoc($request))
+		$item_tag_map = [];
+		while ($row = $request->fetch_assoc())
 		{
 			$tags = explode(' ', preg_replace('~\s+~', ' ', $row['keywords']));
-			$processed_tags = array();
+			$processed_tags = [];
 			foreach ($tags as $tag)
 			{
 				$tag = Util::htmltrim($tag);
@@ -319,7 +326,7 @@ class LevGal_Model_Importer_SGL extends LevGal_Model_Importer_Abstract
 				$item_tag_map[$row['id_item']] = $processed_tags;
 			}
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		if (!empty($item_tag_map))
 		{
@@ -327,7 +334,7 @@ class LevGal_Model_Importer_SGL extends LevGal_Model_Importer_Abstract
 			$_SESSION['lgalimport']['tags'] = true;
 		}
 
-		return array($substep + 1 == $substeps, $substeps);
+		return [$substep + 1 === $substeps, $substeps];
 	}
 
 	protected function getSGLSetting($setting)
@@ -339,13 +346,10 @@ class LevGal_Model_Importer_SGL extends LevGal_Model_Importer_Abstract
 			return $modSettings[$setting];
 		}
 
-		switch ($setting)
+		return match ($setting)
 		{
-			case 'gallery_path':
-				return BOARDDIR . '/gallery/';
-
-			default:
-				return null;
-		}
+			'gallery_path' => BOARDDIR . '/gallery/',
+			default => null,
+		};
 	}
 }

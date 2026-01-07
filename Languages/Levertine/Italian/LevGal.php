@@ -322,7 +322,7 @@ $txt['lgal_share_complex_bbc'] = 'BB Code with desc';
 $txt['lgal_share_complex_bbc_entry'] = '[media id=%1$s]%2$s[/media]';
 $txt['lgal_share_social_media'] = 'Social Media';
 $txt['lgal_share_facebook'] = 'Facebook';
-$txt['lgal_share_twitter'] = 'Twitter';
+$txt['lgal_share_twitter'] = 'X/Twitter';
 $txt['lgal_share_tumblr'] = 'Tumblr';
 $txt['lgal_share_reddit'] = 'Reddit';
 $txt['lgal_share_pinterest'] = 'Pinterest';

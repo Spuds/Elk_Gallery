@@ -4,13 +4,19 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 2.0.0 / elkarte
  */
+
+namespace Addons\Levertine\Source\Model;
+
+use Addons\Levertine\Source\Helper\Sanitiser;
+use Addons\Levertine\Source\LevGalBootstrap;
+use ElkArte\Helper\Util;
 
 /**
  * This file deals with tags on items.
  */
-class LevGal_Model_Tag
+class Tag
 {
 	public function getTagsByItemId($item)
 	{
@@ -18,25 +24,25 @@ class LevGal_Model_Tag
 
 		$db = database();
 
-		$tags = array();
+		$tags = [];
 		$request = $db->query('', '
 			SELECT lt.id_tag, lt.tag_name, lt.tag_slug
 			FROM {db_prefix}lgal_tag_items AS lti
 				INNER JOIN {db_prefix}lgal_tags AS lt ON (lti.id_tag = lt.id_tag)
 			WHERE lti.id_item = {int:item}
 			ORDER BY lt.tag_name',
-			array(
+			[
 				'item' => $item,
-			)
+			]
 		);
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
-			$tags[$row['id_tag']] = array(
+			$tags[$row['id_tag']] = [
 				'name' => $row['tag_name'],
 				'url' => $scripturl . '?media/tag/' . (!empty($row['tag_slug']) ? $row['tag_slug'] . '.' . $row['id_tag'] : $row['id_tag']) . '/',
-			);
+			];
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		return $tags;
 	}
@@ -51,9 +57,9 @@ class LevGal_Model_Tag
 		$db->query('', '
 			DELETE FROM {db_prefix}lgal_tag_items
 			WHERE id_item IN ({array_int:items})',
-			array(
+			[
 				'items' => $items,
-			)
+			]
 		);
 	}
 
@@ -61,7 +67,7 @@ class LevGal_Model_Tag
 	{
 		$tag_string = preg_replace('~\s+~', ' ', $tag_string);
 		$tags = explode(',', $tag_string);
-		$new_tags = array();
+		$new_tags = [];
 		foreach ($tags as $tag)
 		{
 			$tag = Util::htmltrim($tag);
@@ -69,14 +75,14 @@ class LevGal_Model_Tag
 			{
 				continue;
 			}
-			$new_tags[] = array(
+			$new_tags[] = [
 				'raw' => $tag,
-			);
+			];
 		}
 
 		if (empty($new_tags))
 		{
-			return array();
+			return [];
 		}
 
 		// Having figured out what tags we might want, let's do something about this real quick.
@@ -94,36 +100,36 @@ class LevGal_Model_Tag
 
 		$new_tags = $this->prepareTagString($tag_string);
 
-		$tag_list = array();
+		$tag_list = [];
 		foreach ($new_tags as $tag)
 		{
 			$tag_list[] = $tag['html'];
 		}
 
-		$tags_to_apply = array();
+		$tags_to_apply = [];
 		$request = $db->query('', '
 			SELECT 
 				id_tag, tag_name
 			FROM {db_prefix}lgal_tags
 			WHERE tag_name IN ({array_string:tags})',
-			array(
+			[
 				'tags' => $tag_list,
-			)
+			]
 		);
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
 			// Add this to the list of ones we know we need to add
 			$tags_to_apply[] = $row['id_tag'];
 			// And remove this from the list of ones we thought we might have to add
 			foreach ($new_tags as $k => $v)
 			{
-				if ($v['html'] == $row['tag_name'])
+				if ($v['html'] === $row['tag_name'])
 				{
 					unset ($new_tags[$k]);
 				}
 			}
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		if (!empty($new_tags))
 		{
@@ -131,26 +137,26 @@ class LevGal_Model_Tag
 			{
 				$db->insert('',
 					'{db_prefix}lgal_tags',
-					array('tag_name' => 'string', 'tag_slug' => 'string'),
-					array($tag['html'], LevGal_Helper_Sanitiser::sanitiseSlug($tag['raw'])),
-					array('id_tag')
+					['tag_name' => 'string', 'tag_slug' => 'string'],
+					[$tag['html'], Sanitiser::sanitiseSlug($tag['raw'])],
+					['id_tag']
 				);
-				$tags_to_apply[] = $db->insert_id('{db_prefix}lgal_tags', 'id_tag');
+				$tags_to_apply[] = $db->insert_id('{db_prefix}lgal_tags');
 			}
 		}
 
 		if (!empty($tags_to_apply))
 		{
-			$rows = array();
+			$rows = [];
 			foreach ($tags_to_apply as $id_tag)
 			{
-				$rows[] = array($id_tag, $item);
+				$rows[] = [$id_tag, $item];
 			}
 			$db->insert('',
 				'{db_prefix}lgal_tag_items',
-				array('id_tag' => 'int', 'id_item' => 'int'),
+				['id_tag' => 'int', 'id_item' => 'int'],
 				$rows,
-				array('id_item', 'id_tag')
+				['id_item', 'id_tag']
 			);
 		}
 	}
@@ -161,7 +167,7 @@ class LevGal_Model_Tag
 
 		$tag_name = '';
 		$tag_slug = '';
-		$item_ids = array();
+		$item_ids = [];
 
 		// This one is actually fairly straightforward; Model_ItemList will permission-check for us.
 		// So all we need to do is grab the tags first.
@@ -171,30 +177,30 @@ class LevGal_Model_Tag
 			FROM {db_prefix}lgal_tags AS lt
 				INNER JOIN {db_prefix}lgal_tag_items AS lti ON (lt.id_tag = lti.id_tag)
 			WHERE lt.id_tag = {int:id_tag}',
-			array(
+			[
 				'id_tag' => $id_tag,
-			)
+			]
 		);
-		while ($row = $db->fetch_row($request))
+		while ($row = $request->fetch_row())
 		{
-			list ($tag_name, $tag_slug, $id) = $row;
+			[$tag_name, $tag_slug, $id] = $row;
 			$item_ids[] = $id;
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		if (empty($item_ids))
 		{
-			return array();
+			return [];
 		}
 
-		$itemList = LevGal_Bootstrap::getModel('LevGal_Model_ItemList');
+		$itemList = LevGalBootstrap::getModel('ItemList');
 		$items = $itemList->getItemsById($item_ids);
 
-		return array(
+		return [
 			'tag_name' => $tag_name,
 			'tag_slug' => $tag_slug,
 			'items' => $items,
-		);
+		];
 	}
 
 	public function getTagCloud()
@@ -203,19 +209,19 @@ class LevGal_Model_Tag
 
 		$db = database();
 
-		$tags = array();
+		$tags = [];
 
 		$album_list = true;
 		if (!allowedTo('lgal_manage'))
 		{
-			/** @var $albums \LevGal_Model_AlbumList */
-			$albums = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
+			/** @var $albums AlbumList */
+			$albums = LevGalBootstrap::getModel('AlbumList');
 			$album_list = $albums->getVisibleAlbums();
 		}
 
 		if (empty($album_list))
 		{
-			return array();
+			return [];
 		}
 
 		// So we know which albums. Time to get tags.
@@ -229,20 +235,20 @@ class LevGal_Model_Tag
 				AND li.approved = {int:approved}
 			GROUP BY lt.id_tag
 			ORDER BY lt.tag_name',
-			array(
+			[
 				'album_list' => $album_list,
 				'approved' => 1,
-			)
+			]
 		);
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
-			$tags[$row['id_tag']] = array(
+			$tags[$row['id_tag']] = [
 				'name' => $row['tag_name'],
 				'url' => $scripturl . '?media/tag/' . (!empty($row['tag_slug']) ? $row['tag_slug'] . '.' . $row['id_tag'] : $row['id_tag']) . '/',
 				'count' => (int) $row['count'],
-			);
+			];
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		return $tags;
 	}
@@ -263,20 +269,17 @@ class LevGal_Model_Tag
 		}
 
 		// Tags in use, in albums they have write permission on
-		if (!empty($modSettings['lgal_tag_items_list_more']))
+		$cloudTags = $this->getTagCloud();
+		foreach ($cloudTags as $tag)
 		{
-			$cloudTags = $this->getTagCloud();
-			foreach ($cloudTags as $tag)
+			if ($tag['name'] !== $txt['levgal_tagcloud_none'] && !in_array($tag['name'], $tags, true))
 			{
-				if ($tag['name'] !== $txt['levgal_tagcloud_none'] && !in_array($tag['name'], $tags, true))
-				{
-					$inUseTags[] = Util::htmlspecialchars($tag['name'], ENT_QUOTES);
-				}
+				$inUseTags[] = Util::htmlspecialchars($tag['name'], ENT_QUOTES);
 			}
-
-			natsort($inUseTags);
-			$tags = array_merge($tags, $inUseTags);
 		}
+
+		$tags = array_merge($tags, $inUseTags);
+		natsort($tags);
 
 		return $tags;
 	}

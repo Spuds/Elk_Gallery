@@ -1,5 +1,7 @@
 <?php
 
+use Addons\Levertine\Source\Helper\Richtext;
+
 /**
  * This file handles displaying comment-related behaviours in the gallery.
  *
@@ -13,7 +15,7 @@ function template_editcomment()
 {
 	global $context, $txt;
 
-	/** @var $comment_box \LevGal_Helper_Richtext */
+	/** @var $comment_box Richtext */
 	$comment_box = $context['comment_box'];
 
 	echo '

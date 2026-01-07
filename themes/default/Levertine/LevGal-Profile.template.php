@@ -225,7 +225,6 @@ function template_item_notification_list()
 
 	// Item notifications
 	echo '
-			<br />
 			<form action="', $scripturl, '?action=profile;area=medianotify;u=', $context['id_member'], ';save" method="post" accept-charset="UTF-8">
 				<table class="table_grid">
 					<thead>
@@ -264,7 +263,7 @@ function template_item_notification_list()
 							<td>
 								<a href="', $item['item_url'], '">', $item['item_name'], '</a>
 							</td>
-							<td></td>
+							<td>', $item['poster_name'], '</td>
 							<td>
 								<a href="', $item['album_url'], '">', $item['album_name'], '</a>
 							</td>

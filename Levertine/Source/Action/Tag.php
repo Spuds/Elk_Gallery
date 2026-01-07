@@ -4,14 +4,20 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 2.0.0 / elkarte
  */
+
+namespace Addons\Levertine\Source\Action;
+
+use Addons\Levertine\Source\Helper\Http;
+use Addons\Levertine\Source\LevGalBootstrap;
+use Addons\Levertine\Source\Model\Tag as TagModel;
 
 /**
  * This file provides the tag cloud pages, site/?media/tag/cloud/ and the list of
  * items per tag site/?media/tag/my-tag.1/.
  */
-class LevGal_Action_Tag extends LevGal_Action_Abstract
+class Tag extends LevGalAbstract
 {
 	public function __construct()
 	{
@@ -19,18 +25,18 @@ class LevGal_Action_Tag extends LevGal_Action_Abstract
 
 		parent::__construct();
 
-		$tagModel = LevGal_Bootstrap::getModel('LevGal_Model_Tag');
-		/** @var $tagModel \LevGal_Model_Tag */
+		$tagModel = LevGalBootstrap::getModel('Tag');
+		/** @var $tagModel TagModel */
 		$context['tags'] = $tagModel->getTagCloud();
 
 		// We need us some tags.
 		if (empty($context['tags']))
 		{
-			$context['tags'] = array(0 => array(
+			$context['tags'] = [0 => [
 				'name' => $txt['levgal_tagcloud_none'],
 				'url' => '',
-				'count' => 0)
-			);
+				'count' => 0]
+			];
 		}
 	}
 
@@ -38,17 +44,17 @@ class LevGal_Action_Tag extends LevGal_Action_Abstract
 	{
 		global $context, $txt, $scripturl;
 
-		list ($tag_slug, $tag_id) = $this->getSlugAndId();
-		$tag_list = array();
+		[$tag_slug, $tag_id] = $this->getSlugAndId();
+		$tag_list = [];
 		if (!empty($tag_id))
 		{
-			$tagModel = LevGal_Bootstrap::getModel('LevGal_Model_Tag');
+			$tagModel = LevGalBootstrap::getModel('Tag');
 			$tag_list = $tagModel->getItemsByTagId($tag_id);
 		}
 
 		if (empty($tag_list) || empty($tag_list['items']))
 		{
-			LevGal_Helper_Http::fatalError('error_no_tags');
+			Http::fatalError('error_no_tags');
 		}
 
 		$context['page_title'] = $txt['lgal_tagged_as'] . ' ' . $tag_list['tag_name'];
@@ -61,7 +67,7 @@ class LevGal_Action_Tag extends LevGal_Action_Abstract
 
 		if ($tag_slug != $tag_list['tag_slug'])
 		{
-			LevGal_Helper_Http::hardRedirect($context['canonical_url']);
+			Http::hardRedirect($context['canonical_url']);
 		}
 
 		$context['tagged_items'] = $tag_list['items'];
@@ -83,10 +89,10 @@ class LevGal_Action_Tag extends LevGal_Action_Abstract
 		$context['page_title'] = $txt['levgal_tagcloud'];
 
 		// We need this in a slightly different format for exporting purposes.
-		$context['json_export'] = array();
+		$context['json_export'] = [];
 		foreach ($context['tags'] as $tag)
 		{
-			$context['json_export'][] = array('text' => $tag['name'], 'weight' => $tag['count'], 'link' => $tag['url']);
+			$context['json_export'][] = ['text' => $tag['name'], 'weight' => $tag['count'], 'link' => $tag['url']];
 		}
 	}
 }

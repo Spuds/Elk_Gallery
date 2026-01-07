@@ -4,13 +4,19 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 2.0.0 / elkarte
  */
+
+namespace Addons\Levertine\Source\Model;
+
+use Addons\Levertine\Source\LevGalBootstrap;
+use ElkArte\Helper\Util;
+use ElkArte\MembersList;
 
 /**
  * This file deals with certain member-related activities that ElkArte will need us to perform.
  */
-class LevGal_Model_Member
+class Member
 {
 	public static function deleteMembers($users)
 	{
@@ -27,25 +33,25 @@ class LevGal_Model_Member
 		// Deleting a member does encourage us to houseclean some data that otherwise won't be of any use.
 
 		// They won't be getting notifications.
-		$notifyModel = LevGal_Bootstrap::getModel('LevGal_Model_Notify');
+		$notifyModel = LevGalBootstrap::getModel('Notify');
 		$notifyModel->removeAllNotifyForUser($memID);
 
 		// They won't be using their unseen data any more.
-		$unseenModel = LevGal_Bootstrap::getModel('LevGal_Model_Unseen');
+		$unseenModel = LevGalBootstrap::getModel('Unseen');
 		$unseenModel->removeUnseenByMember($memID);
 
 		// They also can't have liked anything.
-		$likeModel = LevGal_Bootstrap::getModel('LevGal_Model_Like');
+		$likeModel = LevGalBootstrap::getModel('Like');
 		$likeModel->deleteLikesByMembers($memID);
 
 		// And they won't have any bookmarks either.
-		$bookmarkModel = LevGal_Bootstrap::getModel('LevGal_Model_Bookmark');
+		$bookmarkModel = LevGalBootstrap::getModel('Bookmark');
 		$bookmarkModel->removeAllBookmarksFromUser($memID);
 
 		// Album ownership needs fixing. But this is not something any of the other models should
 		// really bother with much.
-		$only_owner = array();
-		$updated_albums = array();
+		$only_owner = [];
+		$updated_albums = [];
 
 		$request = $db->query('', '
 			SELECT 
@@ -53,24 +59,24 @@ class LevGal_Model_Member
 			FROM {db_prefix}lgal_albums
 			ORDER BY null'
 		);
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
 			$row['owner_cache'] = Util::unserialize($row['owner_cache']);
 			if (isset($row['owner_cache']['member']) && in_array($memID, $row['owner_cache']['member'], true))
 			{
 				$updated_albums[$row['id_album']] = $row['owner_cache'];
-				if (count($row['owner_cache']['member']) == 1)
+				if (count($row['owner_cache']['member']) === 1)
 				{
 					$only_owner[] = $row['id_album'];
-					$updated_albums[$row['id_album']]['member'] = array(0);
+					$updated_albums[$row['id_album']]['member'] = [0];
 				}
 				else
 				{
-					$updated_albums[$row['id_album']]['member'] = array_diff($updated_albums[$row['id_album']]['member'], array($memID));
+					$updated_albums[$row['id_album']]['member'] = array_diff($updated_albums[$row['id_album']]['member'], [$memID]);
 				}
 			}
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		if (!empty($updated_albums))
 		{
@@ -81,10 +87,10 @@ class LevGal_Model_Member
 					UPDATE {db_prefix}lgal_albums
 					SET owner_cache = {string:owner_cache}
 					WHERE id_album = {int:id_album}',
-					array(
+					[
 						'id_album' => $id_album,
 						'owner_cache' => serialize($owner_cache),
-					)
+					]
 				);
 			}
 
@@ -92,9 +98,9 @@ class LevGal_Model_Member
 			$db->query('', '
 				DELETE FROM {db_prefix}log_owner_member
 				WHERE id_member = {int:id_member}',
-				array(
+				[
 					'id_member' => $memID,
-				)
+				]
 			);
 
 			// Step 3. For those where we just deleted the only owner, put something in the hierarchy for them - and make room if we have to.
@@ -106,21 +112,21 @@ class LevGal_Model_Member
 					SET album_pos = album_pos + 1
 					WHERE id_album IN ({array_int:albums})
 						AND id_member = 0',
-					array(
+					[
 						'albums' => $only_owner,
-					)
+					]
 				);
 
-				$insert_rows = array();
+				$insert_rows = [];
 				foreach ($only_owner as $id_album)
 				{
-					$insert_rows[] = array('id_album' => $id_album, 'id_member' => 0, 'album_pos' => 1, 'album_level' => 0);
+					$insert_rows[] = ['id_album' => $id_album, 'id_member' => 0, 'album_pos' => 1, 'album_level' => 0];
 				}
 				$db->insert('replace',
 					'{db_prefix}log_owner_member',
-					array('id_album' => 'int', 'id_member' => 'int', 'album_pos' => 'int', 'album_level' => 'int'),
+					['id_album' => 'int', 'id_member' => 'int', 'album_pos' => 'int', 'album_level' => 'int'],
 					$insert_rows,
-					array('id_album', 'id_member')
+					['id_album', 'id_member']
 				);
 			}
 		}
@@ -132,14 +138,14 @@ class LevGal_Model_Member
 
 		$db = database();
 
-		$albumModel = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
+		$albumModel = LevGalBootstrap::getModel('AlbumList');
 		$album_list = $albumModel->getVisibleAlbums();
 		if(empty($album_list))
 		{
 			return 0;
 		}
 
-		$can_see_all = allowedTo(array('lgal_manage', 'lgal_approve_item')) || $context['user']['id'] == $memID;
+		$can_see_all = allowedTo(['lgal_manage', 'lgal_approve_item']) || $context['user']['id'] == $memID;
 
 		// This will be inaccurate for cases of looking at another member's items where they have posted in an album you own
 		// and that you can approve but you couldn't approve generally.
@@ -150,20 +156,20 @@ class LevGal_Model_Member
 			WHERE li.id_member = {int:member}' . ($album_list !== true ? '
 				AND li.id_album IN ({array_int:album_list})' : '') . ($can_see_all ? '' : '
 				AND li.approved = {int:approved}'),
-			array(
+			[
 				'member' => $memID,
 				'album_list' => $album_list,
 				'approved' => 1,
-			)
+			]
 		);
 
 		$count = 0;
-		if ($db->num_rows($request))
+		if ($request->num_rows())
 		{
-			list ($count) = $db->fetch_row($request);
+			[$count] = $request->fetch_row();
 		}
 
-		$db->free_result($request);
+		$request->free_result();
 
 		return $count;
 	}
@@ -174,16 +180,16 @@ class LevGal_Model_Member
 
 		$db = database();
 
-		$albumModel = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
+		$albumModel = LevGalBootstrap::getModel('AlbumList');
 		$album_list = $albumModel->getVisibleAlbums();
 		if (empty($album_list))
 		{
 			return 0;
 		}
 
-		$can_see_all = allowedTo(array('lgal_manage', 'lgal_approve_item')) || $context['user']['id'] == $memID;
+		$can_see_all = allowedTo(['lgal_manage', 'lgal_approve_item']) || $context['user']['id'] == $memID;
 
-		$ids = array();
+		$ids = [];
 
 		$request = $db->query('', '
 			SELECT 
@@ -194,19 +200,19 @@ class LevGal_Model_Member
 				AND li.approved = {int:approved}') . '
 			ORDER BY id_item DESC
 			LIMIT {int:start}, {int:limit}',
-			array(
+			[
 				'member' => $memID,
 				'album_list' => $album_list,
 				'approved' => 1,
 				'start' => $start,
 				'limit' => $limit,
-			)
+			]
 		);
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
 			$ids[] = $row['id_item'];
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		return $this->getSortedItems($ids);
 	}
@@ -217,14 +223,14 @@ class LevGal_Model_Member
 
 		$db = database();
 
-		$albumModel = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
+		$albumModel = LevGalBootstrap::getModel('AlbumList');
 		$album_list = $albumModel->getVisibleAlbums();
 		if (empty($album_list))
 		{
 			return 0;
 		}
 
-		$can_see_all = allowedTo(array('lgal_manage', 'lgal_approve_item')) || $context['user']['id'] == $memID;
+		$can_see_all = allowedTo(['lgal_manage', 'lgal_approve_item']) || $context['user']['id'] == $memID;
 
 		$request = $db->query('', '
 			SELECT 
@@ -234,15 +240,15 @@ class LevGal_Model_Member
 			WHERE ll.id_member = {int:member}' . ($album_list !== true ? '
 				AND li.id_album IN ({array_int:album_list})' : '') . ($can_see_all ? '' : '
 				AND li.approved = {int:approved}'),
-			array(
+			[
 				'member' => $memID,
 				'album_list' => $album_list,
 				'approved' => 1,
-			)
+			]
 		);
 
-		list ($count) = $db->fetch_row($request);
-		$db->free_result($request);
+		[$count] = $request->fetch_row();
+		$request->free_result();
 
 		return $count;
 	}
@@ -253,16 +259,16 @@ class LevGal_Model_Member
 
 		$db = database();
 
-		$albumModel = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
+		$albumModel = LevGalBootstrap::getModel('AlbumList');
 		$album_list = $albumModel->getVisibleAlbums();
 		if (empty($album_list))
 		{
 			return 0;
 		}
 
-		$can_see_all = allowedTo(array('lgal_manage', 'lgal_approve_item')) || $context['user']['id'] == $memID;
+		$can_see_all = allowedTo(['lgal_manage', 'lgal_approve_item']) || $context['user']['id'] == $memID;
 
-		$ids = array();
+		$ids = [];
 
 		$request = $db->query('', '
 			SELECT 
@@ -274,19 +280,19 @@ class LevGal_Model_Member
 				AND li.approved = {int:approved}') . '
 			ORDER BY id_item DESC
 			LIMIT {int:start}, {int:limit}',
-			array(
+			[
 				'member' => $memID,
 				'album_list' => $album_list,
 				'approved' => 1,
 				'start' => $start,
 				'limit' => $limit,
-			)
+			]
 		);
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
 			$ids[] = $row['id_item'];
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		return $this->getSortedItems($ids);
 	}
@@ -297,14 +303,14 @@ class LevGal_Model_Member
 
 		$db = database();
 
-		$albumModel = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
+		$albumModel = LevGalBootstrap::getModel('AlbumList');
 		$album_list = $albumModel->getVisibleAlbums();
 		if (empty($album_list))
 		{
 			return 0;
 		}
 
-		$can_see_all = allowedTo(array('lgal_manage', 'lgal_approve_item')) || $context['user']['id'] == $memID;
+		$can_see_all = allowedTo(['lgal_manage', 'lgal_approve_item']) || $context['user']['id'] == $memID;
 
 		$request = $db->query('', '
 			SELECT 
@@ -314,15 +320,15 @@ class LevGal_Model_Member
 			WHERE li.id_member = {int:member}' . ($album_list !== true ? '
 				AND li.id_album IN ({array_int:album_list})' : '') . ($can_see_all ? '' : '
 				AND li.approved = {int:approved}'),
-			array(
+			[
 				'member' => $memID,
 				'album_list' => $album_list,
 				'approved' => 1,
-			)
+			]
 		);
 
-		list ($count) = $db->fetch_row($request);
-		$db->free_result($request);
+		[$count] = $request->fetch_row();
+		$request->free_result();
 
 		return $count;
 	}
@@ -333,16 +339,16 @@ class LevGal_Model_Member
 
 		$db = database();
 
-		$albumModel = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
+		$albumModel = LevGalBootstrap::getModel('AlbumList');
 		$album_list = $albumModel->getVisibleAlbums();
 		if (empty($album_list))
 		{
 			return 0;
 		}
 
-		$can_see_all = allowedTo(array('lgal_manage', 'lgal_approve_item')) || $context['user']['id'] == $memID;
+		$can_see_all = allowedTo(['lgal_manage', 'lgal_approve_item']) || $context['user']['id'] == $memID;
 
-		$ids = array();
+		$ids = [];
 
 		$request = $db->query('', '
 			SELECT 
@@ -354,19 +360,19 @@ class LevGal_Model_Member
 				AND li.approved = {int:approved}') . '
 			ORDER BY id_item DESC
 			LIMIT {int:start}, {int:limit}',
-			array(
+			[
 				'member' => $memID,
 				'album_list' => $album_list,
 				'approved' => 1,
 				'start' => $start,
 				'limit' => $limit,
-			)
+			]
 		);
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
 			$ids[] = $row['id_item'];
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		return $this->getSortedItems($ids);
 	}
@@ -375,11 +381,11 @@ class LevGal_Model_Member
 	{
 		if (empty($ids))
 		{
-			return array();
+			return [];
 		}
 
-		$items = array();
-		$itemList = LevGal_Bootstrap::getModel('LevGal_Model_ItemList');
+		$items = [];
+		$itemList = LevGalBootstrap::getModel('ItemList');
 		$item_details = $itemList->getItemsById($ids);
 
 		// Whatever order they came out of the database in, make sure we return them in that order to our caller. I know technically we could
@@ -399,8 +405,8 @@ class LevGal_Model_Member
 	{
 		global $user_profile;
 
-		$members = array();
-		$members_display = array();
+		$members = [];
+		$members_display = [];
 
 		// First, against the autosuggested list with JavaScripty goodness.
 		if (isset($_POST[$autosuggest . '_list']) && is_array($_POST[$autosuggest . '_list']))
@@ -413,8 +419,8 @@ class LevGal_Model_Member
 					$members[] = $member;
 				}
 			}
-			$loaded = loadMemberData($members, false, 'minimal');
-			$members = array();
+			$loaded = MembersList::load($members, false, 'minimal');
+			$members = [];
 			foreach ($loaded as $member)
 			{
 				$members[] = (int) $member;
@@ -435,6 +441,6 @@ class LevGal_Model_Member
 		}
 		$members = array_unique($members);
 
-		return array($members, $members_display);
+		return [$members, $members_display];
 	}
 }

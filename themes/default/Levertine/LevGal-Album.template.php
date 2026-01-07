@@ -1,5 +1,7 @@
 <?php
 
+use Addons\Levertine\Source\Helper\Format;
+
 /**
  * This file handles displaying the album pages.
  *
@@ -8,7 +10,7 @@
  * @license LGPL (v3)
  * @since 1.0
  *
- * @version 1.2.2 / elkarte
+ * @version 1.2.3 / elkarte
  */
 
 function template_main_album_view()
@@ -75,7 +77,7 @@ function template_base_album_display()
 				<div class="album_block_details">
 					<span class="largetext bbc_strong">', $context['album_details']['album_name'], '</span>
 					<div>
-						<span class="lgalicon i-album"></span> ', LevGal_Helper_Format::numstring('lgal_items', $context['album_details']['num_items']), ' / ', LevGal_Helper_Format::numstring('lgal_albums', $child_album_counts), '
+						<span class="lgalicon i-album"></span> ', Format::numstring('lgal_items', $context['album_details']['num_items']), ' / ', Format::numstring('lgal_albums', $child_album_counts), '
 					</div>
 					<div class="album_block_description">', $context['album_details']['description'], '</div>
 				</div>';
@@ -276,8 +278,8 @@ function template_album_navigation()
 								<span class="album_name">', $album['album_name'], '</span><br />
 								<span class="album_block_description">', $album['description_short'],
 								!empty($album['description_short']) ? '<br />' : '', '
-									<span class="lgalicon i-album"></span> ', LevGal_Helper_Format::numstring('lgal_items', $album['num_items']),
-									empty($album['sub_albums']) ? '' : ' / ' . LevGal_Helper_Format::numstring('lgal_albums', $album['sub_albums']), '
+									<span class="lgalicon i-album"></span> ', Format::numstring('lgal_items', $album['num_items']),
+									empty($album['sub_albums']) ? '' : ' / ' . Format::numstring('lgal_albums', $album['sub_albums']), '
 								</span>
 							</p>
 						</div>
@@ -430,9 +432,9 @@ function template_main_album_display()
 		else
 		{
 			echo '
-			<h4 class="lgal_secondary_header secondary_header centertext">
+			<p class="infobox">
 				', $txt['lgal_empty_album'], '
-			</h4>';
+			</p>';
 		}
 	}
 	else
@@ -511,7 +513,7 @@ function template_main_album_sidebar()
 
 	echo '
 				<hr />
-					', LevGal_Helper_Format::numstring('lgal_items', $context['album_details']['num_items']), ', ', LevGal_Helper_Format::numstring('lgal_comments', $context['album_details']['num_comments']);
+					', Format::numstring('lgal_items', $context['album_details']['num_items']), ', ', Format::numstring('lgal_comments', $context['album_details']['num_comments']);
 
 	// If we're doing both, we need slightly different formatting.
 	if (!empty($context['can_see_unapproved']['items']) && !empty($context['can_see_unapproved']['comments']))
@@ -520,7 +522,7 @@ function template_main_album_sidebar()
 				<br /><br />
 				<div class="errorbox">
 					', $txt['lgal_pending_approval'], '<br />
-					', LevGal_Helper_Format::numstring('lgal_items', $context['can_see_unapproved']['items']), ', ', LevGal_Helper_Format::numstring('lgal_comments', $context['can_see_unapproved']['comments']), '
+					', Format::numstring('lgal_items', $context['can_see_unapproved']['items']), ', ', Format::numstring('lgal_comments', $context['can_see_unapproved']['comments']), '
 				</div>';
 	}
 	elseif (!empty($context['can_see_unapproved']['items']))
@@ -529,7 +531,7 @@ function template_main_album_sidebar()
 				<br /><br />
 				<div class="errorbox">
 					', $txt['lgal_pending_approval'], '<br />
-					', LevGal_Helper_Format::numstring('lgal_items', $context['can_see_unapproved']['items']), '
+					', Format::numstring('lgal_items', $context['can_see_unapproved']['items']), '
 				</div>';
 	}
 	elseif (!empty($context['can_see_unapproved']['comments']))
@@ -538,7 +540,7 @@ function template_main_album_sidebar()
 				<br /><br />
 				<div class="errorbox">
 					', $txt['lgal_pending_approval'], '<br />
-					', LevGal_Helper_Format::numstring('lgal_comments', $context['can_see_unapproved']['comments']), '
+					', Format::numstring('lgal_comments', $context['can_see_unapproved']['comments']), '
 				</div>';
 	}
 
@@ -563,7 +565,7 @@ function template_main_album_sidebar()
 
 	// Now we need the JavaScript for our copy to clipboard buttons.
 	echo '
-	<script src="', $settings['default_theme_url'], '/levgal_res/clipboard/clipboard.min.js"></script>
+	<script src="', $settings['default_theme_url'], '/Levertine/clipboard/clipboard.min.js"></script>
 	<script>
 		let items = ["lgal_share_simple_bbc"],
 			parentEl,
@@ -647,7 +649,7 @@ function template_add_single_item()
 {
 	global $context, $txt, $scripturl;
 
-	/** @var $description_box \LevGal_Helper_Richtext */
+	/** @var $description_box \Addons\Levertine\ */
 	$description_box = $context['description_box'];
 
 	echo '
@@ -671,7 +673,7 @@ function template_add_single_item()
 					<div class="infobox">', $txt['lgal_item_name_and_slug_auto'], '</div>
 
 					<dl id="lgal_settings">
-						<dt>', $txt['lgal_item_name'], '</dt>
+						<dt>', $txt['lgal_item_name'], '<br /><span class="smalltext">', $txt['lgal_item_slug_note'], '</span></dt>
 						<dd>
 							<input type="text" id="item_name" name="item_name" tabindex="', $context['tabindex']++, '" size="80" maxlength="80" class="input_text" value="', $context['item_name'], '" style="width: 95%;" />
 						</dd>
@@ -740,7 +742,7 @@ function template_add_single_item()
 			$size_format = '';
 			if (!empty($context['quota_data']['quotas'][$type]) && is_array($context['quota_data']['quotas'][$type]) && isset($context['quota_data']['quotas'][$type]['file']))
 			{
-				$size_format = ' (' . LevGal_Helper_Format::filesize($context['quota_data']['quotas'][$type]['file']) . ')';
+				$size_format = ' (' . Format::filesize($context['quota_data']['quotas'][$type]['file']) . ')';
 			}
 			$display[$type] = sprintf($txt['lgal_allowed_format_' . $type], implode('; ', $formats)) . $size_format;
 		}
@@ -1033,7 +1035,7 @@ function template_add_bulk_items()
 		$size_format = '';
 		if (!empty($context['quota_data']['quotas'][$type]) && is_array($context['quota_data']['quotas'][$type]) && isset($context['quota_data']['quotas'][$type]['file']))
 		{
-			$size_format = ' (' . LevGal_Helper_Format::filesize($context['quota_data']['quotas'][$type]['file']) . ')';
+			$size_format = ' (' . Format::filesize($context['quota_data']['quotas'][$type]['file']) . ')';
 		}
 		$display[$type] = sprintf($txt['lgal_allowed_format_' . $type], implode('; ', $formats)) . $size_format;
 	}
@@ -1534,14 +1536,14 @@ function template_edit_album()
 			{
 				current_thumbnail.style.display = "none";
 				new_thumbnail_span.style.display = "";
-				new_thumbnail_span.innerHTML = \'<img src="\' + elk_default_theme_url + \'/levgal_res/albums/\' + value + \'?"\' + performance.now() + \' alt="" />\';
+				new_thumbnail_span.innerHTML = \'<img src="\' + elk_default_theme_url + \'/Levertine/albums/\' + value + \'?"\' + performance.now() + \' alt="" />\';
 				upload_span.style.display = "none";
 			}
 		}
 
 		function updatePrivacy()
 		{
-			document.getElementById("privacy_custom").style.display = (document.getElementById("privacy").value == "custom") ? "" : "none";
+			document.getElementById("privacy_custom").style.display = (document.getElementById("privacy").value === "custom") ? "" : "none";
 		}
 		var privacySel = document.getElementById("privacy");
 		createEventListener(privacySel);

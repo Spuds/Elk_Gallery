@@ -19,7 +19,7 @@ function template_levgal_dash()
 	echo '
 	<div id="admincenter">
 		<div id="statistics">
-			<h2 class="lgal_secondary_header secondary_header hdicon cat_img_stats">', $txt['levgal_stats_general'], '</h2>';
+			<h2 class="lgal_secondary_header secondary_header hdicon i-pie-chart">', $txt['levgal_stats_general'], '</h2>';
 
 	// Left stats block with generic stuff in.
 	echo '
@@ -51,7 +51,7 @@ function template_levgal_dash()
 								<div id="graph_legend"><ul></ul></div>
 							</div>
 						</div>
-						<script src="', $settings['default_theme_url'], '/levgal_res/chart.min.js"></script>
+						<script src="', $settings['default_theme_url'], '/Levertine/chart.min.js"></script>
 						<script>
 							let ctx = document.getElementById("lgal_graph").getContext("2d"),
 								data = {
@@ -140,7 +140,7 @@ function template_levgal_dash()
 	// Row two, left block: support information. But since we're reusing the stats templates we have to use totally inappropriate ids. Oh well.
 	echo '
 				<div id="stats_left">
-					<h2 class="lgal_secondary_header secondary_header hdicon cat_img_helptopics">', $txt['levgal_support_information'], '</h2>
+					<h2 class="lgal_secondary_header secondary_header hdicon i-help">', $txt['levgal_support_information'], '</h2>
 					<div class="content modbox">
 						<dl class="lgal_settings">';
 
@@ -162,7 +162,7 @@ function template_levgal_dash()
 	// Row two, right block: news from LevGal central.
 	echo '
 				<div id="stats_right">
-					<h2 class="lgal_secondary_header secondary_header hdicon cat_img_address">', $txt['levgal_news_from_home'], '</h2>
+					<h2 class="lgal_secondary_header secondary_header hdicon i-comment">', $txt['levgal_news_from_home'], '</h2>
 					<div class="content modbox">
 						<div>
 							', $txt['levgal_versions_lgal'], ' ', $txt['support_versions_current'], ' <span id="levgalCurrentVersion" class="bbc_strong">???</span>
@@ -183,7 +183,7 @@ function template_levgal_dash()
 	// Fetch the news
 	echo '
 	<script>
-	addLoadEvent(levgal_currentVersion);
+		document.addEventListener("DOMContentLoaded", () => {levgal_currentVersion();});
 	</script>';
 }
 
@@ -194,7 +194,7 @@ function template_levgal_credits()
 	echo '
 	<div id="admincenter">';
 
-	$icon = ['developers' => 'cat_img_config', 'components' => 'cat_img_database', 'images' => 'cat_img_attachments', 'translators' => 'cat_img_write', 'people' => 'cat_img_star'];
+	$icon = ['developers' => 'i-gear', 'components' => 'i-menu', 'images' => 'i-paperclip', 'translators' => 'i-language', 'people' => 'i-users'];
 
 	foreach ($context['levgal_credits'] as $credit_cat => $credits)
 	{

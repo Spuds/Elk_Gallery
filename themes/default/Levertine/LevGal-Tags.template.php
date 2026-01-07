@@ -63,7 +63,7 @@ function template_tagcloud_display()
 			<div id="jqcloud" class="jqcloud"></div>
 		</div>
 	</div>
-	<script src="', $settings['default_theme_url'], '/levgal_res/jqcloud/jqcloud.min.js"></script>
+	<script src="', $settings['default_theme_url'], '/Levertine/jqcloud/jqcloud.min.js"></script>
 	<script>
 		var tags = ', json_encode($context['json_export']), ';
 		$(function() {

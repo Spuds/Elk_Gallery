@@ -1,5 +1,7 @@
 <?php
 
+use Addons\Levertine\Source\Helper\Richtext;
+
 /**
  * This file handles displaying the form for creation new albums.
  *
@@ -54,7 +56,7 @@ function template_newalbum_description() {
 				<dd></dd>
 			</dl>';
 
-	/** @var $description_box \LevGal_Helper_Richtext */
+	/** @var $description_box Richtext */
 	$description_box = $context['description_box'];
 	$description_box->displayEditWindow();
 	$description_box->displayButtons();
@@ -187,7 +189,7 @@ function template_newalbum_js()
 	global $context, $settings;
 
 	echo '
-		<script src="' . $settings['default_theme_url'] . '/levgal_res/url_slug.js"></script>
+		<script src="' . $settings['default_theme_url'] . '/Levertine/url_slug.js"></script>
 		<script>';
 
 	// Automatically set the thing not to update if we already have one.

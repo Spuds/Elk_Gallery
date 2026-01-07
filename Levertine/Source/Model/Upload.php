@@ -4,22 +4,34 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 2.0.0 / elkarte
  */
+
+namespace Addons\Levertine\Source\Model;
+
+use Addons\Levertine\Source\Helper\Format;
+use Addons\Levertine\Source\Helper\Http;
+use Addons\Levertine\Source\Helper\Image;
+use Addons\Levertine\Source\LevGalBootstrap;
+use ElkArte\Helper\Util;
+use ElkArte\Languages\Txt;
+use ElkArte\User;
+use FilesystemIterator;
+use GlobIterator;
 
 /**
  * This file deals with the dynamics of actually processing uploads.
  */
-class LevGal_Model_Upload
+class Upload
 {
-	/** @var LevGal_Model_File */
+	/** @var File */
 	private $file_model;
 
 	protected function getFileModel()
 	{
 		if ($this->file_model === null)
 		{
-			$this->file_model = new LevGal_Model_File();
+			$this->file_model = new File();
 		}
 	}
 
@@ -40,8 +52,8 @@ class LevGal_Model_Upload
 	public function typesEnabled()
 	{
 		global $modSettings;
-		$enabled = array();
-		foreach (array('image', 'audio', 'video', 'document', 'archive', 'generic', 'external') as $type)
+		$enabled = [];
+		foreach (['image', 'audio', 'video', 'document', 'archive', 'generic', 'external'] as $type)
 		{
 			if (!empty($modSettings['lgal_enable_' . $type]))
 			{
@@ -56,15 +68,15 @@ class LevGal_Model_Upload
 	{
 		global $modSettings;
 
-		return !empty($modSettings['lgal_' . $type . '_formats']) ? explode(',', $modSettings['lgal_' . $type . '_formats']) : array();
+		return !empty($modSettings['lgal_' . $type . '_formats']) ? explode(',', $modSettings['lgal_' . $type . '_formats']) : [];
 	}
 
 	public function getDisplayFileFormats()
 	{
 		global $txt;
-		loadLanguage('levgal_lng/ManageLevGal-Quotas');
+		Txt::load('Levertine/ManageLevGal-Quotas');
 
-		$format_list = array();
+		$format_list = [];
 		$types = $this->typesEnabled();
 		foreach ($types as $type)
 		{
@@ -99,10 +111,10 @@ class LevGal_Model_Upload
 			return $format_list;
 		}
 
-		$format_list = array();
+		$format_list = [];
 		$types = $this->typesEnabled();
 		// Don't want external here.
-		$types = array_diff($types, array('external'));
+		$types = array_diff($types, ['external']);
 		foreach ($types as $type)
 		{
 			$format_list = array_merge($format_list, $this->getFileFormatsByType($type));
@@ -137,36 +149,36 @@ class LevGal_Model_Upload
 	protected function getAlternateExtensions()
 	{
 		// See also LevGal_Model_Item::getIconUrl if we update this.
-		return array(
-			'doc' => array(
+		return [
+			'doc' => [
 				'dot', 'docm', 'docx', 'dotm', 'dotx', // MS Word
 				'fodt', 'odt', // OpenDocument/LibreOffice Writer
 				'stw', 'sxg', 'sxw', // StarOffice/OpenOffice Writer
-			),
-			'exe' => array('bin', 'dll'),
-			'html' => array('htm', 'mhtm', 'mhtml'),
-			'iff' => array('lbm'),
-			'jpg' => array('jpeg'),
-			'tiff' => array('tif'),
-			'lz' => array('lzma'),
-			'm4a' => array('mp4'),
-			'm4v' => array('mp4'),
-			'mov' => array('mqv', 'qt'),
-			'oga' => array('ogg'),
-			'ogv' => array('ogg'),
-			'ppt' => array(
+			],
+			'exe' => ['bin', 'dll'],
+			'html' => ['htm', 'mhtm', 'mhtml'],
+			'iff' => ['lbm'],
+			'jpg' => ['jpeg'],
+			'tiff' => ['tif'],
+			'lz' => ['lzma'],
+			'm4a' => ['mp4'],
+			'm4v' => ['mp4'],
+			'mov' => ['mqv', 'qt'],
+			'oga' => ['ogg'],
+			'ogv' => ['ogg'],
+			'ppt' => [
 				'pot', 'potm', 'potx', 'ppam', 'pps', 'ppsm', 'ppsx', 'pptm', 'pptx', 'sldm', 'sldx', // MS Powerpoint
 				'fodp', 'odp', // OpenDocument/LibreOffice Impress
 				'sti', 'sxi', // StarOffice/OpenOffice Impress
-			),
-			'targz' => array('tar', 'gz', 'tgz', 'bz2', 'tbz2', 'z'),
-			'ttf' => array('otf'),
-			'xls' => array(
+			],
+			'targz' => ['tar', 'gz', 'tgz', 'bz2', 'tbz2', 'z'],
+			'ttf' => ['otf'],
+			'xls' => [
 				'xla', 'xlam', 'xll', 'xlm', 'xlw', 'xlsb', 'xlsm', 'xlsx', 'xlt', 'xltm', 'xltx', // MS Excel
 				'fods', 'ods', // OpenDocument/LibreOffice Calc
 				'stc', 'sxc', // StarOffice/OpenOffice Calc
-			),
-		);
+			],
+		];
 	}
 
 	public function getFormatMap()
@@ -181,9 +193,9 @@ class LevGal_Model_Upload
 		$types = $this->typesEnabled();
 		$alts = $this->getAlternateExtensions();
 		// Don't want external here.
-		$types = array_diff($types, array('external'));
+		$types = array_diff($types, ['external']);
 
-		$map = array();
+		$map = [];
 
 		foreach ($types as $type)
 		{
@@ -209,12 +221,12 @@ class LevGal_Model_Upload
 		$human_size = strtolower($human_size);
 		if (preg_match('~^(\d+)([kmgt])$~', $human_size, $match))
 		{
-			$multiplier = array(
+			$multiplier = [
 				'k' => 1024,
 				'm' => 1048576,
 				'g' => 1073741824,
 				't' => 1099511627776,
-			);
+			];
 
 			return $match[1] * $multiplier[$match[2]];
 		}
@@ -232,7 +244,7 @@ class LevGal_Model_Upload
 	public function isGalleryUnderQuota()
 	{
 		$size = $this->getGalleryQuota();
-		$statsModel = LevGal_Bootstrap::getModel('LevGal_Model_Stats');
+		$statsModel = LevGalBootstrap::getModel('Stats');
 		$gal_size = $statsModel->getTotalGallerySize();
 
 		// If we don't get an actual size, play it safe and disallow it.
@@ -244,10 +256,10 @@ class LevGal_Model_Upload
 		$quota_list = $this->typesEnabled();
 		if (empty($quota_list))
 		{
-			return array();
+			return [];
 		}
 
-		$quota_list = array_diff($quota_list, array('external'));
+		$quota_list = array_diff($quota_list, ['external']);
 		foreach ($quota_list as $quota)
 		{
 			$this_quota = $this->getSpecificQuota($quota);
@@ -257,12 +269,12 @@ class LevGal_Model_Upload
 			}
 		}
 
-		return empty($quotas) ? array() : $quotas;
+		return empty($quotas) ? [] : $quotas;
 	}
 
 	public function getSpecificQuota($type)
 	{
-		global $user_info, $modSettings;
+		global $modSettings;
 
 		if (allowedTo('lgal_manage'))
 		{
@@ -277,20 +289,20 @@ class LevGal_Model_Upload
 
 		$unlimited_size = false;
 		$unlimited_file = false;
-		$temp_quotas = array();
+		$temp_quotas = [];
 
 		foreach ($quotas as $quota)
 		{
 			if ($type === 'image')
 			{
-				list ($groups, $imagesize, $filesize) = $quota;
+				[$groups, $imagesize, $filesize] = $quota;
 			}
 			else
 			{
-				list ($groups, $filesize) = $quota;
+				[$groups, $filesize] = $quota;
 			}
 
-			if (count(array_intersect($groups, $user_info['groups'])) > 0)
+			if (count(array_intersect($groups, User::$info['groups'])) > 0)
 			{
 				if (isset($imagesize))
 				{
@@ -316,7 +328,7 @@ class LevGal_Model_Upload
 		}
 
 		// Either way we should have a file size.
-		$final_quota = array();
+		$final_quota = [];
 		if (!$unlimited_file && empty($temp_quotas['file']))
 		{
 			return false; // No quota for you!
@@ -358,10 +370,10 @@ class LevGal_Model_Upload
 
 	public function assertGalleryWritable()
 	{
-		$gal_dir = LevGal_Bootstrap::getGalleryDir();
+		$gal_dir = LevGalBootstrap::getGalleryDir();
 		if (!is_writable($gal_dir . '/files/'))
 		{
-			LevGal_Helper_Http::fatalError('lgal_dir_not_writable');
+			Http::fatalError('lgal_dir_not_writable');
 		}
 	}
 
@@ -387,27 +399,27 @@ class LevGal_Model_Upload
 
 	protected function getUserIdentifier()
 	{
-		global $user_info, $context;
+		global $context;
 
-		return !empty($user_info['id']) ? $user_info['id'] : preg_replace('~[^0-9a-z]~i', '', $context['session_id']);
+		return !empty(User::$info['id']) ? User::$info['id'] : preg_replace('~[^0-9a-z]~i', '', $context['session_id']);
 	}
 
 	public function errorAsyncFile($code, $fileID)
 	{
 		global $txt;
 
-		loadLanguage('levgal_lng/LevGal');
-		loadLanguage('levgal_lng/LevGal-Errors');
+		Txt::load('Levertine/LevGal');
+		Txt::load('Levertine/LevGal-Errors');
 
 		if ($code === 'over_quota')
 		{
-			$uploadModel = new LevGal_Model_Upload();
-			$txt['lgal_async_over_quota'] = sprintf($txt['levgal_gallery_over_quota'], LevGal_Helper_Format::filesize($uploadModel->getGalleryQuota()));
+			$uploadModel = new Upload();
+			$txt['lgal_async_over_quota'] = sprintf($txt['levgal_gallery_over_quota'], Format::filesize($uploadModel->getGalleryQuota()));
 		}
 		$error = $txt['lgal_async_' . $code] ?? $code;
 
 		// Clean up
-		$path = LevGal_Bootstrap::getGalleryDir();
+		$path = LevGalBootstrap::getGalleryDir();
 		$user_ident = $this->getUserIdentifier();
 		$in = $path . '/async_' . $user_ident . '_' . $fileID . '*.dat';
 		$iterator = new GlobIterator($in, FilesystemIterator::SKIP_DOTS | FilesystemIterator::KEY_AS_FILENAME);
@@ -486,7 +498,7 @@ class LevGal_Model_Upload
 			}
 		}
 
-		$path = LevGal_Bootstrap::getGalleryDir();
+		$path = LevGalBootstrap::getGalleryDir();
 		if (!is_writable($path))
 		{
 			return $this->errorAsyncFile( 'not_writable', $fileID);
@@ -508,7 +520,7 @@ class LevGal_Model_Upload
 
 	public function combineChunks($fileID, $chunks, $filename)
 	{
-		$path = LevGal_Bootstrap::getGalleryDir();
+		$path = LevGalBootstrap::getGalleryDir();
 		$user_ident = $this->getUserIdentifier();
 		$in = $path . '/async_' . $user_ident . '_' . $fileID . '_part_*.dat';
 
@@ -522,15 +534,20 @@ class LevGal_Model_Upload
 		// Combine the chunks in the correct order
 		$success = true;
 		$out = $path . '/async_' . $user_ident . '_' . $fileID . '.dat';
+
 		for ($i = 0; $i < $chunks; $i++)
 		{
 			$in = $path . '/async_' . $user_ident . '_' . $fileID . '_part_' . $i . '.dat';
-			$success &= file_put_contents($out, file_get_contents($in), LOCK_EX | FILE_APPEND) !== false;
+			$writeResult = file_put_contents($out, file_get_contents($in), LOCK_EX | FILE_APPEND);
+			if ($writeResult === false)
+			{
+				$success = false;
+			}
+
 			@unlink($in);
 		}
 
-		// Often success feels empty
-		if (empty($success))
+		if (!$success)
 		{
 			return $this->errorAsyncFile( 'not_found', $fileID);
 		}
@@ -543,7 +560,7 @@ class LevGal_Model_Upload
 		// This is hardly bulletproof but we'll see.
 		$size = (int) $size;
 
-		$path = LevGal_Bootstrap::getGalleryDir();
+		$path = LevGalBootstrap::getGalleryDir();
 		$user_ident = $this->getUserIdentifier();
 		$local_file = 'async_' . $user_ident . '_' . $fileID . '.dat';
 		$filename = $this->sanitizeFilename($filename);
@@ -576,8 +593,8 @@ class LevGal_Model_Upload
 						{
 							$this->resizeUpload($local_file, $this_quota, $size);
 						}
-						list ($width, $height) = elk_getimagesize($path . '/' . $local_file);
-						list ($quota_width, $quota_height) = explode('x', $this_quota['image'] === true ? $width . 'x' . $height : $this_quota['image']);
+						[$width, $height] = elk_getimagesize($path . '/' . $local_file);
+						[$quota_width, $quota_height] = explode('x', $this_quota['image'] === true ? $width . 'x' . $height : $this_quota['image']);
 						if ($width <= $quota_width && $height <= $quota_height && ($this_quota['file'] === true || $size <= $this_quota['file']))
 						{
 							$valid = true;
@@ -615,8 +632,8 @@ class LevGal_Model_Upload
 	{
 		global $context;
 
-		$image = new LevGal_Helper_Image();
-		$path = LevGal_Bootstrap::getGalleryDir();
+		$image = new Image();
+		$path = LevGalBootstrap::getGalleryDir();
 
 		// Normally checked at the end, but we may change size, so we do it here and now as well
 		if (@filesize($path . '/' . $local_file) !== $size)
@@ -624,8 +641,8 @@ class LevGal_Model_Upload
 			return;
 		}
 
-		list ($width, $height) = elk_getimagesize($path . '/' . $local_file);
-		list ($quota_width, $quota_height) = explode('x', $this_quota['image']);
+		[$width, $height] = elk_getimagesize($path . '/' . $local_file);
+		[$quota_width, $quota_height] = explode('x', $this_quota['image']);
 
 		// Allowed to change the WxH ?
 		if ($this_quota['image'] !== true && ($width > $quota_width || $height > $quota_height))
@@ -660,7 +677,7 @@ class LevGal_Model_Upload
 	{
 		// This is hardly bulletproof but we'll see.
 		$this->getFileModel();
-		$path = LevGal_Bootstrap::getGalleryDir();
+		$path = LevGalBootstrap::getGalleryDir();
 		$user_ident = $this->getUserIdentifier();
 		$local_file = 'async_' . $user_ident . '_' . $fileID . '.dat';
 

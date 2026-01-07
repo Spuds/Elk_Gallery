@@ -4,16 +4,22 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 2.0.0 / elkarte
  */
+
+namespace Addons\Levertine\Source\Model;
+
+use Addons\Levertine\Source\Model\Metadata\Exif;
+use ElkArte\Helper\FileFunctions;
 
 /**
  * This file deals with preparing metadata about files wherever possible.
  */
-class LevGal_Model_Metadata
+class Metadata
 {
 	/** @var string */
 	private $file;
+
 	/** @var string */
 	private $filename;
 
@@ -26,11 +32,11 @@ class LevGal_Model_Metadata
 	public function getMetadata()
 	{
 		// First, we should really use getID3 if we have it.
-		$meta_id3 = array();
-		if (file_exists(SOURCEDIR . '/levgal_src/library/getid3/getid3.php'))
+		$meta_id3 = [];
+		if (FileFunctions::instance()->fileExists(ADDONSDIR . '/Levertine/Source/library/getid3/getid3.php'))
 		{
-			require_once(SOURCEDIR . '/levgal_src/library/getid3/getid3.php');
-			$getID3 = new getID3;
+			require_once(ADDONSDIR . '/Levertine/Source/library/getid3/getid3.php');
+			$getID3 = new \getID3;
 			$id3 = $getID3->analyze($this->file);
 			$getID3->CopyTagsToComments($id3);
 
@@ -43,7 +49,7 @@ class LevGal_Model_Metadata
 
 			if (isset($id3['comments_html']))
 			{
-				$tags = array('title', 'artist', 'album_artist', 'album', 'track_number', 'genre');
+				$tags = ['title', 'artist', 'album_artist', 'album', 'track_number', 'genre'];
 				foreach ($tags as $tag)
 				{
 					if (!empty($id3['comments_html'][$tag]))
@@ -54,7 +60,7 @@ class LevGal_Model_Metadata
 			}
 
 			// We don't need to duplicate this.
-			if (isset($meta_id3['artist'], $meta_id3['album_artist']) && $meta_id3['artist'] == $meta_id3['album_artist'])
+			if (isset($meta_id3['artist'], $meta_id3['album_artist']) && $meta_id3['artist'] === $meta_id3['album_artist'])
 			{
 				unset ($meta_id3['album_artist']);
 			}
@@ -80,9 +86,9 @@ class LevGal_Model_Metadata
 				$meta_id3['width'] = $id3['video']['resolution_x'];
 				$meta_id3['height'] = $id3['video']['resolution_y'];
 
-				if (!empty($id3['mime_type']) && in_array($id3['mime_type'], array('image/jpg', 'image/jpeg')))
+				if (!empty($id3['mime_type']) && in_array($id3['mime_type'], ['image/jpg', 'image/jpeg']))
 				{
-					$exifModel = new LevGal_Model_Metadata_Exif($this->file);
+					$exifModel = new Exif($this->file);
 					$exif = $exifModel->getExif();
 					if (empty($exifModel->getErrors()))
 					{
@@ -95,7 +101,7 @@ class LevGal_Model_Metadata
 		// If no getID3, we should at least attempt to find a mime type with our own fallback.
 		if (empty($meta_id3['mime_type']))
 		{
-			$mimeModel = new LevGal_Model_Mime($this->file, $this->filename);
+			$mimeModel = new Mime($this->file, $this->filename);
 			$mime_type = $mimeModel->getMimeType();
 			$meta_id3['mime_type'] = !empty($mime_type) ? $mime_type : 'application/octet-stream';
 		}

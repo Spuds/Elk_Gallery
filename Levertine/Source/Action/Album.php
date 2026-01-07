@@ -4,20 +4,45 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.1 / elkarte
+ * @version 2.0.0 / elkarte
  */
+
+namespace Addons\Levertine\Source\Action;
+
+use Addons\Levertine\Source\Helper\Feed;
+use Addons\Levertine\Source\Helper\Format;
+use Addons\Levertine\Source\Helper\Http;
+use Addons\Levertine\Source\Helper\Image;
+use Addons\Levertine\Source\Helper\Richtext;
+use Addons\Levertine\Source\Helper\Sanitiser;
+use Addons\Levertine\Source\LevGalBootstrap;
+use Addons\Levertine\Source\Model\Album as AlbumModel;
+use Addons\Levertine\Source\Model\AlbumList;
+use Addons\Levertine\Source\Model\Custom;
+use Addons\Levertine\Source\Model\External;
+use Addons\Levertine\Source\Model\Item;
+use Addons\Levertine\Source\Model\Member;
+use Addons\Levertine\Source\Model\Notify;
+use Addons\Levertine\Source\Model\Tag;
+use Addons\Levertine\Source\Model\Upload;
+use ElkArte\Languages\Txt;
+use ElkArte\User;
+use function Addons\Levertine\Source\levgal_pageindex;
 
 /**
  * This file provides the handling for albums, site/?media/album/*.
  */
-class LevGal_Action_Album extends LevGal_Action_Abstract
+class Album extends LevGalAbstract
 {
 	/** @var bool|int */
 	private $album_id;
+
 	/** @var bool|string */
 	private $album_slug;
-	/** @var \LevGal_Model_Album */
+
+	/** @var AlbumModel */
 	private $album_obj;
+
 	/** @var string */
 	private $order_by;
 
@@ -29,22 +54,22 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		parent::__construct();
 
 		// Attempt to get something useful.
-		list ($this->album_slug, $this->album_id) = $this->getSlugAndId();
+		[$this->album_slug, $this->album_id] = $this->getSlugAndId();
 
 		// Fetch some details.
-		$this->album_obj = new LevGal_Model_Album();
+		$this->album_obj = new AlbumModel();
 		$context['album_details'] = $this->album_obj->getAlbumById($this->album_id);
 
 		// Does the album even exist? Can they see it if it does?
 		if (!$context['album_details'] || !$this->album_obj->isVisible())
 		{
-			LevGal_Helper_Http::fatalError('error_no_album');
+			Http::fatalError('error_no_album');
 		}
 
 		// Does the album slug provided match the provided slug?
 		if ($context['album_details']['album_slug'] !== $this->album_slug)
 		{
-			LevGal_Helper_Http::hardRedirect($context['album_details']['album_url'] . (!empty($_GET['sub']) ? $_GET['sub'] . '/' : ''));
+			Http::hardRedirect($context['album_details']['album_url'] . (!empty($_GET['sub']) ? $_GET['sub'] . '/' : ''));
 		}
 
 		// Set the default album sorting
@@ -110,29 +135,29 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 
 		$sort_options = $this->album_obj->getSortingOptions();
 		$context['sort_options'] = array_keys($sort_options);
-		$context['sort_criteria'] = array(
+		$context['sort_criteria'] = [
 			'order_by' => $order_by,
 			'order' => $order,
-		);
+		];
 
 		$sort_method = ($order_by === 'date' && $order === 'desc') ? '' : 'view_' . $order_by . '_' . $order . '/';
 		$context['canonical_url'] = $context['album_details']['album_url'] . $sort_method;
 
 		$this->setTemplate('LevGal-Album', 'main_album_view');
 
-		loadCSSFile('glightbox.min.css', ['subdir' => 'levgal_res/lightbox']);
-		loadJavascriptFile('glightbox.min.js', ['subdir' => 'levgal_res/lightbox']);
+		loadCSSFile('glightbox.min.css', ['subdir' => 'Levertine/lightbox']);
+		loadJavascriptFile('glightbox.min.js', ['subdir' => 'Levertine/lightbox']);
 
 		$context['album_owner'] = $this->album_obj->loadOwnerData();
 
-		$context['can_see_unapproved'] = array(
-			'items' => !empty($context['album_details']['num_unapproved_items']) && (allowedTo(array('lgal_manage', 'lgal_approve_item')) || ($this->album_obj->isOwnedByUser() && !empty($modSettings['lgal_selfmod_approve_item']))) ? $context['album_details']['num_unapproved_items'] : 0,
+		$context['can_see_unapproved'] = [
+			'items' => !empty($context['album_details']['num_unapproved_items']) && (allowedTo(['lgal_manage', 'lgal_approve_item']) || ($this->album_obj->isOwnedByUser() && !empty($modSettings['lgal_selfmod_approve_item']))) ? $context['album_details']['num_unapproved_items'] : 0,
 			'comments' => !empty($context['album_details']['num_unapproved_comments']) ? $context['album_details']['num_unapproved_comments'] : 0,
-		);
+		];
 		// Comments are a lot complicated: we can only show them comments if they could approve them
 		// - or failing that, the number of comments on their items that are unapproved.
 		if (!empty($context['can_see_unapproved']['comments'])
-			&& !allowedTo(array('lgal_manage', 'lgal_approve_comment')))
+			&& !allowedTo(['lgal_manage', 'lgal_approve_comment']))
 		{
 			// So they don't have actual permission (and thus could see it normally, but they
 			// might have self-mod permission, in which case we need comments on their items only.
@@ -141,7 +166,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 
 		$context['num_items'] = $this->album_obj->countAlbumItems();
 		$num_pages = ceil($context['num_items'] / $modSettings['lgal_items_per_page']);
-		$this_page = isset($_GET['page']) ? LevGal_Bootstrap::clamp((int) $_GET['page'], 1, $num_pages) : 1;
+		$this_page = isset($_GET['page']) ? LevGalBootstrap::clamp((int) $_GET['page'], 1, $num_pages) : 1;
 		$context['album_items'] = $this->album_obj->loadAlbumItems($modSettings['lgal_items_per_page'], ($this_page - 1) * $modSettings['lgal_items_per_page'], $order_by, $order);
 
 		if ($num_pages > 1)
@@ -151,75 +176,77 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 
 		if (!empty($modSettings['lgal_feed_enable_album']))
 		{
-			LevGal_Bootstrap::addHtmlHeader('
+			LevGalBootstrap::addHtmlHeader('
 	<link rel="alternate" type="application/atom+xml" title="' . sprintf($txt['lgal_items_in'], $context['album_details']['album_name']) . '" href="' . $context['album_details']['album_url'] . 'feed/" />');
 		}
 
-		list($context['album_family'], $context['album_counts']) = $this->album_obj->getAlbumFamily();
+		[$context['album_family'], $context['album_counts']] = $this->album_obj->getAlbumFamily();
 
-		$context['album_actions'] = array();
+		$context['album_actions'] = [];
 		if ($this->album_obj->canUploadItems())
 		{
-			$context['album_actions']['actions']['additem'] = array($txt['lgal_add_item'], $album['url'] . 'add/', 'tab' => true);
-			if (allowedTo(array('lgal_manage', 'lgal_addbulk')))
+			$context['album_actions']['actions']['additem'] = [$txt['lgal_add_item'], $album['url'] . 'add/', 'tab' => true];
+			if (allowedTo(['lgal_manage', 'lgal_addbulk']))
 			{
-				$context['album_actions']['actions']['addbulk'] = array($txt['lgal_add_bulk'], $album['url'] . 'addbulk/', 'tab' => true);
+				$context['album_actions']['actions']['addbulk'] = [$txt['lgal_add_bulk'], $album['url'] . 'addbulk/', 'tab' => true];
 			}
 		}
 		if (!$context['user']['is_guest'])
 		{
 			// Notifications
-			$notify = new LevGal_Model_Notify();
+			$notify = new Notify();
 			if (!empty($notify->getSiteEnableNotifications()['lgnew']))
 			{
 				$action = $notify->getNotifyAlbumStatus($this->album_id, $context['user']['id']) ? 'unnotify' : 'notify';
-				$context['album_actions']['actions'][$action] = array($txt['lgal_' . $action], $album['url'] . $action . '/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'title' => $txt['lgal_' . $action . '_album_desc']);
+				$context['album_actions']['actions'][$action] = [$txt['lgal_' . $action], $album['url'] . $action . '/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'title' => $txt['lgal_' . $action . '_album_desc']];
 			}
 			// Marking seen
-			$context['album_actions']['actions']['markseen'] = array($txt['lgal_mark_album_seen'], $album['url'] . 'markseen/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'tab' => true);
+			$context['album_actions']['actions']['markseen'] = [$txt['lgal_mark_album_seen'], $album['url'] . 'markseen/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'tab' => true];
 		}
 
 		if (allowedTo('lgal_manage'))
 		{
 			$action = $this->album_obj->isFeatured() ? 'unfeature' : 'feature';
-			$context['album_actions']['moderation'][$action . '_album'] = array($txt['lgal_' . $action . '_album'], $album['url'] . $action . '/' . $context['session_var'] . '=' . $context['session_id'] . '/');
+			$context['album_actions']['moderation'][$action . '_album'] = [$txt['lgal_' . $action . '_album'], $album['url'] . $action . '/' . $context['session_var'] . '=' . $context['session_id'] . '/'];
 		}
 
-		if (!$this->album_obj->isApproved() && allowedTo(array('lgal_manage', 'lgal_approve_album')))
+		if (!$this->album_obj->isApproved() && allowedTo(['lgal_manage', 'lgal_approve_album']))
 		{
-			$context['album_actions']['moderation']['approvealbum'] = array($txt['lgal_approve_album_title'], $album['url'] . 'approve/' . $context['session_var'] . '=' . $context['session_id'] . '/');
+			$context['album_actions']['moderation']['approvealbum'] = [$txt['lgal_approve_album_title'], $album['url'] . 'approve/' . $context['session_var'] . '=' . $context['session_id'] . '/'];
 		}
 
 		// The templates make use of hierarchy for navigation links
 		$ownership = $this->album_obj->getAlbumOwnership();
-		/** @var \LevGal_Model_AlbumList $album_list */
-		$album_list = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
+		/** @var AlbumList $album_list */
+		$album_list = LevGalBootstrap::getModel('AlbumList');
 		$owner = reset($ownership['owners']);
 		$context['hierarchy'] = $album_list->getAlbumHierarchy($ownership['type'], $owner);
 
 		if ($this->album_obj->isEditable())
 		{
-			$context['album_actions']['moderation']['editalbum'] = array($txt['lgal_edit_album_title'], $album['url'] . 'edit/', 'tab' => true);
-			$context['album_actions']['actions']['editalbum'] = array($txt['lgal_edit_album_title'], $album['url'] . 'edit/', 'tab' => true, 'sidebar' => false);
+			$context['album_actions']['moderation']['editalbum'] = [$txt['lgal_edit_album_title'], $album['url'] . 'edit/', 'tab' => true];
+			$context['album_actions']['actions']['editalbum'] = [$txt['lgal_edit_album_title'], $album['url'] . 'edit/', 'tab' => true, 'sidebar' => false];
 
 			// Can they move this album?
 			if ($ownership['type'] === 'site' && isAllowedTo('lgal_manage'))
 			{
-				$context['album_actions']['moderation']['movealbum'] = array($txt['lgal_arrange_albums'], $scripturl . '?media/movealbum/site/');
+				$context['album_actions']['moderation']['movealbum'] = [$txt['lgal_arrange_albums'], $scripturl . '?media/movealbum/site/'];
 			}
 			elseif ($ownership['type'] === 'member')
 			{
 				if (!empty($context['hierarchy']) && count($context['hierarchy']) > 1)
 				{
-					$context['album_actions']['moderation']['movealbum'] = array($txt['lgal_arrange_albums'], $scripturl . '?media/movealbum/' . $owner . '/member/');
+					$context['album_actions']['moderation']['movealbum'] = [$txt['lgal_arrange_albums'], $scripturl . '?media/movealbum/' . $owner . '/member/'];
 				}
 			}
 		}
 
-		if (allowedTo(array('lgal_manage', 'lgal_delete_album_any')) || (allowedTo('lgal_delete_album_own') && $this->album_obj->isEditable() && $this->album_obj->isOwnedByUser()))
+		if (allowedTo(['lgal_manage', 'lgal_delete_album_any']) || (allowedTo('lgal_delete_album_own') && $this->album_obj->isEditable() && $this->album_obj->isOwnedByUser()))
 		{
-			$context['album_actions']['moderation']['deletealbum'] = array($txt['lgal_delete_album_title'], $album['url'] . 'delete/');
+			$context['album_actions']['moderation']['deletealbum'] = [$txt['lgal_delete_album_title'], $album['url'] . 'delete/'];
 		}
+
+		$context['album_actions']['actions']['search'] = [$txt['levgal_search'], $scripturl . '?media/search/', 'tab' => true];
 
 		// Attempt to provide navigation back breadcrumbs when surfing albums
 		if (empty($_SERVER['HTTP_REFERER']) || !isset($_SESSION['levgal_breadcrumbs']))
@@ -240,16 +267,16 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 
 	public function actionChunked()
 	{
-		$uploadModel = new LevGal_Model_Upload();
+		$uploadModel = new Upload();
 
 		// Before we go any further...
 		$uploadModel->assertGalleryWritable();
 
 		if (checkSession('post', '', false) !== '')
 		{
-			LevGal_Helper_Http::jsonResponse(array(
+			Http::jsonResponse([
 				'error' => 'session_timeout',
-				'fatal' => true)
+				'fatal' => true]
 			);
 		}
 
@@ -262,20 +289,20 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		// Some error?
 		if ($result['code'] !== '')
 		{
-			LevGal_Helper_Http::jsonResponse(array(
+			Http::jsonResponse([
 				'error' => $result['error'],
 				'code' => $result['code'],
 				'fatal' => true,
 				'async' => $result['id'],
 				'filename' => $filename,
-			));
+			]);
 		}
 		else
 		{
-			LevGal_Helper_Http::jsonResponse(array(
+			Http::jsonResponse([
 				'Combined' => 1,
 				'async' => $result['id']
-			), 200);
+			], 200);
 		}
 	}
 
@@ -283,53 +310,53 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 	{
 		global $txt;
 
-		loadLanguage('levgal_lng/LevGal');
-		loadLanguage('levgal_lng/LevGal-Errors');
+		Txt::load('Levertine/LevGal');
+		Txt::load('Levertine/LevGal-Errors');
 
 		if (!$this->album_obj->canUploadItems())
 		{
-			LevGal_Helper_Http::jsonResponse(array('error' => $txt['cannot_lgal_additem'], 'fatal' => true));
+			Http::jsonResponse(['error' => $txt['cannot_lgal_additem'], 'fatal' => true]);
 		}
 
 		// We did actually get something, yes? We possibly got multiple files?
 		if (empty($_FILES) || !empty($_FILES['file']['error']) || is_array($_FILES['file']['name']))
 		{
-			LevGal_Helper_Http::jsonResponse(array('error' => $txt['lgal_upload_failed'], 'fatal' => true));
+			Http::jsonResponse(['error' => $txt['lgal_upload_failed'], 'fatal' => true]);
 		}
 
 		if (checkSession('post', '', false) !== '')
 		{
-			LevGal_Helper_Http::jsonResponse(array('error' => 'session_timeout', 'fatal' => true));
+			Http::jsonResponse(['error' => 'session_timeout', 'fatal' => true]);
 		}
 
 		$filename = $_POST['async_filename'] ?? $_FILES['file']['name'];
-		$uploadModel = new LevGal_Model_Upload();
+		$uploadModel = new Upload();
 		$result = $uploadModel->saveAsyncFile($filename);
 
 		// Some error?
 		if ($result['code'] !== '')
 		{
-			LevGal_Helper_Http::jsonResponse(array(
+			Http::jsonResponse([
 				'error' => $result['error'],
 				'code' => $result['code'],
 				'fatal' => true,
 				'async' => $result['id']
-			));
+			]);
 		}
 		else
 		{
-			LevGal_Helper_Http::jsonResponse(array(
+			Http::jsonResponse([
 				'OK' => 1,
 				'async' => $result['id']
-			), 200);
+			], 200);
 		}
 	}
 
 	public function actionAdd()
 	{
-		global $context, $txt, $modSettings, $user_info;
+		global $context, $txt, $modSettings;
 
-		$uploadModel = new LevGal_Model_Upload();
+		$uploadModel = new Upload();
 
 		// Before we go any further...
 		$uploadModel->assertGalleryWritable();
@@ -337,18 +364,18 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		// First, permission check.
 		if (!$this->album_obj->canUploadItems())
 		{
-			LevGal_Helper_Http::fatalError('cannot_lgal_additem');
+			Http::fatalError('cannot_lgal_additem');
 		}
 
 		// Second up, going over the gallery limit. Once it goes over the quota, boom goes the dynamite.
 		if (!allowedTo('lgal_manage') && !$uploadModel->isGalleryUnderQuota())
 		{
-			loadLanguage('levgal_lng/LevGal-Errors');
-			$txt['levgal_gallery_over_quota'] = sprintf($txt['levgal_gallery_over_quota'], LevGal_Helper_Format::filesize($uploadModel->getGalleryQuota()));
-			LevGal_Helper_Http::fatalError('levgal_gallery_over_quota');
+			Txt::load('Levertine/LevGal-Errors');
+			$txt['levgal_gallery_over_quota'] = sprintf($txt['levgal_gallery_over_quota'], Format::filesize($uploadModel->getGalleryQuota()));
+			Http::fatalError('levgal_gallery_over_quota');
 		}
 
-		loadLanguage('levgal_lng/LevGal-Upload');
+		Txt::load('Levertine/LevGal-Upload');
 
 		// Page title, this level of link tree, canonical URL
 		$context['page_title'] = sprintf($txt['lgal_adding_to_album'], $context['album_details']['album_name']);
@@ -359,20 +386,20 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		$this->addLinkTree($txt['lgal_add_item'], $album['url'] . 'add/');
 		$context['canonical_url'] = $album['url'] . 'add/';
 
-		loadJavascriptFile(['/dropzone/min/dropzone.min.js', 'url_slug.js', 'upload.js', 'jquery.flexdatalist.min.js'], ['subdir' => 'levgal_res', 'defer' => false]);
-		addInlineJavascript('
+		loadJavascriptFile(['/dropzone/min/dropzone.min.js', 'url_slug.js', 'upload.js', 'jquery.flexdatalist.min.js'], ['subdir' => 'Levertine', 'defer' => false]);
+		theme()->addInlineJavascript('
 		Dropzone.autoDiscover = false;
 			$(".flexdatalist").flexdatalist({
 				minLength: 0,
-				limitOfValues: 5,' . (!empty($modSettings['lgal_tag_items_list_more']) ? '
+				limitOfValues: 5,' . ((!empty($modSettings['lgal_tag_items_list_more']) || allowedTo('lgal_manage')) ? '
 				noResultsText: "' . $txt['lgal_item_tag_notfound'] . '"' : '
 				selectionRequired: true') . '
 			});', true);
-		loadCSSFile(['/dropzone/dropzone.css', 'jquery.flexdatalist.css'], ['subdir' => 'levgal_res']);
+		loadCSSFile(['/dropzone/dropzone.css', 'jquery.flexdatalist.css'], ['subdir' => 'Levertine']);
 
 		$this->setTemplate('LevGal-Album', 'add_single_item');
 
-		$context['description_box'] = new LevGal_Helper_Richtext('message');
+		$context['description_box'] = new Richtext('message');
 
 		$context['item_name'] = '';
 		$context['item_slug'] = '';
@@ -380,16 +407,16 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		$context['description'] = '';
 
 		// Tags
-		/** @var $tagModel \LevGal_Model_Tag */
-		$tagModel = LevGal_Bootstrap::getModel('LevGal_Model_Tag');
+		/** @var $tagModel Tag */
+		$tagModel = LevGalBootstrap::getModel('Tag');
 		$context['tags'] = $tagModel->getSiteTags();
-		$context['can_add_tags'] = !empty($modSettings['lgal_tag_items_list_more']);
+		$context['can_add_tags'] = !empty($modSettings['lgal_tag_items_list_more']) || allowedTo('lgal_manage');
 
-		$context['requires_approval'] = !allowedTo(array('lgal_manage', 'lgal_additem_approve', 'lgal_approve_item'));
+		$context['requires_approval'] = !allowedTo(['lgal_manage', 'lgal_additem_approve', 'lgal_approve_item']);
 
 		// Get the list of file types. If there aren't any, bail.
 		$context['allowed_formats'] = $uploadModel->getDisplayFileFormats();
-		$context['external_formats'] = array();
+		$context['external_formats'] = [];
 		if (!empty($context['allowed_formats']['external']))
 		{
 			$context['external_formats'] = $context['allowed_formats']['external'];
@@ -397,58 +424,58 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		}
 		if (empty($context['allowed_formats']) && empty($context['external_formats']))
 		{
-			LevGal_Helper_Http::fatalError('cannot_lgal_additem');
+			Http::fatalError('cannot_lgal_additem');
 		}
 		if (!empty($context['allowed_formats']))
 		{
 			$context['lgal_enable_resize'] = !empty($modSettings['lgal_enable_resize']);
-			$context['quota_data'] = array(
+			$context['quota_data'] = [
 				'formats' => $uploadModel->getFormatMap(),
 				'quotas' => $uploadModel->getAllQuotas(),
-			);
+			];
 		}
 
 		$context['upload_url'] = '';
 		$context['upload_type'] = !empty($context['allowed_formats']) ? 'file' : 'link';
 
-		$context['new_options'] = array();
+		$context['new_options'] = [];
 		if (!empty($modSettings['lgal_enable_mature']))
 		{
-			$context['new_options']['mature'] = array('label' => $txt['lgal_mark_mature'], 'value' => false);
+			$context['new_options']['mature'] = ['label' => $txt['lgal_mark_mature'], 'value' => false];
 		}
 		if (!$this->album_obj->isLockedForComments())
 		{
-			$context['new_options']['enable_comments'] = array('label' => $txt['lgal_enable_comments'], 'value' => true);
-			if (!$user_info['is_guest'])
+			$context['new_options']['enable_comments'] = ['label' => $txt['lgal_enable_comments'], 'value' => true];
+			if (!User::$info['is_guest'])
 			{
-				$context['new_options']['enable_notify'] = array('label' => $txt['lgal_enable_notify'], 'value' => false);
+				$context['new_options']['enable_notify'] = ['label' => $txt['lgal_enable_notify'], 'value' => false];
 			}
 		}
 
 		// And lastly, custom fields.
-		$context['custom_field_model'] = new LevGal_Model_Custom();
+		$context['custom_field_model'] = new Custom();
 		$context['custom_fields'] = $context['custom_field_model']->prepareFieldInputs($this->album_id);
 
 		// Save!
 		if (isset($_POST['save']))
 		{
 			checkSession();
-			$context['errors'] = array();
+			$context['errors'] = [];
 
 			// First, the item name.
-			$context['item_name'] = LevGal_Helper_Sanitiser::sanitiseThingNameFromPost('item_name');
+			$context['item_name'] = Sanitiser::sanitiseThingNameFromPost('item_name');
 			if (empty($context['item_name']))
 			{
 				$context['errors']['upload_no_title'] = $txt['lgal_upload_no_title'];
 			}
 
 			// Next, dust off the slug. Items don't *have* to have slugs.
-			$context['item_slug'] = LevGal_Helper_Sanitiser::sanitiseSlugFromPost('item_slug');
+			$context['item_slug'] = Sanitiser::sanitiseSlugFromPost('item_slug');
 
 			// If a guest, we need their username.
 			if ($context['user']['is_guest'])
 			{
-				list($valid, $context['item_posted_by']) = LevGal_Helper_Sanitiser::sanitiseUsernameFromPost('guest_username');
+				[$valid, $context['item_posted_by']] = Sanitiser::sanitiseUsernameFromPost('guest_username');
 				if ($valid)
 				{
 					$_SESSION['guest_name'] = $context['item_posted_by'];
@@ -460,7 +487,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 			}
 
 			// Tags
-			$context['raw_tags'] = LevGal_Helper_Sanitiser::sanitiseTagFromPost('tag');
+			$context['raw_tags'] = Sanitiser::sanitiseTagFromPost('tag');
 
 			// Then description. It is optional.
 			$context['description'] = '';
@@ -473,14 +500,14 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 			$itemID = $this->processNewItem();
 			if (!empty($itemID))
 			{
-				$itemModel = LevGal_Bootstrap::getModel('LevGal_Model_Item');
+				$itemModel = LevGalBootstrap::getModel('Item');
 				$item_details = $itemModel->getItemInfoById($itemID);
 
 				// Did the user want notifications on this item?
 				if (!empty($context['new_options']['enable_notify']) && !empty($_POST['enable_notify']))
 				{
-					$notify = new LevGal_Model_Notify();
-					$notify->setNotifyItem($itemID, $user_info['id']);
+					$notify = new Notify();
+					$notify->setNotifyItem($itemID, User::$info['id']);
 				}
 				// Does anyone else want notifications?
 				if (!$context['requires_approval'])
@@ -489,7 +516,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 				}
 
 				// Need to let a guest see their own unapproved items.
-				if ($user_info['is_guest'] && $context['requires_approval'])
+				if (User::$info['is_guest'] && $context['requires_approval'])
 				{
 					$_SESSION['lgal_items'][] = $itemID;
 				}
@@ -498,22 +525,22 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 			}
 		}
 
-		$context['description_box']->createEditor(array(
+		$context['description_box']->createEditor([
 			'value' => $context['description_box']->getForForm($context['description']),
-			'labels' => array(
+			'labels' => [
 				'post_button' => $txt['lgal_save_item'],
-			),
-			'js' => array(
+			],
+			'js' => [
 				'post_button' => 'return is_submittable() && submitThisOnce(this);',
-			),
-		));
+			],
+		]);
 	}
 
 	public function actionAddbulk()
 	{
 		global $context, $txt, $modSettings;
 
-		$uploadModel = new LevGal_Model_Upload();
+		$uploadModel = new Upload();
 
 		// Before we go any further...
 		$uploadModel->assertGalleryWritable();
@@ -521,22 +548,22 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		// First, permission check.
 		if (!$this->album_obj->canUploadItems())
 		{
-			LevGal_Helper_Http::fatalError('cannot_lgal_additem');
+			Http::fatalError('cannot_lgal_additem');
 		}
-		if (!allowedTo(array('lgal_manage', 'lgal_addbulk')))
+		if (!allowedTo(['lgal_manage', 'lgal_addbulk']))
 		{
-			LevGal_Helper_Http::fatalError('cannot_lgal_addbulk');
+			Http::fatalError('cannot_lgal_addbulk');
 		}
 
 		// Second up, going over the gallery limit. Once it goes over the quota, boom goes the dynamite.
 		if (!allowedTo('lgal_manage') && !$uploadModel->isGalleryUnderQuota())
 		{
-			loadLanguage('levgal_lng/LevGal-Errors');
-			$txt['levgal_gallery_over_quota'] = sprintf($txt['levgal_gallery_over_quota'], LevGal_Helper_Format::filesize($uploadModel->getGalleryQuota()));
-			LevGal_Helper_Http::fatalError('levgal_gallery_over_quota');
+			Txt::load('Levertine/LevGal-Errors');
+			$txt['levgal_gallery_over_quota'] = sprintf($txt['levgal_gallery_over_quota'], Format::filesize($uploadModel->getGalleryQuota()));
+			Http::fatalError('levgal_gallery_over_quota');
 		}
 
-		loadLanguage('levgal_lng/LevGal-Upload');
+		Txt::load('Levertine/LevGal-Upload');
 
 		// Page title, this level of link tree, canonical URL
 		$context['page_title'] = sprintf($txt['lgal_adding_to_album'], $context['album_details']['album_name']);
@@ -549,11 +576,11 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 
 		$this->setTemplate('LevGal-Album', 'add_bulk_items');
 
-		loadJavascriptFile(['/dropzone/min/dropzone.min.js', 'url_slug.js', 'upload.js'], ['subdir' => 'levgal_res', 'defer' => false]);
-		addInlineJavascript('Dropzone.autoDiscover = false;', true);
-		loadCSSFile(['/dropzone/dropzone.css'], ['subdir' => 'levgal_res']);
+		loadJavascriptFile(['/dropzone/min/dropzone.min.js', 'url_slug.js', 'upload.js'], ['subdir' => 'Levertine', 'defer' => false]);
+		theme()->addInlineJavascript('Dropzone.autoDiscover = false;', true);
+		loadCSSFile(['/dropzone/dropzone.css'], ['subdir' => 'Levertine']);
 
-		$context['requires_approval'] = !allowedTo(array('lgal_manage', 'lgal_additem_approve', 'lgal_approve_item'));
+		$context['requires_approval'] = !allowedTo(['lgal_manage', 'lgal_additem_approve', 'lgal_approve_item']);
 
 		// Get the list of file types. If there aren't any, bail.
 		$context['allowed_formats'] = $uploadModel->getDisplayFileFormats();
@@ -565,15 +592,15 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		}
 		if (empty($context['allowed_formats']))
 		{
-			LevGal_Helper_Http::fatalError('cannot_lgal_additem');
+			Http::fatalError('cannot_lgal_additem');
 		}
 		if (!empty($context['allowed_formats']))
 		{
 			$context['lgal_enable_resize'] = !empty($modSettings['lgal_enable_resize']);
-			$context['quota_data'] = array(
+			$context['quota_data'] = [
 				'formats' => $uploadModel->getFormatMap(),
 				'quotas' => $uploadModel->getAllQuotas(),
-			);
+			];
 		}
 		if (!isset($_POST['save']))
 		{
@@ -581,43 +608,44 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		}
 		// When we receive an upload and the file is done, we call this function AJAXively
 		// and return some JSON.
-		if (isset($_POST['save']) && ($error = checkSession('post', '', false)) !== '')
+		$error = checkSession('post', '', false);
+		if ($error !== '')
 		{
-			LevGal_Helper_Http::jsonResponse(array(
+			Http::jsonResponse([
 				'error' => 'session_timeout',
 				'fatal' => true,
-				'session' => $error . ': ' . $context['session_var'] . '=' . $context['session_id'])
+				'session' => $error . ': ' . $context['session_var'] . '=' . $context['session_id']]
 			);
 		}
 
 		$item_name = trim(urldecode($_POST['async_filename']));
-		$context['item_name'] = LevGal_Helper_Sanitiser::sanitiseThingName($item_name);
+		$context['item_name'] = Sanitiser::sanitiseThingName($item_name);
 		// We don't want the extension in the item name.
 		$pos = strrpos($context['item_name'], '.');
 		if ($pos !== false)
 		{
 			$context['item_name'] = substr($context['item_name'], 0, $pos);
 		}
-		$context['item_slug'] = LevGal_Helper_Sanitiser::sanitiseSlug($context['item_name']);
+		$context['item_slug'] = Sanitiser::sanitiseSlug($context['item_name']);
 
 		$context['upload_type'] = !empty($context['allowed_formats']) ? 'file' : 'link';
 
 		if (!$this->album_obj->isLockedForComments())
 		{
-			$context['new_options'] = array(
-				'enable_comments' => array(
+			$context['new_options'] = [
+				'enable_comments' => [
 					'value' => true,
-				),
-			);
+				],
+			];
 			$_POST['enable_comments'] = true;
 		}
 
-		$context['errors'] = array();
+		$context['errors'] = [];
 
 		$itemID = $this->processNewItem();
 		if (!empty($itemID) && empty($context['errors']))
 		{
-			$itemModel = LevGal_Bootstrap::getModel('LevGal_Model_Item');
+			$itemModel = LevGalBootstrap::getModel('Item');
 			$item_details = $itemModel->getItemInfoById($itemID);
 
 			// Does anyone else want notifications?
@@ -626,27 +654,27 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 				$this->album_obj->notifyItem($itemID, $itemModel);
 			}
 
-			LevGal_Helper_Http::jsonResponse(array(
+			Http::jsonResponse([
 				'async' => $context['async_id'],
 				'url' => $item_details['item_url']
-			), 200);
+			], 200);
 		}
 		else
 		{
-			LevGal_Helper_Http::jsonResponse(array(
+			Http::jsonResponse([
 				'async' => $context['async_id'],
-				'error' => array_keys($context['errors']))
+				'error' => array_keys($context['errors'])]
 			);
 		}
 	}
 
 	public function processNewItem()
 	{
-		global $user_info, $context, $txt;
+		global $context, $txt;
 
 		$context['upload_type'] = isset($_POST['upload_type']) && $_POST['upload_type'] === 'link' ? 'link' : 'file';
-		$url = LevGal_Helper_Sanitiser::sanitiseUrlFromPost('upload_url');
-		$context['upload_url'] = !empty($url) ? $url : LevGal_Helper_Sanitiser::sanitiseTextFromPost('upload_url');
+		$url = Sanitiser::sanitiseUrlFromPost('upload_url');
+		$context['upload_url'] = !empty($url) ? $url : Sanitiser::sanitiseTextFromPost('upload_url');
 
 		if (!empty($context['external_formats']) && $context['upload_type'] === 'link')
 		{
@@ -668,13 +696,13 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 			else
 			{
 				$context['existing_upload'] = true;
-				$context['filename_display'] = LevGal_Helper_Sanitiser::sanitiseText($context['filename']);
+				$context['filename_display'] = Sanitiser::sanitiseText($context['filename']);
 				$context['filename_post'] = rawurlencode($context['filename']);
 			}
 		}
 		else
 		{
-			LevGal_Helper_Http::fatalError('cannot_lgal_additem');
+			Http::fatalError('cannot_lgal_additem');
 		}
 
 		// Going back already? Fix the options if we are.
@@ -706,28 +734,28 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 			return false;
 		}
 
-		$uploadModel = new LevGal_Model_Upload();
-		/** @var $itemModel \LevGal_Model_Item */
-		$itemModel = LevGal_Bootstrap::getModel('LevGal_Model_Item');
+		$uploadModel = new Upload();
+		/** @var $itemModel Item */
+		$itemModel = LevGalBootstrap::getModel('Item');
 
-		$item_info = array(
+		$item_info = [
 			'item_name' => $context['item_name'],
 			'item_slug' => $context['item_slug'],
 			'id_album' => $this->album_id,
-			'poster_info' => array(
-				'id' => $user_info['id'],
-				'name' => $context['user']['is_guest'] ? $context['item_posted_by'] : $user_info['name'],
-			),
+			'poster_info' => [
+				'id' => User::$info['id'],
+				'name' => $context['user']['is_guest'] ? $context['item_posted_by'] : User::$info['name'],
+			],
 			'description' => !empty($context['description']) ? $context['description'] : '',
 			'approved' => !$context['requires_approval'],
 			'comment_state' => empty($context['new_options']['enable_comments']) || empty($_POST['enable_comments']) ? 2 : 0, // 0 = enable, 1 = no new comments, 2 = no comments
 			'mature' => !empty($context['new_options']['mature']) && !empty($_POST['mature']),
 			'has_tags' => !empty($context['raw_tags']),
-		);
+		];
 
 		if ($context['upload_type'] === 'link')
 		{
-			$externalModel = new LevGal_Model_External();
+			$externalModel = new External();
 			$url_data = $externalModel->getURLData($context['upload_url']);
 			if (!empty($url_data['provider']))
 			{
@@ -771,26 +799,26 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 				if ($hash = $uploadModel->moveUpload($context['async_id'], $itemID, $context['filename']))
 				{
 					// First, the hash. We need this before we do anything else.
-					$itemModel->updateItem(array('hash' => $hash));
+					$itemModel->updateItem(['hash' => $hash]);
 
 					// Did they add tags?
 					if (!empty($context['raw_tags']))
 					{
-						/** @var $tagModel \LevGal_Model_Tag */
-						$tagModel = LevGal_Bootstrap::getModel('LevGal_Model_Tag');
+						/** @var $tagModel Tag */
+						$tagModel = LevGalBootstrap::getModel('Tag');
 						$tagModel->setTagsOnItem($itemID, $context['raw_tags']);
 					}
 
 					// Then we can do the fun of meta.
 					$meta = $itemModel->getMetadata();
-					$opts = array(
+					$opts = [
 						'mime_type' => $meta['mime_type'],
-					);
+					];
 
 					// Did we get width/height?
 					if (isset($meta['meta']['width'], $meta['meta']['height']))
 					{
-						foreach (array('width', 'height') as $var)
+						foreach (['width', 'height'] as $var)
 						{
 							$opts[$var] = $meta['meta'][$var];
 							unset ($meta['meta'][$var]);
@@ -804,7 +832,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 						$array = $itemModel->fixOrientation($meta['meta']['exif']['IFD0']['Orientation']);
 						if (!empty($array))
 						{
-							list($opts['width'], $opts['height'], $opts['filesize']) = $array;
+							[$opts['width'], $opts['height'], $opts['filesize']] = $array;
 						}
 					}
 
@@ -849,9 +877,9 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 
 	public function actionMarkseen()
 	{
-		global $user_info, $user_settings, $context;
+		global $context;
 
-		if (!$user_info['is_guest'] && !empty($user_settings['lgal_unseen']))
+		if (!User::$info['is_guest'] && !empty(User::$settings['lgal_unseen']))
 		{
 			checkSession('get');
 			$this->album_obj->markSeen();
@@ -869,7 +897,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 			&& !allowedTo('lgal_delete_album_any')
 			&& (!allowedTo('lgal_delete_album_own') || !$this->album_obj->isEditable()))
 		{
-			LevGal_Helper_Http::fatalError('cannot_lgal_delete_album');
+			Http::fatalError('cannot_lgal_delete_album');
 		}
 
 		$context['page_title'] = sprintf($txt['lgal_deleting_album'], $context['album_details']['album_name']);
@@ -902,10 +930,10 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 
 		if (empty($modSettings['lgal_feed_enable_album']))
 		{
-			LevGal_Helper_Http::fatalError('cannot_lgal_feed');
+			Http::fatalError('cannot_lgal_feed');
 		}
 
-		$feed = new LevGal_Helper_Feed();
+		$feed = new Feed();
 		$feed->title = $context['album_details']['album_name'];
 		$feed->alternateUrl = $context['album_details']['album_url'];
 		$feed->selfUrl = $context['album_details']['album_url'] . 'feed/';
@@ -916,15 +944,15 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 			$items = $this->album_obj->loadAlbumItems($modSettings['lgal_feed_items_album'], 0, 'date', 'desc', true);
 			foreach ($items as $item)
 			{
-				$entry = array(
+				$entry = [
 					'title' => $item['item_name'],
 					'link' => $item['item_url'],
 					'content' => $item['description'],
-					'category' => array($context['album_details']['album_name'], $context['album_details']['album_url']),
-					'author' => array($item['poster_name'], $item['id_member']),
+					'category' => [$context['album_details']['album_name'], $context['album_details']['album_url']],
+					'author' => [$item['poster_name'], $item['id_member']],
 					'published' => $item['time_added'],
 					'updated' => $item['time_updated'],
-				);
+				];
 				$feed->addEntry($entry);
 			}
 		}
@@ -952,7 +980,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		// Second, session check. Round 1: accepting via GET link.
 		if (checkSession('get', '', false) === '')
 		{
-			$notify = new LevGal_Model_Notify();
+			$notify = new Notify();
 			$method = $type === 'notify' ? 'setNotifyAlbum' : 'unsetNotifyAlbum';
 			$notify->$method($this->album_id, $context['user']['id']);
 			redirectexit($context['album_details']['album_url']);
@@ -961,7 +989,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		// Round 2: accepting via POST form from media/album/blah.1/notify/
 		if (checkSession('post', '', false) === '' && (!empty($_POST['notify_yes']) || !empty($_POST['notify_no'])))
 		{
-			$notify = new LevGal_Model_Notify();
+			$notify = new Notify();
 			$method = !empty($_POST['notify_yes']) ? 'setNotifyAlbum' : 'unsetNotifyAlbum';
 			$notify->$method($this->album_id, $context['user']['id']);
 			redirectexit($context['album_details']['album_url']);
@@ -1010,9 +1038,9 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 	protected function handleApprove()
 	{
 		// You need to be able to approve albums, and the album needs to be sort of unapproved to go further.
-		if (!allowedTo(array('lgal_manage', 'lgal_approve_album') || $this->album_obj->isApproved()))
+		if (!allowedTo(['lgal_manage', 'lgal_approve_album'] || $this->album_obj->isApproved()))
 		{
-			LevGal_Helper_Http::fatalError('cannot_lgal_approve_album');
+			Http::fatalError('cannot_lgal_approve_album');
 		}
 
 		checkSession('get');
@@ -1029,7 +1057,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 			&& !allowedTo('lgal_delete_album_any')
 			&& (!allowedTo('lgal_delete_album_own') || !$this->album_obj->isOwnedByUser()))
 		{
-			LevGal_Helper_Http::fatalError('cannot_lgal_delete_album');
+			Http::fatalError('cannot_lgal_delete_album');
 		}
 
 		checkSession('get');
@@ -1041,11 +1069,11 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 	{
 		global $context, $txt;
 
-		loadLanguage('levgal_lng/LevGal-AlbumEdit');
+		Txt::load('Levertine/LevGal-AlbumEdit');
 
 		if (!$this->album_obj->isEditable())
 		{
-			LevGal_Helper_Http::fatalError('cannot_lgal_edit_album');
+			Http::fatalError('cannot_lgal_edit_album');
 		}
 
 		$context['page_title'] = sprintf($txt['lgal_editing_album'], $context['album_details']['album_name']);
@@ -1059,7 +1087,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 
 		$this->setTemplate('LevGal-Album', 'edit_album');
 		// But even though we use the LevGal-Album template we share with the NewAlbum template.
-		loadTemplate('levgal_tpl/LevGal-NewAlbum');
+		theme()->getTemplates()->load('Levertine/LevGal-NewAlbum');
 
 		$context['display_featured'] = allowedTo('lgal_manage');
 		$context['is_featured'] = $this->album_obj->isFeatured();
@@ -1068,11 +1096,11 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		$context['locked_for_comments'] = $this->album_obj->isLockedForComments();
 
 		// There are certain things we will need to have set up to make this work.
-		$context['ownership_blocks'] = array();
+		$context['ownership_blocks'] = [];
 		$ownership = $this->album_obj->getAlbumOwnership();
 		$context['ownership_original'] = $ownership['type'];
 		$context['ownership'] = $context['ownership_original'];
-		$context['ownership_data'] = array();
+		$context['ownership_data'] = [];
 		$context['ownership_opts'] = $this->album_obj->getOwnershipOptions();
 		$context['group_list'] = $this->album_obj->getAllowableOwnershipGroups();
 		$context['access_list'] = $this->album_obj->getAllowableAccessGroups();
@@ -1082,20 +1110,20 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		{
 			$context['ownership_blocks'][] = 'change_type';
 		}
-		foreach (array('member', 'group') as $type)
+		foreach (['member', 'group'] as $type)
 		{
 			if ($context['ownership'] === $type)
 			{
 				if (allowedTo('lgal_manage'))
 				{
-					$context['add_' . $type] = array();
-					$context['remove_' . $type] = array();
+					$context['add_' . $type] = [];
+					$context['remove_' . $type] = [];
 					$context['ownership_blocks'][] = 'add_owner_' . $type;
 					$context['ownership_blocks'][] = 'remove_owner_' . $type;
 				}
 				elseif ($this->album_obj->isOwnedByUser())
 				{
-					$context['add_' . $type] = array();
+					$context['add_' . $type] = [];
 					$context['ownership_blocks'][] = 'add_owner_' . $type;
 				}
 			}
@@ -1106,9 +1134,9 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		}
 
 		$context['privacy'] = $context['album_details']['perms']['type'];
-		$context['privacy_group'] = $context['album_details']['perms']['type'] === 'custom' ? $context['album_details']['perms']['groups'] : array();
-		$context['owner_member'] = array();
-		$context['owner_member_display'] = array();
+		$context['privacy_group'] = $context['album_details']['perms']['type'] === 'custom' ? $context['album_details']['perms']['groups'] : [];
+		$context['owner_member'] = [];
+		$context['owner_member_display'] = [];
 		$context['description'] = $context['album_details']['description_raw'];
 
 		// Sorting options
@@ -1117,22 +1145,22 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 		[$context['order_by'], $context['order']] = explode('|', $context['album_details']['sort'], 2);
 
 		// Setup the description
-		$context['description_box'] = new LevGal_Helper_Richtext('message');
-		$context['description_box']->createEditor(array(
+		$context['description_box'] = new Richtext('message');
+		$context['description_box']->createEditor([
 			'value' => $context['description_box']->getForForm($context['description']),
-			'labels' => array(
+			'labels' => [
 				'post_button' => $txt['lgal_edit_album_title'],
 				'name' => 'save',
-			),
-			'js' => array(
+			],
+			'js' => [
 				'post_button' => 'return is_submittable() && submitThisOnce(this);',
-			),
-		));
+			],
+		]);
 
-		$context['thumbnail_list'] = array(
+		$context['thumbnail_list'] = [
 			'no_change' => 'no_change',
 			'upload' => 'upload',
-			'folder_colours' => array(
+			'folder_colours' => [
 				'folder-red.svg' => 'color_red',
 				'folder-orange.svg' => 'color_orange',
 				'folder-yellow.svg' => 'color_yellow',
@@ -1144,8 +1172,8 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 				'folder-violet.svg' => 'color_violet',
 				'folder-brown.svg' => 'color_brown',
 				'folder-black.svg' => 'color_black',
-			),
-			'folder_icons' => array(
+			],
+			'folder_icons' => [
 				'folder-image.svg' => 'icon_picture',
 				'folder-documents.svg' => 'icon_documents',
 				'folder-sound.svg' => 'icon_audio',
@@ -1153,18 +1181,18 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 				'folder-remote.svg' => 'icon_remote',
 				'folder-home.svg' => 'icon_home',
 				'folder-favorites.svg' => 'icon_favorites',
-			),
-		);
+			],
+		];
 
 		if (isset($_POST['save']))
 		{
 			checkSession();
 
-			$changes = array();
+			$changes = [];
 
 			// Name, description and slug, nice and easy.
-			$changes['album_name'] = LevGal_Helper_Sanitiser::sanitiseThingNameFromPost('album_name');
-			$changes['album_slug'] = LevGal_Helper_Sanitiser::sanitiseSlugFromPost('album_slug');
+			$changes['album_name'] = Sanitiser::sanitiseThingNameFromPost('album_name');
+			$changes['album_slug'] = Sanitiser::sanitiseSlugFromPost('album_slug');
 			$changes['description'] = $this->album_obj->setAlbumDescription();
 
 			if ($context['display_featured'])
@@ -1177,20 +1205,20 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 
 			$context['locked_for_items'] = !empty($_POST['lock_items']);
 			$context['locked_for_comments'] = !empty($_POST['lock_comments']);
-			$changes['locked'] = ($context['locked_for_items'] ? LevGal_Model_Album::LOCKED_ITEMS : 0) | ($context['locked_for_comments'] ? LevGal_Model_Album::LOCKED_COMMENTS : 0);
+			$changes['locked'] = ($context['locked_for_items'] ? AlbumModel::LOCKED_ITEMS : 0) | ($context['locked_for_comments'] ? AlbumModel::LOCKED_COMMENTS : 0);
 
 			$changes['sort'] = $this->album_obj->setAlbumDefaultSort($_POST['default_sort'], $_POST['default_sort_direction']);
 
-			if (isset($_POST['privacy']) && in_array($_POST['privacy'], array('guests', 'members', 'justme', 'custom')))
+			if (isset($_POST['privacy']) && in_array($_POST['privacy'], ['guests', 'members', 'justme', 'custom']))
 			{
 				$context['privacy'] = $_POST['privacy'];
-				$context['privacy_group'] = array();
-				$changes['perms'] = array(
+				$context['privacy_group'] = [];
+				$changes['perms'] = [
 					'type' => $_POST['privacy'],
-				);
+				];
 				if ($_POST['privacy'] === 'custom' && isset($_POST['privacy_group']) && is_array($_POST['privacy_group']))
 				{
-					$changes['perms']['groups'] = array();
+					$changes['perms']['groups'] = [];
 					foreach ($_POST['privacy_group'] as $v)
 					{
 						$v = (int) $v;
@@ -1210,13 +1238,13 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 				{
 					$changing_ownership = true;
 					$context['ownership'] = 'site';
-					$context['ownership_data'] = array();
+					$context['ownership_data'] = [];
 				}
 				elseif ($_POST['ownership'] === 'group')
 				{
 					$changing_ownership = true;
 					$context['ownership'] = 'group';
-					$context['ownership_data'] = isset($_POST['ownership_group']) && is_array($_POST['ownership_group']) ? array_intersect($_POST['ownership_group'], array_keys($context['group_list'])) : array();
+					$context['ownership_data'] = isset($_POST['ownership_group']) && is_array($_POST['ownership_group']) ? array_intersect($_POST['ownership_group'], array_keys($context['group_list'])) : [];
 					if (empty($context['ownership_data']))
 					{
 						$context['errors']['one_owner'] = 'levgal_error_at_least_one_owner';
@@ -1224,8 +1252,8 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 				}
 				elseif ($_POST['ownership'] === 'member')
 				{
-					$memberModel = new LevGal_Model_Member();
-					list ($context['owner_member'], $context['owner_member_display']) = $memberModel->getFromAutoSuggest('ownership_member');
+					$memberModel = new Member();
+					[$context['owner_member'], $context['owner_member_display']] = $memberModel->getFromAutoSuggest('ownership_member');
 
 					$changing_ownership = true;
 					$context['ownership'] = 'member';
@@ -1241,8 +1269,8 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 			{
 				if ($context['ownership'] === 'member' && in_array('add_owner_member', $context['ownership_blocks'], true))
 				{
-					$memberModel = new LevGal_Model_Member();
-					list ($context['add_member'], $context['add_member_display']) = $memberModel->getFromAutoSuggest('add_member');
+					$memberModel = new Member();
+					[$context['add_member'], $context['add_member_display']] = $memberModel->getFromAutoSuggest('add_member');
 				}
 				if ($context['ownership'] === 'group'
 					&& in_array('add_owner_group', $context['ownership_blocks'], true)
@@ -1254,7 +1282,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 					$context['add_group'] = array_diff($context['add_group'], $context['album_owner']['group']);
 				}
 				// Removing is actually a bit simpler than adding since it's the same either way.
-				foreach (array('member', 'group') as $type)
+				foreach (['member', 'group'] as $type)
 				{
 					if (in_array('remove_owner_' . $type, $context['ownership_blocks'], true)
 						&& isset($_POST['remove_' . $type]) && is_array($_POST['remove_' . $type]))
@@ -1269,12 +1297,12 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 							{
 								if (in_array('site', $context['ownership_opts'], true))
 								{
-									$context['add_member'] = array();
-									$context['remove_member'] = array();
-									$context['add_group'] = array();
-									$context['remove_group'] = array();
+									$context['add_member'] = [];
+									$context['remove_member'] = [];
+									$context['add_group'] = [];
+									$context['remove_group'] = [];
 									$context['ownership'] = 'site';
-									$context['ownership_data'] = array();
+									$context['ownership_data'] = [];
 									$changing_ownership = true;
 								}
 								else
@@ -1294,13 +1322,13 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 				{
 					if (!empty($_FILES['thumbnail']) && !empty($_FILES['thumbnail']['tmp_name']) && is_uploaded_file($_FILES['thumbnail']['tmp_name']))
 					{
-						$image = new LevGal_Helper_Image();
+						$image = new Image();
 						if ($ext = $image->loadImageFromFile($_FILES['thumbnail']['tmp_name']))
 						{
 							global $modSettings;
 
 							$thumbMax = $modSettings['attachmentThumbWidth'] ?: 125;
-							$gal_path = LevGal_Bootstrap::getGalleryDir();
+							$gal_path = LevGalBootstrap::getGalleryDir();
 							$upload_path = $gal_path . '/album_' . $context['album_details']['id_album'] . '_' . $context['user']['id'];
 							$image->resizeToNewFile($thumbMax, $upload_path, $ext);
 						}
@@ -1337,7 +1365,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 				}
 				else
 				{
-					foreach (array('member', 'group') as $type)
+					foreach (['member', 'group'] as $type)
 					{
 						if (!empty($context['add_' . $type]))
 						{
@@ -1362,7 +1390,7 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 					// If this was the only change... we should still update the table appropriately.
 					if (empty($changes))
 					{
-						$this->album_obj->updateAlbum(array('editable' => 0));
+						$this->album_obj->updateAlbum(['editable' => 0]);
 					}
 				}
 
@@ -1379,20 +1407,20 @@ class LevGal_Action_Album extends LevGal_Action_Abstract
 
 	public function actionThumb()
 	{
-		list ($ext, $thumb) = $this->album_obj->getThumbnailFile();
+		[$ext, $thumb] = $this->album_obj->getThumbnailFile();
 
 		// If we didn't get an extension we know this wasn't an actual file we needed, so we should 301 it over to the actual image.
 		if (empty($ext))
 		{
-			LevGal_Helper_Http::hardRedirect($thumb);
+			Http::hardRedirect($thumb);
 		}
 
-		$extensions = array(
+		$extensions = [
 			'png' => 'image/png',
 			'jpeg' => 'image/jpeg',
 			'jpg' => 'image/jpeg',
 			'gif' => 'image/gif',
-		);
+		];
 		$format = $extensions[$ext] ?? 'application/octet-stream';
 
 		header('Content-Type: ' . $format);

@@ -4,13 +4,17 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.1 / elkarte
+ * @version 2.0.0 / elkarte
  */
+
+namespace Addons\Levertine\Source\Helper;
+
+use ElkArte\VerificationControls\VerificationControlsIntegrate;
 
 /**
  * This file deals with the verification widget, abstracting it away to keep the logic simple to follow.
  */
-class LevGal_Helper_Verify
+class Verify
 {
 	/** @var int */
 	private $id;
@@ -22,12 +26,14 @@ class LevGal_Helper_Verify
 
 	private function initialize($do_test)
 	{
-		require_once(SUBSDIR . '/VerificationControls.class.php');
-		$options = array(
-			'id' => $this->id,
-		);
+		global $context;
 
-		return create_control_verification($options, $do_test);
+		$verificationOptions = [
+			'id' => $this->id,
+		];
+
+		$context['require_verification'] = VerificationControlsIntegrate::create($verificationOptions, true);
+		$context['visual_verification_id'] = $verificationOptions['id'];
 	}
 
 	public function setupOnly()

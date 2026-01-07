@@ -4,18 +4,27 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 2.0.0 / elkarte
  */
+
+namespace Addons\Levertine\Source\Action;
+
+use Addons\Levertine\Source\Helper\Http;
+use Addons\Levertine\Source\Helper\Richtext;
+use Addons\Levertine\Source\Helper\Sanitiser;
+use Addons\Levertine\Source\Model\Comment as CommentModel;
+use Addons\Levertine\Source\Model\Album as AlbumModel;
+use Addons\Levertine\Source\Model\Report as ReportModel;
+use ElkArte\Languages\Txt;
+use ElkArte\User;
 
 /**
  * This file provides the handling for comments-related behaviour, site/?media/comment/*.
  */
-class LevGal_Action_Comment extends LevGal_Action_Abstract
+class Comment extends LevGalAbstract
 {
-	/** @var int */
-	private $comment_id;
-	/** @var \LevGal_Model_Comment */
-	private $comment_obj;
+	private int $comment_id;
+	private CommentModel $comment_obj;
 
 	public function __construct()
 	{
@@ -25,13 +34,13 @@ class LevGal_Action_Comment extends LevGal_Action_Abstract
 		parent::__construct();
 
 		$this->comment_id = $this->getNumericId();
-		$this->comment_obj = new LevGal_Model_Comment();
+		$this->comment_obj = new CommentModel();
 		$context['comment_details'] = $this->comment_obj->getCommentById($this->comment_id);
 
 		// Does it exist? Can they see it?
 		if (!$context['comment_details'] || !$this->comment_obj->isVisible())
 		{
-			LevGal_Helper_Http::fatalError('error_lgal_no_comment');
+			Http::fatalError('error_lgal_no_comment');
 		}
 	}
 
@@ -43,18 +52,18 @@ class LevGal_Action_Comment extends LevGal_Action_Abstract
 
 	public function actionFlag()
 	{
-		global $user_info, $context, $txt, $scripturl;
+		global $context, $txt, $scripturl;
 
-		if ($user_info['is_guest'])
+		if (User::$info['is_guest'])
 		{
-			LevGal_Helper_Http::fatalError('cannot_lgal_flag_comment');
+			Http::fatalError('cannot_lgal_flag_comment');
 		}
 
-		loadLanguage('levgal_lng/LevGal-Moderation');
+		Txt::load('Levertine/LevGal-Moderation');
 
 		// So now we're setting up for flagging.
 		$context['item_details'] = $this->comment_obj->getParentItem();
-		$album = new LevGal_Model_Album();
+		$album = new AlbumModel();
 		$album->getAlbumById($context['item_details']['id_album']);
 
 		$album_linktree = $album->getLinkTreeDetails();
@@ -70,21 +79,21 @@ class LevGal_Action_Comment extends LevGal_Action_Abstract
 
 		$context['form_url'] = $scripturl . '?media/comment/' . $context['comment_details']['id_comment'] . '/flag/';
 
-		$report = LevGal_Helper_Sanitiser::sanitiseTextFromPost('report_body');
+		$report = Sanitiser::sanitiseTextFromPost('report_body');
 		if (!empty($report))
 		{
 			// Saving?
 			checkSession();
 
-			$reportModel = new LevGal_Model_Report();
+			$reportModel = new ReportModel();
 			$reportModel->createCommentReport($context['comment_details']['id_comment'],
-				array(
-					'id_member' => $user_info['id'],
-					'member_name' => $user_info['name'],
-					'email_address' => $user_info['email'],
-					'ip_address' => $user_info['ip'],
+				[
+					'id_member' => User::$info['id'],
+					'member_name' => User::$info['name'],
+					'email_address' => User::$info['email'],
+					'ip_address' => User::$info['ip'],
 					'body' => $report,
-				)
+				]
 			);
 			$_SESSION['lgal_rep']['c' . $context['comment_details']['id_comment']] = true;
 			redirectexit($this->comment_obj->getCommentURL());
@@ -100,6 +109,7 @@ class LevGal_Action_Comment extends LevGal_Action_Abstract
 	public function actionApprove_unapproved()
 	{
 		global $scripturl;
+
 		$this->handleApprove();
 		redirectexit($scripturl . '?media/moderate/unapproved_comments/');
 	}
@@ -115,7 +125,7 @@ class LevGal_Action_Comment extends LevGal_Action_Abstract
 			// Maybe the user can approve it by way of it being their item?
 			if (empty($modSettings['lgal_selfmod_approve_comment']) || !$this->comment_obj->itemIsOwnedByUser())
 			{
-				loadLanguage('levgal_lng/LevGal-Errors');
+				Txt::load('Levertine/LevGal-Errors');
 				isAllowedTo('lgal_approve_comment');
 			}
 		}
@@ -138,15 +148,15 @@ class LevGal_Action_Comment extends LevGal_Action_Abstract
 			// Maybe the user can be a moderator of sorts?
 			if (empty($modSettings['lgal_selfmod_edit_comment']) || !$this->comment_obj->isOwnedByUser())
 			{
-				loadLanguage('levgal_lng/LevGal-Errors');
+				Txt::load('Levertine/LevGal-Errors');
 				is_not_guest($txt['cannot_lgal_edit_comment']);
-				LevGal_Helper_Http::fatalError('cannot_lgal_edit_comment');
+				Http::fatalError('cannot_lgal_edit_comment');
 			}
 		}
 
 		// So now we're setting up for editing.
 		$item_details = $this->comment_obj->getParentItem();
-		$album = new LevGal_Model_Album();
+		$album = new AlbumModel();
 		$album->getAlbumById($item_details['id_album']);
 
 		$album_linktree = $album->getLinkTreeDetails();
@@ -166,7 +176,7 @@ class LevGal_Action_Comment extends LevGal_Action_Abstract
 		$author_link = empty($context['comment_details']['id_author']) ? $context['comment_details']['author_name'] : '<a href="' . $scripturl . '?action=profile;u=' . $context['comment_details']['id_author'] . '">' . $context['comment_details']['author_name'] . '</a>';
 		$context['display_title'] = sprintf($txt['levgal_edit_comment_full'], $item_link, $author_link);
 
-		$context['comment_box'] = new LevGal_Helper_Richtext('lgal_commentbox');
+		$context['comment_box'] = new Richtext('lgal_commentbox');
 
 		// If there's something to save, save it (and if we're done, exit there.
 		if (isset($_POST['lgal_commentbox']))
@@ -174,12 +184,12 @@ class LevGal_Action_Comment extends LevGal_Action_Abstract
 			$this->saveEdit();
 		}
 
-		$context['comment_box']->createEditor(array(
+		$context['comment_box']->createEditor([
 			'value' => $context['comment_box']->getForForm($context['comment_details']['comment']),
-			'labels' => array(
+			'labels' => [
 				'post_button' => $txt['levgal_save_comment'],
-			),
-		));
+			],
+		]);
 
 		$context['form_url'] = $scripturl . '?media/comment/' . $context['comment_details']['id_comment'] . '/edit/';
 	}
@@ -203,8 +213,8 @@ class LevGal_Action_Comment extends LevGal_Action_Abstract
 		// Are we editing a guest post?
 		if (!empty($context['editing_guest']))
 		{
-			list($valid_username, $context['comment_details']['author_name']) = LevGal_Helper_Sanitiser::sanitiseUsernameFromPost('author_name');
-			list($valid_email, $context['comment_details']['author_email']) = LevGal_Helper_Sanitiser::sanitiseEmailFromPost('author_email');
+			[$valid_username, $context['comment_details']['author_name']] = Sanitiser::sanitiseUsernameFromPost('author_name');
+			[$valid_email, $context['comment_details']['author_email']] = Sanitiser::sanitiseEmailFromPost('author_email');
 			if (!$valid_username)
 			{
 				$context['comment_errors'][] = 'invalid_user';
@@ -218,10 +228,10 @@ class LevGal_Action_Comment extends LevGal_Action_Abstract
 		// No errors? Let's save this then and be on our way.
 		if (empty($context['comment_errors']))
 		{
-			$changes = array(
+			$changes = [
 				'comment' => $context['comment_box']->getForDB(),
 				'modified_name' => $context['user']['name'],
-			);
+			];
 			if (!empty($context['editing_guest']))
 			{
 				$changes['author_name'] = $context['comment_details']['author_name'];
@@ -263,9 +273,9 @@ class LevGal_Action_Comment extends LevGal_Action_Abstract
 			// Maybe the user can be a moderator of sorts?
 			if (empty($modSettings['lgal_selfmod_delete_comment']) || !$this->comment_obj->isOwnedByUser())
 			{
-				loadLanguage('levgal_lng/LevGal-Errors');
+				Txt::load('Levertine/LevGal-Errors');
 				is_not_guest($txt['cannot_lgal_delete_comment']);
-				LevGal_Helper_Http::fatalError('cannot_lgal_delete_comment');
+				Http::fatalError('cannot_lgal_delete_comment');
 			}
 		}
 

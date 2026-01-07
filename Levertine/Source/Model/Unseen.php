@@ -4,18 +4,24 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 2.0.0 / elkarte
  */
+
+namespace Addons\Levertine\Source\Model;
+
+use ElkArte\User;
 
 /**
  * This file deals with the fetching and updating of unseen counts.
  */
-class LevGal_Model_Unseen
+class Unseen
 {
 	/** @var int  */
 	public const UNSEEN_THRESHOLD = 2;
-	/** @var LevGal_Model_AlbumList */
+
+	/** @var AlbumList */
 	private $album_list;
+
 	/** @var mixed */
 	private $albums;
 
@@ -29,7 +35,7 @@ class LevGal_Model_Unseen
 		{
 			if (empty($this->album_list))
 			{
-				$this->album_list = new LevGal_Model_AlbumList();
+				$this->album_list = new AlbumList();
 			}
 			$this->albums = $this->album_list->getVisibleAlbums();
 		}
@@ -37,11 +43,9 @@ class LevGal_Model_Unseen
 
 	public function updateUnseenItems()
 	{
-		global $user_info, $user_settings;
-
 		$db = database();
 
-		if (!empty($user_settings['lgal_new']))
+		if (!empty(User::$settings['lgal_new']))
 		{
 			// First, get the list of albums we can see.
 			$this->getVisibleAlbums();
@@ -49,14 +53,14 @@ class LevGal_Model_Unseen
 			if (empty($this->albums))
 			{
 				// No albums? Reset the new counter to 0 and the unseen count as well.
-				updateMemberData($user_info['id'], array('lgal_new' => 0, 'lgal_unseen' => 0));
-				$user_settings['lgal_new'] = 0;
-				$user_settings['lgal_unseen'] = 0;
+				updateMemberData(User::$info['id'], ['lgal_new' => 0, 'lgal_unseen' => 0]);
+				User::$settings['lgal_new'] = 0;
+				User::$settings['lgal_unseen'] = 0;
 
 				return;
 			}
 
-			$viewing_all = allowedTo(array('lgal_manage', 'lgal_approve_item'));
+			$viewing_all = allowedTo(['lgal_manage', 'lgal_approve_item']);
 
 			// Note: your own items are not included in the case of non-moderator with item unapproved
 			$request = $db->query('', '
@@ -66,27 +70,27 @@ class LevGal_Model_Unseen
 					LEFT JOIN {db_prefix}lgal_log_seen AS ls ON (ls.id_item = li.id_item AND ls.id_member = {int:current_member} AND ls.view_time >= li.time_updated - {int:unseen_threshold})
 				WHERE ' . ($this->albums !== true ? 'li.id_album IN ({array_int:albums})' : '1=1') . (!$viewing_all ? '
 					AND li.approved = 1' : ''),
-				array(
-					'current_member' => $user_info['id'],
+				[
+					'current_member' => User::$info['id'],
 					'albums' => $this->albums,
 					'unseen_threshold' => self::UNSEEN_THRESHOLD,
-				)
+				]
 			);
-			list ($items, $seen) = $db->fetch_row($request);
-			$db->free_result($request);
+			[$items, $seen] = $request->fetch_row();
+			$request->free_result();
 
 			require_once(SUBSDIR . '/Members.subs.php');
 
 			$unseen = $items - $seen;
-			updateMemberData($user_info['id'], array('lgal_new' => 0, 'lgal_unseen' => $unseen));
-			$user_settings['lgal_new'] = 0;
-			$user_settings['lgal_unseen'] = $unseen;
+			updateMemberData(User::$info['id'], ['lgal_new' => 0, 'lgal_unseen' => $unseen]);
+			User::$settings['lgal_new'] = 0;
+			User::$settings['lgal_unseen'] = $unseen;
 		}
 	}
 
 	public function getUnseenCountByAlbum()
 	{
-		global $user_info, $scripturl;
+		global $scripturl;
 
 		$db = database();
 
@@ -96,13 +100,13 @@ class LevGal_Model_Unseen
 		// No albums for you?
 		if (empty($this->albums))
 		{
-			return array();
+			return [];
 		}
 
-		$viewing_all = allowedTo(array('lgal_manage', 'lgal_approve_item'));
+		$viewing_all = allowedTo(['lgal_manage', 'lgal_approve_item']);
 
 		// Note: your own items are not included in the case of non-moderator with item unapproved
-		$unseen_albums = array();
+		$unseen_albums = [];
 		$request = $db->query('', '
 			SELECT 
 				li.id_album, la.album_name, la.album_slug, COUNT(li.id_item) AS item_count, COUNT(ls.id_item) AS seen_count
@@ -113,34 +117,32 @@ class LevGal_Model_Unseen
 				AND li.approved = 1' : '') . '
 			GROUP BY li.id_album
 			ORDER BY la.album_name',
-			array(
-				'current_member' => $user_info['id'],
+			[
+				'current_member' => User::$info['id'],
 				'albums' => $this->albums,
 				'unseen_threshold' => self::UNSEEN_THRESHOLD,
-			)
+			]
 		);
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
 			if ($row['item_count'] > $row['seen_count'])
 			{
-				$unseen_albums[$row['id_album']] = array(
+				$unseen_albums[$row['id_album']] = [
 					'album_name' => $row['album_name'],
 					'album_slug' => $row['album_slug'],
 					'unseen' => $row['item_count'] - $row['seen_count'],
 					'album_url' => $scripturl . '?media/album/' . (!empty($row['album_slug']) ? $row['album_slug'] . '.' . $row['id_album'] : $row['id_album']) . '/',
 					'filter_url' => $scripturl . '?media/unseen/' . (!empty($row['album_slug']) ? $row['album_slug'] . '.' . $row['id_album'] : $row['id_album']) . '/',
-				);
+				];
 			}
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		return $unseen_albums;
 	}
 
 	public function getUnseenItems($start = 0, $limit = 24, $album_filter = 0)
 	{
-		global $user_info;
-
 		$db = database();
 
 		// First, get the list of albums we can see.
@@ -149,11 +151,11 @@ class LevGal_Model_Unseen
 		// No albums for you?
 		if (empty($this->albums))
 		{
-			return array();
+			return [];
 		}
 
-		$viewing_all = allowedTo(array('lgal_manage', 'lgal_approve_item'));
-		$unseen_items = array();
+		$viewing_all = allowedTo(['lgal_manage', 'lgal_approve_item']);
+		$unseen_items = [];
 		$request = $db->query('', '
 			SELECT 
 				li.id_item
@@ -166,22 +168,22 @@ class LevGal_Model_Unseen
 			GROUP BY li.id_item
 			ORDER BY li.id_item DESC
 			LIMIT {int:start}, {int:limit}',
-			array(
-				'current_member' => $user_info['id'],
+			[
+				'current_member' => User::$info['id'],
 				'albums' => $this->albums,
 				'start' => $start,
 				'limit' => $limit,
 				'album_filter' => $album_filter,
 				'unseen_threshold' => self::UNSEEN_THRESHOLD,
-			)
+			]
 		);
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
 			$unseen_items[$row['id_item']] = true;
 		}
-		$db->free_result($request);
+		$request->free_result();
 
-		$itemModel = new LevGal_Model_ItemList();
+		$itemModel = new ItemList();
 		$items = $itemModel->getItemsById(array_keys($unseen_items), true);
 
 		// Now we rebuild it, in order.
@@ -202,18 +204,18 @@ class LevGal_Model_Unseen
 
 	public function markAlbumSeen($id_album)
 	{
-		global $modSettings, $user_info;
+		global $modSettings;
 
-		$album_obj = new LevGal_Model_Album();
+		$album_obj = new Album();
 		$album_obj->getAlbumById($id_album);
 
-		$marking_all = allowedTo(array('lgal_manage', 'lgal_approve_item'))
+		$marking_all = allowedTo(['lgal_manage', 'lgal_approve_item'])
 			|| (!empty($modSettings['lgal_selfmod_approve_item']) && $album_obj->isOwnedByUser());
 
 		$db = database();
 
 		// Step one: get all the items we're dealing with.
-		$log_seen = array();
+		$log_seen = [];
 		$time = time();
 		$request = $db->query('', '
 			SELECT 
@@ -221,29 +223,29 @@ class LevGal_Model_Unseen
 			FROM {db_prefix}lgal_items
 			WHERE id_album = {int:album}' . (!$marking_all ? '
 				AND approved = 1' : ''),
-			array(
+			[
 				'album' => $id_album,
-			)
+			]
 		);
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
-			$log_seen[] = array($row['id_item'], $user_info['id'], $time);
+			$log_seen[] = [$row['id_item'], User::$info['id'], $time];
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		// Step two: update things.
 		if (!empty($log_seen))
 		{
 			$db->insert('replace',
 				'{db_prefix}lgal_log_seen',
-				array('id_item' => 'int', 'id_member' => 'int', 'view_time' => 'int'),
+				['id_item' => 'int', 'id_member' => 'int', 'view_time' => 'int'],
 				$log_seen,
-				array('id_item', 'id_member')
+				['id_item', 'id_member']
 			);
 		}
 
 		// Step three: force this to be cleaned in terms of marking seen.
-		$this->markForRecount($user_info['id']);
+		$this->markForRecount(User::$info['id']);
 	}
 
 	public function removeItemsById($id_items)
@@ -256,9 +258,9 @@ class LevGal_Model_Unseen
 		$db->query('', '
 			DELETE FROM {db_prefix}lgal_log_seen
 			WHERE id_item IN ({array_int:id_item})',
-			array(
+			[
 				'id_item' => $id_items,
-			)
+			]
 		);
 		// Second, flag everyone for recount
 		$this->markForRecount();
@@ -266,14 +268,12 @@ class LevGal_Model_Unseen
 
 	public function markForRecount($user = null)
 	{
-		global $user_settings;
-
 		require_once(SUBSDIR . '/Members.subs.php');
 
 		// First we update the database.
-		updateMemberData($user, array('lgal_new' => 1));
+		updateMemberData($user, ['lgal_new' => 1]);
 		// Second we make sure it's done softly here too.
-		$user_settings['lgal_new'] = 1;
+		User::$settings['lgal_new'] = 1;
 	}
 
 	public function removeUnseenByMember($memID)
@@ -283,9 +283,9 @@ class LevGal_Model_Unseen
 		$db->query('', '
 			DELETE FROM {db_prefix}lgal_log_seen
 			WHERE id_member = {int:id_member}',
-			array(
+			[
 				'id_member' => $memID,
-			)
+			]
 		);
 	}
 }

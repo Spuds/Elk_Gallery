@@ -4,37 +4,37 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 2.0.0 / elkarte
  */
 
 /**
  * This file deals with externally-linked MetaCafe videos.
  */
-class LevGal_Model_External_MetaCafe
+class MetaCafe
 {
 	/** @var array|mixed  */
 	private $meta;
 
-	public function __construct($meta = array())
+	public function __construct($meta = [])
 	{
 		$this->meta = $meta;
 	}
 
 	public function matchURL($url)
 	{
-		$patternlist = array(
+		$patternlist = [
 			'~metacafe\.com/watch/(\d+)/~i',
-		);
-		$provider = array();
+		];
+		$provider = [];
 		foreach ($patternlist as $pattern)
 		{
 			if (preg_match($pattern, $url, $matches))
 			{
-				$provider = array(
+				$provider = [
 					'provider' => 'MetaCafe',
 					'id' => $matches[1],
 					'mime_type' => 'external/_video',
-				);
+				];
 				break;
 			}
 		}
@@ -46,7 +46,7 @@ class LevGal_Model_External_MetaCafe
 	{
 		global $txt;
 
-		return array(
+		return [
 			'display_template' => 'external',
 			'external_url' => 'https://www.metacafe.com/watch/' . $this->meta['id'] . '/',
 			'video_id' => $this->meta['id'],
@@ -56,7 +56,7 @@ class LevGal_Model_External_MetaCafe
 		<iframe class="base_iframe" src="https://www.metacafe.com/embed/' . $this->meta['id'] . '/" style="width: 540px; height: 304px" allowFullScreen></iframe>
 		<div class="centertext ext_link"><a href="https://www.metacafe.com/watch/' . $this->meta['id'] . '/">' . $txt['lgal_view_metacafe'] . '</a></div>
 	</div>',
-		);
+		];
 	}
 
 	public function getThumbnail()
@@ -69,7 +69,7 @@ class LevGal_Model_External_MetaCafe
 			&& !empty($match[1])
 			&& $thumbnail_data = fetch_web_data($match[1]))
 		{
-			return array('data' => $thumbnail_data, 'image_mime' => 'image/jpeg');
+			return ['data' => $thumbnail_data, 'image_mime' => 'image/jpeg'];
 		}
 
 		return false;

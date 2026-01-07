@@ -4,19 +4,24 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.1 / elkarte
+ * @version 2.0.0 / elkarte
  */
 
+namespace Addons\Levertine\Source\Model;
+
+use Addons\Levertine\Source\Helper\Format;
 use BBC\ParserWrapper;
+use ElkArte\User;
 
 /**
  * This file deals with the internals of comments.
  */
-class LevGal_Model_Comment
+class Comment
 {
-	/** @var bool  */
+	/** @var bool|array  */
 	private $current_comment = false;
-	/** @var \LevGal_Model_Item  */
+
+	/** @var Item  */
 	private $current_item;
 
 	public function getCommentById($commentId)
@@ -36,18 +41,18 @@ class LevGal_Model_Comment
 			FROM {db_prefix}lgal_comments AS lc
 				LEFT JOIN {db_prefix}members AS mem ON (lc.id_author = mem.id_member)
 			WHERE lc.id_comment = {int:id_comment}',
-			array(
+			[
 				'id_comment' => $commentId,
-			)
+			]
 		);
-		if ($db->num_rows($request) > 0)
+		if ($request->num_rows() > 0)
 		{
 			$parser = ParserWrapper::instance();
-			$this->current_comment = $db->fetch_assoc($request);
+			$this->current_comment = $request->fetch_assoc();
 			$this->current_comment['comment_parsed'] = $parser->parseMessage($this->current_comment['comment'], true);
-			$this->current_comment['time_added_format'] = LevGal_Helper_Format::time($this->current_comment['time_added']);
+			$this->current_comment['time_added_format'] = Format::time($this->current_comment['time_added']);
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		return $this->current_comment;
 	}
@@ -63,7 +68,7 @@ class LevGal_Model_Comment
 			return $this->current_item->getItemInfoById($this->current_comment['id_item']);
 		}
 
-		$this->current_item = new LevGal_Model_Item();
+		$this->current_item = new Item();
 
 		return $this->current_item->getItemInfoById($this->current_comment['id_item']);
 	}
@@ -94,7 +99,7 @@ class LevGal_Model_Comment
 			return false;
 		}
 
-		if (allowedTo(array('lgal_manage', 'lgal_approve_comment')))
+		if (allowedTo(['lgal_manage', 'lgal_approve_comment']))
 		{
 			return true;
 		}
@@ -111,9 +116,7 @@ class LevGal_Model_Comment
 
 	public function isOwnedByUser()
 	{
-		global $user_info;
-
-		return !empty($this->current_comment['id_author']) && $this->current_comment['id_author'] == $user_info['id'];
+		return !empty($this->current_comment['id_author']) && $this->current_comment['id_author'] == User::$info['id'];
 	}
 
 	public function isApproved()
@@ -123,8 +126,6 @@ class LevGal_Model_Comment
 
 	public function createComment($id_item, $comment, $posterOptions, $approvedState, $time = 0)
 	{
-		global $user_info;
-
 		$db = database();
 
 		if (empty($time))
@@ -132,7 +133,7 @@ class LevGal_Model_Comment
 			$time = time();
 		}
 
-		$this->current_comment = array(
+		$this->current_comment = [
 			'id_item' => $id_item,
 			'id_author' => $posterOptions['id'],
 			'author_name' => $posterOptions['name'],
@@ -142,20 +143,20 @@ class LevGal_Model_Comment
 			'approved' => $approvedState === 'yes' ? 1 : 0,
 			'time_added' => $time,
 			'modified_name' => '',
-		);
+		];
 		$db->insert('',
 			'{db_prefix}lgal_comments',
-			array('id_item' => 'int', 'id_author' => 'int', 'author_name' => 'string', 'author_email' => 'string',
-				  'author_ip' => 'string', 'comment' => 'string', 'approved' => 'int', 'time_added' => 'int', 'modified_name' => 'string'),
+			['id_item' => 'int', 'id_author' => 'int', 'author_name' => 'string', 'author_email' => 'string',
+				  'author_ip' => 'string', 'comment' => 'string', 'approved' => 'int', 'time_added' => 'int', 'modified_name' => 'string'],
 			$this->current_comment,
-			array('id_comment')
+			['id_comment']
 		);
-		if ($id_comment = $db->insert_id('{db_prefix}lgal_comments', 'id_comment'))
+		if ($id_comment = $db->insert_id('{db_prefix}lgal_comments'))
 		{
 			$this->current_comment['id_comment'] = $id_comment;
 
 			// If this is a guest, add it to the list.
-			if ($user_info['is_guest'] && !$this->current_comment['approved'])
+			if (User::$info['is_guest'] && !$this->current_comment['approved'])
 			{
 				$_SESSION['lgal_comments'][] = $id_comment;
 			}
@@ -169,7 +170,7 @@ class LevGal_Model_Comment
 				$this->updateUnapprovedCount();
 			}
 
-			call_integration_hook('integrate_lgal_create_comment', array($this->current_comment));
+			call_integration_hook('integrate_lgal_create_comment', [$this->current_comment]);
 		}
 		else
 		{
@@ -189,12 +190,12 @@ class LevGal_Model_Comment
 		if (!$this->isApproved())
 		{
 			// First up, mark the comment itself as approved.
-			$this->updateComment(array(
+			$this->updateComment([
 				'approved' => 1,
-			));
+			]);
 
 			// Secondly, add this to the event log.
-			LevGal_Model_ModLog::logEvent('approve_comment', array('id_comment' => $this->current_comment['id_comment'], 'id_item' => $this->current_comment['id_item']));
+			ModLog::logEvent('approve_comment', ['id_comment' => $this->current_comment['id_comment'], 'id_item' => $this->current_comment['id_item']]);
 
 			// Now notify the stats of such.
 			$this->updateUnapprovedCount();
@@ -213,17 +214,15 @@ class LevGal_Model_Comment
 		$db = database();
 
 		// Bools
-		foreach (array('approved') as $opt)
+		$opt = 'approved';
+		if (isset($details[$opt]))
 		{
-			if (isset($details[$opt]))
-			{
-				$clauses[$opt] = $opt . ' = {int:' . $opt . '}';
-				$values[$opt] = !empty($details[$opt]) ? 1 : 0;
-			}
+			$clauses[$opt] = $opt . ' = {int:' . $opt . '}';
+			$values[$opt] = !empty($details[$opt]) ? 1 : 0;
 		}
 
 		// Standard strings
-		foreach (array('comment', 'author_name', 'author_email') as $opt)
+		foreach (['comment', 'author_name', 'author_email'] as $opt)
 		{
 			if (isset($details[$opt]))
 			{
@@ -247,7 +246,7 @@ class LevGal_Model_Comment
 				UPDATE {db_prefix}lgal_comments
 				SET ' . implode(', ', $clauses) . '
 				WHERE id_comment = {int:id_comment}',
-				array_merge($values, array('id_comment' => $this->current_comment['id_comment']))
+				array_merge($values, ['id_comment' => $this->current_comment['id_comment']])
 			);
 
 			// If we're altering approved status, fix the overall.
@@ -268,9 +267,9 @@ class LevGal_Model_Comment
 		$db->query('', '
 			DELETE FROM {db_prefix}lgal_comments
 			WHERE id_comment = {int:comment}',
-			array(
+			[
 				'comment' => $this->current_comment['id_comment'],
-			)
+			]
 		);
 
 		// If it wasn't approved, deal with it.
@@ -284,14 +283,14 @@ class LevGal_Model_Comment
 		$success = $this->current_item->deletedComment($this->current_comment['approved']);
 
 		// And the moderation log.
-		LevGal_Model_ModLog::logEvent('delete_comment', array('id_item' => $item['id_item']));
+		ModLog::logEvent('delete_comment', ['id_item' => $item['id_item']]);
 
 		// And reported comments
-		$reportModel = new LevGal_Model_Report();
+		$reportModel = new Report();
 		$reportModel->deleteReportsByComments($this->current_comment['id_comment']);
 
 		// And integration hooks.
-		call_integration_hook('integrate_lgal_delete_comment', array($this->current_comment['id_comment']));
+		call_integration_hook('integrate_lgal_delete_comment', [$this->current_comment['id_comment']]);
 
 		// Last, nuke the object.
 		$this->current_comment = false;
@@ -309,7 +308,7 @@ class LevGal_Model_Comment
 
 	public function getCommentURL()
 	{
-		global $modSettings, $user_info;
+		global $modSettings;
 
 		$db = database();
 
@@ -318,12 +317,12 @@ class LevGal_Model_Comment
 			return $this->current_comment['comment_url'];
 		}
 
-		$criteria = array();
+		$criteria = [];
 		$criteria[] = '
 			id_item = {int:id_item}';
 		$criteria[] = '
 			id_comment >= {int:id_comment}';
-		if ($user_info['is_guest'])
+		if (User::$info['is_guest'])
 		{
 			$criteria[] = '
 			approved = {int:approved}';
@@ -338,15 +337,15 @@ class LevGal_Model_Comment
 			SELECT COUNT(id_comment)
 			FROM {db_prefix}lgal_comments
 			WHERE' . implode(' AND ', $criteria),
-			array(
+			[
 				'id_item' => $this->current_comment['id_item'],
 				'id_comment' => $this->current_comment['id_comment'],
 				'approved' => 1,
-				'user_id' => $user_info['id'],
-			)
+				'user_id' => User::$info['id'],
+			]
 		);
-		list ($after) = $db->fetch_row($request);
-		$db->free_result($request);
+		[$after] = $request->fetch_row();
+		$request->free_result();
 
 		$page = ceil($after / $modSettings['lgal_comments_per_page']);
 		if ($page == 0)
@@ -368,9 +367,9 @@ class LevGal_Model_Comment
 		$db->query('', '
 			DELETE FROM {db_prefix}lgal_comments
 			WHERE id_item IN ({array_int:id_item})',
-			array(
+			[
 				'id_item' => $item_ids,
-			)
+			]
 		);
 		// We don't have to notify the item since the item should already be more than aware of it...
 
@@ -386,16 +385,16 @@ class LevGal_Model_Comment
 			SELECT COUNT(*)
 			FROM {db_prefix}lgal_comments
 			WHERE approved = {int:not_approved}',
-			array(
+			[
 				'not_approved' => 0,
-			)
+			]
 		);
-		list ($unapproved) = $db->fetch_row($request);
-		$db->free_result($request);
+		[$unapproved] = $request->fetch_row();
+		$request->free_result();
 
 		// Also, if we have a cache locally in session, dump it.
 		unset ($_SESSION['lgal_uc']);
 
-		updateSettings(array('lgal_unapproved_comments' => $unapproved));
+		updateSettings(['lgal_unapproved_comments' => $unapproved]);
 	}
 }

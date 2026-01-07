@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2
+ * @version 2.0.0
  * @package levgal
  * @since 1.0
  */
@@ -12,7 +12,7 @@
 
 // Important! Before editing these language files please read the text at the top of index.english.php.
 
-$txt['levgal_importer_desc'] = 'This area lets you import items in from other galleries you may have used previously on this forum.';
+$txt['levgal_importer_desc'] = 'This area lets you import items in from other galleries you may have used.';
 $txt['levgal_importer_warning'] = 'Warning: if you proceed with this import, any existing items in Levertine Gallery will be removed! (Any items in your original gallery are left untouched, just in case of problems.)';
 $txt['levgal_importing_from'] = 'Importing from %1$s';
 

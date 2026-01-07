@@ -4,30 +4,35 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 2.0.0 / elkarte
  */
+
+namespace Addons\Levertine\Source\Model\Metadata;
+
+use Addons\Levertine\Source\Helper\Format;
+use ElkArte\Languages\Txt;
 
 /**
  * This file deals with getting Exif tags into a presentable form.
  */
-class LevGal_Model_Metadata_ExifTag
+class ExifTag
 {
-	const TYPE_UNS_BYTE = 1;
-	const TYPE_ASCII = 2;
-	const TYPE_UNS_SHORT = 3;
-	const TYPE_UNS_LONG = 4;
-	const TYPE_UNS_RATIONAL = 5;
-	const TYPE_SGN_BYTE = 6;
-	const TYPE_UNDEFINED = 7;
-	const TYPE_SGN_SHORT = 8;
-	const TYPE_SGN_LONG = 9;
-	const TYPE_SGN_RATIONAL = 10;
-	const TYPE_FLOAT = 11;
-	const TYPE_DOUBLE = 12;
+	public const TYPE_UNS_BYTE = 1;
+	public const TYPE_ASCII = 2;
+	public const TYPE_UNS_SHORT = 3;
+	public const TYPE_UNS_LONG = 4;
+	public const TYPE_UNS_RATIONAL = 5;
+	public const TYPE_SGN_BYTE = 6;
+	public const TYPE_UNDEFINED = 7;
+	public const TYPE_SGN_SHORT = 8;
+	public const TYPE_SGN_LONG = 9;
+	public const TYPE_SGN_RATIONAL = 10;
+	public const TYPE_FLOAT = 11;
+	public const TYPE_DOUBLE = 12;
 
 	public function __construct()
 	{
-		loadLanguage('levgal_lng/LevGal-Exif');
+		Txt::load('Levertine/LevGal-Exif');
 	}
 
 	public function formatData($data)
@@ -58,7 +63,7 @@ class LevGal_Model_Metadata_ExifTag
 			// Exif SubIFD: Image information
 			// Interopability IFD: additional meta
 			// Other: other tags that may be present
-			$tags = array(
+			$tags = [
 				'0001' => 'InteroperabilityIndex',            // Interoperability IFD; text, 3 bytes
 				'0002' => 'InteroperabilityVersion',        // Interoperability IFD; unsigned int
 				'000b' => 'ACDComment',                        // IFD0; text <= 999 bytes
@@ -186,7 +191,7 @@ class LevGal_Model_Metadata_ExifTag
 				'a409' => 'Saturation',                        // Exif; unsigned short, 0..2
 				'a40a' => 'Sharpness',                        // Exif; unsigned short, 0..2
 				'a434' => 'LensInfo',                        // Exif; no further info
-			);
+			];
 		}
 
 		return $tags[$tag_bytes] ?? 'UnknownTag[' . $tag_bytes . ']';
@@ -197,23 +202,23 @@ class LevGal_Model_Metadata_ExifTag
 		static $types = null;
 		if ($types === null)
 		{
-			$types = array(
-				'0001' => array(self::TYPE_UNS_BYTE, 1),
-				'0002' => array(self::TYPE_ASCII, 1),
-				'0003' => array(self::TYPE_UNS_SHORT, 2),
-				'0004' => array(self::TYPE_UNS_LONG, 4),
-				'0005' => array(self::TYPE_UNS_RATIONAL, 8),
-				'0006' => array(self::TYPE_SGN_BYTE, 1),
-				'0007' => array(self::TYPE_UNDEFINED, 1),
-				'0008' => array(self::TYPE_SGN_SHORT, 2),
-				'0009' => array(self::TYPE_SGN_LONG, 4),
-				'000a' => array(self::TYPE_SGN_RATIONAL, 8),
-				'000b' => array(self::TYPE_FLOAT, 4),
-				'000c' => array(self::TYPE_DOUBLE, 8),
-			);
+			$types = [
+				'0001' => [self::TYPE_UNS_BYTE, 1],
+				'0002' => [self::TYPE_ASCII, 1],
+				'0003' => [self::TYPE_UNS_SHORT, 2],
+				'0004' => [self::TYPE_UNS_LONG, 4],
+				'0005' => [self::TYPE_UNS_RATIONAL, 8],
+				'0006' => [self::TYPE_SGN_BYTE, 1],
+				'0007' => [self::TYPE_UNDEFINED, 1],
+				'0008' => [self::TYPE_SGN_SHORT, 2],
+				'0009' => [self::TYPE_SGN_LONG, 4],
+				'000a' => [self::TYPE_SGN_RATIONAL, 8],
+				'000b' => [self::TYPE_FLOAT, 4],
+				'000c' => [self::TYPE_DOUBLE, 8],
+			];
 		}
 
-		return $types[$type_bytes] ?? array('error[' . $type_bytes . ']', 0);
+		return $types[$type_bytes] ?? ['error[' . $type_bytes . ']', 0];
 	}
 
 	public function parseTagMake($data)
@@ -225,7 +230,7 @@ class LevGal_Model_Metadata_ExifTag
 	public function parseTagDateTime($data)
 	{
 		// Tag id: 0132
-		return LevGal_Helper_Format::time(strtotime($data), 'unmodified');
+		return Format::time(strtotime($data), 'unmodified');
 	}
 
 	public function parseTagExposureTime($data)
@@ -267,7 +272,7 @@ class LevGal_Model_Metadata_ExifTag
 		if ($data > 0)
 		{
 			$recip = 1 / $data;
-			list ($num, $div) = $this->convertToFraction($recip);
+			[$num, $div] = $this->convertToFraction($recip);
 			if ($num >= 1 && $div == 1)
 			{
 				return sprintf($txt['lgal_exif_seconds'], round($num, 2));
@@ -342,7 +347,7 @@ class LevGal_Model_Metadata_ExifTag
 	public function formatExposure($data)
 	{
 		global $txt;
-		if (strpos($data, '/') !== false)
+		if (str_contains($data, '/'))
 		{
 			return $txt['lgal_exif_bulb'];
 		}
@@ -352,7 +357,7 @@ class LevGal_Model_Metadata_ExifTag
 			return sprintf($txt['lgal_exif_seconds'], round($data, 2));
 		}
 
-		list ($num, $div) = $this->convertToFraction($data);
+		[$num, $div] = $this->convertToFraction($data);
 
 		return sprintf($txt['lgal_exif_1n_seconds'], $num, $div);
 	}
@@ -367,12 +372,12 @@ class LevGal_Model_Metadata_ExifTag
 				$div = round($recip);
 				if (abs($div - $recip) < 0.025)
 				{
-					return array($num, $div);
+					return [$num, $div];
 				}
 			}
 		}
 
 		// Return *something*.
-		return array(0, 1);
+		return [0, 1];
 	}
 }

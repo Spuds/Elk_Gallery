@@ -4,13 +4,18 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 2.0.0 / elkarte
  */
+
+namespace Addons\Levertine\Source\Helper;
+
+use Addons\Levertine\Source\Helper\Image\ImageGD;
+use Addons\Levertine\Source\Helper\Image\ImageImagick;
 
 /**
  * This file deals with images, abstracting away their real complexity.
  */
-class LevGal_Helper_Image
+class Image
 {
 	private $image_handler;
 
@@ -19,28 +24,28 @@ class LevGal_Helper_Image
 		$handlers = $this->availableHandlers();
 		if (!$force_GD && $handlers['Imagick'] === true)
 		{
-			$this->image_handler = new LevGal_Helper_Image_Imagick();
+			$this->image_handler = new ImageImagick();
 		}
 		elseif ($handlers['GD'] === true)
 		{
-			$this->image_handler = new LevGal_Helper_Image_GD();
+			$this->image_handler = new ImageGD();
 		}
 
 		if (empty($this->image_handler) && $fatal)
 		{
-			LevGal_Helper_Http::fatalError('levgal_no_image_support');
+			Http::fatalError('levgal_no_image_support');
 		}
 
-		$this->image_handler->setCompression(array(
+		$this->image_handler->setCompression([
 			'png' => 9,
 			'jpg' => 85,
 			'webp' => 85,
-		));
+		]);
 	}
 
 	public function availableHandlers()
 	{
-		$handlers = array();
+		$handlers = [];
 		$handlers['GD'] = false;
 		$handlers['Imagick'] = false;
 
@@ -51,7 +56,7 @@ class LevGal_Helper_Image
 
 		if (class_exists('Imagick'))
 		{
-			$formats = Imagick::queryFormats();
+			$formats = \Imagick::queryFormats();
 			$handlers['Imagick'] = !empty($formats) ? true : 'error';
 		}
 
@@ -61,12 +66,12 @@ class LevGal_Helper_Image
 	public function getHandlerVersions()
 	{
 		$handlers = $this->availableHandlers();
-		$versions = array();
+		$versions = [];
 		foreach ($handlers as $handler => $state)
 		{
 			if ($state !== false)
 			{
-				$class_handler = 'LevGal_Helper_Image_' . $handler;
+				$class_handler = '\Addons\Levertine\Source\Helper\Image\Image' . $handler;
 				$this_handler = new $class_handler();
 				$versions[$handler] = $this_handler->getVersion();
 			}
@@ -82,9 +87,11 @@ class LevGal_Helper_Image
 
 		if ($handlers['Imagick'] === true)
 		{
-			$check = Imagick::queryFormats();
-			if (in_array('WEBP', $check))
+			$check = \Imagick::queryFormats();
+			if (in_array('WEBP', $check, true))
+			{
 				$support = 'Imagick';
+			}
 		}
 
 		if ($support === false && $handlers['GD'] === true)
@@ -130,15 +137,15 @@ class LevGal_Helper_Image
 	public function fixOrientation($current_orientation)
 	{
 		$changed = false;
-		$transforms = array(
-			2 => array('flip' => 'x'),
-			3 => array('rotate' => 180),
-			4 => array('flip' => 'y'),
-			5 => array('rotate' => 90, 'flip' => 'x'),
-			6 => array('rotate' => 90),
-			7 => array('rotate' => 270, 'flip' => 'x'),
-			8 => array('rotate' => 270),
-		);
+		$transforms = [
+			2 => ['flip' => 'x'],
+			3 => ['rotate' => 180],
+			4 => ['flip' => 'y'],
+			5 => ['rotate' => 90, 'flip' => 'x'],
+			6 => ['rotate' => 90],
+			7 => ['rotate' => 270, 'flip' => 'x'],
+			8 => ['rotate' => 270],
+		];
 		if (isset($transforms[$current_orientation]))
 		{
 			if (!empty($transforms[$current_orientation]['rotate']))
@@ -156,4 +163,3 @@ class LevGal_Helper_Image
 		return $changed;
 	}
 }
-

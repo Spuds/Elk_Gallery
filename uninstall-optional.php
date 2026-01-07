@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.1 / elkarte
+ * @version 2.0.0 / elkarte
  */
 
 /**
@@ -26,9 +26,9 @@
 */
 
 // If we have found SSI.php and we are outside of ElkArte, then we are running standalone.
-if (file_exists(dirname(__FILE__) . '/SSI.php') && !defined('ELK'))
+if (file_exists(__DIR__ . '/SSI.php') && !defined('ELK'))
 {
-	require_once(dirname(__FILE__) . '/SSI.php');
+	require_once(__DIR__ . '/SSI.php');
 }
 // If we are outside ElkArte and can't find SSI.php, then throw an error
 elseif (!defined('ELK'))
@@ -178,11 +178,11 @@ if (!function_exists('matchTable'))
 		global $db_prefix;
 		static $table_list = null;
 
-		$db = database();
+		$db_table = db_table();
 
 		if ($table_list === null)
 		{
-			$table_list = $db->db_list_tables();
+			$table_list = $db_table->list_tables();
 		}
 
 		$real_prefix = preg_match('~^(`?)(.+?)\\1\\.(.*?)$~', $db_prefix, $match) === 1 ? $match[3] : $db_prefix;

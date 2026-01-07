@@ -47,7 +47,7 @@ function template_movealbum_js()
 	global $settings, $context;
 
 	echo '
-	<script src="', $settings['default_theme_url'], '/levgal_res/jquery.nestedSortable.js"></script>
+	<script src="', $settings['default_theme_url'], '/Levertine/jquery.nestedSortable.js"></script>
 	<script>
 	$(".album_hierarchy.level_0").nestedSortable({
 		handle: "div",

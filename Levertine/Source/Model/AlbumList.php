@@ -4,13 +4,19 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.2 / elkarte
+ * @version 2.0.0 / elkarte
  */
+
+namespace Addons\Levertine\Source\Model;
+
+use ElkArte\Cache\Cache;
+use ElkArte\Helper\Util;
+use ElkArte\User;
 
 /**
  * This file deals with getting information about albums in bulk.
  */
-class LevGal_Model_AlbumList
+class AlbumList
 {
 	public function getAlbumCount()
 	{
@@ -21,15 +27,14 @@ class LevGal_Model_AlbumList
 			SELECT
 			    COUNT(id_album)
 			FROM {db_prefix}lgal_albums');
-		list ($count) = $db->fetch_row($request);
-		$db->free_result($request);
+		[$count] = $request->fetch_row();
+		$request->free_result();
 
 		return $count;
 	}
 
 	public function getUserAlbums()
 	{
-		global $user_info;
 		static $album_list = null;
 
 		$db = database();
@@ -41,39 +46,39 @@ class LevGal_Model_AlbumList
 		}
 
 		// Guests can't own any albums.
-		if (!empty($user_info['is_guest']))
+		if (!empty(User::$info['is_guest']))
 		{
-			return array();
+			return [];
 		}
 
-		$cache_key = 'lgal_album_owned_' . $user_info['id'];
+		$cache_key = 'lgal_album_owned_' . User::$info['id'];
 		$cache_ttl = 420;
 
 		// This is pretty ugly but short of building everything with an instance of
 		// Model_Album with a surrogate... bleh.
-		if (($temp = cache_get_data($cache_key, $cache_ttl)) === null)
+		if (($temp = Cache::instance()->get($cache_key, $cache_ttl)) === null)
 		{
-			$temp = array();
+			$temp = [];
 			$request = $db->query('', '
 				SELECT 
 				    id_album, owner_cache
 				FROM {db_prefix}lgal_albums
 				ORDER BY null');
-			while ($row = $db->fetch_assoc($request))
+			while ($row = $request->fetch_assoc())
 			{
 				$row['owner_cache'] = Util::unserialize($row['owner_cache']);
-				if (isset($row['owner_cache']['member']) && in_array($user_info['id'], $row['owner_cache']['member'], true))
+				if (isset($row['owner_cache']['member']) && in_array(User::$info['id'], $row['owner_cache']['member'], true))
 				{
 					$temp[] = $row['id_album'];
 				}
-				elseif (isset($row['owner_cache']['group']) && count(array_intersect($row['owner_cache']['group'], $user_info['groups'])) > 0)
+				elseif (isset($row['owner_cache']['group']) && count(array_intersect($row['owner_cache']['group'], User::$info['groups'])) > 0)
 				{
 					$temp[] = $row['id_album'];
 				}
 			}
-			$db->free_result($request);
+			$request->free_result();
 			sort($temp);
-			cache_put_data($cache_key, $temp, $cache_ttl);
+			Cache::instance()->put($cache_key, $temp, $cache_ttl);
 			$album_list = $temp;
 		}
 
@@ -82,7 +87,6 @@ class LevGal_Model_AlbumList
 
 	public function getVisibleAlbums()
 	{
-		global $user_info;
 		static $album_list = null;
 
 		$db = database();
@@ -93,30 +97,30 @@ class LevGal_Model_AlbumList
 			return $album_list;
 		}
 
-		$groups = $user_info['groups'];
+		$groups = User::$info['groups'];
 		sort($groups);
 
-		$cache_key = 'lgal_album_access_m' . $user_info['id'];
+		$cache_key = 'lgal_album_access_m' . User::$info['id'];
 		$cache_ttl = 420;
 
 		// Managers are easy, they see all.
 		if (allowedTo('lgal_manage'))
 		{
-			if (($temp = cache_get_data($cache_key, $cache_ttl)) === null)
+			if (($temp = Cache::instance()->get($cache_key, $cache_ttl)) === null)
 			{
-				$temp = array();
+				$temp = [];
 				$request = $db->query('', '
 					SELECT 
 					    id_album
 					FROM {db_prefix}lgal_albums
 					ORDER BY id_album'
 				);
-				while ($row = $db->fetch_assoc($request))
+				while ($row = $request->fetch_assoc())
 				{
 					$temp[] = (int) $row['id_album'];
 				}
-				$db->free_result($request);
-				cache_put_data($cache_key, $temp, $cache_ttl);
+				$request->free_result();
+				Cache::instance()->put($cache_key, $temp, $cache_ttl);
 				$album_list = $temp;
 			}
 
@@ -124,16 +128,16 @@ class LevGal_Model_AlbumList
 		}
 
 		// This is pretty ugly but short of building everything with an instance of Model_Album with a surrogate... bleh.
-		if (($temp = cache_get_data($cache_key, $cache_ttl)) === null)
+		if (($temp = Cache::instance()->get($cache_key, $cache_ttl)) === null)
 		{
-			$temp = array();
+			$temp = [];
 			$request = $db->query('', '
 				SELECT 
 				    id_album, approved, owner_cache, perms
 				FROM {db_prefix}lgal_albums
 				ORDER BY null'
 			);
-			while ($row = $db->fetch_assoc($request))
+			while ($row = $request->fetch_assoc())
 			{
 				$row['owner_cache'] = Util::unserialize($row['owner_cache']);
 				$row['perms'] = Util::unserialize($row['perms']);
@@ -147,7 +151,7 @@ class LevGal_Model_AlbumList
 				// Not approved?
 				if (empty($row['approved']) && !allowedTo('lgal_approve_album'))
 				{
-					if ((!empty($row['owner_cache']['member']) && !in_array($user_info['id'], $row['owner_cache']['member'], true)) || (!empty($row['owner_cache']['group']) && count(array_intersect($row['owner_cache']['group'], $user_info['groups'])) === 0))
+					if ((!empty($row['owner_cache']['member']) && !in_array(User::$info['id'], $row['owner_cache']['member'], true)) || (!empty($row['owner_cache']['group']) && count(array_intersect($row['owner_cache']['group'], User::$info['groups'])) === 0))
 					{
 						continue;
 					}
@@ -161,7 +165,7 @@ class LevGal_Model_AlbumList
 						break;
 					// Only if the relevant user is not a guest can they see this album.
 					case 'members':
-						if (empty($user_info['is_guest']))
+						if (empty(User::$info['is_guest']))
 						{
 							$temp[] = $row['id_album'];
 						}
@@ -176,9 +180,9 @@ class LevGal_Model_AlbumList
 						break;
 					// Just the owners (and managers but we already checked them) falling through from custom.
 					case 'justme':
-						if (empty($user_info['is_guest']))
+						if (empty(User::$info['is_guest']))
 						{
-							if (isset($row['owner_cache']['member']) && in_array($user_info['id'], $row['owner_cache']['member'], true))
+							if (isset($row['owner_cache']['member']) && in_array(User::$info['id'], $row['owner_cache']['member'], true))
 							{
 								$temp[] = $row['id_album'];
 							}
@@ -190,9 +194,9 @@ class LevGal_Model_AlbumList
 						break;
 				}
 			}
-			$db->free_result($request);
+			$request->free_result();
 			sort($temp);
-			cache_put_data($cache_key, $temp, $cache_ttl);
+			Cache::instance()->put($cache_key, $temp, $cache_ttl);
 			$album_list = $temp;
 		}
 
@@ -213,9 +217,9 @@ class LevGal_Model_AlbumList
 
 		$db = database();
 
-		if (!in_array($type, array('site', 'member', 'group')))
+		if (!in_array($type, ['site', 'member', 'group']))
 		{
-			return array();
+			return [];
 		}
 
 		// Site albums are really just member albums with (user)$id = 0.
@@ -235,11 +239,11 @@ class LevGal_Model_AlbumList
 		// Nothing to do?
 		if (empty($album_list))
 		{
-			return array();
+			return [];
 		}
 
 		// Second, get the actual hierarchy.
-		$hierarchy = array();
+		$hierarchy = [];
 		$request = $db->query('', '
 			SELECT 
 				id_album, id_{raw:type}, album_pos, album_level
@@ -247,26 +251,26 @@ class LevGal_Model_AlbumList
 			WHERE ' . ($album_list === true ? '1=1' : 'id_album IN ({array_int:album_list})') . '
 				AND id_{raw:type} = {int:selector}
 			ORDER BY album_pos',
-			array(
+			[
 				'type' => $type,
 				'selector' => $id,
 				'album_list' => $album_list,
-			)
+			]
 		);
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
 			$album_id = array_shift($row);
 			$hierarchy[$album_id] = $row;
 		}
-		$db->free_result($request);
+		$request->free_result();
 		if (empty($hierarchy))
 		{
-			return array();
+			return [];
 		}
 
 		// And this to simplify our life later.
-		$albumModel = new LevGal_Model_Album();
-		$is_approver = allowedTo(array('lgal_manage', 'lgal_approve_item'));
+		$albumModel = new Album();
+		$is_approver = allowedTo(['lgal_manage', 'lgal_approve_item']);
 
 		$request = $db->query('', '
 			SELECT 
@@ -275,17 +279,17 @@ class LevGal_Model_AlbumList
 			FROM {db_prefix}lgal_albums
 			WHERE id_album IN ({array_int:album_list})
 			',
-			array(
+			[
 				'album_list' => array_keys($hierarchy),
-			)
+			]
 		);
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
 			$albumModel->buildFromSurrogate($row);
 			$hierarchy[$row['id_album']] += $albumModel->getAlbumById($row['id_album']);
 			$hierarchy[$row['id_album']]['see_unapproved'] = !empty($row['num_unapproved_items']) && ($is_approver || (!empty($modSettings['lgal_selfmod_approve_item']) && $albumModel->isOwnedByUser()));
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		return $this->fixHierarchy($hierarchy);
 	}
@@ -300,7 +304,7 @@ class LevGal_Model_AlbumList
 		$hierarchy = $this->getAlbumHierarchy($owner_type, $owner);
 		if (empty($hierarchy[$album]))
 		{
-			return array();
+			return [];
 		}
 
 		$sub_albums = $this->countChildrenAlbums($hierarchy, 1);
@@ -311,7 +315,7 @@ class LevGal_Model_AlbumList
 		$position = array_search($album, $map, true);
 
 		// So, first we want to figure out what albums after our position are ones we are keeping.
-		$pruning = array();
+		$pruning = [];
 		$pruning_rest = false;
 		for ($i = $position + 1, $n = count($map); $i < $n; $i++)
 		{
@@ -384,7 +388,7 @@ class LevGal_Model_AlbumList
 	 */
 	public function countChildrenAlbums($yourArray, $depth)
 	{
-		$albumCounts = array();
+		$albumCounts = [];
 		foreach ($yourArray as $index => $album) {
 			$count = $this->countDescendants($yourArray, $index, $depth);
 
@@ -406,7 +410,7 @@ class LevGal_Model_AlbumList
 	 *
 	 * @return int The number of descendants for the specified album.
 	 */
-	public function countDescendants($albums, $startIndex, $depth = 1, &$count = array())
+	public function countDescendants($albums, $startIndex, $depth = 1, &$count = [])
 	{
 		$currentLevel = $albums[$startIndex]['album_level'];
 		$count[$startIndex] = 0;
@@ -437,11 +441,11 @@ class LevGal_Model_AlbumList
 
 		$db = database();
 
-		$hierarchies = array(
+		$hierarchies = [
 			'site' => 0,
-			'members' => array(),
-			'groups' => array(),
-		);
+			'members' => [],
+			'groups' => [],
+		];
 
 		// What albums are we looking at?
 		$album_list = true;
@@ -464,11 +468,11 @@ class LevGal_Model_AlbumList
 			WHERE lom.id_album IN ({array_int:album_list})') . '
 			GROUP BY lom.id_member, mem.real_name
 			ORDER BY mem.real_name',
-			array(
+			[
 				'album_list' => $album_list,
-			)
+			]
 		);
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
 			if (empty($row['id_member']))
 			{
@@ -476,13 +480,13 @@ class LevGal_Model_AlbumList
 			}
 			else
 			{
-				$hierarchies['members'][$row['id_member']] = array(
+				$hierarchies['members'][$row['id_member']] = [
 					'name' => $row['real_name'],
 					'count' => $row['albums'],
-				);
+				];
 			}
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		// Second, the same for group-owned albums.
 		$request = $db->query('', '
@@ -494,25 +498,25 @@ class LevGal_Model_AlbumList
 			WHERE log.id_album IN ({array_int:album_list})') . '
 			GROUP BY log.id_group, mg.group_name, mg.online_color, mg.{raw:stars_column}
 			ORDER BY mg.group_name',
-			array(
+			[
 				'album_list' => $album_list,
 				'stars_column' => 'icons',
-			)
+			]
 		);
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
-			$stars = !empty($row['stars']) ? explode('#', $row['stars']) : array(0, '');
+			$stars = !empty($row['stars']) ? explode('#', $row['stars']) : [0, ''];
 			$stars = str_repeat('<img src="' . str_replace('$language', $context['user']['language'], isset($stars[1]) ? $settings['images_url'] . '/group_icons/' . $stars[1] : '') . '" alt="*" />', empty($stars[0]) || empty($stars[1]) ? 0 : $stars[0]);
 
 			// Account for Default Registered Members
-			$hierarchies['groups'][$row['id_group']] = array(
+			$hierarchies['groups'][$row['id_group']] = [
 				'name' => $row['group_name'] ?? $txt['levgal_registered_members'],
 				'color_name' => !empty($row['online_color']) ? '<span style="color: ' . $row['online_color'] . '">' . $row['group_name'] . '</span>' : ($row['group_name'] ?? $txt['levgal_registered_members']),
 				'stars' => $stars,
 				'count' => $row['albums'],
-			);
+			];
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		return $hierarchies;
 	}
@@ -523,13 +527,13 @@ class LevGal_Model_AlbumList
 
 		$db = database();
 
-		$hierarchies = array(
-			'site' => array(),
-			'member' => array(),
-			'member_unsorted' => array(),
-			'group' => array(),
-			'group_unsorted' => array(),
-		);
+		$hierarchies = [
+			'site' => [],
+			'member' => [],
+			'member_unsorted' => [],
+			'group' => [],
+			'group_unsorted' => [],
+		];
 
 		$album_list = true;
 		if (!allowedTo('lgal_manage'))
@@ -553,11 +557,11 @@ class LevGal_Model_AlbumList
 				INNER JOIN {db_prefix}lgal_albums AS la ON (lom.id_album = la.id_album)' . ($album_list !== true ? '
 			WHERE lom.id_album IN ({array_int:album_list})' : '') . '
 			ORDER BY lom.id_member, lom.album_pos',
-			array(
+			[
 				'album_list' => $album_list,
-			)
+			]
 		);
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
 			$row['album_url'] = $scripturl . '?media/album/' . (!empty($row['album_slug']) ? $row['album_slug'] . '.' . $row['id_album'] : $row['id_album']) . '/';
 			if (empty($row['id_member']))
@@ -568,7 +572,7 @@ class LevGal_Model_AlbumList
 
 			$hierarchies['member_unsorted'][$row['id_member']][$row['id_album']] = $row;
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		// Group albums are not difficult either.
 		$request = $db->query('', '
@@ -578,16 +582,16 @@ class LevGal_Model_AlbumList
 				INNER JOIN {db_prefix}lgal_albums AS la ON (log.id_album = la.id_album)' . ($album_list !== true ? '
 			WHERE log.id_album IN ({array_int:album_list})' : '') . '
 			ORDER BY log.id_group, log.album_pos',
-			array(
+			[
 				'album_list' => $album_list,
-			)
+			]
 		);
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
 			$row['album_url'] = $scripturl . '?media/album/' . (!empty($row['album_slug']) ? $row['album_slug'] . '.' . $row['id_album'] : $row['id_album']) . '/';
 			$hierarchies['group_unsorted'][$row['id_group']][$row['id_album']] = $row;
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		// Now the real fun begins. We need to firstly fix hierarchies and then process to resort the list because it's quicker
 		// to do that here rather than splice in the member/group names into the above.
@@ -604,18 +608,18 @@ class LevGal_Model_AlbumList
 				FROM {db_prefix}members
 				WHERE id_member IN ({array_int:members})
 				ORDER BY real_name',
-				array(
+				[
 					'members' => array_keys($hierarchies['member_unsorted']),
-				)
+				]
 			);
-			while ($row = $db->fetch_assoc($request))
+			while ($row = $request->fetch_assoc())
 			{
-				$hierarchies['member'][$row['id_member']] = array(
+				$hierarchies['member'][$row['id_member']] = [
 					'member_name' => $row['real_name'],
 					'albums' => $this->fixHierarchy($hierarchies['member_unsorted'][$row['id_member']]),
-				);
+				];
 			}
-			$db->free_result($request);
+			$request->free_result();
 		}
 		unset ($hierarchies['member_unsorted']);
 
@@ -626,10 +630,10 @@ class LevGal_Model_AlbumList
 			// Handle default group
 			if (in_array(0, $groups, true))
 			{
-				$hierarchies['group'][0] = array(
+				$hierarchies['group'][0] = [
 					'group_name' => $txt['levgal_registered_members'],
 					'albums' => $this->fixHierarchy($hierarchies['group_unsorted'][0]),
-				);
+				];
 			}
 
 			$request = $db->query('', '
@@ -638,16 +642,16 @@ class LevGal_Model_AlbumList
 				FROM {db_prefix}membergroups
 				WHERE id_group IN ({array_int:groups})
 				ORDER BY group_name',
-				array(
+				[
 					'groups' => $groups,
-				)
+				]
 			);
-			while ($row = $db->fetch_assoc($request))
+			while ($row = $request->fetch_assoc())
 			{
-				$hierarchies['group'][$row['id_group']] = array(
+				$hierarchies['group'][$row['id_group']] = [
 					'group_name' => $row['group_name'],
 					'albums' => $this->fixHierarchy($hierarchies['group_unsorted'][$row['id_group']]),
-				);
+				];
 			}
 		}
 		unset ($hierarchies['group_unsorted']);
@@ -712,7 +716,7 @@ class LevGal_Model_AlbumList
 
 		if (empty($album_list))
 		{
-			return array();
+			return [];
 		}
 
 		// Now, we're being selective. We can be smart about this.
@@ -733,19 +737,19 @@ class LevGal_Model_AlbumList
 			FROM {db_prefix}lgal_albums
 			WHERE id_album IN ({array_int:albums})
 			ORDER BY id_album',
-			array(
+			[
 				'albums' => $album_list,
-			)
+			]
 		);
-		$albumModel = new LevGal_Model_Album();
-		$selected_albums = array();
-		while ($row = $db->fetch_assoc($request))
+		$albumModel = new Album();
+		$selected_albums = [];
+		while ($row = $request->fetch_assoc())
 		{
 			// Looks weird but essentially means we get everything processed for us, like album and thumbnail URLs.
 			$albumModel->buildFromSurrogate($row);
 			$selected_albums[$row['id_album']] = $albumModel->getAlbumById($row['id_album']);
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		return $selected_albums;
 	}
@@ -762,7 +766,7 @@ class LevGal_Model_AlbumList
 
 		if (empty($album_list))
 		{
-			return array();
+			return [];
 		}
 
 		$request = $db->query('', '
@@ -773,22 +777,22 @@ class LevGal_Model_AlbumList
 			WHERE ' . ($album_list !== true ? 'id_album IN ({array_int:albums})
 				AND ' : '') . 'featured = {int:featured}
 			ORDER BY album_name',
-			array(
+			[
 				'albums' => $album_list,
 				'featured' => 1,
-			)
+			]
 		);
-		$albumModel = new LevGal_Model_Album();
-		$featured = array();
-		while ($row = $db->fetch_assoc($request))
+		$albumModel = new Album();
+		$featured = [];
+		while ($row = $request->fetch_assoc())
 		{
 			// Looks weird but essentially means we get everything processed for us, like album and thumbnail URLs.
 			$albumModel->buildFromSurrogate($row);
 			$featured[$row['id_album']] = $albumModel->getAlbumById($row['id_album']);
-			list(, $album_counts) = $albumModel->getAlbumFamily();
+			[, $album_counts] = $albumModel->getAlbumFamily();
 			$featured[$row['id_album']]['album_counts'] = $album_counts;
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		return $featured;
 	}

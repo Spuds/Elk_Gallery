@@ -1,100 +1,108 @@
 <?php
 /**
+ * This file deals with some fundamental things for the admin panel.
+ *
  * @package Levertine Gallery
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.2 / elkarte
+ * @version 2.0.0 / elkarte
  */
 
-/**
- * This file deals with some fundamental things for the admin panel.
- */
+use Addons\Levertine\Source\LevGalBootstrap;
+use ElkArte\Languages\Txt;
+use ElkArte\Menu\Menu;
+use ElkArte\SettingsForm\SettingsForm;
 
 /**
  * Function to add LevGal's admin area to ElkArte's own.
  *
- * Also initialises the permissions hooking, done here rather than in the main installer as this
+ * Also initializes the permissions hooking, done here rather than in the main installer as this
  * will always be run for LevGal installations, and there is no need to maintain an extra hook
  * permanently on top of this one.
+ *
+ * @param Menu $admin_areas
  */
-function levgal_admin_bootstrap(&$admin_areas)
+function levgal_admin_bootstrap($admin_areas)
 {
 	global $txt;
 
-	loadLanguage('levgal_lng/LevGal');
-	loadLanguage('levgal_lng/ManageLevGal');
+	Txt::load('Levertine/LevGal');
+	Txt::load('Levertine/ManageLevGal');
 
-	$admin_areas['media'] = array(
+	$new_section['media'] = [
 		'title' => $txt['levgal'],
-		'permission' => array('admin_forum'),
-		'areas' => array(
-			'lgaldash' => array(
+		'permission' => ['admin_forum'],
+		'areas' => [
+			'lgaldash' => [
 				'label' => $txt['levgal_admindash'],
-				'file' => '../levgal_src/ManageLevGal-Dash.php',
-				'controller' => 'ManageLevGalDash_Controller',
+				'controller' => 'ManageLevGalDash',
 				'function' => 'action_index',
-				'icon' => '../../../default/levgal_res/admin/admin.png',
-				'subsections' => array(
-					'index' => array($txt['levgal_admindash']),
-					'modlog' => array($txt['levgal_modlog']),
-					'credits' => array($txt['levgal_credits']),
-				),
-			),
-			'lgalsettings' => array(
+				'namespace' => 'Addons\Levertine\Source\\',
+				'class' => 'i-admin i-home',
+				'subsections' => [
+					'index' => [$txt['levgal_admindash']],
+					'modlog' => [$txt['levgal_modlog']],
+					'credits' => [$txt['levgal_credits']],
+				],
+			],
+			'lgalsettings' => [
 				'label' => $txt['levgal_settings'],
-				'file' => '../levgal_src/ManageLevGal.php',
 				'function' => 'levgal_adminSettings',
-				'icon' => '../../../default/levgal_res/admin/settings.png',
-			),
-			'lgalperms' => array(
+				'class' => 'i-admin i-cog',
+			],
+			'lgalperms' => [
 				'label' => $txt['levgal_perms'],
-				'file' => '../levgal_src/ManageLevGal-Perms.php',
-				'controller' => 'ManageLevGalPerms_Controller',
+				'controller' => 'ManageLevGalPerms',
 				'function' => 'action_index',
-				'icon' => '../../../default/levgal_res/admin/perms.png',
-			),
-			'lgalquotas' => array(
+				'namespace' => 'Addons\Levertine\Source\\',
+				'class' => 'i-admin i-key',
+			],
+			'lgalquotas' => [
 				'label' => $txt['levgal_quotas'],
-				'file' => '../levgal_src/ManageLevGal-Quotas.php',
-				'controller' => 'ManageLevGalQuotas_Controller',
+				'controller' => 'ManageLevGalQuotas',
 				'function' => 'action_index',
-				'icon' => '../../../default/levgal_res/admin/quotas.png',
-			),
-			'lgalcfields' => array(
+				'namespace' => 'Addons\Levertine\Source\\',
+				'class' => 'i-admin i-pie-chart',
+			],
+			'lgalcfields' => [
 				'label' => $txt['levgal_cfields'],
-				'file' => '../levgal_src/ManageLevGal-CFields.php',
-				'controller' => 'ManageLevGalCFields_Controller',
+				'controller' => 'ManageLevGalCFields',
 				'function' => 'action_index',
-				'icon' => '../../../default/levgal_res/admin/cfields.png',
-			),
-			'lgalmaint' => array(
+				'namespace' => 'Addons\Levertine\Source\\',
+				'class' => 'i-admin i-menu-register',
+			],
+			'lgalmaint' => [
 				'label' => $txt['levgal_maint'],
-				'file' => '../levgal_src/ManageLevGal-Maint.php',
-				'controller' => 'ManageLevGalMaint_Controller',
+				'controller' => 'ManageLevGalMaint',
 				'function' => 'action_index',
-				'icon' => '../../../default/levgal_res/admin/maint.png',
-			),
-			'lgalnotify' => array(
+				'namespace' => 'Addons\Levertine\Source\\',
+				'class' => 'i-admin i-tools',
+			],
+			'lgalnotify' => [
 				'label' => $txt['levgal_notify'],
-				'controller' => 'ManageFeatures_Controller',
+				'controller' => 'ManageFeatures',
 				'function' => 'action_notificationsSettings_display',
-				'icon' => '../../../default/levgal_res/admin/notify.png',
-			),
-			'lgalimport' => array(
+				'namespace' => 'ElkArte\AdminController\\',
+				'class' => 'i-admin i-bell',
+			],
+			'lgalimport' => [
 				'label' => $txt['levgal_importers'],
-				'file' => '../levgal_src/ManageLevGal-Importer.php',
+				'controller' => 'ManageLevGalImporter',
+				'namespace' => 'Addons\Levertine\Source\\',
 				'function' => 'levgal_adminImport',
-				'icon' => '../../../default/levgal_res/admin/importer.png',
-			),
-		),
-	);
+				'class' => 'i-admin i-sign-in',
+			],
+		],
+	];
+
+	$admin_areas->insertSection($new_section, 'forum');
 
 	// Reports need some special loving.
 	if (!empty($_GET['area']) && $_GET['area'] === 'reports')
 	{
 		// We don't technically *need* per se to declare these but PHPMD would very much prefer if we did.
-		$relabelPermissions = array();
+		$relabelPermissions = [];
 		$hiddenPermissions = $relabelPermissions;
 		$leftPermissionGroups = $relabelPermissions;
 		$permissionList = $relabelPermissions;
@@ -102,16 +110,16 @@ function levgal_admin_bootstrap(&$admin_areas)
 		levgal_admin_permissions($permissionGroups, $permissionList, $leftPermissionGroups, $hiddenPermissions, $relabelPermissions);
 	}
 
-	// Admin function need some extra help
-	if (!empty($_GET['area']) && strpos($_GET['area'], 'lgal') === 0)
+	// Admin functions need some extra help
+	if (!empty($_GET['area']) && str_starts_with($_GET['area'], 'lgal'))
 	{
-		loadCSSFile('admin_lg.css', ['subdir' => 'levgal_res', 'stale' => LEVGAL_VERSION]);
-		loadJavascriptFile('admin_lg.js', ['subdir' => 'levgal_res', 'stale' => LEVGAL_VERSION]);
-		addInlineJavascript('closeFieldsets();', true);
+		loadCSSFile('admin_lg.css', ['subdir' => 'Levertine', 'stale' => LEVGAL_VERSION]);
+		loadJavascriptFile('admin_lg.js', ['subdir' => 'Levertine', 'stale' => LEVGAL_VERSION]);
+		theme()->addInlineJavascript('closeFieldsets();', true);
 	}
 
-	add_integration_function('integrate_load_permissions', 'levgal_admin_permissions', 'SOURCEDIR/levgal_src/ManageLevGal.php',false);
-	add_integration_function('integrate_delete_membergroups', 'LevGal_Model_Group::deleteGroup', '',false);
+	add_integration_function('integrate_load_permissions', 'levgal_admin_permissions', 'ADDONSDIR/Levertine/Source/ManageLevGal.php',false);
+	add_integration_function('integrate_delete_membergroups', '\Addons\Levertine\Source\Model\Group::deleteGroup', '',false);
 }
 
 /**
@@ -147,7 +155,7 @@ function levgal_admin_permissions(&$permissionGroups, &$permissionList, &$leftPe
 {
 	global $txt;
 
-	$levgal_perms = array(
+	$levgal_perms = [
 		'lgal_view' => false,
 		'lgal_manage' => false,
 		'lgal_adduseralbum' => false,
@@ -174,9 +182,9 @@ function levgal_admin_permissions(&$permissionGroups, &$permissionList, &$leftPe
 		'lgal_edit_comment_any' => false,
 		'lgal_delete_comment_own' => false,
 		'lgal_delete_comment_any' => false,
-	);
+	];
 
-	call_integration_hook('integrate_lgal_perms_core', array(&$levgal_perms));
+	call_integration_hook('integrate_lgal_perms_core', [&$levgal_perms]);
 
 	// This stuff is solely so that automated tests don't flag these things unnecessarily. We
 	// don't *need* most of this stuff, but it means we can see what is actually important in the report.
@@ -188,7 +196,7 @@ function levgal_admin_permissions(&$permissionGroups, &$permissionList, &$leftPe
 
 	foreach ($levgal_perms as $perm_name => $ownany)
 	{
-		$permissionList['membergroup'][$perm_name] = array($ownany, 'levgal', 'levgal');
+		$permissionList['membergroup'][$perm_name] = [$ownany, 'levgal', 'levgal'];
 		$hiddenPermissions[] = $perm_name;
 		if (isset($txt['permissionname_' . $perm_name]))
 		{
@@ -202,53 +210,53 @@ function levgal_adminSettings($return_config = false)
 	global $context, $txt, $scripturl, $modSettings;
 
 	// Things we need.
-	loadTemplate('Admin');
-	loadTemplate('levgal_tpl/ManageLevGal');
+	theme()->getTemplates()->load('Admin');
+	theme()->getTemplates()->load('Levertine/ManageLevGal');
 
 	$context['sub_template'] = 'show_settings';
 	$context['page_title'] = $txt['levgal_settings'];
 	$context['post_url'] = $scripturl . '?action=admin;area=lgalsettings;save';
 
-	$settingsForm = new Settings_Form(Settings_Form::DB_ADAPTER);
+	$settingsForm = new SettingsForm(SettingsForm::DB_ADAPTER);
 
-	$config_vars = array(
-		array('title', 'levgal_settings'),
-		array('desc', 'levgal_settings_desc'),
-		array('check', 'lgal_count_author_views'),
-		array('check', 'lgal_enable_mature', 'subtext' => $txt['lgal_enable_mature_desc']),
+	$config_vars = [
+		['title', 'levgal_settings'],
+		['desc', 'levgal_settings_desc'],
+		['check', 'lgal_count_author_views'],
+		['check', 'lgal_enable_mature', 'subtext' => $txt['lgal_enable_mature_desc']],
 		'',
-		array('check', 'lgal_feed_enable_album'),
-		array('int', 'lgal_feed_items_album', 'postinput' => $txt['lgal_feed_items_limits']),
-		array('check', 'lgal_feed_enable_item'),
-		array('int', 'lgal_feed_items_item', 'postinput' => $txt['lgal_feed_items_limits']),
+		['check', 'lgal_feed_enable_album'],
+		['int', 'lgal_feed_items_album', 'postinput' => $txt['lgal_feed_items_limits']],
+		['check', 'lgal_feed_enable_item'],
+		['int', 'lgal_feed_items_item', 'postinput' => $txt['lgal_feed_items_limits']],
 		'',
-		array('int', 'lgal_items_per_page', 'postinput' => $txt['lgal_per_page_limits']),
-		array('int', 'lgal_comments_per_page', 'postinput' => $txt['lgal_per_page_limits']),
+		['int', 'lgal_items_per_page', 'postinput' => $txt['lgal_per_page_limits']],
+		['int', 'lgal_comments_per_page', 'postinput' => $txt['lgal_per_page_limits']],
 		'',
-		array('text', 'lgal_tag_items_list', 80),
-		array('check', 'lgal_tag_items_list_more'),
+		['text', 'lgal_tag_items_list', 80],
+		['check', 'lgal_tag_items_list_more'],
 		'',
-		'social' => array('callback', 'lgal_social'),
-		'metadata' => array('callback', 'lgal_metadata'),
+		'social' => ['callback', 'lgal_social'],
+		'metadata' => ['callback', 'lgal_metadata'],
 		'',
-		array('check', 'lgal_import_rendering'),
-		array('check', 'lgal_open_link_new_tab')
-	);
+		['check', 'lgal_import_rendering'],
+		['check', 'lgal_open_link_new_tab']
+	];
 
-	$context['available_social_icons'] = array('facebook', 'twitter', 'tumblr', 'reddit', 'pinterest');
+	$context['available_social_icons'] = ['facebook', 'twitter', 'tumblr', 'reddit', 'pinterest'];
 	$context['enabled_social_icons'] = explode(',', $modSettings['lgal_social']);
 
-	$context['metadata'] = array(
-		'images' => array('datetime', 'make', 'flash', 'exposure_time', 'fnumber', 'shutter_speed',
+	$context['metadata'] = [
+		'images' => ['datetime', 'make', 'flash', 'exposure_time', 'fnumber', 'shutter_speed',
 			'focal_length', 'digitalzoom', 'brightness', 'contrast', 'sharpness',
 			'isospeed', 'lightsource', 'exposure_prog', 'metering_mode', 'sensitivity',
-			'title', 'subject', 'author', 'keywords', 'comment'),
-		'audio' => array('title', 'artist', 'album_artist', 'album', 'track_number', 'genre', 'playtime', 'bitrate'),
-		'video' => array('title', 'artist', 'album_artist', 'album', 'track_number', 'genre', 'playtime', 'bitrate'),
-	);
+			'title', 'subject', 'author', 'keywords', 'comment'],
+		'audio' => ['title', 'artist', 'album_artist', 'album', 'track_number', 'genre', 'playtime', 'bitrate'],
+		'video' => ['title', 'artist', 'album_artist', 'album', 'track_number', 'genre', 'playtime', 'bitrate'],
+	];
 	$context['selected_metadata'] = unserialize($modSettings['lgal_metadata'], ['allowed_classes' => false]);
 
-	call_integration_hook('integrate_lgal_settings', array(&$config_vars));
+	call_integration_hook('integrate_lgal_settings', [&$config_vars]);
 
 	if ($return_config)
 	{
@@ -265,32 +273,32 @@ function levgal_adminSettings($return_config = false)
 		$saveSettings = $config_vars;
 
 		// Social icons.
-		$saveSettings['social'] = array('text', 'lgal_social');
-		$social = isset($_POST['lgal_social']) && is_array($_POST['lgal_social']) ? $_POST['lgal_social'] : array();
+		$saveSettings['social'] = ['text', 'lgal_social'];
+		$social = isset($_POST['lgal_social']) && is_array($_POST['lgal_social']) ? $_POST['lgal_social'] : [];
 		$_POST['lgal_social'] = implode(',', array_intersect($social, $context['available_social_icons']));
 
 		// Limit the feeds to sane values.
-		foreach (array('lgal_feed_items_album', 'lgal_feed_items_item') as $type)
+		foreach (['lgal_feed_items_album', 'lgal_feed_items_item'] as $type)
 		{
-			$_POST[$type] = isset($_POST[$type]) ? LevGal_Bootstrap::clamp((int) $_POST[$type], 1, 50) : 10;
+			$_POST[$type] = isset($_POST[$type]) ? LevGalBootstrap::clamp((int) $_POST[$type], 1, 50) : 10;
 		}
 
 		// Limit the items per page
-		foreach (array('lgal_items_per_page', 'lgal_comments_per_page') as $type)
+		foreach (['lgal_items_per_page', 'lgal_comments_per_page'] as $type)
 		{
-			$_POST[$type] = isset($_POST[$type]) ? LevGal_Bootstrap::clamp((int) $_POST[$type], 10, 50) : 24;
+			$_POST[$type] = isset($_POST[$type]) ? LevGalBootstrap::clamp((int) $_POST[$type], 10, 50) : 24;
 		}
 
 		// And metadata.
-		$saveSettings['metadata'] = array('text', 'lgal_metadata');
-		$metadata = array();
+		$saveSettings['metadata'] = ['text', 'lgal_metadata'];
+		$metadata = [];
 		foreach ($context['metadata'] as $class => $items)
 		{
-			$metadata[$class] = isset($_POST['metadata_' . $class]) && is_array($_POST['metadata_' . $class]) ? array_intersect($_POST['metadata_' . $class], $items) : array();
+			$metadata[$class] = isset($_POST['metadata_' . $class]) && is_array($_POST['metadata_' . $class]) ? array_intersect($_POST['metadata_' . $class], $items) : [];
 		}
 		$_POST['lgal_metadata'] = serialize($metadata);
 
-		call_integration_hook('integrate_lgal_settings_save', array(&$saveSettings));
+		call_integration_hook('integrate_lgal_settings_save', [&$saveSettings]);
 
 		$settingsForm->setConfigVars($saveSettings);
 		$settingsForm->setConfigValues($_POST);

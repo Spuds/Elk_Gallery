@@ -4,15 +4,20 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 2.0.0 / elkarte
  */
 
+namespace Addons\Levertine\Source\Model;
+
+use Addons\Levertine\Source\Helper\Format;
+use Addons\Levertine\Source\LevGalBootstrap;
 use BBC\ParserWrapper;
+use ElkArte\Helper\Util;
 
 /**
  * This file deals with reporting items and comments.
  */
-class LevGal_Model_Report
+class Report
 {
 	/** @var array */
 	private $current_report;
@@ -42,24 +47,24 @@ class LevGal_Model_Report
 				LEFT JOIN {db_prefix}members AS mem ON (lr.content_id_poster = mem.id_member)
 				INNER JOIN {db_prefix}lgal_items AS li ON (lr.id_item = li.id_item)
 			WHERE id_report = {int:report}',
-			array(
+			[
 				'report' => $id_report,
-			)
+			]
 		);
-		if ($db->num_rows($request))
+		if ($request->num_rows())
 		{
 			$parser = ParserWrapper::instance();
-			$this->current_report = $db->fetch_assoc($request);
+			$this->current_report = $request->fetch_assoc();
 			if (!empty($this->current_report['body']))
 			{
 				$this->current_report['body'] = $parser->parseMessage($this->current_report['body'], true);
 			}
 			$this->current_report['report_url'] = $scripturl . '?media/moderate/' . $id_report . '/report/';
 			$this->current_report['item_url'] = $scripturl . '?media/item/' . (!empty($this->current_report['item_slug']) ? $this->current_report['item_slug'] . '.' . $this->current_report['id_item'] : $this->current_report['id_item']) . '/';
-			$this->current_report['time_started_format'] = LevGal_Helper_Format::time($this->current_report['time_started']);
-			$this->current_report['time_updated_format'] = LevGal_Helper_Format::time($this->current_report['time_updated']);
+			$this->current_report['time_started_format'] = Format::time($this->current_report['time_started']);
+			$this->current_report['time_updated_format'] = Format::time($this->current_report['time_updated']);
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		return $this->current_report;
 	}
@@ -83,21 +88,21 @@ class LevGal_Model_Report
 	{
 		$db = database();
 
-		$reports = array('items' => 0, 'comments' => 0);
+		$reports = ['items' => 0, 'comments' => 0];
 
 		$request = $db->query('', '
 			SELECT 
 				id_report, id_comment
 			FROM {db_prefix}lgal_reports
 			WHERE closed = 0');
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
 			// If the comment is empty, it's not about a comment.
 			$reports[empty($row['id_comment']) ? 'items' : 'comments']++;
 		}
-		$db->free_result($request);
+		$request->free_result();
 
-		updateSettings(array('lgal_reports' => serialize($reports)));
+		updateSettings(['lgal_reports' => serialize($reports)]);
 	}
 
 	protected function increaseReportCount($type)
@@ -116,7 +121,7 @@ class LevGal_Model_Report
 				$reports[$type] = 1;
 			}
 
-			updateSettings(array('lgal_reports' => serialize($reports)));
+			updateSettings(['lgal_reports' => serialize($reports)]);
 		}
 	}
 
@@ -136,7 +141,7 @@ class LevGal_Model_Report
 				$reports[$type]--;
 			}
 
-			updateSettings(array('lgal_reports' => serialize($reports)));
+			updateSettings(['lgal_reports' => serialize($reports)]);
 		}
 	}
 
@@ -159,15 +164,15 @@ class LevGal_Model_Report
 			FROM {db_prefix}lgal_reports
 			WHERE id_comment {raw:is_comment}
 				AND closed = {int:closed}',
-			array(
+			[
 				'is_comment' => $type === 'comments' ? '!= 0' : '= 0',
 				'closed' => 1,
-			)
+			]
 		);
-		list ($count) = $db->fetch_row($request);
-		$db->free_result($request);
+		[$count] = $request->fetch_row();
+		$request->free_result();
 
-		return $count;
+		return (int) $count;
 	}
 
 	public function createCommentReport($id_comment, $report_details)
@@ -181,31 +186,31 @@ class LevGal_Model_Report
 			FROM {db_prefix}lgal_reports
 			WHERE id_comment = {int:comment}
 				AND closed = {int:not_closed}',
-			array(
+			[
 				'comment' => $id_comment,
 				'not_closed' => 0,
-			)
+			]
 		);
 		$new_report = true;
-		if ($row = $db->fetch_assoc($request))
+		if ($row = $request->fetch_assoc())
 		{
 			// So we have an existing report. Update the time on it and increment the count on it so we know we have multiples.
 			$this->getReportById($row['id_report']);
-			$this->updateReport(array(
+			$this->updateReport([
 				'time_updated' => time(),
 				'num_reports' => $this->current_report['num_reports'] + 1,
-			));
+			]);
 			$id_report = $row['id_report'];
 			$new_report = false;
 		}
 		else
 		{
 			// We will need a few bits and pieces.
-			$comment = LevGal_Bootstrap::getModel('LevGal_Model_Comment');
+			$comment = LevGalBootstrap::getModel('Comment');
 			$comment_details = $comment->getCommentById($id_comment);
 			$item_details = $comment->getParentItem();
 
-			$report = array(
+			$report = [
 				'id_comment' => $id_comment,
 				'id_item' => $item_details['id_item'],
 				'id_album' => $item_details['id_album'],
@@ -216,15 +221,15 @@ class LevGal_Model_Report
 				'time_updated' => time(),
 				'num_reports' => 1,
 				'closed' => 0,
-			);
+			];
 
 			$db->insert('insert',
 				'{db_prefix}lgal_reports',
-				array('id_comment' => 'int', 'id_item' => 'int', 'id_album' => 'int', 'content_id_poster' => 'int',
-					  'content_poster_name' => 'string', 'body' => 'string', 'time_started' => 'int', 'time_updated' => 'int',
-					  'num_reports' => 'int', 'closed' => 'int'),
+				['id_comment' => 'int', 'id_item' => 'int', 'id_album' => 'int', 'content_id_poster' => 'int',
+					'content_poster_name' => 'string', 'body' => 'string', 'time_started' => 'int', 'time_updated' => 'int',
+					'num_reports' => 'int', 'closed' => 'int'],
 				$report,
-				array('id_report')
+				['id_report']
 			);
 			$id_report = $db->insert_id('{db_prefix}lgal_reports');
 		}
@@ -237,11 +242,11 @@ class LevGal_Model_Report
 		// So, we have an id for our report, whether it's a new one or not. Now let's see about adding this instance of report.
 		$db->insert('insert',
 			'{db_prefix}lgal_report_body',
-			array('id_report' => 'int', 'id_member' => 'int', 'member_name' => 'string', 'email_address' => 'string',
-				  'ip_address' => 'string', 'body' => 'string', 'time_sent' => 'int'),
-			array($id_report, $report_details['id_member'], $report_details['member_name'], $report_details['email_address'],
-				  $report_details['ip_address'], $report_details['body'], time()),
-			array('id_rep_body')
+			['id_report' => 'int', 'id_member' => 'int', 'member_name' => 'string', 'email_address' => 'string',
+				'ip_address' => 'string', 'body' => 'string', 'time_sent' => 'int'],
+			[$id_report, $report_details['id_member'], $report_details['member_name'], $report_details['email_address'],
+				$report_details['ip_address'], $report_details['body'], time()],
+			['id_rep_body']
 		);
 
 		if ($new_report)
@@ -264,31 +269,31 @@ class LevGal_Model_Report
 			WHERE id_item = {int:item}
 				AND id_comment = {int:is_item_report}
 				AND closed = {int:not_closed}',
-			array(
+			[
 				'item' => $id_item,
 				'is_item_report' => 0,
 				'not_closed' => 0,
-			)
+			]
 		);
 		$new_report = true;
-		if ($row = $db->fetch_assoc($request))
+		if ($row = $request->fetch_assoc())
 		{
 			// So we have an existing report. Update the time on it and increment the count on it so we know we have multiples.
 			$this->getReportById($row['id_report']);
-			$this->updateReport(array(
+			$this->updateReport([
 				'time_updated' => time(),
 				'num_reports' => $this->current_report['num_reports'] + 1,
-			));
+			]);
 			$id_report = $row['id_report'];
 			$new_report = false;
 		}
 		else
 		{
 			// So, we need a few bits and pieces.
-			$item = LevGal_Bootstrap::getModel('LevGal_Model_Item');
+			$item = LevGalBootstrap::getModel('Item');
 			$item_details = $item->getItemInfoById($id_item);
 
-			$report = array(
+			$report = [
 				'id_comment' => 0,
 				'id_item' => $id_item,
 				'id_album' => $item_details['id_album'],
@@ -299,19 +304,19 @@ class LevGal_Model_Report
 				'time_updated' => time(),
 				'num_reports' => 1,
 				'closed' => 0,
-			);
+			];
 
 			$db->insert('insert',
 				'{db_prefix}lgal_reports',
-				array('id_comment' => 'int', 'id_item' => 'int', 'id_album' => 'int', 'content_id_poster' => 'int',
-					  'content_poster_name' => 'string', 'body' => 'string', 'time_started' => 'int', 'time_updated' => 'int',
-					  'num_reports' => 'int', 'closed' => 'int'),
+				['id_comment' => 'int', 'id_item' => 'int', 'id_album' => 'int', 'content_id_poster' => 'int',
+					'content_poster_name' => 'string', 'body' => 'string', 'time_started' => 'int', 'time_updated' => 'int',
+					'num_reports' => 'int', 'closed' => 'int'],
 				$report,
-				array('id_report')
+				['id_report']
 			);
 			$id_report = $db->insert_id('{db_prefix}lgal_reports');
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		if (empty($id_report))
 		{
@@ -321,11 +326,11 @@ class LevGal_Model_Report
 		// So, we have an id for our report, whether it's a new one or not. Now let's see about adding this instance of report.
 		$db->insert('insert',
 			'{db_prefix}lgal_report_body',
-			array('id_report' => 'int', 'id_member' => 'int', 'member_name' => 'string', 'email_address' => 'string',
-				  'ip_address' => 'string', 'body' => 'string', 'time_sent' => 'int'),
-			array($id_report, $report_details['id_member'], $report_details['member_name'], $report_details['email_address'],
-				  $report_details['ip_address'], $report_details['body'], time()),
-			array('id_rep_body')
+			['id_report' => 'int', 'id_member' => 'int', 'member_name' => 'string', 'email_address' => 'string',
+				'ip_address' => 'string', 'body' => 'string', 'time_sent' => 'int'],
+			[$id_report, $report_details['id_member'], $report_details['member_name'], $report_details['email_address'],
+				$report_details['ip_address'], $report_details['body'], time()],
+			['id_rep_body']
 		);
 
 		if ($new_report)
@@ -342,9 +347,9 @@ class LevGal_Model_Report
 
 		$db->insert('insert',
 			'{db_prefix}lgal_report_comment',
-			array('id_report' => 'int', 'id_member' => 'int', 'member_name' => 'string', 'log_time' => 'int', 'comment' => 'string'),
-			array($this->current_report['id_report'], $report['id_member'], $report['member_name'], time(), $report['comment']),
-			array('id_rep_comment')
+			['id_report' => 'int', 'id_member' => 'int', 'member_name' => 'string', 'log_time' => 'int', 'comment' => 'string'],
+			[$this->current_report['id_report'], $report['id_member'], $report['member_name'], time(), $report['comment']],
+			['id_rep_comment']
 		);
 	}
 
@@ -357,13 +362,13 @@ class LevGal_Model_Report
 			return false;
 		}
 
-		$criteria = array();
-		$values = array(
+		$criteria = [];
+		$values = [
 			'id_report' => $this->current_report['id_report'],
-		);
+		];
 
 		// Check the things we know are numbers.
-		foreach (array('time_updated', 'num_reports') as $column)
+		foreach (['time_updated', 'num_reports'] as $column)
 		{
 			if (isset($opts[$column]))
 			{
@@ -372,13 +377,11 @@ class LevGal_Model_Report
 			}
 		}
 		// And the booleans masquerading as numbers. Or numbers masquerading as bools?
-		foreach (array('closed') as $column)
+		$column = 'closed';
+		if (isset($opts[$column]))
 		{
-			if (isset($opts[$column]))
-			{
-				$criteria[] = $column . ' = {int:' . $column . '}';
-				$values[$column] = !empty($opts[$column]) ? 1 : 0;
-			}
+			$criteria[] = $column . ' = {int:' . $column . '}';
+			$values[$column] = !empty($opts[$column]) ? 1 : 0;
 		}
 
 		if (!empty($criteria))
@@ -401,7 +404,7 @@ class LevGal_Model_Report
 			return false;
 		}
 
-		$this->updateReport(array('closed' => 1));
+		$this->updateReport(['closed' => 1]);
 		$this->decreaseReportCount(empty($this->current_report['id_comment']) ? 'items' : 'comments');
 	}
 
@@ -412,7 +415,7 @@ class LevGal_Model_Report
 			return false;
 		}
 
-		$this->updateReport(array('closed' => 0));
+		$this->updateReport(['closed' => 0]);
 		$this->increaseReportCount(empty($this->current_report['id_comment']) ? 'items' : 'comments');
 	}
 
@@ -431,10 +434,10 @@ class LevGal_Model_Report
 			UPDATE {db_prefix}lgal_reports
 			SET id_album = {int:album}
 			WHERE id_item IN ({array_int:items})',
-			array(
+			[
 				'items' => $items,
 				'album' => $album,
-			)
+			]
 		);
 	}
 
@@ -446,10 +449,10 @@ class LevGal_Model_Report
 
 		if (empty($reports))
 		{
-			return array();
+			return [];
 		}
 
-		$reporters = array();
+		$reporters = [];
 		$request = $db->query('', '
 			SELECT 
 				lrb.id_report, IFNULL(mem.id_member, 0) AS id_member, IFNULL(mem.real_name, lrb.member_name) AS member_name
@@ -457,16 +460,16 @@ class LevGal_Model_Report
 				LEFT JOIN {db_prefix}members AS mem ON (lrb.id_member = mem.id_member)
 			WHERE lrb.id_report IN ({array_int:reports})
 			ORDER BY lrb.id_report, member_name',
-			array(
+			[
 				'reports' => $reports,
-			)
+			]
 		);
 		$view_profile = allowedTo('profile_view_any');
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
 			$reporters[$row['id_report']][] = $view_profile && !empty($row['id_member']) ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['member_name'] . '</a>' : $row['member_name'];
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		// Weed out duplicates.
 		foreach ($reporters as $id_report => $people)
@@ -485,12 +488,12 @@ class LevGal_Model_Report
 
 		if (empty($this->current_report))
 		{
-			return array();
+			return [];
 		}
 
 		$view_profile = allowedTo('profile_view_any');
 
-		$bodies = array();
+		$bodies = [];
 		$request = $db->query('', '
 			SELECT 
 				lrb.id_rep_body, lrb.body, IFNULL(mem.id_member, 0) AS id_member, IFNULL(mem.real_name, lrb.member_name) AS member_name, lrb.time_sent
@@ -498,18 +501,18 @@ class LevGal_Model_Report
 				LEFT JOIN {db_prefix}members AS mem ON (lrb.id_member = mem.id_member)
 			WHERE lrb.id_report = {int:id_report}
 			ORDER BY lrb.id_rep_body ASC',
-			array(
+			[
 				'id_report' => $this->current_report['id_report'],
-			)
+			]
 		);
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
 			$id_rep_body = array_shift($row);
 			$row['author'] = $view_profile && !empty($row['id_member']) ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['member_name'] . '</a>' : $row['member_name'];
-			$row['time_sent_format'] = LevGal_Helper_Format::time($row['time_sent']);
+			$row['time_sent_format'] = Format::time($row['time_sent']);
 			$bodies[$id_rep_body] = $row;
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		return $bodies;
 	}
@@ -522,12 +525,12 @@ class LevGal_Model_Report
 
 		if (empty($this->current_report))
 		{
-			return array();
+			return [];
 		}
 
 		$view_profile = allowedTo('profile_view_any');
 
-		$comments = array();
+		$comments = [];
 		$request = $db->query('', '
 			SELECT 
 				lrc.id_rep_comment, IFNULL(mem.id_member, 0) AS id_member, IFNULL(mem.real_name, lrc.member_name) AS member_name, lrc.log_time, lrc.comment
@@ -535,18 +538,18 @@ class LevGal_Model_Report
 				LEFT JOIN {db_prefix}members AS mem ON (lrc.id_member = mem.id_member)
 			WHERE lrc.id_report = {int:id_report}
 			ORDER BY lrc.id_rep_comment ASC',
-			array(
+			[
 				'id_report' => $this->current_report['id_report'],
-			)
+			]
 		);
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
 			$id_rep_comment = array_shift($row);
 			$row['author'] = $view_profile && !empty($row['id_member']) ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['member_name'] . '</a>' : $row['member_name'];
-			$row['log_time_format'] = LevGal_Helper_Format::time($row['log_time']);
+			$row['log_time_format'] = Format::time($row['log_time']);
 			$comments[$id_rep_comment] = $row;
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		return $comments;
 	}
@@ -563,21 +566,21 @@ class LevGal_Model_Report
 		$comments = (array) $comments;
 
 		// First, find all the reports for these comments.
-		$reports = array();
+		$reports = [];
 		$request = $db->query('', '
 			SELECT 
 				id_report
 			FROM {db_prefix}lgal_reports
 			WHERE id_comment IN ({array_int:comments})',
-			array(
+			[
 				'comments' => $comments,
-			)
+			]
 		);
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
 			$reports[] = $row['id_report'];
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		if (!empty($reports))
 		{
@@ -597,21 +600,21 @@ class LevGal_Model_Report
 		$items = (array) $items;
 
 		// First, find all the reports for these comments.
-		$reports = array();
+		$reports = [];
 		$request = $db->query('', '
 			SELECT 
 				id_report
 			FROM {db_prefix}lgal_reports
 			WHERE id_item IN ({array_int:items})',
-			array(
+			[
 				'items' => $items,
-			)
+			]
 		);
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
 			$reports[] = $row['id_report'];
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		if (!empty($reports))
 		{
@@ -627,24 +630,24 @@ class LevGal_Model_Report
 		$db->query('', '
 			DELETE FROM {db_prefix}lgal_report_body
 			WHERE id_report IN ({array_int:reports})',
-			array(
+			[
 				'reports' => $reports,
-			)
+			]
 		);
 		$db->query('', '
 			DELETE FROM {db_prefix}lgal_report_comment
 			WHERE id_report IN ({array_int:reports})',
-			array(
+			[
 				'reports' => $reports,
-			)
+			]
 		);
 		// And now the reports themselves.
 		$db->query('', '
 			DELETE FROM {db_prefix}lgal_reports
 			WHERE id_report IN ({array_int:reports})',
-			array(
+			[
 				'reports' => $reports,
-			)
+			]
 		);
 
 		// And update the counts of everything.

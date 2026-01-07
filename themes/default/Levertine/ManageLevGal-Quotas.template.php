@@ -70,7 +70,7 @@ function template_quotas_javascript_above()
 		}
 	}
 
-	addInlineJavascript($js, true);
+	theme()->addInlineJavascript($js, true);
 }
 
 function template_generic_filetypes($typelist)

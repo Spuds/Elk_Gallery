@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.2
+ * @version 2.0.0
  * @package levgal
  * @since 1.0
  */
@@ -82,7 +82,7 @@ $txt['lgal_posted_by'] = 'Posted by:';
 $txt['lgal_see_more'] = '<a class="linkbutton" href="%1$s">see more</a>';
 $txt['lgal_time_added'] = 'Added on:';
 $txt['lgal_time_updated'] = 'Updated on:';
-$txt['lgal_picture_size'] = 'Picture size:';
+$txt['lgal_picture_size'] = 'Dimensions:';
 $txt['lgal_file_size'] = 'File size:';
 $txt['lgal_file_type'] = 'File type:';
 $txt['lgal_comments'] = 'Comments (%1$s)';
@@ -212,7 +212,7 @@ $txt['lgal_mark_all_seen'] = 'Mark All Seen';
 $txt['lgal_bookmark_item'] = 'Bookmark Item';
 $txt['lgal_unbookmark_item'] = 'Unbookmark Item';
 $txt['lgal_notify'] = 'Notify Me';
-$txt['lgal_unnotify'] = 'Don\'t Notify Me';
+$txt['lgal_unnotify'] = 'Stop Notifications';
 $txt['lgal_notify_item_desc'] = 'Send me an email any time this gets a comment';
 $txt['lgal_unnotify_item_desc'] = 'Stop sending me emails whenever this gets a comment';
 $txt['lgal_notify_album_desc'] = 'Send me an email any time this album gets a new item posted';
@@ -322,7 +322,7 @@ $txt['lgal_share_complex_bbc'] = 'BB Code with desc';
 $txt['lgal_share_complex_bbc_entry'] = '[media id=%1$s]%2$s[/media]';
 $txt['lgal_share_social_media'] = 'Social Media';
 $txt['lgal_share_facebook'] = 'Facebook';
-$txt['lgal_share_twitter'] = 'Twitter';
+$txt['lgal_share_twitter'] = 'X/Twitter';
 $txt['lgal_share_tumblr'] = 'Tumblr';
 $txt['lgal_share_reddit'] = 'Reddit';
 $txt['lgal_share_pinterest'] = 'Pinterest';

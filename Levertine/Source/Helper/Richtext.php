@@ -4,16 +4,20 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 2.0.0 / elkarte
  */
 
+namespace Addons\Levertine\Source\Helper;
+
 use BBC\ParserWrapper;
+use ElkArte\Converters\Html2BBC;
+use ElkArte\Helper\Util;
 
 /**
  * This file deals with the richtext editor widget since we will need this in several
  * places and it's better to reuse.
  */
-class LevGal_Helper_Richtext
+class Richtext
 {
 	/** @var string */
 	private $form_var;
@@ -36,13 +40,15 @@ class LevGal_Helper_Richtext
 
 		require_once(SUBSDIR . '/Editor.subs.php');
 
-		$defaults = array(
+		$defaults = [
 			'id' => $this->form_var,
 			'value' => '',
 			'height' => '175px',
 			'width' => '100%',
 			'preview_type' => false,
-		);
+			'smiley_container' => 'smileyBox_message',
+			'bbc_container' => 'bbcBox_message',
+		];
 		$editorOptions = array_merge($defaults, $editorOptions);
 
 		create_control_richedit($editorOptions);
@@ -59,8 +65,7 @@ class LevGal_Helper_Richtext
 		echo '
 			<div class="editor_wrapper">'; // closed in displayButtons
 
-		echo '
-				', template_control_richedit($this->form_var, 'smileyBox_' . $this->form_var, 'bbcBox_' . $this->form_var);
+		template_control_richedit($this->form_var);
 	}
 
 	public function displayButtons()
@@ -85,7 +90,7 @@ class LevGal_Helper_Richtext
 		{
 			require_once(SUBSDIR . '/Editor.subs.php');
 
-			$bbc_converter = new Html_2_BBC($_REQUEST[$this->form_var]);
+			$bbc_converter = new Html2BBC($_REQUEST[$this->form_var]);
 			$_REQUEST[$this->form_var] = $bbc_converter->get_bbc();
 			$_REQUEST[$this->form_var] = un_htmlspecialchars($_REQUEST[$this->form_var]);
 			$_POST[$this->form_var] = $_REQUEST[$this->form_var];
@@ -109,7 +114,7 @@ class LevGal_Helper_Richtext
 
 		$parser = ParserWrapper::instance();
 
-		return !(Util::htmltrim(strip_tags($parser->parseMessage($this->sanitized, false), '<img>')) === '' && (!allowedTo('admin_forum') || strpos($this->sanitized, '[html]') === false));
+		return !(Util::htmltrim(strip_tags($parser->parseMessage($this->sanitized, false), '<img>')) === '' && (!allowedTo('admin_forum') || !str_contains($this->sanitized, '[html]')));
 	}
 
 	public function getForDB()
@@ -124,6 +129,6 @@ class LevGal_Helper_Richtext
 		$comment = un_preparsecode($comment);
 		censor($comment);
 
-		return str_replace(array('"', '<', '>', '&nbsp;'), array('&quot;', '&lt;', '&gt;', ' '), $comment);
+		return str_replace(['"', '<', '>', '&nbsp;'], ['&quot;', '&lt;', '&gt;', ' '], $comment);
 	}
 }

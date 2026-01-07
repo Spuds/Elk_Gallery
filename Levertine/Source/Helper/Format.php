@@ -4,13 +4,17 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 2.0.0 / elkarte
  */
+
+namespace Addons\Levertine\Source\Helper;
+
+use ElkArte\User;
 
 /**
  * This file deals with various LevGal-specific formatting.
  */
-class LevGal_Helper_Format
+class Format
 {
 	public static function filesize($bytes)
 	{
@@ -34,12 +38,10 @@ class LevGal_Helper_Format
 
 	public static function time($timestamp, $offset_type = false)
 	{
-		global $user_info;
-
-		$time_format = $user_info['time_format'];
-		$user_info['time_format'] = strtr($user_info['time_format'], array('%A' => '%a', '%B' => '%b', ':%S' => '', '-%S' => ''));
+		$time_format = User::$info['time_format'];
+		User::$info['time_format'] = strtr(User::$info['time_format'], ['%A' => '%a', '%B' => '%b', ':%S' => '', '-%S' => '']);
 		$time = standardTime($timestamp, false, $offset_type);
-		$user_info['time_format'] = $time_format;
+		User::$info['time_format'] = $time_format;
 
 		return $time;
 	}
@@ -59,7 +61,10 @@ class LevGal_Helper_Format
 	{
 		global $txt;
 
-		$entry = isset($txt[$string . '_' . $num]) ? $string . '_' . $num : $string . '_x';
+		$translationKey = $string . '_' . $num;
+		$fallbackKey = $string . '_x';
+
+		$entry = isset($txt[$translationKey]) ? $translationKey : $fallbackKey;
 
 		return sprintf($txt[$entry], comma_format($num));
 	}

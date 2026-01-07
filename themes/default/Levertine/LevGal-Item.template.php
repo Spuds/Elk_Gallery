@@ -1,5 +1,8 @@
 <?php
 
+use Addons\Levertine\Source\Helper\Format;
+use Addons\Levertine\Source\Helper\Richtext;
+
 /**
  * This file handles displaying the item pages.
  *
@@ -8,7 +11,7 @@
  * @license LGPL (v3)
  * @since 1.0
  *
- * @version 1.2.2 / elkarte
+ * @version 1.2.3 / elkarte
  */
 
 function template_main_item_view()
@@ -31,7 +34,7 @@ function template_main_item_view()
 
 	// Now we need the JavaScript for our copy buttons.
 	echo '
-	<script src="', $settings['default_theme_url'], '/levgal_res/clipboard/clipboard.min.js"></script>
+	<script src="', $settings['default_theme_url'], '/Levertine/clipboard/clipboard.min.js"></script>
 	<script>
 		let items = ["lgal_share_simple_bbc", "lgal_share_complex_bbc", "lgal_share_page"],
 			parentEl,
@@ -51,6 +54,11 @@ function template_main_item_view()
 		clipboardSnippets.on("success", function(e) {
 			let clip = e.trigger.parentElement;
 			lgalShowTooltip(clip, "', $txt['lgal_copyied_to_clipboard'], '");
+		});
+	</script>
+	<script>
+		document.addEventListener("DOMContentLoaded", function() {
+			ElkNotifier.update()
 		});
 	</script>';
 }
@@ -591,11 +599,11 @@ function template_main_item_commentbox()
 {
 	global $context, $txt;
 
-	/** @var $comment_box \LevGal_Helper_Richtext */
+	/** @var $comment_box Richtext */
 	$comment_box = $context['comment_box'];
 
 	echo '
-				<div class="editor_wrapper">
+				<div>
 					<form action="', $context['form_url'], '#postmodify" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" onsubmit="submitonce(this);smc_saveEntities(\'postmodify\', [\'', $comment_box->getId(), '\']);" enctype="multipart/form-data">';
 
 	if (!empty($context['comment_errors']))
@@ -643,7 +651,7 @@ function template_mature_item()
 	echo '
 		<form action="', $context['form_url'], '" method="post" accept-charset="UTF-8">
 			<div class="centertext">
-				<img src="', $settings['default_theme_url'], '/levgal_res/icons/_mature.png" />
+				<img src="', $settings['default_theme_url'], '/Levertine/icons/_mature.png" />
 				<br />
 				<i class="icon i-warning"></i>
 				', $txt['lgal_item_is_mature'], '
@@ -1012,7 +1020,7 @@ function template_edit_item()
 						<dd>
 							<input type="text" id="item_name" name="item_name" tabindex="', $context['tabindex']++, '" size="80" maxlength="80" class="input_text" value="', $context['item_name'], '" style="width: 95%;" />
 						</dd>
-						<dt class="clear_left">', $txt['lgal_item_slug'], '<br /><span class="smalltext">', $txt['lgal_item_slug_note'], '</span></dt>
+						<dt class="clear_left">', $txt['lgal_item_slug'], '</dt>
 						<dd>
 							<span class="smalltext">', $scripturl, '?media/item/</span>
 							<input type="text" id="item_slug" name="item_slug" tabindex="', $context['tabindex']++, '" size="20" maxlength="40" class="input_text" value="', $context['item_slug'], '" />
@@ -1064,7 +1072,7 @@ function template_edit_item()
 			$size_format = '';
 			if (!empty($context['quota_data']['quotas'][$type]) && is_array($context['quota_data']['quotas'][$type]) && isset($context['quota_data']['quotas'][$type]['file']))
 			{
-				$size_format = ' (' . LevGal_Helper_Format::filesize($context['quota_data']['quotas'][$type]['file']) . ')';
+				$size_format = ' (' . Format::filesize($context['quota_data']['quotas'][$type]['file']) . ')';
 			}
 			$display[$type] = sprintf($txt['lgal_allowed_format_' . $type], implode('; ', $formats)) . $size_format;
 		}

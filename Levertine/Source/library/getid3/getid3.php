@@ -453,7 +453,7 @@ class getID3
 		}
 
 		// Load support library
-		if (!include_once(GETID3_INCLUDEPATH.'getid3.lib.php')) {
+		if (!include_once(GETID3_INCLUDEPATH . 'getid3.lib.php')) {
 			$this->startup_error .= 'getid3.lib.php is missing or corrupt'."\n";
 		}
 

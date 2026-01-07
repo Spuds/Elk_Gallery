@@ -4,8 +4,10 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.2 / elkarte
+ * @version 2.0.0 / elkarte
  */
+
+use Addons\Levertine\Source\Model\Item;
 
 $blankGif = "\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\x00\x00\x00\x21\xF9\x04\x01\x00\x00\x00\x00\x2C\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x44\x01\x00\x3B";
 
@@ -30,10 +32,10 @@ $item_id = (int) $_GET['id'];
 $type = isset($_GET['thumb']) ? 'thumb' : (isset($_GET['preview']) ? 'preview' : 'raw');
 
 // Grab the details
-$itemModel = new LevGal_Model_Item();
+$itemModel = new Item();
 $item_details = $itemModel->getItemInfoById($item_id);
 
-list($path, $filename, $mime) = getFileInfo($item_details, $itemModel, $settings, $type);
+[$path, $filename, $mime] = getFileInfo($item_details, $itemModel, $settings, $type);
 
 if (!$path)
 {
@@ -67,7 +69,7 @@ function sendBlankGif($blankGif)
  * Retrieve file information.
  *
  * @param array $item_details The details of the item.
- * @param ItemModel $itemModel The item model instance.
+ * @param Item $itemModel The item model instance.
  * @param array $settings The application settings.
  * @param string $type The type of the file.
  * @return array The file information array with three elements: file path, file name, and mime type.
@@ -81,7 +83,7 @@ function getFileInfo($item_details, $itemModel, $settings, $type)
 	// Does the item exist? Can they see it if it does?
 	if (empty($item_details) || !$itemModel->isVisible())
 	{
-		return [$settings['theme_dir'] . '/levgal_res/icons/_invalid.png', 'denied.png', 'image/png'];
+		return [$settings['default_theme_dir'] . '/Levertine/icons/_invalid.png', 'denied.png', 'image/png'];
 	}
 
 	$item_paths = $itemModel->getFilePaths();

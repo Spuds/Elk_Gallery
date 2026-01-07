@@ -4,25 +4,35 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 2.0.0 / elkarte
  */
+
+namespace Addons\Levertine\Source\Action;
+
+use Addons\Levertine\Source\LevGalBootstrap;
+use Addons\Levertine\Source\Model\AlbumList;
+use Addons\Levertine\Source\Model\ItemList;
+use Addons\Levertine\Source\Model\Stats;
+use ElkArte\Helper\Util;
+use ElkArte\Languages\Txt;
+use ElkArte\User;
 
 /**
  * This file provides the home index for the gallery, site/?media/.
  */
-class LevGal_Action_Home extends LevGal_Action_Abstract
+class Home extends LevGalAbstract
 {
 	public function actionIndex()
 	{
-		global $context, $txt, $scripturl, $user_settings, $modSettings;
+		global $context, $txt, $scripturl, $modSettings;
 
 		// First we need the language and templates.
-		loadLanguage('levgal_lng/LevGal');
-		loadLanguage('levgal_lng/LevGal-Stats');
+		Txt::load('Levertine/LevGal');
+		Txt::load('Levertine/LevGal-Stats');
 
 		// Recent / Random Dependencies
-		loadCSSFile('glightbox.min.css', ['subdir' => 'levgal_res/lightbox']);
-		loadJavascriptFile('glightbox.min.js', ['subdir' => 'levgal_res/lightbox', 'defer => true']);
+		loadCSSFile('glightbox.min.css', ['subdir' => 'Levertine/lightbox']);
+		loadJavascriptFile('glightbox.min.js', ['subdir' => 'Levertine/lightbox', 'defer => true']);
 
 		$this->addLinkTree($txt['levgal'], '?media/');
 		$context['canonical_url'] = $scripturl . '?media/';
@@ -32,66 +42,66 @@ class LevGal_Action_Home extends LevGal_Action_Abstract
 		$_SESSION['levgal_breadcrumbs'] = [];
 
 		// Featured items are very simple. And we even get to do some caching magic.
-		/** @var \LevGal_Model_AlbumList $albumList */
-		$albumList = LevGal_Bootstrap::getModel('LevGal_Model_AlbumList');
+		/** @var AlbumList $albumList */
+		$albumList = LevGalBootstrap::getModel('AlbumList');
 		$context['featured_albums'] = $albumList->getFeaturedAlbums();
 
 		// The main area is fairly dull.
-		$itemList = LevGal_Bootstrap::getModel('LevGal_Model_ItemList');
-		/** @var \LevGal_Model_ItemList $itemList */
+		$itemList = LevGalBootstrap::getModel('ItemList');
+		/** @var ItemList $itemList */
 		$context['latest_items'] = $itemList->getLatestItems(20);
 		$context['random_items'] = $itemList->getRandomItems(10);
 
 		// Sidebar not much better.
-		/** @var \LevGal_Model_Stats $statsModel */
-		$statsModel = LevGal_Bootstrap::getModel('LevGal_Model_Stats');
-		$context['stats'] = array(
+		/** @var Stats $statsModel */
+		$statsModel = LevGalBootstrap::getModel('Stats');
+		$context['stats'] = [
 			'levgal_stats_total_items' => comma_format($statsModel->getTotalItems()),
 			'levgal_stats_total_comments' => comma_format($statsModel->getTotalComments()),
 			'levgal_stats_total_albums' => comma_format($statsModel->getTotalAlbums()),
-		);
+		];
 
-		$context['gallery_actions'] = array();
+		$context['gallery_actions'] = [];
 
-		if (!$context['user']['is_guest'] && allowedTo(array('lgal_adduseralbum')))
+		if (!$context['user']['is_guest'] && allowedTo(['lgal_adduseralbum']))
 		{
-			$context['gallery_actions']['actions']['myalbums'] = array($txt['levgal_myalbums'], $scripturl . '?media/albumlist/' . $context['user']['id'] . '/member/', 'tab' => true, 'sidebar' => false);
+			$context['gallery_actions']['actions']['myalbums'] = [$txt['levgal_myalbums'], $scripturl . '?media/albumlist/' . $context['user']['id'] . '/member/', 'tab' => true, 'sidebar' => false];
 		}
 
-		if (!empty($context['stats']['levgal_stats_total_albums']) || allowedTo(array('lgal_manage', 'lgal_adduseralbum', 'lgal_addgroupalbum')))
+		if (!empty($context['stats']['levgal_stats_total_albums']) || allowedTo(['lgal_manage', 'lgal_adduseralbum', 'lgal_addgroupalbum']))
 		{
-			$context['gallery_actions']['actions']['album'] = array($txt['lgal_see_albums'], $scripturl . '?media/albumlist/', 'tab' => true);
+			$context['gallery_actions']['actions']['album'] = [$txt['lgal_see_albums'], $scripturl . '?media/albumlist/', 'tab' => true];
 		}
 
-		if (allowedTo(array('lgal_manage', 'lgal_adduseralbum', 'lgal_addgroupalbum')))
+		if (allowedTo(['lgal_manage', 'lgal_adduseralbum', 'lgal_addgroupalbum']))
 		{
-			$context['gallery_actions']['actions']['addalbum'] = array($txt['levgal_newalbum'], $scripturl . '?media/newalbum/', 'tab' => true);
+			$context['gallery_actions']['actions']['addalbum'] = [$txt['levgal_newalbum'], $scripturl . '?media/newalbum/', 'tab' => true];
 		}
 
-		if (!empty($user_settings['lgal_new']))
+		if (!empty(User::$settings['lgal_new']))
 		{
-			$unseenModel = LevGal_Bootstrap::getModel('LevGal_Model_Unseen');
+			$unseenModel = LevGalBootstrap::getModel('Unseen');
 			$unseenModel->updateUnseenItems();
 		}
-		if (!$context['user']['is_guest'] && !empty($user_settings['lgal_unseen']))
+		if (!$context['user']['is_guest'] && !empty(User::$settings['lgal_unseen']))
 		{
-			$context['gallery_actions']['actions']['new'] = array($txt['levgal_unseen'] . ' [<strong>' . $user_settings['lgal_unseen'] . '</strong>]', $scripturl . '?media/unseen/', 'tab' => true);
+			$context['gallery_actions']['actions']['new'] = [$txt['levgal_unseen'] . ' [<strong>' . User::$settings['lgal_unseen'] . '</strong>]', $scripturl . '?media/unseen/', 'tab' => true];
 		}
 
-		$context['gallery_actions']['actions']['search'] = array($txt['levgal_search'], $scripturl . '?media/search/', 'tab' => true);
-		$context['gallery_actions']['actions']['stats'] = array($txt['lgal_gallery_stats'], $scripturl . '?media/stats/');
-		$context['gallery_actions']['actions']['tag'] = array($txt['levgal_tagcloud'], $scripturl . '?media/tag/cloud/');
+		$context['gallery_actions']['actions']['search'] = [$txt['levgal_search'], $scripturl . '?media/search/', 'tab' => true];
+		$context['gallery_actions']['actions']['stats'] = [$txt['lgal_gallery_stats'], $scripturl . '?media/stats/'];
+		$context['gallery_actions']['actions']['tag'] = [$txt['levgal_tagcloud'], $scripturl . '?media/tag/cloud/'];
 
-		if (allowedTo(array('lgal_manage', 'lgal_approve_comment', 'lgal_approve_item')))
+		if (allowedTo(['lgal_manage', 'lgal_approve_comment', 'lgal_approve_item']))
 		{
 			$moderation_count = 0;
-			$moderation_count += LevGal_Bootstrap::getUnapprovedCommentsCount();
-			$moderation_count += LevGal_Bootstrap::getUnapprovedItemsCount();
-			$moderation_count += LevGal_Bootstrap::getUnapprovedAlbumsCount();
+			$moderation_count += LevGalBootstrap::getUnapprovedCommentsCount();
+			$moderation_count += LevGalBootstrap::getUnapprovedItemsCount();
+			$moderation_count += LevGalBootstrap::getUnapprovedAlbumsCount();
 			if (allowedTo('lgal_manage'))
 			{
 				$reported = Util::unserialize($modSettings['lgal_reports']);
-				foreach (array('comments', 'items') as $type)
+				foreach (['comments', 'items'] as $type)
 				{
 					if (!empty($reported[$type]))
 					{
@@ -99,7 +109,7 @@ class LevGal_Action_Home extends LevGal_Action_Abstract
 					}
 				}
 			}
-			$context['gallery_actions']['actions']['moderate'] = array($txt['levgal_moderate'] . (empty($moderation_count) ? '' : ' [<strong>' . $moderation_count . '</strong>]'), $scripturl . '?media/moderate/', 'tab' => true);
+			$context['gallery_actions']['actions']['moderate'] = [$txt['levgal_moderate'] . (empty($moderation_count) ? '' : ' [<strong>' . $moderation_count . '</strong>]'), $scripturl . '?media/moderate/', 'tab' => true];
 		}
 	}
 }

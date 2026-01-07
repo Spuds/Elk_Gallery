@@ -1511,7 +1511,7 @@ class getid3_lib
 			}
 
 			// yes this is ugly, feel free to suggest a better way
-			if (include_once(dirname(__FILE__).'/getid3.php')) {
+			if (include_once(dirname(__FILE__) . '/getid3.php')) {
 				$getid3_temp = new getID3();
 				if ($getid3_temp_tempdir = $getid3_temp->tempdir) {
 					$tempdir = $getid3_temp_tempdir;

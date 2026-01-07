@@ -4,13 +4,13 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.0
+ * @version 2.0.0
  * @package levgal
  * @since 1.0
  */
 // Version: 1.0; ManageLevGal maintenance
 
-// Important! Before editing these language files please read the text at the top of index.english.php.
+// Important! Before editing these language files, please read the text at the top of index.english.php.
 
 $txt['levgal_maint_desc'] = 'From here you can carry out various functions in the event of unexpected behavior in the gallery.';
 $txt['levgal_run_task'] = 'Run this task now';
@@ -33,6 +33,7 @@ $txt['levgal_findfix_substep_fixOrphanCustomFields'] = 'Checking for custom fiel
 $txt['levgal_findfix_substep_checkMissingFiles'] = 'Checking for missing files...';
 $txt['levgal_findfix_substep_checkExtraFiles'] = 'Checking for extraneous files...';
 $txt['levgal_findfix_substep_checkAlbumFiles'] = 'Checking for extraneous album-related files...';
+$txt['levgal_findfix_substep_fixWrongFilesize'] = 'Checking and fixing wrong file sizes...';
 
 $txt['levgal_task_rebuildsearch'] = 'Rebuild Search Index';
 $txt['levgal_task_desc_rebuildsearch'] = 'A search index enables searching of the media items to happen quickly. If there are problems with the search function, it may mean the index has become corrupted; a rebuild should fix this.';

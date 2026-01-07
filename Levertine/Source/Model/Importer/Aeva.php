@@ -4,23 +4,30 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 2.0.0 / elkarte
  */
+
+namespace Addons\Levertine\Source\Model\Importer;
+
+use Addons\Levertine\Source\Helper\Database;
+use Addons\Levertine\Source\Helper\Format;
+use Addons\Levertine\Source\LevGalBootstrap;
+use ElkArte\Helper\Util;
 
 /**
  * This file deals with providing foundations for importing data into Levertine Gallery from Aeva Media.
  */
-class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
+class Aeva extends Importer
 {
-	const ITEMS_PER_STEP = 40;
+	public const ITEMS_PER_STEP = 40;
 	// This can be 10-15 IF you are not using Imagick or if NOT creating pdf thumbnails.
 	// Imagick uses ghostscript to create pdf thumbs, which can be very slow on large PDF's
-	const DOCS_PER_STEP = 4;
-	const COMMENTS_PER_STEP = 50;
+	public const DOCS_PER_STEP = 4;
+	public const COMMENTS_PER_STEP = 50;
 
 	public function isValid()
 	{
-		if (LevGal_Helper_Database::matchTable('{db_prefix}aeva_media'))
+		if (Database::matchTable('{db_prefix}aeva_media'))
 		{
 			// So we found a table, did we find any albums in it? If not, probably should
 			// just stop right there.
@@ -36,27 +43,27 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 	{
 		global $txt;
 
-		$steps = array();
+		$steps = [];
 
-		list ($total_albums) = $this->countAlbums();
-		list ($total_items) = $this->countItems();
-		list ($total_docs) = $this->countItems('doc', self::DOCS_PER_STEP);
+		[$total_albums] = $this->countAlbums();
+		[$total_items] = $this->countItems();
+		[$total_docs] = $this->countItems('doc', self::DOCS_PER_STEP);
 
 		$steps['overwrite'] = true;
-		$steps['albums'] = LevGal_Helper_Format::numstring('lgal_albums', $total_albums);
+		$steps['albums'] = Format::numstring('lgal_albums', $total_albums);
 
 		if (!empty($total_items))
 		{
-			$steps['docs'] = LevGal_Helper_Format::numstring('lgal_docs', $total_docs);
-			$steps['items'] = LevGal_Helper_Format::numstring('lgal_items', $total_items - $total_docs);
+			$steps['docs'] = Format::numstring('lgal_docs', $total_docs);
+			$steps['items'] = Format::numstring('lgal_items', $total_items - $total_docs);
 
-			list ($total_comments) = $this->countComments();
+			[$total_comments] = $this->countComments();
 			if (!empty($total_comments))
 			{
-				$steps['comments'] = LevGal_Helper_Format::numstring('lgal_comments', $total_comments);
+				$steps['comments'] = Format::numstring('lgal_comments', $total_comments);
 			}
 
-			list ($custom_fields) = $this->countCustomfields();
+			[$custom_fields] = $this->countCustomfields();
 			if (!empty($custom_fields))
 			{
 				$steps['customfields'] = $txt['levgal_importer_results_customfields'];
@@ -86,7 +93,7 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 			$total_albums += $album_count;
 		}
 
-		return array($total_albums, $suggested_steps);
+		return [$total_albums, $suggested_steps];
 	}
 
 	protected function getAlbumOwnerCount()
@@ -100,18 +107,18 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 			return $owners;
 		}
 
-		$owners = array();
+		$owners = [];
 		$request = $db->query('', '
 			SELECT 
 			    album_of, COUNT(id_album) AS count
 			FROM {db_prefix}aeva_albums
 			GROUP BY album_of
 			ORDER BY album_of ASC');
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
 			$owners[$row['album_of']] = $row['count'];
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		return $owners;
 	}
@@ -123,15 +130,15 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 		$owners = $this->getAlbumOwnerCount();
 		$substeps = count($owners);
 
-		if ($substep >= $substeps || $substep < 0 || $substeps == 0)
+		if ($substep >= $substeps || $substep < 0 || $substeps === 0)
 		{
-			return array(true, $substeps);
+			return [true, $substeps];
 		}
 
 		$owners = array_keys($owners);
 		$this_owner = $owners[$substep];
 
-		$albums_to_insert = array();
+		$albums_to_insert = [];
 
 		$gal_path = $this->getAevaSetting('data_dir_path');
 
@@ -144,55 +151,55 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 				LEFT JOIN {db_prefix}aeva_files AS af ON (af.id_file = aa.icon)
 			WHERE album_of = {int:member}
 			ORDER BY a_order',
-			array(
+			[
 				'member' => $this_owner,
-			)
+			]
 		);
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
 			$sort = $this->parseSort($row['options']);
-			$albums_to_insert[$row['id_album']] = array(
+			$albums_to_insert[$row['id_album']] = [
 				'id_album' => $row['id_album'],
 				'album_name' => str_replace('&shy;', '', $row['album_name']),
 				'approved' => $row['approved'],
 				'featured' => $row['featured'],
 				'description' => $row['description'],
 				'sort' => $sort
-			);
+			];
 			// Master appears to be a top level album that other albums with other ownership
 			// are part of.  We will use it to add to the owner_cache
-			$owners = array((int) $row['id_member']);
+			$owners = [(int) $row['id_member']];
 			if (!empty($row['master']) && $row['master'] !== $row['id_album'])
 			{
 				$other_owners = $this->getAevaAlbumByID($row);
 				if (!empty($other_owners))
 				{
-					$owners = array((int) $row['id_member'], $other_owners);
+					$owners = [(int) $row['id_member'], $other_owners];
 				}
 			}
 			// Ownership and access are a little bit trickier, but only just. See,
 			// we have to set up two sets of data here!
-			$albums_to_insert[$row['id_album']] += array(
-				'owner_cache' => array('member' => $owners),
+			$albums_to_insert[$row['id_album']] += [
+				'owner_cache' => ['member' => $owners],
 				'owner_type' => 'member',
 				'owner_data' => $owners,
-			);
+			];
 			// Access is even more weird-ass.
 			$groups = explode(',', $row['access']);
 			foreach ($groups as $k => $v)
 			{
 				$groups[$k] = (int) $v;
 			}
-			$albums_to_insert[$row['id_album']]['perms'] = array(
+			$albums_to_insert[$row['id_album']]['perms'] = [
 				'type' => 'custom',
 				'groups' => array_unique($groups),
-			);
+			];
 			// And for the hierarchy we need to do a couple of tweaks.
-			$albums_to_insert[$row['id_album']] += array(
+			$albums_to_insert[$row['id_album']] += [
 				// I have no idea why Aeva's increments are all even numbers.
 				'album_pos' => $row['album_pos'] / 2,
 				'album_level' => $row['album_level'],
-			);
+			];
 
 			if (!empty($row['filename']) && !empty($row['directory']) && $row['directory'] !== 'generic_images')
 			{
@@ -204,14 +211,14 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 				}
 				if (file_exists($physical_file))
 				{
-					$albums_to_insert[$row['id_album']]['thumbnail'] = array(
+					$albums_to_insert[$row['id_album']]['thumbnail'] = [
 						'extension' => $this->getAevaExtension($row['filename']),
 						'file' => $physical_file,
-					);
+					];
 				}
 			}
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		if (empty($_SESSION['lgalimport']['albums']))
 		{
@@ -219,7 +226,7 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 		}
 		$_SESSION['lgalimport']['albums'] += $this->insertAlbums($albums_to_insert);
 
-		return array($substep + 1 == $substeps, $substeps);
+		return [$substep + 1 === $substeps, $substeps];
 	}
 
 	public function parseSort($options)
@@ -254,29 +261,29 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 				    COUNT(id_media)
 				FROM {db_prefix}aeva_media' . (isset($type) ? '
 				WHERE type = {string:type}' : ''),
-				array(
+				[
 					'type' => $type,
-				)
+				]
 			);
-			list ($count) = $db->fetch_row($request);
-			$db->free_result($request);
+			[$count] = $request->fetch_row();
+			$request->free_result();
 		}
 
-		return array($count, ceil($count / $per_step));
+		return [$count, ceil($count / $per_step)];
 	}
 
 	public function importItems($substep)
 	{
 		$db = database();
 
-		list (, $substeps) = $this->countItems();
+		[, $substeps] = $this->countItems();
 
-		if ($substep >= $substeps || $substep < 0 || $substeps == 0)
+		if ($substep >= $substeps || $substep < 0 || $substeps === 0)
 		{
-			return array(true, $substeps);
+			return [true, $substeps];
 		}
 
-		$files_to_import = array();
+		$files_to_import = [];
 		$gal_path = $this->getAevaSetting('data_dir_path');
 
 		$request = $db->query('', '
@@ -291,13 +298,13 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 			WHERE type != {string:type}
 			ORDER BY am.id_media
 			LIMIT {int:start}, {int:limit}',
-			array(
+			[
 				'start' => $substep * self::ITEMS_PER_STEP,
 				'limit' => self::ITEMS_PER_STEP,
 				'type' => 'doc'
-			)
+			]
 		);
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
 			$physical_file = false;
 			$url_data = false;
@@ -311,7 +318,7 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 					{
 						$match[1] = substr($match[1], 0, $pos);
 					}
-					$externalModel = LevGal_Bootstrap::getModel('LevGal_Model_External');
+					$externalModel = LevGalBootstrap::getModel('External');
 					$url_data = $externalModel->getURLData($match[1]);
 
 					if (empty($url_data['provider']))
@@ -331,7 +338,7 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 				}
 			}
 
-			$files_to_import[$row['id_item']] = array(
+			$files_to_import[$row['id_item']] = [
 				'id_item' => $row['id_item'],
 				'id_album' => $row['id_album'],
 				'id_member' => $row['id_member'],
@@ -347,7 +354,7 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 				'physical_file' => $physical_file,
 				'external_url' => $external_url,
 				'external_data' => $url_data,
-			);
+			];
 
 			// Someone might have uploaded a custom thumbnail in place of what might be generated otherwise.
 			if (!empty($row['thumb_dir'])
@@ -366,7 +373,7 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 				}
 			}
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		if (empty($_SESSION['lgalimport']['items']) || $substep === 0)
 		{
@@ -374,21 +381,21 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 		}
 		$_SESSION['lgalimport']['items'] += $this->insertItems($files_to_import);
 
-		return array($substep + 1 == $substeps, $substeps);
+		return [$substep + 1 === $substeps, $substeps];
 	}
 
 	public function importDocs($substep)
 	{
 		$db = database();
 
-		list (, $substeps) = $this->countItems('doc', self::DOCS_PER_STEP);
+		[, $substeps] = $this->countItems('doc', self::DOCS_PER_STEP);
 
-		if ($substep >= $substeps || $substep < 0 || $substeps == 0)
+		if ($substep >= $substeps || $substep < 0 || $substeps === 0)
 		{
-			return array(true, $substeps);
+			return [true, $substeps];
 		}
 
-		$files_to_import = array();
+		$files_to_import = [];
 		$gal_path = $this->getAevaSetting('data_dir_path');
 
 		$request = $db->query('', '
@@ -403,13 +410,13 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 			WHERE am.type = {string:type}
 			ORDER BY am.id_media
 			LIMIT {int:start}, {int:limit}',
-			array(
+			[
 				'start' => $substep * self::DOCS_PER_STEP,
 				'limit' => self::DOCS_PER_STEP,
 				'type' => 'doc',
-			)
+			]
 		);
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
 			$physical_file = false;
 			$url_data = false;
@@ -423,7 +430,7 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 					{
 						$match[1] = substr($match[1], 0, $pos);
 					}
-					$externalModel = LevGal_Bootstrap::getModel('LevGal_Model_External');
+					$externalModel = LevGalBootstrap::getModel('External');
 					$url_data = $externalModel->getURLData($match[1]);
 
 					if (empty($url_data['provider']))
@@ -443,7 +450,7 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 				}
 			}
 
-			$files_to_import[$row['id_item']] = array(
+			$files_to_import[$row['id_item']] = [
 				'id_item' => $row['id_item'],
 				'id_album' => $row['id_album'],
 				'id_member' => $row['id_member'],
@@ -459,7 +466,7 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 				'physical_file' => $physical_file,
 				'external_url' => $external_url,
 				'external_data' => $url_data,
-			);
+			];
 
 			// Someone might have uploaded a custom thumbnail in place of what might be generated otherwise.
 			if (!empty($row['thumb_dir'])
@@ -489,7 +496,7 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 				}
 			}
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		if (empty($_SESSION['lgalimport']['docs']) || $substep === 0)
 		{
@@ -497,7 +504,7 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 		}
 		$_SESSION['lgalimport']['docs'] += $this->insertItems($files_to_import);
 
-		return array($substep + 1 == $substeps, $substeps);
+		return [$substep + 1 === $substeps, $substeps];
 	}
 
 	public function countComments()
@@ -518,25 +525,25 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 				    COUNT(ac.id_comment)
 				FROM {db_prefix}aeva_comments AS ac
 					INNER JOIN {db_prefix}aeva_media AS am ON (ac.id_media = am.id_media)');
-			list ($count) = $db->fetch_row($request);
-			$db->free_result($request);
+			[$count] = $request->fetch_row();
+			$request->free_result();
 		}
 
-		return array($count, ceil($count / self::COMMENTS_PER_STEP));
+		return [(int) $count, ceil($count / self::COMMENTS_PER_STEP)];
 	}
 
 	public function importComments($substep)
 	{
 		$db = database();
 
-		list (, $substeps) = $this->countComments();
+		[, $substeps] = $this->countComments();
 
-		if ($substep >= $substeps || $substep < 0 || $substeps == 0)
+		if ($substep >= $substeps || $substep < 0 || $substeps === 0)
 		{
-			return array(true, $substeps);
+			return [true, $substeps];
 		}
 
-		$comments_to_import = array();
+		$comments_to_import = [];
 
 		$request = $db->query('', '
 			SELECT 
@@ -549,15 +556,15 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 				LEFT JOIN {db_prefix}members AS mem ON (ac.id_member = mem.id_member)
 			ORDER BY id_comment ASC
 			LIMIT {int:start}, {int:limit}',
-			array(
+			[
 				'start' => $substep * self::COMMENTS_PER_STEP,
 				'limit' => self::COMMENTS_PER_STEP,
-			)
+			]
 		);
 
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
-			$comments_to_import[$row['id_comment']] = array(
+			$comments_to_import[$row['id_comment']] = [
 				'id_comment' => $row['id_comment'],
 				'id_item' => $row['id_item'],
 				'id_author' => $row['id_author'],
@@ -569,9 +576,9 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 				'comment' => $row['comment'],
 				'approved' => $row['approved'],
 				'time_added' => $row['time_added'],
-			);
+			];
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		if (empty($_SESSION['lgalimport']['comments']))
 		{
@@ -579,23 +586,23 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 		}
 		$_SESSION['lgalimport']['comments'] += $this->insertComments($comments_to_import);
 
-		return array($substep + 1 == $substeps, $substeps);
+		return [$substep + 1 === $substeps, $substeps];
 	}
 
 	public function importUnseen($substep)
 	{
 		$db = database();
 
-		if ($substep != 0)
+		if ($substep !== 0)
 		{
-			return array(true, 1);
+			return [true, 1];
 		}
 
 		// This is a much simpler step than the others. It's just bulk inserting of simple rows.
-		$seen_log = array(
-			'all' => array(),
-			'members' => array(),
-		);
+		$seen_log = [
+			'all' => [],
+			'members' => [],
+		];
 
 		$request = $db->query('', '
 			SELECT 
@@ -603,7 +610,7 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 			FROM {db_prefix}aeva_log_media AS alm
 				LEFT JOIN {db_prefix}lgal_items AS li ON (alm.id_media = li.id_item)
 				INNER JOIN {db_prefix}members AS mem ON (alm.id_member = mem.id_member)');
-		while ($row = $db->fetch_assoc($request))
+		while ($row = $request->fetch_assoc())
 		{
 			// If id_media = 0, that is code for 'everything'
 			if (empty($row['id_media']))
@@ -615,21 +622,21 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 				$seen_log['members'][$row['id_member']][$row['id_media']] = $row['time'];
 			}
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		// If we have anyone that had 'everything' seen, we have to do something about this.
 		if (!empty($seen_log['all']))
 		{
-			$items = array();
+			$items = [];
 			$request = $db->query('', '
 				SELECT 
 				    am.id_media
 				FROM {db_prefix}aeva_media AS am');
-			while ($row = $db->fetch_assoc($request))
+			while ($row = $request->fetch_assoc())
 			{
 				$items[] = $row['id_media'];
 			}
-			$db->free_result($request);
+			$request->free_result();
 
 			foreach ($seen_log['all'] as $member => $time)
 			{
@@ -650,7 +657,7 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 
 		$_SESSION['lgalimport']['unseen'] = true;
 
-		return array(true, 1);
+		return [true, 1];
 	}
 
 	public function countCustomfields()
@@ -668,61 +675,61 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 				SELECT 
 				    COUNT(id_field)
 				FROM {db_prefix}aeva_fields');
-			list ($count) = $db->fetch_row($request);
-			$db->free_result($request);
+			[$count] = $request->fetch_row();
+			$request->free_result();
 		}
 
-		return array($count, !empty($count) ? 2 : 1);
+		return [(int) $count, !empty($count) ? 2 : 1];
 	}
 
 	public function importCustomfields($substep)
 	{
 		$db = database();
 
-		list($count) = $this->countCustomfields();
+		[$count] = $this->countCustomfields();
 		if (empty($count))
 		{
-			return array(true, 1);
+			return [true, 1];
 		}
 
-		if ($substep == 0)
+		if ($substep === 0)
 		{
 			// So we know there are fields to import.
-			$fields_to_import = array();
+			$fields_to_import = [];
 			$pos = 1;
-			$field_mapping = array(
+			$field_mapping = [
 				'checkbox' => 'checkbox',
 				'radio' => 'radio',
 				'select' => 'select',
 				'text' => 'text',
 				'textbox' => 'largetext',
-			);
+			];
 			$request = $db->query('', '
 				SELECT 
 				    afi.id_field, afi.name, afi.type, afi.options, afi.required, afi.searchable,
 					afi.description, afi.bbc, afi.albums
 				FROM {db_prefix}aeva_fields AS afi
 				ORDER BY afi.id_field DESC');
-			while ($row = $db->fetch_assoc($request))
+			while ($row = $request->fetch_assoc())
 			{
 				$field_type = $field_mapping[$row['type']] ?? 'text';
 				if (!empty($row['options']) && $field_type === 'checkbox')
 				{
 					$field_type = 'multiselect';
 				}
-				$field = array(
+				$field = [
 					'id_field' => $row['id_field'],
 					'field_name' => !empty($row['name']) ? $row['name'] : '',
 					'description' => !empty($row['description']) ? $row['description'] : '', // this should be preparsecode'd already, yay!
 					'field_type' => $field_type,
-					'field_options' => !empty($row['options']) ? explode(',', $row['options']) : array(),
-					'field_config' => array(),
+					'field_options' => !empty($row['options']) ? explode(',', $row['options']) : [],
+					'field_config' => [],
 					'field_pos' => $pos++,
 					'active' => true,
 					'can_search' => !empty($row['searchable']),
 					'default_val' => '',
 					'placement' => 0,
-				);
+				];
 				if (!empty($row['bbc']))
 				{
 					$field['field_config']['bbc'] = true;
@@ -745,15 +752,16 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 				}
 				$fields_to_import[$row['id_field']] = $field;
 			}
-			$db->free_result($request);
+			$request->free_result();
 
 			$this->insertCustomFields($fields_to_import);
 
-			return array(false, 2);
+			return [false, 2];
 		}
-		elseif ($substep == 1)
+
+		if ($substep === 1)
 		{
-			$values_to_import = array();
+			$values_to_import = [];
 
 			$request = $db->query('', '
 				SELECT 
@@ -761,7 +769,7 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 				FROM {db_prefix}aeva_field_data AS afd
 					INNER JOIN {db_prefix}lgal_custom_field AS lcf ON (afd.id_field = lcf.id_field)
 					INNER JOIN {db_prefix}lgal_items AS li ON (li.id_item = afd.id_media)');
-			while ($row = $db->fetch_assoc($request))
+			while ($row = $request->fetch_assoc())
 			{
 				if ($row['field_type'] === 'multiselect')
 				{
@@ -770,25 +778,25 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 				unset ($row['field_type']);
 				$values_to_import[] = $row;
 			}
-			$db->free_result($request);
+			$request->free_result();
 
 			$this->insertCustomFieldValues($values_to_import);
 
 			$_SESSION['lgalimport']['customfields'] = true;
 		}
 
-		return array(true, 2);
+		return [true, 2];
 	}
 
 	public function importTags($substep)
 	{
 		$db = database();
 
-		list (, $substeps) = $this->countItems();
+		[, $substeps] = $this->countItems();
 
-		if ($substep >= $substeps || $substep < 0 || $substeps == 0)
+		if ($substep >= $substeps || $substep < 0 || $substeps === 0)
 		{
-			return array(true, $substeps);
+			return [true, $substeps];
 		}
 
 		$request = $db->query('', '
@@ -798,16 +806,16 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 				INNER JOIN {db_prefix}lgal_items AS li ON (am.id_media = li.id_item)
 			ORDER BY am.id_media
 			LIMIT {int:start}, {int:limit}',
-			array(
+			[
 				'start' => $substep * self::ITEMS_PER_STEP,
 				'limit' => self::ITEMS_PER_STEP,
-			)
+			]
 		);
-		$item_tag_map = array();
-		while ($row = $db->fetch_assoc($request))
+		$item_tag_map = [];
+		while ($row = $request->fetch_assoc())
 		{
 			$tags = explode(',', preg_replace('~\s+~', ' ', $row['keywords']));
-			$processed_tags = array();
+			$processed_tags = [];
 			foreach ($tags as $tag)
 			{
 				$tag = Util::htmltrim($tag);
@@ -822,7 +830,7 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 				$item_tag_map[$row['id_item']] = $processed_tags;
 			}
 		}
-		$db->free_result($request);
+		$request->free_result();
 
 		if (!empty($item_tag_map))
 		{
@@ -830,7 +838,7 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 			$_SESSION['lgalimport']['tags'] = true;
 		}
 
-		return array($substep + 1 == $substeps, $substeps);
+		return [$substep + 1 === $substeps, $substeps];
 	}
 
 	protected function getAevaSetting($setting)
@@ -843,16 +851,16 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 		{
 			// This could be cached but for the number of queries this is likely to be,
 			// for the period of time it is likely to be... doesn't seem worth it.
-			$amSettings = array();
+			$amSettings = [];
 			$request = $db->query('', '
 				SELECT 
 				    name, value
 				FROM {db_prefix}aeva_settings');
-			while ($row = $db->fetch_assoc($request))
+			while ($row = $request->fetch_assoc())
 			{
 				$amSettings[$row['name']] = $row['value'];
 			}
-			$db->free_result($request);
+			$request->free_result();
 		}
 
 		return $amSettings[$setting] ?? null;
@@ -870,17 +878,17 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 			$clean_name = strtr($filename,
 				"\x8a\x8e\x9a\x9e\x9f\xc0\xc1\xc2\xc3\xc4\xc5\xc7\xc8\xc9\xca\xcb\xcc\xcd\xce\xcf\xd1\xd2\xd3\xd4\xd5\xd6\xd8\xd9\xda\xdb\xdc\xdd\xe0\xe1\xe2\xe3\xe4\xe5\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef\xf1\xf2\xf3\xf4\xf5\xf6\xf8\xf9\xfa\xfb\xfc\xfd\xff",
 				'SZszYAAAAAACEEEEIIIINOOOOOOUUUUYaaaaaaceeeeiiiinoooooouuuuyy');
-			$clean_name = strtr($clean_name, array("\xde" => 'TH', "\xfe" => 'th',
+			$clean_name = strtr($clean_name, ["\xde" => 'TH', "\xfe" => 'th',
 			   "\xd0" => 'DH', "\xf0" => 'dh', "\xdf" => 'ss', "\x8c" => 'OE',
-				"\x9c" => 'oe', "\xc6" => 'AE', "\xe6" => 'ae', "\xb5" => 'u'));
+				"\x9c" => 'oe', "\xc6" => 'AE', "\xe6" => 'ae', "\xb5" => 'u']);
 		}
 
 		// Sorry, no spaces, dots, or anything else but letters allowed.
 		// Largely similar to how old ElkArte generates its encrypted filenames but with a
 		// few Aeva-specific quirks.
-		$clean_name = preg_replace(array('/\s/', '/[^\w_\.-]/'), array('_', ''), $clean_name);
+		$clean_name = preg_replace(['/\s/', '/[^\w_\.-]/'], ['_', ''], $clean_name);
 		$ext = $this->getAevaExtension($filename);
-		$enc_name = $id . '_' . strtr($clean_name, '.', '_') . md5($clean_name) . '_ext' . $ext;
+		$enc_name = $id . '_' . str_replace('.', '_', $clean_name) . md5($clean_name) . '_ext' . $ext;
 		$clean_name = substr(sha1($id), 0, 2) . sha1($id . $clean_name) . '.' . $ext;
 
 		return $use_enc ? $enc_name : $clean_name;
@@ -890,14 +898,15 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 	{
 		$filename = ltrim($file, '/');
 
-		if (strpos($filename, '.') !== false)
+		if (str_contains($filename, '.'))
 		{
 			return strtolower(substr(strrchr($filename, '.'), 1));
 		}
-		elseif (strpos($filename, '_') !== false)
+
+		if (str_contains($filename, '_'))
 		{
 			$ext_part = substr(strrchr($filename, '_'), 1);
-			if (substr($ext_part, 0, 3) === 'ext')
+			if (str_starts_with($ext_part, 'ext'))
 			{
 				return strtolower(substr($ext_part, 3));
 			}
@@ -915,12 +924,12 @@ class LevGal_Model_Importer_Aeva extends LevGal_Model_Importer_Abstract
 				album_of 
 			FROM {db_prefix}aeva_albums
 			WHERE id_album = {int:master}',
-			array(
+			[
 				'master' => $row['master']
-			)
+			]
 		);
-		list ($owner) = $db->fetch_row($request);
-		$db->free_result($request);
+		[$owner] = $request->fetch_row();
+		$request->free_result();
 
 		return (int) $owner;
 	}

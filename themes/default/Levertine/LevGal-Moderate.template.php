@@ -47,7 +47,7 @@ function template_block_unapproved_comments()
 	global $context, $txt, $scripturl;
 
 	echo '
-		<h3 class="category_header hdicon cat_img_talk">
+		<h3 class="category_header hdicon i-comment">
 			<a href="', $scripturl, '?media/moderate/unapproved_comments/">', $txt['lgal_recent_unapproved_comments'], '</a>
 		</h3>
 		<div class="content modbox">
@@ -80,7 +80,7 @@ function template_block_unapproved_items()
 	global $context, $txt, $scripturl;
 
 	echo '
-		<h3 class="category_header hdicon cat_img_attachments">
+		<h3 class="category_header hdicon i-paperclip">
 			<a href="', $scripturl, '?media/moderate/unapproved_items/">', $txt['lgal_recent_unapproved_items'], '</a>
 		</h3>
 		<div class="content modbox">
@@ -114,7 +114,7 @@ function template_block_unapproved_albums()
 	global $context, $txt, $scripturl;
 
 	echo '
-		<h3 class="category_header hdicon cat_img_database">
+		<h3 class="category_header hdicon i-menu">
 			<a href="', $scripturl, '?media/moderate/unapproved_albums/">', $txt['lgal_recent_unapproved_albums'], '</a>
 		</h3>
 		<div class="content modbox">
@@ -148,7 +148,7 @@ function template_block_reported_comments()
 	global $context, $txt, $scripturl;
 
 	echo '
-		<h3 class="category_header hdicon cat_img_moderation">
+		<h3 class="category_header hdicon i-warning">
 			<a href="', $scripturl, '?media/moderate/reported_comments/">', $txt['lgal_recent_reported_comments'], '</a>
 		</h3>
 		<div class="content modbox">
@@ -182,7 +182,7 @@ function template_block_reported_items()
 	global $context, $txt, $scripturl;
 
 	echo '
-		<h3 class="category_header hdicon cat_img_moderation">
+		<h3 class="category_header hdicon i-warning">
 			<a href="', $scripturl, '?media/moderate/reported_items/">', $txt['lgal_recent_reported_items'], '</a>
 		</h3>
 		<div class="content modbox">

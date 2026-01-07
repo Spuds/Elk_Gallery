@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.0
+ * @version 2.0.0
  * @package levgal
  * @since 1.0
  */
@@ -52,13 +52,13 @@ $txt['levgal_profile_bookmarks_item_bookmarked'] = 'Bookmarked: %1$s';
 
 // Media Notifications
 $txt['levgal_profile_notify'] = 'Media Notifications';
-$txt['levgal_profile_notify_desc'] = 'This area shows you all the media albums and items that will notify you with new items and comments.';
+$txt['levgal_profile_notify_desc'] = 'This area shows you the albums and items for which you will receive new items and comments notifications';
 $txt['levgal_profile_notify_other_desc'] = 'This area shows you all the notifications settings for this member.';
 $txt['levgal_profile_notify_albums'] = 'Album Notifications:';
-$txt['levgal_profile_notify_albums_none'] = 'No albums are set to send notifications.';
+$txt['levgal_profile_notify_albums_none'] = 'No albums have Notify enabled.';
 $txt['levgal_profile_notify_items'] = 'Item Notifications:';
-$txt['levgal_profile_notify_items_none'] = 'No items are set to send notifications.';
-$txt['levgal_profile_notify_email'] = 'Choose how you would like to receive notifications, for the albums and items that you have requested, by using the settings under the <a href="%1$s"><strong>Profile Notifications</strong></a> area.';
+$txt['levgal_profile_notify_items_none'] = 'No items have Notify enabled.';
+$txt['levgal_profile_notify_email'] = 'To select how you would like to receive notifications, for the albums and items listed below, use the settings under the <a href="%1$s"><strong>Profile Notifications</strong></a> area.';
 $txt['levgal_profile_notify_none'] = 'The admin has not enable Media notifications.';
 $txt['levgal_profile_notify_comment_none'] = 'Comment notifications have not been enabled.';
 $txt['levgal_profile_notify_album_none'] = 'Album notifications have not been enabled.';

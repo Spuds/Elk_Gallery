@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.1 / elkarte
+ * @version 2.0.0 / elkarte
  */
 
 /**
@@ -140,7 +140,7 @@ function matchTable($table_name)
 
 	if ($table_list === null)
 	{
-		$table_list = $db->db_list_tables();
+		$table_list = $db->list_tables();
 	}
 
 	$real_prefix = preg_match('~^(`?)(.+?)\\1\\.(.*?)$~', $db_prefix, $match) === 1 ? $match[3] : $db_prefix;

@@ -26,7 +26,7 @@ function template_levgal_maint()
 	if (isset($context['success']))
 	{
 		echo '
-		<div class="maintenance_finished">
+		<div class="infobox maintenance_finished">
 			', $context['success'], '
 		</div>';
 	}

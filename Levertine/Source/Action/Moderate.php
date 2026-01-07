@@ -5,22 +5,34 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.1 / elkarte
+ * @version 2.0.0 / elkarte
  */
+
+namespace Addons\Levertine\Source\Action;
+
+use Addons\Levertine\Source\Helper\Http;
+use Addons\Levertine\Source\Helper\Sanitiser;
+use Addons\Levertine\Source\LevGalBootstrap;
+use Addons\Levertine\Source\Model\AlbumList;
+use Addons\Levertine\Source\Model\Moderate as ModerateModel;
+use Addons\Levertine\Source\Model\Report;
+use ElkArte\Languages\Txt;
+use ElkArte\User;
+use function Addons\Levertine\Source\levgal_pageindex;
 
 /**
  * This file provides the handling for the main moderation area, site/?media/moderate/.
  */
-class LevGal_Action_Moderate extends LevGal_Action_Abstract
+class Moderate extends LevGalAbstract
 {
-	/** @var LevGal_Model_AlbumList */
+	/** @var AlbumList */
 	private $album_list;
 
 	public function __construct()
 	{
 		parent::__construct();
 
-		loadLanguage('levgal_lng/LevGal-Moderation');
+		Txt::load('Levertine/LevGal-Moderation');
 	}
 
 	public function actionIndex()
@@ -36,14 +48,14 @@ class LevGal_Action_Moderate extends LevGal_Action_Abstract
 		$context['page_title'] = $txt['levgal_moderate'];
 
 		// Yay for permissions checks.
-		$context['mod_blocks'] = array();
+		$context['mod_blocks'] = [];
 
-		if (allowedTo(array('lgal_manage', 'lgal_approve_album')))
+		if (allowedTo(['lgal_manage', 'lgal_approve_album']))
 		{
 			$context['mod_blocks'][] = 'unapproved_albums';
 		}
 
-		if (allowedTo(array('lgal_manage', 'lgal_approve_item')) || !empty($modSettings['lgal_selfmod_approve_item']))
+		if (allowedTo(['lgal_manage', 'lgal_approve_item']) || !empty($modSettings['lgal_selfmod_approve_item']))
 		{
 			$context['mod_blocks'][] = 'unapproved_items';
 		}
@@ -54,14 +66,14 @@ class LevGal_Action_Moderate extends LevGal_Action_Abstract
 			$context['mod_blocks'][] = 'reported_items';
 		}
 
-		if (allowedTo(array('lgal_manage', 'lgal_approve_comment')) || !empty($modSettings['lgal_selfmod_approve_comment']))
+		if (allowedTo(['lgal_manage', 'lgal_approve_comment']) || !empty($modSettings['lgal_selfmod_approve_comment']))
 		{
 			$context['mod_blocks'][] = 'unapproved_comments';
 		}
 
 		if (empty($context['mod_blocks']))
 		{
-			LevGal_Helper_Http::fatalError('cannot_lgal_moderate');
+			Http::fatalError('cannot_lgal_moderate');
 		}
 
 		foreach ($context['mod_blocks'] as $block)
@@ -80,7 +92,7 @@ class LevGal_Action_Moderate extends LevGal_Action_Abstract
 
 		if (empty($this->album_list))
 		{
-			$this->album_list = new LevGal_Model_AlbumList();
+			$this->album_list = new AlbumList();
 		}
 
 		return $this->album_list->getVisibleAlbums();
@@ -95,7 +107,7 @@ class LevGal_Action_Moderate extends LevGal_Action_Abstract
 
 		if (empty($this->album_list))
 		{
-			$this->album_list = new LevGal_Model_AlbumList();
+			$this->album_list = new AlbumList();
 		}
 
 		return $this->album_list->getUserAlbums();
@@ -106,24 +118,24 @@ class LevGal_Action_Moderate extends LevGal_Action_Abstract
 		$albums = $this->getVisibleAlbums();
 		if (empty($albums))
 		{
-			return array();
+			return [];
 		}
 
-		return (new LevGal_Model_Moderate())->getVisibleUnapprovedComments(0, 10, 'desc', $albums);
+		return (new ModerateModel())->getVisibleUnapprovedComments(0, 10, 'desc', $albums);
 	}
 
 	protected function blockUnapproved_items()
 	{
 		// If can approve anything, it doesn't have to be just the user's own items
-		$viewing_all = allowedTo(array('lgal_manage', 'lgal_approve_item'));
+		$viewing_all = allowedTo(['lgal_manage', 'lgal_approve_item']);
 
 		$albums = $viewing_all ? $this->getVisibleAlbums() : $this->getUserAlbums();
 		if (empty($albums))
 		{
-			return array();
+			return [];
 		}
 
-		return (new LevGal_Model_Moderate())->getVisibleUnapprovedItems(0, 10, 'desc', $albums);
+		return (new ModerateModel())->getVisibleUnapprovedItems(0, 10, 'desc', $albums);
 	}
 
 	protected function blockUnapproved_albums()
@@ -131,29 +143,29 @@ class LevGal_Action_Moderate extends LevGal_Action_Abstract
 		$albums = $this->getVisibleAlbums();
 		if (empty($albums))
 		{
-			return array();
+			return [];
 		}
 
-		return (new LevGal_Model_Moderate())->getVisibleUnapprovedAlbums(0, 10, 'desc', $albums);
+		return (new ModerateModel())->getVisibleUnapprovedAlbums(0, 10, 'desc', $albums);
 	}
 
 	protected function blockReported_comments()
 	{
-		return (new LevGal_Model_Moderate())->getReportedComments(0, 10, 'desc');
+		return (new ModerateModel())->getReportedComments(0, 10, 'desc');
 	}
 
 	protected function blockReported_items()
 	{
-		return (new LevGal_Model_Moderate())->getReportedItems(0, 10, 'desc');
+		return (new ModerateModel())->getReportedItems(0, 10, 'desc');
 	}
 
 	public function actionUnapproved_comments()
 	{
-		global $context, $txt, $user_info, $modSettings, $scripturl;
+		global $context, $txt, $modSettings, $scripturl;
 
-		if (!allowedTo(array('lgal_manage', 'lgal_approve_comment')) && empty($modSettings['lgal_selfmod_approve_comment']))
+		if (!allowedTo(['lgal_manage', 'lgal_approve_comment']) && empty($modSettings['lgal_selfmod_approve_comment']))
 		{
-			LevGal_Helper_Http::fatalError('cannot_lgal_moderate');
+			Http::fatalError('cannot_lgal_moderate');
 		}
 
 		$this->addLinkTree($txt['levgal'], '?media/');
@@ -163,15 +175,15 @@ class LevGal_Action_Moderate extends LevGal_Action_Abstract
 		$this->setTemplate('LevGal-Moderate', 'moderate_unapproved_comments');
 
 		$context['page_title'] = $txt['levgal_unapproved_comments'];
-		$context['comments'] = array();
+		$context['comments'] = [];
 
 		// First, we need to know how many unapproved comments there are.
-		$moderate = new LevGal_Model_Moderate();
+		$moderate = new ModerateModel();
 		$comment_count = $moderate->getUnapprovedCommentsCount();
 
 		$per_page = 20;
 		$num_pages = ceil($comment_count / $per_page);
-		$this_page = isset($_GET['page']) ? LevGal_Bootstrap::clamp((int) $_GET['page'], 1, $num_pages) : 1;
+		$this_page = isset($_GET['page']) ? LevGalBootstrap::clamp((int) $_GET['page'], 1, $num_pages) : 1;
 		$context['pageindex'] = levgal_pageindex($scripturl . '?media/moderate/unapproved_comments/', $this_page, $num_pages);
 		if ($this_page > 1)
 		{
@@ -189,11 +201,11 @@ class LevGal_Action_Moderate extends LevGal_Action_Abstract
 				foreach ($context['comments'] as $id_comment => $comment)
 				{
 					// If we're here, we're able to see the item and approve it.
-					$context['comments'][$id_comment]['actions']['browse'] = array('url' => $comment['comment_url'], 'title' => $txt['levgal_comment_browse']);
-					$context['comments'][$id_comment]['actions']['approve'] = array('url' => $comment['comment_url'] . 'approve_unapproved/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'title' => $txt['levgal_comment_approve']);
-					if (allowedTo('lgal_delete_comment_any') || (allowedTo('lgal_delete_comment_own') && $comment['id_member'] == $user_info['id']) || (!empty($modSettings['lgal_selfmod_delete_comment']) && $comment['item_poster'] == $user_info['id']))
+					$context['comments'][$id_comment]['actions']['browse'] = ['url' => $comment['comment_url'], 'title' => $txt['levgal_comment_browse']];
+					$context['comments'][$id_comment]['actions']['approve'] = ['url' => $comment['comment_url'] . 'approve_unapproved/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'title' => $txt['levgal_comment_approve']];
+					if (allowedTo('lgal_delete_comment_any') || (allowedTo('lgal_delete_comment_own') && $comment['id_member'] == User::$info['id']) || (!empty($modSettings['lgal_selfmod_delete_comment']) && $comment['item_poster'] == User::$info['id']))
 					{
-						$context['comments'][$id_comment]['actions']['delete'] = array('url' => $comment['comment_url'] . 'delete_unapproved/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'title' => $txt['levgal_comment_delete']);
+						$context['comments'][$id_comment]['actions']['delete'] = ['url' => $comment['comment_url'] . 'delete_unapproved/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'title' => $txt['levgal_comment_delete']];
 					}
 				}
 			}
@@ -202,11 +214,11 @@ class LevGal_Action_Moderate extends LevGal_Action_Abstract
 
 	public function actionUnapproved_items()
 	{
-		global $context, $txt, $scripturl, $user_info, $modSettings;
+		global $context, $txt, $scripturl, $modSettings;
 
-		if (!allowedTo(array('lgal_manage', 'lgal_approve_item')) && empty($modSettings['lgal_selfmod_approve_item']))
+		if (!allowedTo(['lgal_manage', 'lgal_approve_item']) && empty($modSettings['lgal_selfmod_approve_item']))
 		{
-			LevGal_Helper_Http::fatalError('cannot_lgal_moderate');
+			Http::fatalError('cannot_lgal_moderate');
 		}
 
 		$this->addLinkTree($txt['levgal'], '?media/');
@@ -216,15 +228,15 @@ class LevGal_Action_Moderate extends LevGal_Action_Abstract
 		$this->setTemplate('LevGal-Moderate', 'moderate_unapproved_items');
 
 		$context['page_title'] = $txt['levgal_unapproved_items'];
-		$context['items'] = array();
+		$context['items'] = [];
 
 		// First, we need to know how many unapproved items there are.
-		$moderate = new LevGal_Model_Moderate();
+		$moderate = new ModerateModel();
 		$item_count = $moderate->getUnapprovedItemsCount();
 
 		$per_page = 20;
 		$num_pages = ceil($item_count / $per_page);
-		$this_page = isset($_GET['page']) ? LevGal_Bootstrap::clamp((int) $_GET['page'], 1, $num_pages) : 1;
+		$this_page = isset($_GET['page']) ? LevGalBootstrap::clamp((int) $_GET['page'], 1, $num_pages) : 1;
 		$context['pageindex'] = levgal_pageindex($scripturl . '?media/moderate/unapproved_items/', $this_page, $num_pages);
 		if ($this_page > 1)
 		{
@@ -234,7 +246,7 @@ class LevGal_Action_Moderate extends LevGal_Action_Abstract
 		if ($item_count > 0)
 		{
 			// Anyone who can manage or generically approve can approve in any album they can see. Failing that, it'll be inside their own albums only.
-			$albums = allowedTo(array('lgal_manage', 'lgal_approve_item')) ? $this->getVisibleAlbums() : $this->getUserAlbums();
+			$albums = allowedTo(['lgal_manage', 'lgal_approve_item']) ? $this->getVisibleAlbums() : $this->getUserAlbums();
 			if (!empty($albums))
 			{
 				$context['items'] = $moderate->getVisibleUnapprovedItems(($this_page - 1) * $per_page, $per_page, 'asc', $albums);
@@ -242,11 +254,11 @@ class LevGal_Action_Moderate extends LevGal_Action_Abstract
 				foreach ($context['items'] as $id_item => $item)
 				{
 					// If we're here, we're able to see the item and approve it.
-					$context['items'][$id_item]['actions']['browse'] = array('url' => $item['item_url'], 'title' => $txt['levgal_comment_browse']);
-					$context['items'][$id_item]['actions']['approve'] = array('url' => $item['item_url'] . 'approve_unapproved/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'title' => $txt['levgal_comment_approve']);
-					if (allowedTo('lgal_delete_item_any') || (allowedTo('lgal_delete_item_own') && $item['id_member'] == $user_info['id']))
+					$context['items'][$id_item]['actions']['browse'] = ['url' => $item['item_url'], 'title' => $txt['levgal_comment_browse']];
+					$context['items'][$id_item]['actions']['approve'] = ['url' => $item['item_url'] . 'approve_unapproved/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'title' => $txt['levgal_comment_approve']];
+					if (allowedTo('lgal_delete_item_any') || (allowedTo('lgal_delete_item_own') && $item['id_member'] == User::$info['id']))
 					{
-						$context['items'][$id_item]['actions']['delete'] = array('url' => $item['item_url'] . 'delete_unapproved/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'title' => $txt['levgal_comment_delete']);
+						$context['items'][$id_item]['actions']['delete'] = ['url' => $item['item_url'] . 'delete_unapproved/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'title' => $txt['levgal_comment_delete']];
 					}
 				}
 			}
@@ -257,9 +269,9 @@ class LevGal_Action_Moderate extends LevGal_Action_Abstract
 	{
 		global $context, $txt, $scripturl;
 
-		if (!allowedTo(array('lgal_manage', 'lgal_approve_album')))
+		if (!allowedTo(['lgal_manage', 'lgal_approve_album']))
 		{
-			LevGal_Helper_Http::fatalError('cannot_lgal_moderate');
+			Http::fatalError('cannot_lgal_moderate');
 		}
 
 		$this->addLinkTree($txt['levgal'], '?media/');
@@ -269,15 +281,15 @@ class LevGal_Action_Moderate extends LevGal_Action_Abstract
 		$this->setTemplate('LevGal-Moderate', 'moderate_unapproved_albums');
 
 		$context['page_title'] = $txt['levgal_unapproved_albums'];
-		$context['items'] = array();
+		$context['items'] = [];
 
 		// First, we need to know how many unapproved items there are.
-		$moderate = new LevGal_Model_Moderate();
+		$moderate = new ModerateModel();
 		$album_count = $moderate->getUnapprovedAlbumsCount();
 
 		$per_page = 20;
 		$num_pages = ceil($album_count / $per_page);
-		$this_page = isset($_GET['page']) ? LevGal_Bootstrap::clamp((int) $_GET['page'], 1, $num_pages) : 1;
+		$this_page = isset($_GET['page']) ? LevGalBootstrap::clamp((int) $_GET['page'], 1, $num_pages) : 1;
 		$context['pageindex'] = levgal_pageindex($scripturl . '?media/moderate/unapproved_albums/', $this_page, $num_pages);
 		if ($this_page > 1)
 		{
@@ -295,11 +307,11 @@ class LevGal_Action_Moderate extends LevGal_Action_Abstract
 				foreach ($context['albums'] as $id_album => $album)
 				{
 					// If we're here, we're able to see the album and approve it.
-					$context['albums'][$id_album]['actions']['browse'] = array('url' => $album['album_url'], 'title' => $txt['levgal_comment_browse']);
-					$context['albums'][$id_album]['actions']['approve'] = array('url' => $album['album_url'] . 'approve_unapproved/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'title' => $txt['levgal_comment_approve']);
+					$context['albums'][$id_album]['actions']['browse'] = ['url' => $album['album_url'], 'title' => $txt['levgal_comment_browse']];
+					$context['albums'][$id_album]['actions']['approve'] = ['url' => $album['album_url'] . 'approve_unapproved/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'title' => $txt['levgal_comment_approve']];
 					if (allowedTo('lgal_delete_album_any'))
 					{
-						$context['albums'][$id_album]['actions']['delete'] = array('url' => $album['album_url'] . 'delete_unapproved/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'title' => $txt['levgal_comment_delete']);
+						$context['albums'][$id_album]['actions']['delete'] = ['url' => $album['album_url'] . 'delete_unapproved/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'title' => $txt['levgal_comment_delete']];
 					}
 				}
 			}
@@ -339,15 +351,15 @@ class LevGal_Action_Moderate extends LevGal_Action_Abstract
 		$this->setTemplate('LevGal-Moderate', 'moderate_reported_comments');
 
 		$context['page_title'] = $context['open_reports'] ? $txt['levgal_reported_comments'] : $txt['lgal_closed_reported_comments'];
-		$context['comments'] = array();
+		$context['comments'] = [];
 
-		$report = new LevGal_Model_Report();
+		$report = new Report();
 		$count = $report->getReportCount('comments', $context['open_reports'] ? 'open' : 'closed');
-		$moderate = new LevGal_Model_Moderate();
+		$moderate = new ModerateModel();
 
 		$per_page = 20;
 		$num_pages = ceil($count / $per_page);
-		$this_page = isset($_GET['page']) ? LevGal_Bootstrap::clamp((int) $_GET['page'], 1, $num_pages) : 1;
+		$this_page = isset($_GET['page']) ? LevGalBootstrap::clamp((int) $_GET['page'], 1, $num_pages) : 1;
 		$context['pageindex'] = levgal_pageindex($scripturl . '?media/moderate/' . ($context['open_reports'] ? 'reported_comments' : 'reported_comments_closed') . '/', $this_page, $num_pages);
 		if ($this_page > 1)
 		{
@@ -355,18 +367,18 @@ class LevGal_Action_Moderate extends LevGal_Action_Abstract
 		}
 
 		// We're not invoking the beast that is createMenu, just a fraction of the markup.
-		$context['tabs'] = array(
-			array(
+		$context['tabs'] = [
+			[
 				'url' => $scripturl . '?media/moderate/reported_comments/',
 				'title' => $txt['lgal_open_reports'],
 				'active' => $context['open_reports'],
-			),
-			array(
+			],
+			[
 				'url' => $scripturl . '?media/moderate/reported_comments_closed/',
 				'title' => $txt['lgal_closed_reports'],
 				'active' => !$context['open_reports'],
-			),
-		);
+			],
+		];
 
 		if ($count > 0)
 		{
@@ -382,14 +394,14 @@ class LevGal_Action_Moderate extends LevGal_Action_Abstract
 			// And then the actions for each.
 			foreach ($context['comments'] as $id_report => $comment)
 			{
-				$context['comments'][$id_report]['actions']['browse'] = array('url' => $comment['report_url'], 'title' => $txt['lgal_see_report']);
+				$context['comments'][$id_report]['actions']['browse'] = ['url' => $comment['report_url'], 'title' => $txt['lgal_see_report']];
 				if ($context['open_reports'])
 				{
-					$context['comments'][$id_report]['actions']['close'] = array('url' => $scripturl . '?media/moderate/' . $id_report . '/close/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'title' => $txt['lgal_close_report']);
+					$context['comments'][$id_report]['actions']['close'] = ['url' => $scripturl . '?media/moderate/' . $id_report . '/close/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'title' => $txt['lgal_close_report']];
 				}
 				else
 				{
-					$context['comments'][$id_report]['actions']['open'] = array('url' => $scripturl . '?media/moderate/' . $id_report . '/open/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'title' => $txt['lgal_open_report']);
+					$context['comments'][$id_report]['actions']['open'] = ['url' => $scripturl . '?media/moderate/' . $id_report . '/open/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'title' => $txt['lgal_open_report']];
 				}
 			}
 		}
@@ -428,15 +440,15 @@ class LevGal_Action_Moderate extends LevGal_Action_Abstract
 		$this->setTemplate('LevGal-Moderate', 'moderate_reported_items');
 
 		$context['page_title'] = $context['open_reports'] ? $txt['levgal_reported_items'] : $txt['lgal_closed_reported_items'];
-		$context['items'] = array();
+		$context['items'] = [];
 
-		$report = new LevGal_Model_Report();
+		$report = new Report();
 		$count = $report->getReportCount('items', $context['open_reports'] ? 'open' : 'closed');
-		$moderate = new LevGal_Model_Moderate();
+		$moderate = new ModerateModel();
 
 		$per_page = 20;
 		$num_pages = ceil($count / $per_page);
-		$this_page = isset($_GET['page']) ? LevGal_Bootstrap::clamp((int) $_GET['page'], 1, $num_pages) : 1;
+		$this_page = isset($_GET['page']) ? LevGalBootstrap::clamp((int) $_GET['page'], 1, $num_pages) : 1;
 		$context['pageindex'] = levgal_pageindex($scripturl . '?media/moderate/' . ($context['open_reports'] ? 'reported_items' : 'reported_items_closed') . '/', $this_page, $num_pages);
 		if ($this_page > 1)
 		{
@@ -444,18 +456,18 @@ class LevGal_Action_Moderate extends LevGal_Action_Abstract
 		}
 
 		// We're not invoking the beast that is createMenu, just a fraction of the markup.
-		$context['tabs'] = array(
-			array(
+		$context['tabs'] = [
+			[
 				'url' => $scripturl . '?media/moderate/reported_items/',
 				'title' => $txt['lgal_open_reports'],
 				'active' => $context['open_reports'],
-			),
-			array(
+			],
+			[
 				'url' => $scripturl . '?media/moderate/reported_items_closed/',
 				'title' => $txt['lgal_closed_reports'],
 				'active' => !$context['open_reports'],
-			),
-		);
+			],
+		];
 
 		if ($count > 0)
 		{
@@ -471,14 +483,14 @@ class LevGal_Action_Moderate extends LevGal_Action_Abstract
 			// And then the actions for each.
 			foreach ($context['items'] as $id_report => $comment)
 			{
-				$context['items'][$id_report]['actions']['browse'] = array('url' => $comment['report_url'], 'title' => $txt['lgal_see_report']);
+				$context['items'][$id_report]['actions']['browse'] = ['url' => $comment['report_url'], 'title' => $txt['lgal_see_report']];
 				if ($context['open_reports'])
 				{
-					$context['items'][$id_report]['actions']['close'] = array('url' => $scripturl . '?media/moderate/' . $id_report . '/close/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'title' => $txt['lgal_close_report']);
+					$context['items'][$id_report]['actions']['close'] = ['url' => $scripturl . '?media/moderate/' . $id_report . '/close/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'title' => $txt['lgal_close_report']];
 				}
 				else
 				{
-					$context['items'][$id_report]['actions']['open'] = array('url' => $scripturl . '?media/moderate/' . $id_report . '/open/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'title' => $txt['lgal_open_report']);
+					$context['items'][$id_report]['actions']['open'] = ['url' => $scripturl . '?media/moderate/' . $id_report . '/open/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'title' => $txt['lgal_open_report']];
 				}
 			}
 		}
@@ -491,7 +503,7 @@ class LevGal_Action_Moderate extends LevGal_Action_Abstract
 		isAllowedTo('lgal_manage');
 
 		$report_id = $this->getNumericId();
-		$report = new LevGal_Model_Report();
+		$report = new Report();
 		if (!empty($report_id))
 		{
 			$context['report_details'] = $report->getReportById($report_id);
@@ -500,7 +512,7 @@ class LevGal_Action_Moderate extends LevGal_Action_Abstract
 		// Did we have a report?
 		if (empty($context['report_details']))
 		{
-			LevGal_Helper_Http::fatalError('lgal_report_not_found');
+			Http::fatalError('lgal_report_not_found');
 		}
 
 		$this->addLinkTree($txt['levgal'], '?media/');
@@ -541,18 +553,18 @@ class LevGal_Action_Moderate extends LevGal_Action_Abstract
 		$this->setTemplate('LevGal-Moderate', 'showreport');
 
 		// And set up the navigation. We're not invoking the beast that is createMenu, just a fraction of the markup.
-		$context['tabs'] = array(
-			array(
+		$context['tabs'] = [
+			[
 				'url' => $scripturl . '?media/moderate/reported_comments/',
 				'title' => $txt['lgal_open_reports'],
 				'active' => $report->isOpen(),
-			),
-			array(
+			],
+			[
 				'url' => $scripturl . '?media/moderate/reported_comments_closed/',
 				'title' => $txt['lgal_closed_reports'],
 				'active' => !$report->isOpen(),
-			),
-		);
+			],
+		];
 
 		// So, now we have to get the actual bodies of reports as well as any moderator comments.
 		$context['report_bodies'] = $report->getReportBodies();
@@ -560,25 +572,25 @@ class LevGal_Action_Moderate extends LevGal_Action_Abstract
 
 		$context['can_comment'] = $report->isOpen();
 
-		$context['report_actions'] = array();
+		$context['report_actions'] = [];
 		if ($report->isOpen())
 		{
-			$context['report_actions']['close'] = array('url' => $scripturl . '?media/moderate/' . $context['report_details']['id_report'] . '/close/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'title' => $txt['lgal_close_report']);
+			$context['report_actions']['close'] = ['url' => $scripturl . '?media/moderate/' . $context['report_details']['id_report'] . '/close/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'title' => $txt['lgal_close_report']];
 		}
 		else
 		{
-			$context['report_actions']['open'] = array('url' => $scripturl . '?media/moderate/' . $context['report_details']['id_report'] . '/open/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'title' => $txt['lgal_open_report']);
+			$context['report_actions']['open'] = ['url' => $scripturl . '?media/moderate/' . $context['report_details']['id_report'] . '/open/' . $context['session_var'] . '=' . $context['session_id'] . '/', 'title' => $txt['lgal_open_report']];
 		}
 	}
 
 	public function actionComment()
 	{
-		global $context, $user_info;
+		global $context;
 
 		isAllowedTo('lgal_manage');
 
 		$report_id = $this->getNumericId();
-		$report = new LevGal_Model_Report();
+		$report = new Report();
 		if (!empty($report_id))
 		{
 			$context['report_details'] = $report->getReportById($report_id);
@@ -587,26 +599,26 @@ class LevGal_Action_Moderate extends LevGal_Action_Abstract
 		// Did we have a report?
 		if (empty($context['report_details']))
 		{
-			LevGal_Helper_Http::fatalError('lgal_report_not_found');
+			Http::fatalError('lgal_report_not_found');
 		}
 
 		// Is it open?
 		if (!$report->isOpen())
 		{
-			LevGal_Helper_Http::fatalError('lgal_cannot_comment');
+			Http::fatalError('lgal_cannot_comment');
 		}
 
-		$mod_comment = LevGal_Helper_Sanitiser::sanitiseTextFromPost('mod_comment');
+		$mod_comment = Sanitiser::sanitiseTextFromPost('mod_comment');
 		// We're going back the same way whatever... but only if we have something do we need to do anything with it.
 		if (!empty($mod_comment))
 		{
 			checkSession();
 
-			$report->addComment(array(
-				'id_member' => $user_info['id'],
-				'member_name' => $user_info['name'],
+			$report->addComment([
+				'id_member' => User::$info['id'],
+				'member_name' => User::$info['name'],
 				'comment' => $mod_comment,
-			));
+			]);
 		}
 
 		redirectexit($context['report_details']['report_url']);
@@ -620,7 +632,7 @@ class LevGal_Action_Moderate extends LevGal_Action_Abstract
 		checkSession('get');
 
 		$report_id = $this->getNumericId();
-		$report = new LevGal_Model_Report();
+		$report = new Report();
 		if (!empty($report_id))
 		{
 			$report_details = $report->getReportById($report_id);
@@ -629,7 +641,7 @@ class LevGal_Action_Moderate extends LevGal_Action_Abstract
 		// Did we have a report? Is it open?
 		if (empty($report_details) || !$report->isOpen())
 		{
-			LevGal_Helper_Http::fatalError('lgal_report_not_found');
+			Http::fatalError('lgal_report_not_found');
 		}
 
 		// OK, so close it and figure out where we should be going.
@@ -647,7 +659,7 @@ class LevGal_Action_Moderate extends LevGal_Action_Abstract
 		checkSession('get');
 
 		$report_id = $this->getNumericId();
-		$report = new LevGal_Model_Report();
+		$report = new Report();
 		if (!empty($report_id))
 		{
 			$report_details = $report->getReportById($report_id);
@@ -656,7 +668,7 @@ class LevGal_Action_Moderate extends LevGal_Action_Abstract
 		// Did we have a report? Is it open?
 		if (empty($report_details) || $report->isOpen())
 		{
-			LevGal_Helper_Http::fatalError('lgal_report_not_found');
+			Http::fatalError('lgal_report_not_found');
 		}
 
 		// OK, so close it and figure out where we should be going.

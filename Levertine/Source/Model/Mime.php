@@ -4,16 +4,22 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.1 / elkarte
+ * @version 2.0.0 / elkarte
  */
+
+namespace Addons\Levertine\Source\Model;
+
+use Addons\Levertine\Source\Model\Mime\Extension;
+use ElkArte\Helper\FileFunctions;
 
 /**
  * This file deals with discovering the MIME type of a file.
  */
-class LevGal_Model_Mime
+class Mime
 {
 	/** @var string */
 	private $filepath;
+
 	/** @var string */
 	private $filename;
 
@@ -23,10 +29,19 @@ class LevGal_Model_Mime
 		$this->filename = $filename;
 	}
 
+	/**
+	 * Determines the MIME type of the file associated with the current object.
+	 * This method attempts multiple approaches to identify the MIME type,
+	 * including checking the file extension, using PHP's finfo and mime_content_type functions,
+	 * executing external commands, and inspecting image metadata.
+	 *
+	 * @return string|false The resolved MIME type as a string if successful, or false if the file does not
+	 * exist or the type cannot be determined.
+	 */
 	public function getMimeType()
 	{
-		// FILE_NOT_FOUND? (TDWTF would be proud.)
-		if (!file_exists($this->filepath))
+		// FILE_NOT_FOUND?
+		if (FileFunctions::instance()->fileExists($this->filepath))
 		{
 			return false;
 		}
@@ -56,6 +71,28 @@ class LevGal_Model_Mime
 			}
 		}
 
+		// Lets begin to panic and try an exec call
+		if (function_exists('exec'))
+		{
+			$type = @exec("/usr/bin/file -i -b $this->filepath");
+			if ($type !== false && trim($type) !== '')
+			{
+				return $this->handleResponse($type);
+			}
+		}
+
+		// Should be able to get images correct, right?
+		if (function_exists('getimagesize'))
+		{
+			$type = @getimagesize($this->filepath);
+
+			// Can't get it, what shall we return
+			if (!empty($type['mime']))
+			{
+				return $this->handleResponse($type['mime']);
+			}
+		}
+
 		// Lastly, extension.
 		return $this->getMimeTypeFromExtension();
 	}
@@ -63,12 +100,12 @@ class LevGal_Model_Mime
 	protected function handleResponse($type)
 	{
 		// Strip parameters if any, we probably don't want them.
-		return strpos($type, ';') !== false ? trim(substr($type, 0, strpos($type, ';'))) : trim($type);
+		return str_contains($type, ';') ? trim(substr($type, 0, strpos($type, ';'))) : trim($type);
 	}
 
 	protected function getMimeTypeFromExtension()
 	{
-		$mime_types = LevGal_Model_Mime_Extension::getExtensionList();
+		$mime_types = Extension::getExtensionList();
 
 		$ext = strtolower(substr(strrchr($this->filename, '.'), 1));
 

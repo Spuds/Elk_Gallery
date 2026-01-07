@@ -4,13 +4,15 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 2.0.0 / elkarte
  */
+
+namespace Addons\Levertine\Source\Model\Mime;
 
 /**
  * This file deals with specific exceptions on top of getID3.
  */
-class LevGal_Model_Mime_Rules
+class Rules
 {
 	/** @var array */
 	private $id3;
@@ -49,7 +51,7 @@ class LevGal_Model_Mime_Rules
 				}
 				break;
 			case 'video/quicktime':
-				if (in_array($this->extension, array('m4v', 'mp4')))
+				if (in_array($this->extension, ['m4v', 'mp4']))
 				{
 					$mime_type = 'video/mp4';
 				}
@@ -75,7 +77,7 @@ class LevGal_Model_Mime_Rules
 
 		if ($extensions === null)
 		{
-			$extensions = LevGal_Model_Mime_Extension::getExtensionList();
+			$extensions = Extension::getExtensionList();
 		}
 
 		return $extensions[$this->extension] ?? 'application/octet-stream';

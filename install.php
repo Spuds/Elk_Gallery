@@ -4,7 +4,7 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 2.0.0 / elkarte
  */
 
 /**
@@ -56,23 +56,8 @@ foreach ($new_settings as $k => $v)
 
 // Hook references to be added.
 $hooks = array();
-$hooks[] = array('hook' => 'integrate_pre_include', 'function' => 'SOURCEDIR/levgal_src/LevGal-Bootstrap.php');
-$hooks[] = array('hook' => 'integrate_pre_load', 'function' => 'LevGal_Bootstrap::initialize');
-
-// Hook references to remove.  During adaption/testing some were mistaking added as
-// permanent so we clean them up during new install
-$hooksRemove = array();
-$hooksRemove[] = array('hook' => 'redirect', 'function' => 'LevGal_Bootstrap::hookRedirect', 'file' => '');
-$hooksRemove[] = array('hook' => 'actions', 'function' => 'LevGal_Bootstrap::hookActions', 'file' => '');
-$hooksRemove[] = array('hook' => 'menu_buttons', 'function' => 'LevGal_Bootstrap::hookButtons', 'file' => '');
-$hooksRemove[] = array('hook' => 'additional_bbc', 'function' => 'LevGal_Bootstrap::hookBbcCodes', 'file' => '');
-$hooksRemove[] = array('hook' => 'bbc_codes', 'function' => 'LevGal_Bootstrap::hookBbcCodes', 'file' => '');
-$hooksRemove[] = array('hook' => 'delete_member', 'function' => 'LevGal_Model_Member::deleteMember', 'file' => '');
-$hooksRemove[] = array('hook' => 'delete_members', 'function' => 'LevGal_Model_Member::deleteMembers', 'file' => '');
-$hooksRemove[] = array('hook' => 'delete_membergroups', 'function' => 'LevGal_Model_Group::deleteGroup', 'file' => '');
-$hooksRemove[] = array('hook' => 'action_mentions_before' , 'function' => 'LevGal_Bootstrap::hookLanguage', 'file' => '');
-$hooksRemove[] = array('hook' => 'integrate_admin_areas', 'function' => 'levgal_admin_bootstrap', 'file' => 'SOURCEDIR/levgal_src/ManageLevGal.php');
-$hooksRemove[] = array('hook' => 'integrate_profile_areas', 'function' => 'LevGalProfile_Controller::LevGal_profile', 'file' => '');
+$hooks[] = array('hook' => 'integrate_pre_include', 'function' => 'ADDONSDIR/Levertine/Source/LevGalBootstrap.php');
+$hooks[] = array('hook' => 'integrate_pre_load', 'function' => '\ADDONS\Levertine\Source\LevGalBootstrap::initialize');
 
 // Now, we move on to adding new tables to the database.
 $tables = array();
@@ -604,7 +589,7 @@ foreach ($new_columns as $column)
 	// Table exists (previous install) and the column does not
 	if ($db_table->table_exists($column['table_name']) && !$db_table->column_exists($column['column_name']))
 	{
-		$db_table->db_add_column($column['table_name'], $column['column_info'], $column['parameters'], $column['if_exists'], $column['error']);
+		$db_table->add_column($column['table_name'], $column['column_info'], $column['parameters'], $column['if_exists'], $column['error']);
 	}
 }
 
@@ -629,7 +614,7 @@ foreach ($tables as $table)
 		$table['parameters'] = array();
 	}
 
-	$db_table->db_create_table($table['table_name'], $table['columns'], $table['indexes'], $table['parameters'], $table['if_exists'], $table['error']);
+	$db_table->create_table($table['table_name'], $table['columns'], $table['indexes'], $table['parameters'], $table['if_exists'], $table['error']);
 
 	foreach ($table['columns'] as $table_info)
 	{
@@ -692,7 +677,7 @@ foreach ($rows as $row)
 // Create new columns, if any
 foreach ($columns as $column)
 {
-	$db_table->db_add_column($column['table_name'], $column['column_info'], $column['parameters'], $column['if_exists'], $column['error']);
+	$db_table->add_column($column['table_name'], $column['column_info'], $column['parameters'], $column['if_exists'], $column['error']);
 }
 
 // Add integration hooks, if any
@@ -730,7 +715,7 @@ function db_field($name, $type, $size = 0, $unsigned = true, $auto = false, $def
 		'varchar' => array(
 			'auto' => false,
 			'type' => 'varchar',
-			'size' => $size == 0 ? 50 : $size,
+			'size' => $size === 0 ? 50 : $size,
 			'null' => false,
 		),
 		'text' => array(

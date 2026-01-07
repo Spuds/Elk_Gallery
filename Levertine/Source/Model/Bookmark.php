@@ -4,32 +4,36 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.1.1 / elkarte
+ * @version 2.0.0 / elkarte
  */
+
+namespace Addons\Levertine\Source\Model;
+
+use Addons\Levertine\Source\Helper\Format;
+use ElkArte\Cache\Cache;
+use ElkArte\User;
 
 /**
  * This file deals with items that users have bookmarked.
  */
-class LevGal_Model_Bookmark
+class Bookmark
 {
 	/** @var array  */
 	private $cache;
 
 	public function __construct()
 	{
-		$this->cache = array();
+		$this->cache = [];
 	}
 
 	public function getBookmarksForUser($user = 0)
 	{
-		global $user_info;
-
 		$db = database();
 
-		$user = empty($user) ? $user_info['id'] : $user;
+		$user = empty($user) ? User::$info['id'] : $user;
 		if (empty($user))
 		{
-			return array();
+			return [];
 		}
 
 		if (isset($this->cache[$user]))
@@ -39,24 +43,24 @@ class LevGal_Model_Bookmark
 
 		$cache_key = 'lgal_bookmarks_u' . $user;
 		$cache_ttl = 120;
-		if (($cache = cache_get_data($cache_key, $cache_ttl)) === null)
+		if (($cache = Cache::instance()->get($cache_key, $cache_ttl)) === null)
 		{
 			$request = $db->query('', '
 				SELECT id_item, timestamp
 				FROM {db_prefix}lgal_bookmarks
 				WHERE id_member = {int:user}',
-				array(
+				[
 					'user' => $user,
-				)
+				]
 			);
-			$cache = array();
-			while ($row = $db->fetch_assoc($request))
+			$cache = [];
+			while ($row = $request->fetch_assoc())
 			{
 				$cache[$row['id_item']] = $row['timestamp'];
 			}
-			$db->free_result($request);
+			$request->free_result();
 
-			cache_put_data($cache_key, $cache, $cache_ttl);
+			Cache::instance()->put($cache_key, $cache, $cache_ttl);
 		}
 		$this->cache[$user] = $cache;
 
@@ -65,9 +69,7 @@ class LevGal_Model_Bookmark
 
 	public function isBookmarked($item, $user = 0)
 	{
-		global $user_info;
-
-		$user = empty($user) ? $user_info['id'] : $user;
+		$user = empty($user) ? User::$info['id'] : $user;
 		if (empty($user))
 		{
 			return false;
@@ -95,11 +97,9 @@ class LevGal_Model_Bookmark
 
 	public function setBookmark($item, $user = 0)
 	{
-		global $user_info;
-
 		$db = database();
 
-		$user = empty($user) ? $user_info['id'] : $user;
+		$user = empty($user) ? User::$info['id'] : $user;
 		if (empty($user))
 		{
 			return false;
@@ -117,9 +117,9 @@ class LevGal_Model_Bookmark
 			$time = time();
 			$db->insert('replace',
 				'{db_prefix}lgal_bookmarks',
-				array('id_member' => 'int', 'id_item' => 'int', 'timestamp' => 'int'),
-				array($user, $item, $time),
-				array('id_member', 'id_item')
+				['id_member' => 'int', 'id_item' => 'int', 'timestamp' => 'int'],
+				[$user, $item, $time],
+				['id_member', 'id_item']
 			);
 			$this->cache[$user][$item] = $time;
 		}
@@ -131,11 +131,9 @@ class LevGal_Model_Bookmark
 
 	public function unsetBookmark($item, $user = 0)
 	{
-		global $user_info;
-
 		$db = database();
 
-		$user = empty($user) ? $user_info['id'] : $user;
+		$user = empty($user) ? User::$info['id'] : $user;
 		if (empty($user))
 		{
 			return false;
@@ -154,10 +152,10 @@ class LevGal_Model_Bookmark
 				DELETE FROM {db_prefix}lgal_bookmarks
 				WHERE id_member = {int:user}
 					AND id_item = {int:item}',
-				array(
+				[
 					'user' => $user,
 					'item' => $item,
-				)
+				]
 			);
 		}
 
@@ -169,38 +167,38 @@ class LevGal_Model_Bookmark
 	public function resetUserCache($user)
 	{
 		$cache_key = 'lgal_bookmarks_u' . $user;
-		cache_put_data($cache_key, null, 120);
+		Cache::instance()->put($cache_key, null);
 	}
 
 	public function getBookmarkList($user = 0)
 	{
-		global $user_info, $scripturl;
+		global $scripturl;
 
-		$user = empty($user) ? $user_info['id'] : $user;
+		$user = empty($user) ? User::$info['id'] : $user;
 		if (empty($user))
 		{
-			return array();
+			return [];
 		}
 
-		$bookmarks = array();
+		$bookmarks = [];
 
 		$this->getBookmarksForUser($user);
 		if (empty($this->cache[$user]))
 		{
-			return array();
+			return [];
 		}
 
 		// Sort by timestamp while retaining ids.
 		asort($this->cache[$user]);
 
-		$item_list = new LevGal_Model_ItemList();
+		$item_list = new ItemList();
 		$items = $item_list->getItemsById(array_keys($this->cache[$user]));
 
 		foreach ($this->cache[$user] as $id_item => $timestamp)
 		{
 			if (isset($items[$id_item]))
 			{
-				$bookmarks[$id_item] = array(
+				$bookmarks[$id_item] = [
 					'item_name' => $items[$id_item]['item_name'],
 					'item_url' => $items[$id_item]['item_url'],
 					'item_thumbnail' => $items[$id_item]['thumbnail'],
@@ -209,19 +207,19 @@ class LevGal_Model_Bookmark
 					'poster_name' => $items[$id_item]['poster_name'],
 					'poster_link' => !empty($items[$id_item]['id_member']) ? '<a href="' . $scripturl . '?action=profile;u=' . $items[$id_item]['id_member'] . '">' . $items[$id_item]['poster_name'] . '</a>' : $items[$id_item]['poster_name'],
 					'item_added' => $items[$id_item]['time_added'],
-					'item_added_format' => LevGal_Helper_Format::time($items[$id_item]['time_added']),
+					'item_added_format' => Format::time($items[$id_item]['time_added']),
 					'bookmark_timestamp' => $timestamp,
-					'bookmark_timestamp_format' => LevGal_Helper_Format::time($timestamp),
+					'bookmark_timestamp_format' => Format::time($timestamp),
 					'num_views' => comma_format($items[$id_item]['num_views']),
 					'num_comments' => comma_format($items[$id_item]['num_comments']),
-				);
+				];
 			}
 		}
 
 		return $bookmarks;
 	}
 
-	public function removeAllBookmarksFromItem($item = array())
+	public function removeAllBookmarksFromItem($item = [])
 	{
 		$db = database();
 
@@ -234,9 +232,9 @@ class LevGal_Model_Bookmark
 		$db->query('', '
 			DELETE FROM {db_prefix}lgal_bookmarks
 			WHERE id_item IN ({array_int:item})',
-			array(
+			[
 				'item' => $item,
-			)
+			]
 		);
 	}
 
@@ -247,9 +245,9 @@ class LevGal_Model_Bookmark
 		$db->query('', '
 			DELETE FROM {db_prefix}lgal_bookmarks
 			WHERE id_member = {int:id_member}',
-			array(
+			[
 				'id_member' => $memID,
-			)
+			]
 		);
 	}
 }

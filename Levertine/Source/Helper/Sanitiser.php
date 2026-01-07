@@ -4,13 +4,18 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 2.0.0 / elkarte
  */
+
+namespace Addons\Levertine\Source\Helper;
+
+use Addons\Levertine\Source\LevGalBootstrap;
+use ElkArte\Helper\Util;
 
 /**
  * This file deals with certain sanitising instructions.
  */
-class LevGal_Helper_Sanitiser
+class Sanitiser
 {
 	public static function sanitiseSlugFromPost($var)
 	{
@@ -21,7 +26,7 @@ class LevGal_Helper_Sanitiser
 	{
 		// We don't do htmlspecialchars because we have different plans for it.
 		// In fact, we just start with stripping easy cases - convert space or _ to - and lowercase it.
-		$var = strtolower(strtr($var, array(' ' => '-', '_' => '-')));
+		$var = strtolower(strtr($var, [' ' => '-', '_' => '-']));
 		// Strip all the characters we don't accept - we accept the following: a-z0-9%-
 		$var = preg_replace('~[^a-z0-9%-]+~', '', $var);
 		// Strip duplicates
@@ -33,9 +38,9 @@ class LevGal_Helper_Sanitiser
 	public static function sanitiseUrl($var)
 	{
 		// Soft-fix domains without any kind of schema, because users may not be nice about it.
-		if (strpos($var, 'http://') !== 0 && strpos($var, 'https://') !== 0)
+		if (!str_starts_with($var, 'http://') && !str_starts_with($var, 'https://'))
 		{
-			$var = (strpos($var, '//') === 0 ? 'https:' : 'https://') . $var;
+			$var = (str_starts_with($var, '//') ? 'https:' : 'https://') . $var;
 		}
 
 		return filter_var(trim($var), FILTER_VALIDATE_URL);
@@ -55,7 +60,7 @@ class LevGal_Helper_Sanitiser
 	{
 		// htmlspecialchars it, strip icky whitespace, cut to length.
 		$var = Util::htmlspecialchars(trim($var));
-		$var = strtr($var, array("\r" => '', "\n" => '', "\t" => ''));
+		$var = strtr($var, ["\r" => '', "\n" => '', "\t" => '']);
 		$var = preg_replace('~\s+~', ' ', $var);
 		// account for php_urlencode ' ' => '+'
 		$var = preg_replace('~([\w&_-])[+]([\w&_-])~u', '$1 $2', $var);
@@ -101,7 +106,7 @@ class LevGal_Helper_Sanitiser
 		$var = (int) $var;
 		if (!empty($min) && !empty($max))
 		{
-			$var = LevGal_Bootstrap::clamp($var, $min, $max);
+			$var = LevGalBootstrap::clamp($var, $min, $max);
 		}
 
 		return $var;
@@ -125,7 +130,7 @@ class LevGal_Helper_Sanitiser
 		$username = self::sanitiseTextFromPost($var, 30);
 		require_once(SUBSDIR . '/Members.subs.php');
 
-		return array(!empty($username) && !isReservedName($username, 0, true, false), $username);
+		return [!empty($username) && !isReservedName($username, 0, true, false), $username];
 	}
 
 	public static function sanitiseEmailFromPost($var)
@@ -140,11 +145,11 @@ class LevGal_Helper_Sanitiser
 			// So we have a valid email address. Let's see if it would be banned.
 			isBannedEmail($sanitised, 'cannot_post', sprintf($txt['you_are_post_banned'], $txt['guest_title']));
 
-			return array(true, $sanitised);
+			return [true, $sanitised];
 		}
 
 		// Oh dear, not even sanitisable? Let's make sure we return something so that we
 		// can redisplay whatever the user did enter back into the form for them to get it right.
-		return array(false, Util::htmlspecialchars($email, ENT_QUOTES));
+		return [false, Util::htmlspecialchars($email, ENT_QUOTES)];
 	}
 }

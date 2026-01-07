@@ -4,35 +4,42 @@
  * @copyright 2014 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 2.0.0 / elkarte
  */
+
+namespace Addons\Levertine\Source\Helper;
+
+use ElkArte\Helper\Util;
 
 /**
  * This file deals with handling feeds, typically Atom.
  */
-class LevGal_Helper_Feed
+class Feed
 {
 	/** @var string */
 	public $title = '';
+
 	/** @var string */
 	public $subtitle = '';
+
 	/** @var string */
 	public $id = '';
+
 	/** @var string */
 	public $alternateUrl = '';
+
 	/** @var string */
 	public $selfUrl = '';
+
 	/** @var array */
 	private $entries;
+
 	/** @var int */
 	private $updated = 0;
 
 	public function __construct()
 	{
-		// We need the functions for juggling tags.
-		require_once(CONTROLLERDIR . '/News.controller.php');
-
-		$this->entries = array();
+		$this->entries = [];
 	}
 
 	public function outputFeed()
@@ -120,12 +127,12 @@ class LevGal_Helper_Feed
 	{
 		global $context;
 
-		$the_item = array(
+		$the_item = [
 			'title' => cdata_parse($item['title']),
 			'link' => $item['link'],
 			'content' => cdata_parse($item['content']),
 			'category' => $item['category'],
-		);
+		];
 		if (empty($item['author']))
 		{
 			$the_item['author'] = $context['forum_name'];
@@ -167,7 +174,7 @@ class LevGal_Helper_Feed
 	{
 		global $modSettings;
 
-		ob_end_clean();
+		@ob_end_clean();
 		if (!empty($modSettings['enableCompressedOutput']))
 		{
 			@ob_start('ob_gzhandler');
@@ -185,11 +192,6 @@ class LevGal_Helper_Feed
 
 	private function getTimestamp($time = 0)
 	{
-		if (method_exists('Util', 'gmstrftime'))
-		{
-			return Util::gmstrftime('%Y-%m-%dT%H:%M:%SZ', $time === 0 ? time() : $time);
-		}
-
-		return gmstrftime('%Y-%m-%dT%H:%M:%SZ', $time === 0 ? time() : $time);
+		return Util::gmstrftime('%Y-%m-%dT%H:%M:%SZ', $time === 0 ? time() : $time);
 	}
 }
