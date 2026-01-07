@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.2 / elkarte
+ * @version 1.2.3 / elkarte
  */
 
 use BBC\ParserWrapper;
@@ -1353,12 +1353,14 @@ class LevGal_Model_Item extends LevGal_Model_File
 		return false;
 	}
 
-	public function getPreviousNext($order_by = 'id_item')
+	public function getPreviousNext($order_by, $direction)
 	{
 		global $scripturl;
 
 		$can_see_all = $this->current_album->canSeeAllItems();
-		$items = $this->getItemListByAlbum($this->current_item['id_album'], $can_see_all, true, $order_by);
+		$order_by = empty($order_by) ? 'id_item' : $order_by;
+		$direction = empty($direction) || $direction === 'desc';
+		$items = $this->getItemListByAlbum($this->current_item['id_album'], $can_see_all, $direction, $order_by);
 		if (empty($items))
 		{
 			return array();
