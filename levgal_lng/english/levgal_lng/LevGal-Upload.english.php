@@ -34,7 +34,7 @@ $txt['lgal_allowed_format_generic'] = '<em><strong>Others</strong></em>: %1$s';
 $txt['lgal_allowed_external'] = 'You can add items from: %1$s';
 
 // Single uploading:
-$txt['lgal_item_name_and_slug_auto'] = 'Item name and link/permalink will be created for you when adding a file, or you may enter a custom one.';
+$txt['lgal_item_name_and_slug_auto'] = '<strong>Item name and permalink</strong> will be <u>created for you</u> when adding a file, or you may enter a custom one.';
 $txt['lgal_item_press_browse'] = 'To upload, press the browse button - ';
 $txt['lgal_item_drag_here'] = '<strong>Drag a file</strong> here to queue for upload, or <strong>click</strong> to select one.';
 $txt['lgal_item_drag_replace'] = '<strong>Drag a file</strong> here to replace the existing, or <strong>click</strong> to select a new one.';
@@ -60,6 +60,7 @@ $txt['lgal_mark_mature'] = 'Mark item as mature?';
 $txt['lgal_enable_comments'] = 'Enable comments on this item?';
 $txt['lgal_enable_notify'] = 'Notify me of comments on this item?';
 $txt['lgal_item_is_approved'] = 'Mark item as approved?';
+$txt['lgal_silent_update'] = 'Silent Update?';
 
 $txt['lgal_edit_item_comments'] = 'Item comments:';
 $txt['lgal_comments_enabled'] = 'Allowed';

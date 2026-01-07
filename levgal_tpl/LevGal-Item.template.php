@@ -8,7 +8,7 @@
  * @license LGPL (v3)
  * @since 1.0
  *
- * @version 1.2.2 / elkarte
+ * @version 1.2.3 / elkarte
  */
 
 function template_main_item_view()
@@ -1012,7 +1012,7 @@ function template_edit_item()
 						<dd>
 							<input type="text" id="item_name" name="item_name" tabindex="', $context['tabindex']++, '" size="80" maxlength="80" class="input_text" value="', $context['item_name'], '" style="width: 95%;" />
 						</dd>
-						<dt class="clear_left">', $txt['lgal_item_slug'], '<br /><span class="smalltext">', $txt['lgal_item_slug_note'], '</span></dt>
+						<dt class="clear_left">', $txt['lgal_item_slug'], '</dt>
 						<dd>
 							<span class="smalltext">', $scripturl, '?media/item/</span>
 							<input type="text" id="item_slug" name="item_slug" tabindex="', $context['tabindex']++, '" size="20" maxlength="40" class="input_text" value="', $context['item_slug'], '" />
