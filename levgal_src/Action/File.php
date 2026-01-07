@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.0 / elkarte
+ * @version 1.2.3 / elkarte
  */
 
 /**
@@ -310,6 +310,7 @@ class LevGal_Action_File extends LevGal_Action_Abstract
 		$disposition = $this->is_downloading ? 'attachment' : 'inline';
 
 		$fileName = str_replace('"', '',  $this->file_details['filename']);
+		$fileName = preg_replace('~(?<=[a-z0-9])[+\-](?=[a-z0-9])~i', ' ', $fileName);
 
 		// Send as UTF-8 if the name requires that
 		$altName = '';
