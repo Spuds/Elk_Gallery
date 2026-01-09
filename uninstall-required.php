@@ -131,6 +131,17 @@ toggleMentionsVisibility('lgcomment', false);
 toggleMentionsVisibility('lgnew', false);
 toggleMentionsVisibility('lglike', false);
 
+// Hook references to be removed.
+$hooks = array();
+$hooks[] = array('hook' => 'integrate_pre_include', 'function' => 'ADDONSDIR/Levertine/Source/LevGalBootstrap.php');
+$hooks[] = array('hook' => 'integrate_pre_load', 'function' => '\ADDONS\Levertine\Source\LevGalBootstrap::initialize');
+
+// Hook removal
+foreach ($hooks as $hook)
+{
+	remove_integration_function($hook['hook'], $hook['function'], $hook['file']);
+}
+
 function matchTable($table_name)
 {
 	global $db_prefix;
