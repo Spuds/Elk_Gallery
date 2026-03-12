@@ -3,14 +3,13 @@
 [![Open Issues](https://img.shields.io/github/issues/Spuds/Elk_Gallery.svg?style=flat)](https://github.com/Spuds/Elk_Gallery/issues)
 [![Current Release](https://img.shields.io/github/release/Spuds/Elk_Gallery.svg?style=flat)](https://github.com/Spuds/Elk_Gallery/releases)
 [![License](https://img.shields.io/badge/License-LGPL3-green.svg?style=flat)](https://opensource.org/license/lgpl-3-0/)
-[![Build Status](https://scrutinizer-ci.com/g/Spuds/SimplePortal_ElkArte/badges/build.png?b=myDevel)](https://scrutinizer-ci.com/g/Spuds/SimplePortal_ElkArte/build-status/myDevel)
 [![Downloads](https://img.shields.io/github/downloads/Spuds/Elk_Gallery/total)](https://github.com/Spuds/Elk_Gallery/releases)
-[![GitHub commits](https://img.shields.io/github/commits-since/Spuds/Elk_Gallery/1.2.2.svg)](https://github.com/Spuds/Elk_Gallery/commit/)
+[![GitHub commits](https://img.shields.io/github/commits-since/Spuds/Elk_Gallery/1.2.3.svg)](https://github.com/Spuds/Elk_Gallery/commit/)
 
 
 ## This is Levertine Gallery for the ElkArte 2.0+ Forum platform.
 
-### Levertine Gallery is a modern gallery solution for ElkArte 1.1.7+
+### Levertine Gallery is a modern gallery solution for ElkArte 2.0+
 
 ### Features
 - Supports uploading huge files out of the box - no matter what your server configuration is.
@@ -34,3 +33,18 @@ Of course, all the fundamental things you might expect as well, including:
 - __Searching__ with many parameters options to help find what you want fast!
 
 All come as standard and are ready to go as soon as you install and start uploading items!
+
+### Screenshots
+
+| Main Gallery | Albums | Item View |
+|:---:|:---:|:---:|
+| ![Main Gallery](sample_images/main.jpg?raw=true "Main Gallery") | ![Albums](sample_images/album.jpg?raw=true "Albums") | ![Item View](sample_images/item.jpg?raw=true "Item View") |
+
+### Installation
+
+1. Download the latest release package (`.zip`) from the [Releases](https://github.com/Spuds/Elk_Gallery/releases) page.
+2. Log into your ElkArte Admin Panel and navigate to **Admin → Addon Manager**.
+3. Upload the `.zip` package and follow the on-screen installation prompts.
+4. Once installed, navigate to **Admin → Levertine Gallery** to configure settings, set quotas, and enable media types.
+
+> **Requires:** ElkArte 2.0 or higher.
