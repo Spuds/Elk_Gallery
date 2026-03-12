@@ -8,7 +8,9 @@
 [![GitHub commits](https://img.shields.io/github/commits-since/Spuds/Elk_Gallery/1.2.2.svg)](https://github.com/Spuds/Elk_Gallery/commit/)
 
 
-## Levertine Gallery is a modern gallery solution for ElkArte 1.1.7+
+## This is Levertine Gallery for the ElkArte 2.0+ Forum platform.
+
+### Levertine Gallery is a modern gallery solution for ElkArte 1.1.7+
 
 ### Features
 - Supports uploading huge files out of the box - no matter what your server configuration is.
@@ -18,7 +20,7 @@
 - Robust quota system, customizable by member/group/media type and more.
 - Albums can be made for members, for groups or for the site as a whole. Whatever your community needs, LevGal has you covered. Albums can also be owned by multiple members (or groups) - good for collaboration between members for example.
 - Members can rearrange their albums with a handy drag and drop interface! Even if two members both jointly own an album, their preferences for album arrangement are kept for them.
-- LevGal comes with its own bbcode's, [media] and [clear] to handle putting images in posts, quickly and easily. Common links to items (including the bbcode) are shown on every item page, complete with a little "copy to clipboard" button to easily copy the link code for you. There are also integrated social sharing options built right in too!
+- LevGal comes with its own BBCode's, [media] and [clear] to handle putting images in posts, quickly and easily. Common links to items (including the bbcode) are shown on every item page, complete with a little "copy to clipboard" button to easily copy the link code for you. There are also integrated social sharing options built right in too!
 
 ### Fundamentals
 Of course, all the fundamental things you might expect as well, including:

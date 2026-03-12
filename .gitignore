@@ -1,2 +1,7 @@
-/tests/Dockerfile
 *.log
+.idea
+elk_levertine_*.zip
+/composer.phar
+.gitignore
+/.idea
+/sample_images
