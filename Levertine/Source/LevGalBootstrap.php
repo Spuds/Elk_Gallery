@@ -677,8 +677,8 @@ class LevGalBootstrap
 					}
 					[$sort, $direction] = explode('|', $albumDetails['sort']);
 
-					// Fetching up to 25 items from the album
-					$albumItems = $album->loadAlbumItems(25, 0, $sort, $direction);
+					// Fetching up to 40 items from the album
+					$albumItems = $album->loadAlbumItems(40, 0, $sort, $direction);
 
 					if (empty($context['lgal_embeds']))
 					{
