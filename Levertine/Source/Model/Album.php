@@ -1370,6 +1370,9 @@ class Album
 			]
 		);
 
+		// This album may have never been approved
+		$this->updateUnapprovedCount();
+
 		// This is notification only of deleting album.
 		call_integration_hook('integrate_lgal_delete_album', [$this->current_album['id_album']]);
 	}
