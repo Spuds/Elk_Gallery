@@ -1,7 +1,7 @@
 *.log
-.idea
 elk_levertine_*.zip
 /composer.phar
-.gitignore
-/.idea
-/sample_images
+/.idea/
+/sample_images/
+/custom/
+.DS_Store
