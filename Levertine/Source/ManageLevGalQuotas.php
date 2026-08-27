@@ -127,7 +127,7 @@ class ManageLevGalQuotas extends AbstractController
 			'video' => ['m4v', 'ogv', 'mov', 'webm', 'mkv'],
 			'document' => ['doc', 'xls', 'ppt', 'pdf', 'txt', 'html', 'xml'],
 			'archive' => ['zip', 'rar', 'targz', '7z', 'dmg', 'sit', 'lz'],
-			'generic' => ['exe', 'ttf'],
+			'generic' => ['exe', 'ttf', 'stl'],
 			'external' => ['youtube', 'vimeo', 'dailymotion', 'metacafe'],
 		];
 		$context['selected_file_types'] = [];

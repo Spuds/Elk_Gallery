@@ -172,6 +172,7 @@ class Upload
 				'sti', 'sxi', // StarOffice/OpenOffice Impress
 			],
 			'targz' => ['tar', 'gz', 'tgz', 'bz2', 'tbz2', 'z'],
+			'step' => ['stp'],
 			'ttf' => ['otf'],
 			'xls' => [
 				'xla', 'xlam', 'xll', 'xlm', 'xlw', 'xlsb', 'xlsm', 'xlsx', 'xlt', 'xltm', 'xltx', // MS Excel

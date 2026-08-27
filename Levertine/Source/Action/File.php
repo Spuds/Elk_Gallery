@@ -217,20 +217,56 @@ class File extends LevGalAbstract
 	{
 		global $modSettings;
 
-		if (preg_match('~bytes=\h*(\d+)-(\d*)[\D.*]?~i', $_SERVER['HTTP_RANGE'], $matches))
+		$file_size = (int) $this->file_details['filesize'];
+		$last_byte = max(0, $file_size - 1);
+		$range_header = trim($_SERVER['HTTP_RANGE']);
+
+		// We only serve one range at a time; if a client asks for many, use the first.
+		if (str_contains($range_header, ','))
 		{
-			// Can't start before the end of the file
+			[$range_header] = explode(',', $range_header, 2);
+			$range_header = trim($range_header);
+		}
+
+		// Handle explicit ranges: bytes=start-end or bytes=start-
+		if (preg_match('~^bytes=\h*(\d+)-(\d*)\h*$~i', $range_header, $matches))
+		{
 			$this->file_start = (int) $matches[1];
-			if (!empty($matches[2]))
+
+			if ($this->file_start >= $file_size)
 			{
-				$this->file_end = (int) $matches[2];
+				header('Content-Range: bytes */' . $file_size);
+				Http::setResponseExit(416);
 			}
-			if ($this->file_start > $this->file_end)
+
+			if ($matches[2] !== '')
 			{
-				$temp = $this->file_end;
-				$this->file_end = $this->file_start;
-				$this->file_start = $temp;
+				$requested_end = (int) $matches[2];
+				if ($requested_end < $this->file_start)
+				{
+					header('Content-Range: bytes */' . $file_size);
+					Http::setResponseExit(416);
+				}
+
+				$this->file_end = min($requested_end, $last_byte);
 			}
+			else
+			{
+				$this->file_end = $last_byte;
+			}
+		}
+		// Also support suffix ranges: bytes=-N
+		elseif (preg_match('~^bytes=\h*-(\d+)\h*$~i', $range_header, $matches))
+		{
+			$suffix_length = (int) $matches[1];
+			if ($suffix_length <= 0)
+			{
+				header('Content-Range: bytes */' . $file_size);
+				Http::setResponseExit(416);
+			}
+
+			$this->file_start = $suffix_length >= $file_size ? 0 : $file_size - $suffix_length;
+			$this->file_end = $last_byte;
 		}
 		else
 		{
@@ -238,18 +274,14 @@ class File extends LevGalAbstract
 			Http::setResponseExit(400);
 		}
 
-		// Check it's in bounds.
-		if ($this->file_start > $this->file_details['filesize'] || $this->file_end > $this->file_details['filesize'])
-		{
-			Http::setResponseExit(416);
-		}
-
 		// Attempt to be all funky and cap the size being sent. Except on iOS which gets very upset if we try this.
+		$chunk_size = !empty($modSettings['lgal_chunk_size']) ? (int) $modSettings['lgal_chunk_size'] : 0;
 		if (!empty($_SERVER['HTTP_USER_AGENT'])
 			&& !str_contains($_SERVER['HTTP_USER_AGENT'], 'AppleCoreMedia')
-			&& $this->file_end - $this->file_start + 1 > $modSettings['lgal_chunk_size'])
+			&& $chunk_size > 0
+			&& $this->file_end - $this->file_start + 1 > $chunk_size)
 		{
-			$this->file_end = $this->file_start + ($modSettings['lgal_chunk_size'] - 1);
+			$this->file_end = min($this->file_start + ($chunk_size - 1), $last_byte);
 		}
 
 		Http::setResponse(206);
@@ -260,7 +292,6 @@ class File extends LevGalAbstract
 	protected function setStandardHeaders()
 	{
 		header_remove('Pragma');
-		header('Content-Encoding: none');
 		header('Accept-Ranges: bytes');
 		header('Connection:Keep-Alive');
 		header('Content-Length: ' . ($this->file_end - $this->file_start + 1));

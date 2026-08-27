@@ -50,8 +50,6 @@
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
-  -webkit-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0);
 }
 
 .glightbox-container .gslide {
@@ -430,7 +428,6 @@
   top: -1px;
   left: 0;
   background: #000;
-  will-change: opacity;
 }
 
 .glightbox-mobile .goverlay {

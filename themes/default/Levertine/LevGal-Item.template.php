@@ -614,7 +614,7 @@ function template_main_item_commentbox()
 	if ($context['display_comment_reply'] === 'approval')
 	{
 		echo '
-						<div class="centertext">', $txt['levgal_comment_waiting_approval'], '</div>';
+						<div class="infobox">', $txt['levgal_comment_waiting_approval'], '</div>';
 	}
 
 	$comment_box->displayEditWindow();

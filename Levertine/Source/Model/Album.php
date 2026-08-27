@@ -11,6 +11,7 @@ namespace Addons\Levertine\Source\Model;
 
 use Addons\Levertine\Source\LevGalBootstrap;
 use BBC\ParserWrapper;
+use ElkArte\Cache\Cache;
 use ElkArte\Helper\Util;
 use ElkArte\MembersList;
 use ElkArte\Notifications\Notifications;
@@ -1223,6 +1224,8 @@ class Album
 			]
 		);
 
+		Cache::instance()->clean('data');
+
 		return true;
 	}
 
@@ -1310,6 +1313,12 @@ class Album
 				// We would rather have the unserialized version, kthx.
 				$this->current_album['owner_cache'] = $opts['owner_cache'];
 			}
+
+			// If we are updating permissions, ownership or approval, we need to clear the access cache.
+			if (isset($opts['perms']) || isset($opts['owner_cache']) || isset($opts['approved']))
+			{
+				Cache::instance()->clean('data');
+			}
 		}
 
 		if (isset($opts['album_name'], $opts['description']))
@@ -1375,6 +1384,8 @@ class Album
 
 		// This is notification only of deleting album.
 		call_integration_hook('integrate_lgal_delete_album', [$this->current_album['id_album']]);
+
+		Cache::instance()->clean('data');
 	}
 
 	public function getAlbumFamily($depth = 1)

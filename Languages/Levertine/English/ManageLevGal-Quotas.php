@@ -98,6 +98,7 @@ $txt['lgal_enable_generic'] = 'Allow users to upload other kinds of files';
 $txt['lgal_allowed_types_generic'] = 'Other types of file users are allowed to upload';
 $txt['lgal_generic_exe'] = 'Executable/binary files (.bin, .dll, .exe)';
 $txt['lgal_generic_ttf'] = 'Font files (.ttf, .otf)';
+$txt['lgal_generic_stl'] = '3D Print files (.stl, .stp, .step, .obj, .3mf)';
 
 $txt['levgal_quotas_external_title'] = 'External Sites';
 $txt['levgal_quotas_external_title_short'] = 'External';

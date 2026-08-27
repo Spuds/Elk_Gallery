@@ -32,7 +32,7 @@ class Verify
 			'id' => $this->id,
 		];
 
-		$context['require_verification'] = VerificationControlsIntegrate::create($verificationOptions, true);
+		$context['require_verification'] = VerificationControlsIntegrate::create($verificationOptions, $do_test);
 		$context['visual_verification_id'] = $verificationOptions['id'];
 	}
 

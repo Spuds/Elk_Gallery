@@ -55,9 +55,12 @@ foreach ($new_settings as $k => $v)
 // pre-existing off values, which are not purged from the DB.
 
 // Hook references to be added.
-$hooks = array();
+$hooks = [];
 $hooks[] = array('hook' => 'integrate_pre_include', 'function' => 'ADDONSDIR/Levertine/Source/LevGalBootstrap.php');
 $hooks[] = array('hook' => 'integrate_pre_load', 'function' => '\ADDONS\Levertine\Source\LevGalBootstrap::initialize');
+
+// Placeholder
+$hooksRemove = [];
 
 // Now, we move on to adding new tables to the database.
 $tables = array();

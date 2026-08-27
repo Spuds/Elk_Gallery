@@ -94,7 +94,7 @@ class Embed
 
 	public function setAlign($align)
 	{
-		$this->align = in_array($align, ['left', 'center', 'right']) ? $align : 'center';
+		$this->align = in_array($align, ['left', 'center', 'right']) ? $align : 'none';
 
 		return $this;
 	}
@@ -307,9 +307,33 @@ class Embed
 	{
 		global $txt;
 
+		if ($item['item_type'] === 'video')
+		{
+			return '
+			<div class="lg_item">
+				<video class="lgal_post_video_player" playsinline controls preload="metadata">
+					<source src="' . $item['item_base'] . '" type="' . $item['mime_type'] . '">
+					Sorry, your browser doesn\'t support embedded videos
+				</video>
+			</div>';
+		}
+
+		if ($item['item_type'] === 'audio')
+		{
+			return '
+			<div class="lg_item">
+				<audio class="lgal_audio_player" controls preload="metadata">
+					<source src="' . $item['item_base'] . '" type="' . $item['mime_type'] . '">
+					Sorry, your browser doesn\'t support embedded audio
+				</audio>
+			</div>';
+		}
+
 		if ($item['item_type'] === 'image')
 		{
 			// For lightbox functionality, we need unique id's and message groupings for group navigation
+
+
 			return '
 			<figure class="item_image">
 				<a href="' . $item['item_base'] . '" id="link_' . $counter . 'm" data-lightboximage="' . $counter . 'm" data-lightboxmessage="' . $item['id_msg'] . '">
@@ -324,7 +348,7 @@ class Embed
 		}
 
 		return '
-		<a href="' . $item['item_url'] . '" class="bbc_link">
+		<a href="' . $item['item_url'] . '" class="item_image">
 			<img src="' . $item['thumbnail'] . '" class="bbc_img" alt="' . $item['item_name'] . '" title="' . $item['item_name'] . '" loading="lazy" />
 		</a>';
 	}
@@ -344,14 +368,14 @@ class Embed
 		global $txt;
 
 		$caption = !empty($item['description']) ? $item['description'] : $item['item_name'];
-		$align = $item['align'] === 'center' ? '<figure class="centertext">' : '<figure style="float:' . $item['align'] . '">';
+		$align = $item['align'] === 'none' ? '<figure class="lgal_attachment_block">' : ($item['align'] === 'center' ? '<figure class="lgal_attachment_block centertext">' : '<figure class="lgal_attachment_block" style="float:' . $item['align'] . '">');
 		$using = $item['type'] === 'preview' ? $item['preview'] : $item['thumbnail'];
 
 		// Process [media align=xxx]123[/media] as a "simple" aligned
 		if ($item['type'] === 'preview')
 		{
 			$caption = '
-				<figcaption class="centertext smalltext" style="max-width:100%">
+			<figcaption class="centertext smalltext" style="max-width:100%">
 				<a class="bbc_link" href="' . $item['item_url'] . '" >' .
 				($caption === '_lgal_simple_' ? '' : '<i class="icon i-help" title="' . $txt['lgal_item_info'] . '"></i>' . $caption) . '
 				</a>
@@ -361,7 +385,7 @@ class Embed
 		{
 			$caption = '
 			<figcaption class="centertext smalltext" style="max-width:100%">
-				<a class="bbc_link" href="' . $item['item_url'] . '" >
+				<a class="attachment_name" href="' . $item['item_url'] . '" >
 					<i class="icon i-help" title="' . $txt['lgal_item_info'] . '"></i>' .
 					$caption . '
 				</a>
@@ -390,13 +414,9 @@ class Embed
 
 		return
 			$align . '
-				<a href="' . $item['item_url'] . '" class="bbc_link">
+				<a href="' . $item['item_url'] . '" class="item_image">
 					<img class="bbc_img" src="' . $using . '" alt="' . $item['item_name'] . '" title="' . $item['item_name'] . '" loading="lazy" />
-				</a>
-				<figcaption>
-					<a class="bbc_link" href="' . $item['item_url'] . '" >' . $caption . '</a>
-				</figcaption>	
-			</figure>';
+				</a>' . $caption . '</figure>';
 	}
 
 	/**

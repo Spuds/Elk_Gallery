@@ -68,7 +68,7 @@ class LevGalBootstrap
 			'lgal_items_per_page' => 24,
 			'lgal_dir' => '$boarddir/lgal_items',
 			'lgal_max_space' => '100M',
-			'lgal_chunk_size' => 524288,
+			'lgal_chunk_size' => 1024 * 1024,
 			'lgal_selfmod_approve_item' => 0,
 			'lgal_selfmod_approve_comment' => 0,
 			'lgal_selfmod_edit_comment' => 0,

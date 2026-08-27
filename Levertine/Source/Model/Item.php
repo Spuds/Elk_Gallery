@@ -68,6 +68,8 @@ class Item extends File
 			$this->current_item = $request->fetch_assoc();
 			$this->current_item['id_item'] = (int) $this->current_item['id_item'];
 			$this->current_item['id_album'] = (int) $this->current_item['id_album'];
+			$this->current_item['comment_state'] = (int) $this->current_item['comment_state'];
+			$this->current_item['mature'] = (int) $this->current_item['mature'];
 			censor($this->current_item['item_name']);
 			$this->current_item['description_raw'] = $this->current_item['description'];
 			censor($this->current_item['description']);
@@ -314,6 +316,7 @@ class Item extends File
 				'_audio' => ['flac', 'mp3', 'm4a', 'oga', 'ogg', 'wav'],
 				'_binary' => ['bin', 'dll', 'exe'],
 				'_font' => ['otf', 'ttf'],
+				'_printable' => ['stl', '3mf', 'step', 'stp'], // 3D printable files
 				'_image' => ['gif', 'iff', 'jpeg', 'jpg', 'webp', 'lbm', 'mng', 'png', 'psd', 'tiff', 'tif'],
 				'_video' => ['ogv', 'm4v', 'mp4', 'mov', 'qt', 'mqv', 'webm', 'mkv'],
 				'doc' => [
@@ -1052,7 +1055,12 @@ class Item extends File
 		ModLog::logEvent('delete_item', ['item_name' => $this->current_item['item_name']]);
 
 		// Lastly, nuke the item itself.
+		$id_album = $this->current_item['id_album'];
 		$this->current_item = false;
+
+		Cache::instance()->remove('lgal_itemlist_a' . $id_album);
+		Cache::instance()->remove('lgal_itemlist_a' . $id_album . '_all');
+		Cache::instance()->remove('lgal_itemlist_a' . $id_album . '_guest');
 
 		return true;
 	}
@@ -1131,6 +1139,10 @@ class Item extends File
 			// Send a hook to notify people.
 			$item_info['id_item'] = $id;
 			call_integration_hook('integrate_lgal_create_item', [$item_info]);
+
+			Cache::instance()->remove('lgal_itemlist_a' . $item_info['id_album']);
+			Cache::instance()->remove('lgal_itemlist_a' . $item_info['id_album'] . '_all');
+			Cache::instance()->remove('lgal_itemlist_a' . $item_info['id_album'] . '_guest');
 		}
 
 		return $id;
@@ -1238,6 +1250,13 @@ class Item extends File
 			if (isset($original_meta))
 			{
 				$this->current_item['meta'] = $original_meta;
+			}
+
+			if (isset($opts['approved']))
+			{
+				Cache::instance()->remove('lgal_itemlist_a' . $this->current_item['id_album']);
+				Cache::instance()->remove('lgal_itemlist_a' . $this->current_item['id_album'] . '_all');
+				Cache::instance()->remove('lgal_itemlist_a' . $this->current_item['id_album'] . '_guest');
 			}
 		}
 
