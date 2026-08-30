@@ -139,7 +139,7 @@ $hooks[] = array('hook' => 'integrate_pre_load', 'function' => '\ADDONS\Levertin
 // Hook removal
 foreach ($hooks as $hook)
 {
-	remove_integration_function($hook['hook'], $hook['function'], $hook['file']);
+	remove_integration_function($hook['hook'], $hook['function'], $hook['file'] ?? '');
 }
 
 function matchTable($table_name)
@@ -147,11 +147,10 @@ function matchTable($table_name)
 	global $db_prefix;
 	static $table_list = null;
 
-	$db = database();
-
 	if ($table_list === null)
 	{
-		$table_list = $db->list_tables();
+		$db_dump = db_dump();
+		$table_list = $db_dump->list_tables();
 	}
 
 	$real_prefix = preg_match('~^(`?)(.+?)\\1\\.(.*?)$~', $db_prefix, $match) === 1 ? $match[3] : $db_prefix;
