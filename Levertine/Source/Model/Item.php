@@ -316,7 +316,7 @@ class Item extends File
 				'_audio' => ['flac', 'mp3', 'm4a', 'oga', 'ogg', 'wav'],
 				'_binary' => ['bin', 'dll', 'exe'],
 				'_font' => ['otf', 'ttf'],
-				'_printable' => ['stl', '3mf', 'step', 'stp'], // 3D printable files
+				'_printable' => ['stl', '3mf', 'step', 'stp'], // 3D-printable files
 				'_image' => ['gif', 'iff', 'jpeg', 'jpg', 'webp', 'lbm', 'mng', 'png', 'psd', 'tiff', 'tif'],
 				'_video' => ['ogv', 'm4v', 'mp4', 'mov', 'qt', 'mqv', 'webm', 'mkv'],
 				'doc' => [

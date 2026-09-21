@@ -100,7 +100,7 @@ abstract class LevGalAbstract
 			$item['url'] = ($url[0] === '?' ? $scripturl : '') . $url;
 		}
 
-		$context['linktree'][] = $item;
+		$context['breadcrumbs'][] = $item;
 	}
 
 	public function addStyleSheets($stylesheets)

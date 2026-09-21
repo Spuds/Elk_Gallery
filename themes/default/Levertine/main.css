@@ -1,6 +1,7 @@
 /**
  This is the CSS for Levertine Gallery (LTR) v2.0.0
 **/
+/*
 :root {
 	--shadow-color: rgba(158, 158, 158, .38);
 	--shadow-elevation-low: 0.3px 0.5px 0.7px var(--shadow-color),
@@ -19,7 +20,7 @@
 	17px 33.9px 42.7px -2.1px var(--shadow-color),
 	25px 50px 62.9px -2.5px var(--shadow-color);
 }
-
+*/
 /* overall container when sidebar is present */
 #gallery_contain {
 	font-size: 1em;
@@ -39,7 +40,6 @@
 	border: 1px solid #CCCCCC;
 	border-top-color: #DDDDDD;
 	background: #FAFAFA linear-gradient(to bottom, #FAFAFA, #EBEBEB);
-	text-shadow: 1px 1px 0 #FEFEFE;
 	grid-column: main;
 	grid-row: tabs;
 }
@@ -1053,20 +1053,8 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 }
 
 /* Use these to change colors of SVG icons when starting from fill #000000 */
-.colorize-blue {
-	filter: invert(20%) sepia(68%) saturate(7230%) hue-rotate(200deg) brightness(89%) contrast(102%);
-}
-
 .colorize-gold {
 	filter: invert(84%) sepia(30%) saturate(7466%) hue-rotate(10deg) brightness(115%) contrast(111%);
-}
-
-.colorize-yellow {
-	filter: invert(92%) sepia(37%) saturate(7500%) hue-rotate(355deg) brightness(104%) contrast(104%);
-}
-
-.colorize-orange {
-	filter: invert(45%) sepia(95%) saturate(3147%) hue-rotate(6deg) brightness(96%) contrast(101%);
 }
 
 .colorize-light-orange {
@@ -1075,14 +1063,6 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 
 .colorize-dark-yellow {
 	filter: invert(40%) sepia(59%) saturate(3071%) hue-rotate(38deg) brightness(92%) contrast(101%);
-}
-
-.colorize-red {
-	filter: invert(21%) sepia(71%) saturate(7474%) hue-rotate(355deg) brightness(100%) contrast(102%);
-}
-
-.colorize-green {
-	filter: invert(47%) sepia(97%) saturate(3399%) hue-rotate(92deg) brightness(101%) contrast(104%);
 }
 
 .i-rss {

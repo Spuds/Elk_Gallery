@@ -446,7 +446,7 @@ class LevGalBootstrap
 					if (!empty($button['amount']))
 					{
 						$temp_buttons['media']['sub_buttons']['moderation']['sub_buttons'][$id]['alttitle'] = $temp_buttons['media']['sub_buttons']['moderation']['sub_buttons'][$id]['title'] . ' [' . $button['amount'] . ']';
-						$temp_buttons['media']['sub_buttons']['moderation']['sub_buttons'][$id]['title'] .= ' [<strong>' . $button['amount'] . '</strong>]';
+						$temp_buttons['media']['sub_buttons']['moderation']['sub_buttons'][$id]['title'] .= ' [' . $button['amount'] . ']';
 					}
 				}
 

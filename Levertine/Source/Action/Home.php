@@ -85,7 +85,7 @@ class Home extends LevGalAbstract
 		}
 		if (!$context['user']['is_guest'] && !empty(User::$settings['lgal_unseen']))
 		{
-			$context['gallery_actions']['actions']['new'] = [$txt['levgal_unseen'] . ' [<strong>' . User::$settings['lgal_unseen'] . '</strong>]', $scripturl . '?media/unseen/', 'tab' => true];
+			$context['gallery_actions']['actions']['new'] = [$txt['levgal_unseen'] . ' [' . User::$settings['lgal_unseen'] . ']', $scripturl . '?media/unseen/', 'tab' => true];
 		}
 
 		$context['gallery_actions']['actions']['search'] = [$txt['levgal_search'], $scripturl . '?media/search/', 'tab' => true];
