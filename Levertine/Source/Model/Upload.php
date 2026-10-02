@@ -486,7 +486,11 @@ class Upload
 		}
 
 		$filename = $this->sanitizeFilename($filename);
-		$fileID = $_POST['dzuuid'] ?? $_POST['async'];
+		$fileID = (string) ($_POST['dzuuid'] ?? $_POST['async']);
+		if (!preg_match('~^[a-zA-Z0-9_-]+$~', $fileID))
+		{
+			return $this->errorAsyncFile('invalid', 0);
+		}
 
 		// If we're not chunking, or we're on the first one, validate
 		if ($chunks === 1 || ($chunks > 1 && $chunk === 0))
@@ -521,6 +525,12 @@ class Upload
 
 	public function combineChunks($fileID, $chunks, $filename)
 	{
+		$fileID = (string) $fileID;
+		if (!preg_match('~^[a-zA-Z0-9_-]+$~', $fileID))
+		{
+			return $this->errorAsyncFile('invalid', 0);
+		}
+
 		$path = LevGalBootstrap::getGalleryDir();
 		$user_ident = $this->getUserIdentifier();
 		$in = $path . '/async_' . $user_ident . '_' . $fileID . '_part_*.dat';
@@ -529,28 +539,43 @@ class Upload
 		$iterator = new GlobIterator($in, FilesystemIterator::SKIP_DOTS | FilesystemIterator::KEY_AS_FILENAME);
 		if (!$iterator->count() || $iterator->count() !== $chunks)
 		{
-			return $this->errorAsyncFile( 'not_found', $fileID);
+			return $this->errorAsyncFile('not_found', $fileID);
 		}
 
 		// Combine the chunks in the correct order
 		$success = true;
 		$out = $path . '/async_' . $user_ident . '_' . $fileID . '.dat';
+		$outHandle = @fopen($out, 'wb');
+		if ($outHandle === false)
+		{
+			return $this->errorAsyncFile('not_found', $fileID);
+		}
 
 		for ($i = 0; $i < $chunks; $i++)
 		{
-			$in = $path . '/async_' . $user_ident . '_' . $fileID . '_part_' . $i . '.dat';
-			$writeResult = file_put_contents($out, file_get_contents($in), LOCK_EX | FILE_APPEND);
-			if ($writeResult === false)
+			$inChunk = $path . '/async_' . $user_ident . '_' . $fileID . '_part_' . $i . '.dat';
+			$inHandle = @fopen($inChunk, 'rb');
+			if ($inHandle === false)
 			{
 				$success = false;
 			}
+			else
+			{
+				if (stream_copy_to_stream($inHandle, $outHandle) === false)
+				{
+					$success = false;
+				}
+				fclose($inHandle);
+			}
 
-			@unlink($in);
+			@unlink($inChunk);
 		}
+
+		fclose($outHandle);
 
 		if (!$success)
 		{
-			return $this->errorAsyncFile( 'not_found', $fileID);
+			return $this->errorAsyncFile('not_found', $fileID);
 		}
 
 		return ['id' => $fileID, 'code' => ''];
@@ -558,6 +583,12 @@ class Upload
 
 	public function validateUpload($fileID, $size, $filename)
 	{
+		$fileID = (string) $fileID;
+		if (!preg_match('~^[a-zA-Z0-9_-]+$~', $fileID))
+		{
+			return 'upload_no_validate';
+		}
+
 		// This is hardly bulletproof but we'll see.
 		$size = (int) $size;
 
