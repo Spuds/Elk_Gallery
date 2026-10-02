@@ -12,8 +12,6 @@ namespace Addons\Levertine\Source\Model;
 use Addons\Levertine\Source\Helper\Format;
 use ElkArte\Cache\Cache;
 use ElkArte\User;
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
 
 /**
  * This file deals with getting information about the gallery as a whole from a statistical point of view.
@@ -94,25 +92,18 @@ class Stats
 
 	public function getTotalGallerySize()
 	{
-		global $modSettings;
-
-		if (!class_exists('RecursiveIteratorIterator'))
-		{
-			return false;
-		}
-
 		if (($temp = Cache::instance()->get('lgal_file_size', 500)) === null)
 		{
-			$temp = 0;
-			$path = realpath(strtr($modSettings['lgal_dir'] . '/files/', ['$boarddir' => BOARDDIR]));
-			$objects = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path), RecursiveIteratorIterator::SELF_FIRST);
-			foreach ($objects as $name => $object)
-			{
-				if (!is_dir($name))
-				{
-					$temp += $object->getSize();
-				}
-			}
+			// This is the total size of all files in the gallery, in bytes.
+			$db = database();
+			$request = $db->query('', '
+				SELECT SUM(filesize)
+				FROM {db_prefix}lgal_items'
+			);
+			[$temp] = $request->fetch_row();
+			$request->free_result();
+
+			$temp = (int) $temp;
 			Cache::instance()->put('lgal_file_size', $temp, 500);
 		}
 
