@@ -604,7 +604,7 @@ function template_main_item_commentbox()
 
 	echo '
 				<div>
-					<form action="', $context['form_url'], '#postmodify" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" onsubmit="submitonce(this);smc_saveEntities(\'postmodify\', [\'', $comment_box->getId(), '\']);" enctype="multipart/form-data">';
+					<form action="', $context['form_url'], '#postmodify" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" onsubmit="submitonce(this);elk_saveEntities(\'postmodify\', [\'', $comment_box->getId(), '\']);" enctype="multipart/form-data">';
 
 	if (!empty($context['comment_errors']))
 	{
@@ -1008,7 +1008,7 @@ function template_edit_item()
 
 	echo '
 			<h3 class="lgal_secondary_header secondary_header">', $context['page_title'], '</h3>
-			<form action="', $context['form_url'], '" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" onsubmit="submitonce(this);smc_saveEntities(\'postmodify\', [\'item_name\', \'item_slug\', \'', $context['description_box']->getId(), '\', \'guest_username\'], \'options\');" enctype="multipart/form-data">
+			<form action="', $context['form_url'], '" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" onsubmit="submitonce(this);elk_saveEntities(\'postmodify\', [\'item_name\', \'item_slug\', \'', $context['description_box']->getId(), '\', \'guest_username\'], \'options\');" enctype="multipart/form-data">
 				<div class="well">';
 
 	// If an error occurred, explain what happened.

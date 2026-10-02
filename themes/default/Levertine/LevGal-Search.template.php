@@ -48,7 +48,7 @@ function template_search()
 						</li>
 						<li class="lefttext clear_left">';
 
-	foreach (array('search_album_names', 'search_album_descs', 'search_item_names', 'search_item_descs') as $type)
+	foreach (['search_album_names', 'search_album_descs', 'search_item_names', 'search_item_descs'] as $type)
 	{
 		echo '
 							<label>
@@ -107,7 +107,7 @@ function template_search()
 
 	// Selecting an album with collapse joy.
 	echo '
-				<h4 class="lgal_secondary_header secondary_header">
+				<h4 class="secondary_header">
 					<span id="search_toggle" class="toggle_down"></span>';
 
 	echo '
@@ -157,7 +157,7 @@ function template_search()
 		</form>
 		<script src="', $settings['default_theme_url'], '/scripts/suggest.js"></script>
 		<script>
-	var oMemberSuggest = new smc_AutoSuggest({
+	var oMemberSuggest = new elk_AutoSuggest({
 		sSelf: \'oMemberSuggest\',
 		sSessionId: \'', $context['session_id'], '\',
 		sSessionVar: \'', $context['session_var'], '\',
@@ -182,7 +182,7 @@ function template_search()
 					{
 						sItemId: ', JavaScriptEscape($id_member), ',
 						sItemName: ', JavaScriptEscape($member_name), '
-					}', $i == $count ? '' : ',';
+					}', $i === $count ? '' : ',';
 		}
 	}
 
@@ -254,7 +254,7 @@ function template_display_subalbum($title, $albumlist, $identifier)
 
 	foreach ($albumlist as $album)
 	{
-		if ($i == $limit)
+		if ($i === $limit)
 		{
 			echo '
 								</ul>

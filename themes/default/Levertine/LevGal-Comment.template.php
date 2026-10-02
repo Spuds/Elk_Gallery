@@ -19,7 +19,7 @@ function template_editcomment()
 	$comment_box = $context['comment_box'];
 
 	echo '
-		<form action="', $context['form_url'], '" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" onsubmit="submitonce(this);smc_saveEntities(\'postmodify\', [\'', $comment_box->getId(), '\']);" enctype="multipart/form-data">
+		<form action="', $context['form_url'], '" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" onsubmit="submitonce(this);elk_saveEntities(\'postmodify\', [\'', $comment_box->getId(), '\']);" enctype="multipart/form-data">
 			<h3 class="lgal_secondary_header secondary_header">', $context['display_title'], '</h3>
 			<div class="well">';
 

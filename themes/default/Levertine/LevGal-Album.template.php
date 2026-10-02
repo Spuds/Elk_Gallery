@@ -656,7 +656,7 @@ function template_add_single_item()
 			<h3 class="lgal_secondary_header secondary_header">
 				', $context['page_title'], '
 			</h3>
-			<form action="', $context['album_details']['album_url'], 'add/" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" onsubmit="submitonce(this);smc_saveEntities(\'postmodify\', [\'item_name\', \'item_slug\', \'', $description_box->getId(), '\', \'guest_username\'], \'options\');" enctype="multipart/form-data">
+			<form action="', $context['album_details']['album_url'], 'add/" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" onsubmit="submitonce(this);elk_saveEntities(\'postmodify\', [\'item_name\', \'item_slug\', \'', $description_box->getId(), '\', \'guest_username\'], \'options\');" enctype="multipart/form-data">
 			<div>
 				<div class="well">';
 
@@ -1654,7 +1654,7 @@ function template_add_owner_member()
 
 	echo '
 	<script>
-		var oAddMemberSuggest = new smc_AutoSuggest({
+		var oAddMemberSuggest = new elk_AutoSuggest({
 		sSelf: \'oAddMemberSuggest\',
 		sSessionId: \'', $context['session_id'], '\',
 		sSessionVar: \'', $context['session_var'], '\',
@@ -1838,7 +1838,7 @@ function template_change_type()
 
 	echo '
 	<script>
-	var oOwnershipMemberSuggest = new smc_AutoSuggest({
+	var oOwnershipMemberSuggest = new elk_AutoSuggest({
 		sSelf: \'oOwnershipMemberSuggest\',
 		sSessionId: \'', $context['session_id'], '\',
 		sSessionVar: \'', $context['session_var'], '\',
