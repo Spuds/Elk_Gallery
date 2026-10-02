@@ -27,15 +27,16 @@ class File
 	public function getFileInfoById($itemId)
 	{
 		$db = database();
+		$itemId = (int) $itemId;
 
 		// It's a uint, anything like this can disappear.
-		if ($itemId < 0)
+		if ($itemId <= 0)
 		{
 			return false;
 		}
 
 		// This can be called multiple times, potentially, for the same album.
-		if (!empty($this->current_item['id_item']) && $itemId = $this->current_item['id_item'])
+		if (!empty($this->current_item['id_item']) && $itemId === (int) $this->current_item['id_item'])
 		{
 			return $this->current_item;
 		}
