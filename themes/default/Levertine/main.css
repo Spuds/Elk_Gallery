@@ -202,6 +202,10 @@ dl.album_details dd, dl.album_info dd {
 	font-size: 1.05em;
 }
 
+#search_toggle_link {
+	color: var(--contrast_text_compliment);
+}
+
 .main_item_container {
 	display: grid;
 	align-items: center;
@@ -1388,7 +1392,7 @@ td.status #progressbar, td.status #progresspc, #total_progressbar, #total_progre
 @media screen and (max-width: 30em) {
 	.editor_wrapper {
 		min-width: 98%;
-        margin: 0 1%;
+		margin: 0 1%;
 	}
 
 	div.sceditor-group {
