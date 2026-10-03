@@ -222,6 +222,8 @@ function levgal_adminSettings($return_config = false)
 	$config_vars = [
 		['title', 'levgal_settings'],
 		['desc', 'levgal_settings_desc'],
+		['text', 'lgal_dir', 80],
+		'',
 		['check', 'lgal_count_author_views'],
 		['check', 'lgal_enable_mature', 'subtext' => $txt['lgal_enable_mature_desc']],
 		'',
