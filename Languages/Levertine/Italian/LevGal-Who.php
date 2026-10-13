@@ -15,9 +15,9 @@
 $txt['whoall_media'] = 'Sta visualizzando la galleria.';
 $txt['whoall_media_home'] = 'Sta visualizzando l\'indice della galleria.';
 $txt['whoall_media_album'] = 'Sta visualizzando un album.';
-$txt['whoall_media_file'] = 'Sta visualizzando un elemento multimediale.';
-$txt['whoall_media_moderate'] = 'Sta visualizzando \'area moderazione media.';
+$txt['whoall_media_file'] = 'Sta visualizzando un elemento della galleria.';
+$txt['whoall_media_moderate'] = 'Sta visualizzando l\'area di moderazione della galleria.';
 $txt['whoall_media_newalbum'] = 'Sta creando un nuovo album.';
-$txt['whoall_media_item'] = 'Sta visualizzando un elemento multimediale.';
+$txt['whoall_media_item'] = 'Sta visualizzando un elemento della galleria.';
 $txt['whoall_media_stats'] = 'Sta visualizzando le statistiche della galleria.';
-$txt['whoall_media_unseen'] = 'Sta visualizzando i nuovi elementi multimediali.';
+$txt['whoall_media_unseen'] = 'Sta visualizzando gli elementi non ancora visti.';

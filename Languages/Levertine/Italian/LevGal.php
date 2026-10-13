@@ -4,7 +4,7 @@
  * @copyright 2014-2015 Peter Spicer (levertine.com)
  * @license LGPL (v3)
  *
- * @version 1.2.1
+ * @version 2.0.0
  * @package levgal
  * @since 1.0
  */
@@ -12,315 +12,315 @@
 
 // Important! Before editing these language files please read the text at the top of index.english.php.
 
-$txt['levgal'] = 'Media';
-$txt['levgal_newalbum'] = 'Add New Album';
-$txt['levgal_unseen'] = 'Unseen Items';
-$txt['levgal_moderate'] = 'Moderation';
-$txt['levgal_featured_albums'] = 'Featured Albums';
-$txt['levgal_unapproved_albums'] = 'Unapproved Albums';
-$txt['levgal_unapproved_items'] = 'Unapproved Items';
-$txt['levgal_unapproved_comments'] = 'Unapproved Comments';
-$txt['levgal_reported_items'] = 'Reported Items';
-$txt['levgal_reported_comments'] = 'Reported Comments';
-$txt['levgal_search'] = 'Search Media';
-$txt['levgal_tagcloud'] = 'Tag Cloud';
-$txt['levgal_tagcloud_none'] = 'No Tags Created';
-$txt['levgal_mymedia'] = 'My Media';
-$txt['levgal_myitems'] = 'My Items';
-$txt['levgal_myalbums'] = 'My Albums';
-$txt['levgal_mybookmarks'] = 'My Bookmarks';
-$txt['levgal_featured_album'] = 'This is a featured album.';
+$txt['levgal'] = 'Galleria';
+$txt['levgal_newalbum'] = 'Nuovo album';
+$txt['levgal_unseen'] = 'Elementi non visti';
+$txt['levgal_moderate'] = 'Moderazione';
+$txt['levgal_featured_albums'] = 'Album in evidenza';
+$txt['levgal_unapproved_albums'] = 'Album da approvare';
+$txt['levgal_unapproved_items'] = 'Elementi da approvare';
+$txt['levgal_unapproved_comments'] = 'Commenti da approvare';
+$txt['levgal_reported_items'] = 'Elementi segnalati';
+$txt['levgal_reported_comments'] = 'Commenti segnalati';
+$txt['levgal_search'] = 'Cerca nella galleria';
+$txt['levgal_tagcloud'] = 'Nuvola di tag';
+$txt['levgal_tagcloud_none'] = 'Nessun tag creato';
+$txt['levgal_mymedia'] = 'La mia galleria';
+$txt['levgal_myitems'] = 'I miei elementi';
+$txt['levgal_myalbums'] = 'I miei album';
+$txt['levgal_mybookmarks'] = 'I miei segnalibri';
+$txt['levgal_featured_album'] = 'Questo è un album in evidenza.';
 
-$txt['cannot_lgal_manage'] = 'Sorry, you are not permitted to manage the media gallery.';
+$txt['cannot_lgal_manage'] = 'Spiacenti, non sei autorizzato a gestire la galleria multimediale.';
 
-$txt['error_lgal_no_comment'] = 'Sorry, no comment was found. It may be off limits or have been removed.';
-$txt['lgal_upload_failed'] = 'Upload failed, no further information available.';
-$txt['lgal_dir_not_writable'] = 'The storage area for the media gallery is not accessible, please contact your administrator.';
-$txt['lgal_upload_failed_reason'] = 'Something went wrong while uploading this item:';
+$txt['error_lgal_no_comment'] = 'Spiacenti, commento non trovato. Potrebbe non essere accessibile o essere stato rimosso.';
+$txt['lgal_upload_failed'] = 'Caricamento non riuscito, nessuna ulteriore informazione disponibile.';
+$txt['lgal_dir_not_writable'] = 'Lo spazio di archiviazione della galleria non è accessibile: contatta l\'amministratore.';
+$txt['lgal_upload_failed_reason'] = 'Si è verificato un problema durante il caricamento di questo elemento:';
 
-$txt['lgal_previous'] = 'Previous';
-$txt['lgal_next'] = 'Next';
+$txt['lgal_previous'] = 'Precedente';
+$txt['lgal_next'] = 'Successivo';
 
-$txt['lgal_missing_item'] = 'Missing item: %1$s';
+$txt['lgal_missing_item'] = 'Elemento mancante: %1$s';
 
-$txt['lgal_latest_items'] = 'Latest Items';
-$txt['lgal_random_items'] = 'Random Items';
-$txt['lgal_no_albums'] = 'There are no albums in the media gallery currently available to you.';
-$txt['lgal_no_items'] = 'There are no items in the media gallery currently available to you.';
-$txt['lgal_no_unseen'] = 'There are no items in the media gallery currently marked as unseen.';
+$txt['lgal_latest_items'] = 'Ultimi elementi';
+$txt['lgal_random_items'] = 'Elementi a caso';
+$txt['lgal_no_albums'] = 'Al momento nella galleria non ci sono album disponibili per te.';
+$txt['lgal_no_items'] = 'Al momento nella galleria non ci sono elementi disponibili per te.';
+$txt['lgal_no_unseen'] = 'Al momento nella galleria non ci sono elementi da vedere.';
 
-$txt['lgal_gallery_info'] = 'Gallery Information';
-$txt['lgal_gallery_actions'] = 'Gallery Actions';
-$txt['lgal_gallery_stats'] = 'Gallery Stats';
+$txt['lgal_gallery_info'] = 'Informazioni sulla galleria';
+$txt['lgal_gallery_actions'] = 'Azioni della galleria';
+$txt['lgal_gallery_stats'] = 'Statistiche della galleria';
 
-$txt['lgal_albums_list'] = 'Albums';
-$txt['lgal_albums_owned_site'] = 'Albums of %1$s';
-$txt['lgal_albums_owned_someone'] = 'Albums of %1$s';
-$txt['lgal_albums_site'] = 'Site Albums';
-$txt['lgal_albums_member'] = 'Member Albums';
-$txt['lgal_albums_group'] = 'Group Albums';
-$txt['lgal_arrange_albums'] = 'Arrange Albums';
-$txt['lgal_arrange_albums_desc'] = 'On this page, you can rearrange the different albums, <strong>including moving albums into sub-albums</strong>. Simply drag and drop the albums to where you want them to be.';
-$txt['lgal_arrange_albums_save'] = 'Save the new order';
-$txt['lgal_invalid_saving_order'] = 'Something went wrong with trying to save the new order. Please reload the page and try again.';
-$txt['lgal_arrange_albums_save_alpha'] = 'Confermare di voler salvare gli album in ordine alfa';
+$txt['lgal_albums_list'] = 'Album';
+$txt['lgal_albums_owned_site'] = 'Album del sito %1$s';
+$txt['lgal_albums_owned_someone'] = 'Album di %1$s';
+$txt['lgal_albums_owned_group'] = 'Album del gruppo %1$s';
+$txt['lgal_albums_site'] = 'Album del sito';
+$txt['lgal_albums_member'] = 'Album degli utenti';
+$txt['lgal_albums_group'] = 'Album dei gruppi';
+$txt['lgal_arrange_albums'] = 'Ordina gli album';
+$txt['lgal_arrange_albums_desc'] = 'In questa pagina puoi riordinare gli album, <strong>anche spostandoli all\'interno di altri album</strong>. Basta trascinarli dove vuoi.';
+$txt['lgal_arrange_albums_save'] = 'Salva il nuovo ordine';
+$txt['lgal_invalid_saving_order'] = 'Si è verificato un problema nel salvare il nuovo ordine. Ricarica la pagina e riprova.';
+$txt['lgal_arrange_albums_save_alpha'] = 'Conferma di voler salvare gli album in ordine alfabetico';
 
-$txt['lgal_empty_album'] = 'This album has no items in it.';
-$txt['lgal_viewing_album'] = 'Viewing album: %1$s';
-$txt['lgal_album_info'] = 'Album Information';
-$txt['lgal_album_actions'] = 'Album Actions';
-$txt['lgal_album_family'] = 'Child Albums';
-$txt['lgal_album_child'] = 'Child';
-$txt['lgal_album_parent'] = 'Parent';
-$txt['lgal_viewing_item'] = 'Viewing item: %1$s';
-$txt['lgal_mature_item'] = 'Mature Content Warning: %1$s';
-$txt['lgal_item_info'] = 'Item Information';
-$txt['lgal_item_actions'] = 'Item Actions';
-$txt['lgal_owned_by'] = 'Album owned by:';
-$txt['lgal_posted_by'] = 'Posted by:';
-$txt['lgal_see_more'] = '<a class="linkbutton" href="%1$s">see more</a>';
-$txt['lgal_time_added'] = 'Added on:';
-$txt['lgal_time_updated'] = 'Updated on:';
-$txt['lgal_picture_size'] = 'Picture size:';
-$txt['lgal_file_size'] = 'File size:';
-$txt['lgal_file_type'] = 'File type:';
-$txt['lgal_comments'] = 'Comments (%1$s)';
-$txt['lgal_comments_for'] = 'Comments on %1$s';
-$txt['lgal_items_in'] = 'Items in %1$s';
+$txt['lgal_empty_album'] = 'Questo album non contiene elementi.';
+$txt['lgal_viewing_album'] = 'Album: %1$s';
+$txt['lgal_album_info'] = 'Informazioni sull\'album';
+$txt['lgal_album_actions'] = 'Azioni dell\'album';
+$txt['lgal_album_family'] = 'Sottoalbum';
+$txt['lgal_album_child'] = 'Sottoalbum';
+$txt['lgal_album_parent'] = 'Album superiore';
+$txt['lgal_viewing_item'] = 'Elemento: %1$s';
+$txt['lgal_mature_item'] = 'Avviso contenuto per adulti: %1$s';
+$txt['lgal_item_info'] = 'Informazioni sull\'elemento';
+$txt['lgal_item_actions'] = 'Azioni dell\'elemento';
+$txt['lgal_owned_by'] = 'Proprietario dell\'album:';
+$txt['lgal_posted_by'] = 'Pubblicato da:';
+$txt['lgal_see_more'] = '<a class="linkbutton" href="%1$s">vedi altro</a>';
+$txt['lgal_time_added'] = 'Aggiunto il:';
+$txt['lgal_time_updated'] = 'Aggiornato il:';
+$txt['lgal_picture_size'] = 'Dimensioni:';
+$txt['lgal_file_size'] = 'Dimensione del file:';
+$txt['lgal_file_type'] = 'Tipo di file:';
+$txt['lgal_comments'] = 'Commenti (%1$s)';
+$txt['lgal_comments_for'] = 'Commenti a %1$s';
+$txt['lgal_items_in'] = 'Elementi in %1$s';
 $txt['lgal_size_kb'] = '%1$s KB';
 $txt['lgal_size_mb'] = '%1$s MB';
 $txt['lgal_size_gb'] = '%1$s GB';
-$txt['lgal_sorting_album'] = 'Sort the album';
-$txt['lgal_sort_by'] = 'Sort by:';
-$txt['lgal_sort_by_date'] = 'Date';
-$txt['lgal_sort_by_name'] = 'Name';
-$txt['lgal_sort_by_views'] = 'Views';
-$txt['lgal_sort_by_comments'] = 'Comments';
-$txt['lgal_sort_direction'] = 'Sort direction:';
+$txt['lgal_sorting_album'] = 'Ordina l\'album';
+$txt['lgal_sort_by'] = 'Ordina per:';
+$txt['lgal_sort_by_date'] = 'Data';
+$txt['lgal_sort_by_name'] = 'Nome';
+$txt['lgal_sort_by_views'] = 'Visite';
+$txt['lgal_sort_by_comments'] = 'Commenti';
+$txt['lgal_sort_direction'] = 'Direzione:';
 $txt['lgal_sort_direction_asc'] = 'A-Z';
 $txt['lgal_sort_direction_desc'] = 'Z-A';
-$txt['lgal_posted_in'] = 'Posted in album:';
+$txt['lgal_posted_in'] = 'Pubblicato nell\'album:';
 
-$txt['lgal_click_to_expand'] = 'Click to zoom in';
-$txt['lgal_click_to_view'] = 'Click to view';
-$txt['lgal_click_to_slideshow'] = 'View slideshow';
+$txt['lgal_click_to_expand'] = 'Clicca per ingrandire';
+$txt['lgal_click_to_view'] = 'Clicca per vedere';
+$txt['lgal_click_to_slideshow'] = 'Guarda la presentazione';
 
-$txt['lgal_pending_approval'] = 'Pending approval:';
+$txt['lgal_pending_approval'] = 'In attesa di approvazione:';
 // Note: your language might need extras, e.g. lgal_albums_2 - LevGal supports this just fine.
-$txt['lgal_albums_0'] = 'no albums';
+$txt['lgal_albums_0'] = 'nessun album';
 $txt['lgal_albums_1'] = '1 album';
-$txt['lgal_albums_x'] = '%1$s albums';
-$txt['lgal_items_0'] = 'no items';
-$txt['lgal_items_1'] = '1 item';
-$txt['lgal_items_x'] = '%1$s items';
-$txt['lgal_docs_0'] = 'no documents';
-$txt['lgal_docs_1'] = '1 document';
-$txt['lgal_docs_x'] = '%1$s documents';
-$txt['lgal_comments_0'] = 'no comments';
-$txt['lgal_comments_1'] = '1 comment';
-$txt['lgal_comments_x'] = '%1$s comments';
-$txt['lgal_unapproved'] = 'unapproved: ';
+$txt['lgal_albums_x'] = '%1$s album';
+$txt['lgal_items_0'] = 'nessun elemento';
+$txt['lgal_items_1'] = '1 elemento';
+$txt['lgal_items_x'] = '%1$s elementi';
+$txt['lgal_docs_0'] = 'nessun documento';
+$txt['lgal_docs_1'] = '1 documento';
+$txt['lgal_docs_x'] = '%1$s documenti';
+$txt['lgal_comments_0'] = 'nessun commento';
+$txt['lgal_comments_1'] = '1 commento';
+$txt['lgal_comments_x'] = '%1$s commenti';
+$txt['lgal_unapproved'] = 'da approvare: ';
 
-$txt['lgal_comment_feed'] = 'Comment %1$s on %2$s';
+$txt['lgal_comment_feed'] = 'Commento %1$s su %2$s';
 
-$txt['lgal_album_waiting_approval'] = 'Your Album will need to be approved by a moderator before it is visible.';
-$txt['lgal_unapproved_album'] = 'This album has not been approved yet.';
-$txt['lgal_unapproved_comment'] = 'This comment has not been approved yet.';
-$txt['lgal_unapproved_item'] = 'This item has not been approved yet.';
-$txt['lgal_comment_was_reported'] = 'This comment has been reported.';
-$txt['lgal_item_was_reported'] = 'This item has been reported.';
+$txt['lgal_album_waiting_approval'] = 'Il tuo album sarà visibile dopo essere stato approvato da un moderatore.';
+$txt['lgal_unapproved_album'] = 'Questo album non è ancora stato approvato.';
+$txt['lgal_unapproved_comment'] = 'Questo commento non è ancora stato approvato.';
+$txt['lgal_unapproved_item'] = 'Questo elemento non è ancora stato approvato.';
+$txt['lgal_comment_was_reported'] = 'Questo commento è stato segnalato.';
+$txt['lgal_item_was_reported'] = 'Questo elemento è stato segnalato.';
 
-$txt['levgal_album_add_description'] = 'This page is about collecting enough information to be able to create a new album for you. <strong>More options</strong> will be available <i>once the album is created</i>, including arranging this as a child album of another album.';
-$txt['levgal_album_name'] = 'Album name:';
-$txt['levgal_album_slug'] = 'Album Permalink:';
-$txt['levgal_album_slug_note'] = 'This will be generated for you or you may use a custom one';
-$txt['levgal_set_album_featured'] = 'Mark this album as a featured album?';
-$txt['levgal_album_lock_for_items'] = 'Allow new items in this album?';
-$txt['levgal_album_default_sort'] = 'Set the default item display order.';
-$txt['levgal_album_lock_for_comments'] = 'Allow new comments to the items in this album?';
-$txt['levgal_album_added_new'] = 'Added: %1$s to Album: %2$s';
-$txt['lgal_album_description'] = 'Description for this album (you don\'t have to put this in):';
+$txt['levgal_album_add_description'] = 'Questa pagina raccoglie le informazioni necessarie per creare il nuovo album. <strong>Altre opzioni</strong> saranno disponibili <i>dopo la creazione dell\'album</i>, compresa la possibilità di inserirlo come sottoalbum di un altro album.';
+$txt['levgal_album_name'] = 'Nome dell\'album:';
+$txt['levgal_album_slug'] = 'Permalink dell\'album:';
+$txt['levgal_album_slug_note'] = 'Viene generato automaticamente, oppure puoi indicarne uno personalizzato';
+$txt['levgal_set_album_featured'] = 'Mettere questo album in evidenza?';
+$txt['levgal_album_lock_for_items'] = 'Consentire nuovi elementi in questo album?';
+$txt['levgal_album_default_sort'] = 'Ordine predefinito degli elementi.';
+$txt['levgal_album_lock_for_comments'] = 'Consentire nuovi commenti agli elementi di questo album?';
+$txt['levgal_album_added_new'] = 'Aggiunto: %1$s all\'album: %2$s';
+$txt['lgal_album_description'] = 'Descrizione dell\'album (facoltativa):';
 
-$txt['levgal_guests'] = 'Guests';
-$txt['levgal_registered_members'] = 'Registered Members';
+$txt['levgal_guests'] = 'Ospiti';
+$txt['levgal_registered_members'] = 'Utenti registrati';
 
-$txt['levgal_no_album_name'] = 'We can\'t add your album without it having a name.';
-$txt['levgal_no_edit_album_name'] = 'We can\'t update your album without it having a name.';
+$txt['levgal_no_album_name'] = 'Non è possibile creare l\'album senza un nome.';
+$txt['levgal_no_edit_album_name'] = 'Non è possibile aggiornare l\'album senza un nome.';
 
-$txt['levgal_view_item'] = 'View Item';
-$txt['levgal_comment_browse'] = 'See in place';
-$txt['levgal_comment_approve'] = 'Approve';
-$txt['levgal_comment_edit'] = 'Edit';
-$txt['levgal_comment_delete'] = 'Delete';
-$txt['levgal_comment_flag'] = 'Report';
-$txt['levgal_comment_on'] = 'Commented On:';
+$txt['levgal_view_item'] = 'Vedi l\'elemento';
+$txt['levgal_comment_browse'] = 'Vedi nella pagina';
+$txt['levgal_comment_approve'] = 'Approva';
+$txt['levgal_comment_edit'] = 'Modifica';
+$txt['levgal_comment_delete'] = 'Elimina';
+$txt['levgal_comment_flag'] = 'Segnala';
+$txt['levgal_comment_on'] = 'Commento su:';
 
-$txt['levgal_add_comment'] = 'Add comment';
-$txt['levgal_edit_comment'] = 'Edit comment';
-$txt['levgal_edit_comment_full'] = 'Editing comment to: %1$s by %2$s';
-$txt['levgal_save_comment'] = 'Save comment';
-$txt['levgal_comment_waiting_approval'] = 'Your comment will need to be approved by a moderator before it is visible.';
-$txt['levgal_item_waiting_approval'] = 'Your item will need to be approved by a moderator before it is visible.';
-$txt['levgal_flag_comment'] = 'Report comment';
-$txt['levgal_flag_item'] = 'Report item';
+$txt['levgal_add_comment'] = 'Aggiungi commento';
+$txt['levgal_edit_comment'] = 'Modifica commento';
+$txt['levgal_edit_comment_full'] = 'Modifica del commento a: %1$s di %2$s';
+$txt['levgal_save_comment'] = 'Salva commento';
+$txt['levgal_comment_waiting_approval'] = 'Il tuo commento sarà visibile dopo essere stato approvato da un moderatore.';
+$txt['levgal_item_waiting_approval'] = 'Il tuo elemento sarà visibile dopo essere stato approvato da un moderatore.';
+$txt['levgal_flag_comment'] = 'Segnala commento';
+$txt['levgal_flag_item'] = 'Segnala elemento';
 
-$txt['levgal_comment_error'] = 'Something went wrong when you tried to post your comment:';
-$txt['levgal_comment_edit_error'] = 'Something went wrong when you tried to edit your comment:';
-$txt['levgal_error_session_timeout'] = 'You were away too long. Please try logging out and logging back in.';
-$txt['levgal_error_no_comment'] = 'You did not write a comment.';
-$txt['levgal_error_invalid_user'] = 'You did not put in a valid username.';
-$txt['levgal_error_invalid_email'] = 'You did not put in a valid email address.';
+$txt['levgal_comment_error'] = 'Si è verificato un problema durante la pubblicazione del commento:';
+$txt['levgal_comment_edit_error'] = 'Si è verificato un problema durante la modifica del commento:';
+$txt['levgal_error_session_timeout'] = 'Sei stato inattivo troppo a lungo. Prova a uscire e a rientrare.';
+$txt['levgal_error_no_comment'] = 'Non hai scritto nessun commento.';
+$txt['levgal_error_invalid_user'] = 'Non hai inserito un nome utente valido.';
+$txt['levgal_error_invalid_email'] = 'Non hai inserito un indirizzo email valido.';
 
-$txt['levgal_last_edit'] = 'Last edit: %1$s by %2$s';
+$txt['levgal_last_edit'] = 'Ultima modifica: %1$s di %2$s';
 
-$txt['lgal_edit_album_title'] = 'Edit Album';
+$txt['lgal_edit_album_title'] = 'Modifica album';
+$txt['lgal_deleting_album'] = 'Eliminazione dell\'album: %1$s';
+$txt['lgal_delete_album_title'] = 'Elimina album';
+$txt['lgal_delete_album_desc'] = 'Se premi il pulsante di eliminazione, questo album verrà rimosso e tutti i suoi elementi verranno <strong>ELIMINATI DEFINITIVAMENTE.</strong><br />Non esiste un backup né un modo per annullare l\'operazione.';
+$txt['lgal_delete_album_are_you_sure'] = 'Vuoi davvero eliminare questo album?';
+$txt['lgal_delete_album_delete'] = 'Non voglio questo album';
+$txt['lgal_delete_album_cancel'] = 'Voglio tenere questo album';
+$txt['lgal_deleting_item'] = 'Eliminazione dell\'elemento: %1$s';
+$txt['lgal_delete_item_title'] = 'Elimina elemento';
+$txt['lgal_delete_item_desc'] = 'Se premi il pulsante di eliminazione, questo elemento verrà rimosso definitivamente. Non esiste un backup né un modo per annullare l\'operazione.';
+$txt['lgal_delete_item_are_you_sure'] = 'Vuoi davvero eliminare questo elemento?';
+$txt['lgal_delete_item_delete'] = 'Non voglio questo elemento';
+$txt['lgal_delete_item_cancel'] = 'Voglio tenere questo elemento';
 
-$txt['lgal_deleting_album'] = 'Deleting album: %1$s';
-$txt['lgal_delete_album_title'] = 'Delete Album';
-$txt['lgal_delete_album_desc'] = 'If you do not want this album and press the delete button, it will be removed - and all the items will be deleted permanently. There is no backup option for this.';
-$txt['lgal_delete_album_are_you_sure'] = 'Are you sure you wish to delete this album?';
-$txt['lgal_delete_album_delete'] = 'I do not want this album';
-$txt['lgal_delete_album_cancel'] = 'I want to keep this album';
-$txt['lgal_deleting_item'] = 'Deleting item: %1$s';
-$txt['lgal_delete_item_title'] = 'Delete Item';
-$txt['lgal_delete_item_desc'] = 'If you do not want this item and press the delete button, it will be removed, and there is no backup option for this. It will be removed permanently.';
-$txt['lgal_delete_item_are_you_sure'] = 'Are you sure you wish to delete this item?';
-$txt['lgal_delete_item_delete'] = 'I do not want this item';
-$txt['lgal_delete_item_cancel'] = 'I want to keep this item';
+$txt['lgal_moving_item'] = 'Spostamento dell\'elemento: %1$s';
+$txt['lgal_move_item_title'] = 'Sposta elemento';
+$txt['lgal_move_item_album'] = 'In quale album vuoi spostare questo elemento?';
 
-$txt['lgal_moving_item'] = 'Moving item: %1$s';
-$txt['lgal_move_item_title'] = 'Move Item';
-$txt['lgal_move_item_album'] = 'Which album do you wish to move this item to?';
+$txt['lgal_notify_item_title'] = 'Notifiche per l\'elemento: %1$s';
+$txt['lgal_notify_item_desc'] = 'Inviami una email ogni volta che riceve un commento';
+$txt['lgal_notify_album_title'] = 'Notifiche per l\'album: %1$s';
+$txt['lgal_notify_album_desc'] = 'Inviami una email ogni volta che in questo album viene pubblicato un nuovo elemento';
+$txt['lgal_notify_are_you_sure'] = 'Vuoi ricevere le notifiche?';
 
-$txt['lgal_notify_item_title'] = 'Notifications for item: %1$s';
-$txt['lgal_notify_item_desc'] = 'If you wish, you can be notified by email every time there is a comment made on this item.';
-$txt['lgal_notify_album_title'] = 'Notifications for album: %1$s';
-$txt['lgal_notify_album_desc'] = 'If you wish, you can be notified by email every time there is a new item posted in this album.';
-$txt['lgal_notify_are_you_sure'] = 'Do you want notifications?';
+$txt['lgal_set_thumbnail_title'] = 'Usa come miniatura';
+$txt['lgal_set_thumbnail_desc'] = 'Usa questa immagine come miniatura dell\'album.';
 
-$txt['lgal_set_thumbnail_title'] = 'Set As Thumbnail';
-$txt['lgal_set_thumbnail_desc'] = 'This set the album\'s thumbnail picture to use the same as this item.';
+$txt['lgal_item_actions_actions'] = 'Azioni';
+$txt['lgal_item_actions_moderation'] = 'Moderazione';
+$txt['lgal_add_item'] = 'Aggiungi un elemento';
+$txt['lgal_add_bulk'] = 'Aggiungi più elementi';
+$txt['lgal_save_item'] = 'Salva l\'elemento';
+$txt['lgal_save_bulk'] = 'Salva gli elementi';
+$txt['lgal_mark_album_seen'] = 'Segna l\'album come visto';
+$txt['lgal_mark_all_seen'] = 'Segna tutto come visto';
+$txt['lgal_bookmark_item'] = 'Aggiungi ai segnalibri';
+$txt['lgal_unbookmark_item'] = 'Togli dai segnalibri';
+$txt['lgal_notify'] = 'Avvisami';
+$txt['lgal_unnotify'] = 'Interrompi le notifiche';
+$txt['lgal_notify_item_desc'] = 'Inviami una email ogni volta che riceve un commento';
+$txt['lgal_unnotify_item_desc'] = 'Non inviarmi più email quando riceve un commento';
+$txt['lgal_notify_album_desc'] = 'Inviami una email ogni volta che in questo album viene pubblicato un nuovo elemento';
+$txt['lgal_unnotify_album_desc'] = 'Non inviarmi più email quando riceve nuovi elementi';
+$txt['lgal_download_item'] = 'Scarica l\'elemento';
+$txt['lgal_back_to_album'] = 'Torna all\'album';
+$txt['lgal_go_to_album'] = 'Vai all\'album';
+$txt['lgal_go_to_parent_album'] = 'Vai all\'album superiore';
+$txt['lgal_approve_item_title'] = 'Approva elemento';
+$txt['lgal_flag_item_title'] = 'Segnala elemento';
+$txt['lgal_feature_album'] = 'Metti in evidenza';
+$txt['lgal_unfeature_album'] = 'Togli dall\'evidenza';
+$txt['lgal_see_albums'] = 'Tutti gli album';
+$txt['lgal_approve_album_title'] = 'Approva album';
 
-$txt['lgal_item_actions_actions'] = 'Actions';
-$txt['lgal_item_actions_moderation'] = 'Moderation';
-$txt['lgal_add_item'] = 'Add Single Item';
-$txt['lgal_add_bulk'] = 'Add Bulk Items';
-$txt['lgal_save_item'] = 'Save Single Item';
-$txt['lgal_save_bulk'] = 'Save Bulk Items';
-$txt['lgal_mark_album_seen'] = 'Mark Album Seen';
-$txt['lgal_mark_all_seen'] = 'Mark All Seen';
-$txt['lgal_bookmark_item'] = 'Bookmark Item';
-$txt['lgal_unbookmark_item'] = 'Unbookmark Item';
-$txt['lgal_notify'] = 'Notify Me';
-$txt['lgal_unnotify'] = 'Don\'t Notify Me';
-$txt['lgal_notify_item_desc'] = 'Send me an email any time this gets a comment';
-$txt['lgal_unnotify_item_desc'] = 'Stop sending me emails whenever this gets a comment';
-$txt['lgal_notify_album_desc'] = 'Send me an email any time this album gets a new item posted';
-$txt['lgal_unnotify_album_desc'] = 'Stop sending me emails whenever this gets new items';
-$txt['lgal_download_item'] = 'Download Item';
-$txt['lgal_back_to_album'] = 'Back to Album';
-$txt['lgal_go_to_album'] = 'Go to Album';
-$txt['lgal_go_to_parent_album'] = 'Go to Parent Album';
-$txt['lgal_approve_item_title'] = 'Approve Item';
-$txt['lgal_flag_item_title'] = 'Report Item';
-$txt['lgal_feature_album'] = 'Feature Album';
-$txt['lgal_unfeature_album'] = 'Unfeature Album';
-$txt['lgal_see_albums'] = 'All Albums';
-$txt['lgal_approve_album_title'] = 'Approve Album';
+$txt['lgal_item_name'] = 'Nome dell\'elemento:';
 
-$txt['lgal_item_name'] = 'Item name:';
+$txt['lgal_item_poster_name'] = 'Elemento caricato da:';
 
-$txt['lgal_item_poster_name'] = 'Item uploaded by:';
-
-$txt['lgal_likes'] = 'Liked by:';
-$txt['lgal_liked_you'] = 'you';
-$txt['lgal_liked_none'] = 'no-one yet';
-$txt['lgal_like_this'] = 'like this?';
-$txt['lgal_unlike_this'] = 'unlike this?';
-$txt['lgal_liked_your'] = 'Liked your item:';
+$txt['lgal_likes'] = 'Piace a:';
+$txt['lgal_liked_you'] = 'te';
+$txt['lgal_liked_none'] = 'ancora nessuno';
+$txt['lgal_like_this'] = 'Ti piace?';
+$txt['lgal_unlike_this'] = 'Non ti piace più?';
+$txt['lgal_liked_your'] = 'Ha messo "Mi piace" al tuo elemento:';
 
 // Tab titles in the Notification/Mention area
-$txt['mentions_type_lglike'] = 'Media Likes';
-$txt['mentions_type_lgcomment'] = 'Media Comments';
-$txt['mentions_type_lgnew'] = 'Media New Items';
+$txt['mentions_type_lglike'] = '"Mi piace" nella galleria';
+$txt['mentions_type_lgcomment'] = 'Commenti nella galleria';
+$txt['mentions_type_lgnew'] = 'Nuovi elementi nella galleria';
 
-$txt['lgal_tagged_as'] = 'Tagged as:';
+$txt['lgal_tagged_as'] = 'Tag:';
 
-$txt['lgal_view_youtube'] = 'View the original video at YouTube';
-$txt['lgal_view_vimeo'] = 'View the original video at Vimeo';
-$txt['lgal_view_dailymotion'] = 'View the original video at DailyMotion';
-$txt['lgal_view_metacafe'] = 'View the original video at MetaCafe';
+$txt['lgal_view_youtube'] = 'Guarda il video originale su YouTube';
+$txt['lgal_view_vimeo'] = 'Guarda il video originale su Vimeo';
+$txt['lgal_view_dailymotion'] = 'Guarda il video originale su DailyMotion';
+$txt['lgal_view_metacafe'] = 'Guarda il video originale su MetaCafe';
 
-$txt['lgal_item_is_mature'] = 'The item you have selected is marked as mature. This means it may be explicit or otherwise inappropriate.';
-$txt['lgal_item_is_mature_continue'] = 'Do you wish to continue?';
-$txt['lgal_item_mature_accept'] = 'Yes, I understand';
-$txt['lgal_item_mature_cancel'] = 'No, I don\'t want to see it';
+$txt['lgal_item_is_mature'] = 'L\'elemento che hai scelto è contrassegnato come per adulti: potrebbe essere esplicito o comunque non adatto a tutti.';
+$txt['lgal_item_is_mature_continue'] = 'Vuoi continuare?';
+$txt['lgal_item_mature_accept'] = 'Sì, ho capito';
+$txt['lgal_item_mature_cancel'] = 'No, non voglio vederlo';
 
-$txt['lgal_edit_item_title'] = 'Edit Item';
+$txt['lgal_edit_item_title'] = 'Modifica elemento';
 
 // Metadata
-$txt['lgal_additional_information'] = 'Media Info';
-$txt['lgal_metadata_title'] = 'Title:';
-$txt['lgal_metadata_artist'] = 'Artist:';
+$txt['lgal_additional_information'] = 'Informazioni sul file';
+$txt['lgal_metadata_title'] = 'Titolo:';
+$txt['lgal_metadata_artist'] = 'Artista:';
 $txt['lgal_metadata_album'] = 'Album:';
-$txt['lgal_metadata_album_artist'] = 'Album Artist:';
-$txt['lgal_metadata_track_number'] = 'Track Number:';
-$txt['lgal_metadata_genre'] = 'Genre:';
-$txt['lgal_metadata_playtime_display'] = 'Running Time:';
+$txt['lgal_metadata_album_artist'] = 'Artista dell\'album:';
+$txt['lgal_metadata_track_number'] = 'Numero della traccia:';
+$txt['lgal_metadata_genre'] = 'Genere:';
+$txt['lgal_metadata_playtime_display'] = 'Durata:';
 $txt['lgal_metadata_bitrate_display'] = 'Bitrate:';
 $txt['lgal_metadata_bitrate_kbps'] = '%skbps';
-$txt['lgal_metadata_make'] = 'Camera:';
+$txt['lgal_metadata_make'] = 'Fotocamera:';
 $txt['lgal_metadata_flash'] = 'Flash:';
-$txt['lgal_metadata_exposure_time'] = 'Exposure Time:';
-$txt['lgal_metadata_fnumber'] = 'F-number:';
-$txt['lgal_metadata_focal_length'] = 'Focal length:';
-$txt['lgal_metadata_datetime'] = 'Time taken:';
-$txt['lgal_metadata_metering_mode'] = 'Metering Mode:';
-$txt['lgal_metadata_digitalzoom'] = 'Digital zoom:';
-$txt['lgal_metadata_brightness'] = 'Brightness:';
-$txt['lgal_metadata_contrast'] = 'Contrast:';
-$txt['lgal_metadata_sharpness'] = 'Sharpness:';
-$txt['lgal_metadata_isospeed'] = 'ISO Speed Rating:';
-$txt['lgal_metadata_lightsource'] = 'Light source:';
-$txt['lgal_metadata_exposure_prog'] = 'Exposure Program:';
-$txt['lgal_metadata_shutter_speed'] = 'Shutter speed:';
-$txt['lgal_metadata_sensitivity'] = 'Sensitivity type:';
-$txt['lgal_metadata_subject'] = 'Subject:';
-$txt['lgal_metadata_author'] = 'Author:';
-$txt['lgal_metadata_keywords'] = 'Keywords:';
-$txt['lgal_metadata_comment'] = 'Comment:';
+$txt['lgal_metadata_exposure_time'] = 'Tempo di esposizione:';
+$txt['lgal_metadata_fnumber'] = 'Numero f:';
+$txt['lgal_metadata_focal_length'] = 'Lunghezza focale:';
+$txt['lgal_metadata_datetime'] = 'Data dello scatto:';
+$txt['lgal_metadata_metering_mode'] = 'Modalità di misurazione:';
+$txt['lgal_metadata_digitalzoom'] = 'Zoom digitale:';
+$txt['lgal_metadata_brightness'] = 'Luminosità:';
+$txt['lgal_metadata_contrast'] = 'Contrasto:';
+$txt['lgal_metadata_sharpness'] = 'Nitidezza:';
+$txt['lgal_metadata_isospeed'] = 'Sensibilità ISO:';
+$txt['lgal_metadata_lightsource'] = 'Sorgente luminosa:';
+$txt['lgal_metadata_exposure_prog'] = 'Programma di esposizione:';
+$txt['lgal_metadata_shutter_speed'] = 'Velocità dell\'otturatore:';
+$txt['lgal_metadata_sensitivity'] = 'Tipo di sensibilità:';
+$txt['lgal_metadata_subject'] = 'Oggetto:';
+$txt['lgal_metadata_author'] = 'Autore:';
+$txt['lgal_metadata_keywords'] = 'Parole chiave:';
+$txt['lgal_metadata_comment'] = 'Commento:';
 
 // Unseen
-$txt['lgal_unseen_by_album'] = 'Unseen By Album';
+$txt['lgal_unseen_by_album'] = 'Non visti per album';
 
 // Upload behaviour
-$txt['lgal_uploading'] = 'Uploading...';
-$txt['lgal_upload_complete'] = 'Upload complete!';
-$txt['lgal_async_not_allowed'] = 'The type of file you tried to upload was not allowed.';
-$txt['lgal_async_invalid'] = 'Something went wrong with the upload (invalid async). If the error continues contact the administrator.';
-$txt['lgal_async_not_writable'] = 'The file could not be saved on the server. Please contact your administrator.';
-$txt['lgal_async_not_found'] = 'The file was uploaded but due to a server error, was not saved properly, please try again';
-$txt['lgal_browser_not_supported'] = 'Sorry, but it would appear your browser does not support the features needed to handle uploads to the media gallery. Please make sure you are using a recent browser.';
-$txt['lgal_upload_too_large'] = 'The file you tried to upload is too large.';
-$txt['lgal_upload_image_too_big'] = 'The image you tried to upload is too big.';
-$txt['lgal_upload_already_uploaded'] = 'Uploaded file: %1$s';
-$txt['lgal_upload_error_occurred'] = 'Error occurred';
+$txt['lgal_uploading'] = 'Caricamento in corso...';
+$txt['lgal_upload_complete'] = 'Caricamento completato!';
+$txt['lgal_async_not_allowed'] = 'Il tipo di file che hai provato a caricare non è consentito.';
+$txt['lgal_async_invalid'] = 'Si è verificato un problema durante il caricamento (async non valido). Se l\'errore si ripete, contatta l\'amministratore.';
+$txt['lgal_async_not_writable'] = 'Non è stato possibile salvare il file sul server. Contatta l\'amministratore.';
+$txt['lgal_async_not_found'] = 'Il file è stato caricato, ma a causa di un errore del server non è stato salvato correttamente. Riprova.';
+$txt['lgal_browser_not_supported'] = 'Spiacenti, sembra che il tuo browser non supporti le funzioni necessarie per caricare file nella galleria. Assicurati di usare un browser recente.';
+$txt['lgal_upload_too_large'] = 'Il file che hai provato a caricare è troppo grande.';
+$txt['lgal_upload_image_too_big'] = 'L\'immagine che hai provato a caricare è troppo grande.';
+$txt['lgal_upload_already_uploaded'] = 'File caricato: %1$s';
+$txt['lgal_upload_error_occurred'] = 'Si è verificato un errore';
 
-$txt['lgal_upload_no_link'] = 'You need to provide a valid link to add items to the media gallery.';
-$txt['lgal_upload_no_file'] = 'No file was uploaded to the server.';
-$txt['lgal_upload_no_move'] = 'The file could not be moved to storage. Please contact your administrator.';
-$txt['lgal_upload_no_validate'] = 'Something went wrong with the upload (failed to validate), please try again and if the issue continues contact your administrator.';
-$txt['lgal_upload_no_title'] = 'You need to include a name for the item before you can add it.';
+$txt['lgal_upload_no_link'] = 'Per aggiungere elementi alla galleria devi indicare un link valido.';
+$txt['lgal_upload_no_file'] = 'Nessun file è stato caricato sul server.';
+$txt['lgal_upload_no_move'] = 'Non è stato possibile spostare il file nell\'archivio. Contatta l\'amministratore.';
+$txt['lgal_upload_no_validate'] = 'Si è verificato un problema durante il caricamento (validazione non riuscita). Riprova e, se il problema persiste, contatta l\'amministratore.';
+$txt['lgal_upload_no_title'] = 'Per aggiungere l\'elemento devi indicarne il nome.';
 
 // Share items
-$txt['lgal_share'] = 'Share Item';
-$txt['lgal_copy_to_clipboard'] = 'Copy to Clipboard';
-$txt['lgal_copyied_to_clipboard'] = 'Copied';
-$txt['lgal_share_page'] = 'Share Page';
-$txt['lgal_share_simple_bbc'] = 'BB Code';
-$txt['lgal_share_complex_bbc'] = 'BB Code with desc';
+$txt['lgal_share'] = 'Condividi elemento';
+$txt['lgal_copy_to_clipboard'] = 'Copia negli appunti';
+$txt['lgal_copyied_to_clipboard'] = 'Copiato';
+$txt['lgal_share_page'] = 'Condividi la pagina';
+$txt['lgal_share_simple_bbc'] = 'BBCode';
+$txt['lgal_share_complex_bbc'] = 'BBCode con descrizione';
 $txt['lgal_share_complex_bbc_entry'] = '[media id=%1$s]%2$s[/media]';
-$txt['lgal_share_social_media'] = 'Social Media';
+$txt['lgal_share_social_media'] = 'Social network';
 $txt['lgal_share_facebook'] = 'Facebook';
 $txt['lgal_share_twitter'] = 'X/Twitter';
 $txt['lgal_share_tumblr'] = 'Tumblr';
@@ -328,27 +328,27 @@ $txt['lgal_share_reddit'] = 'Reddit';
 $txt['lgal_share_pinterest'] = 'Pinterest';
 
 // For bbcode embedding
-$txt['lgal_bbc_no_item'] = 'The selected media item is not currently available.';
-$txt['lgal_bbc_disabled'] = '(the [media] bbcode has been turned off)';
+$txt['lgal_bbc_no_item'] = 'L\'elemento selezionato al momento non è disponibile.';
+$txt['lgal_bbc_disabled'] = '(il bbcode [media] è disattivato)';
 
-$txt['field_required'] = ' (required)';
-$txt['field_select'] = '(select from the choice below)';
+$txt['field_required'] = ' (obbligatorio)';
+$txt['field_select'] = '(scegli tra le opzioni qui sotto)';
 
 // For email messages
-$txt['levgal_email_photo_gallery'] = 'Media Photo';
-$txt['levgal_email_photo_missing'] = 'Gallery Item not found';
+$txt['levgal_email_photo_gallery'] = 'Foto della galleria';
+$txt['levgal_email_photo_missing'] = 'Elemento della galleria non trovato';
 
 // Help text
-$txt['media_bbc'] = 'Media BBC codes allow you to easily add your media items to a post.<br />
+$txt['media_bbc'] = 'I BBCode della galleria ti permettono di inserire facilmente i tuoi elementi in un messaggio.<br />
 <ul class="bbc_list">
-	<li>use [media]123[/media] for a simple thumbnail+link</li>
-	<li>use [media specialOptions]123[/media] for a basic aligned image</li>
-	<li>use [media id=123]description[/media] for a thumbnail with a description (uses full line) leave the description blank to use the item name instead.</li>
-	<li>use [media specialOptions id=123]description[/media] The available special options are:
+	<li>usa [media]123[/media] per una semplice miniatura con link</li>
+	<li>usa [media opzioniSpeciali]123[/media] per un\'immagine allineata</li>
+	<li>usa [media id=123]descrizione[/media] per una miniatura con descrizione (occupa tutta la riga); lascia vuota la descrizione per usare il nome dell\'elemento.</li>
+	<li>usa [media opzioniSpeciali id=123]descrizione[/media]. Le opzioni speciali disponibili sono:
 		<ul class="bbc_list">
-			<li>align=left|right|center, left and right are floated images, allowing text to be placed alongside</li>
-			<li>type=thumbnail|preview, preview provides for a larger image</li>
-			<li>[clear] a BBC tag which can be used to "end" any float</li>
+			<li>align=left|right|center: con left e right l\'immagine è affiancata al testo</li>
+			<li>type=thumbnail|preview: preview mostra un\'immagine più grande</li>
+			<li>[clear]: un tag BBC che si può usare per "chiudere" un affiancamento</li>
 		</ul>
 	</li>
 </ul>';
