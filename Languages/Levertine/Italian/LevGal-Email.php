@@ -9,23 +9,23 @@
 
 // Version: 1.0; LevGal email templates
 $txt['notify_lgcomment_subject'] = 'Commento a: {ITEMNAME}';
-$txt['notify_lgcomment_body'] = '{POSTERNAME} ha commentato un elemento multimediale che stai seguendo.
+$txt['notify_lgcomment_body'] = '{POSTERNAME} ha commentato un elemento che stai seguendo.
 
-Puoi visualizzare il commento al seguente link:
+Puoi vedere il commento a questo link:
 {COMMENTLINK}
 
-Puoi anche annullare l\'iscrizione ai commenti su questo elemento utilizzando questo link:
+Puoi anche annullare l\'iscrizione ai commenti di questo elemento con questo link:
 {UNSUBSCRIBELINK}
 
 {REGARDS}';
 
-$txt['notify_lgnew_subject'] = 'Nuovo elemento multimediale: {ITEMNAME}';
-$txt['notify_lgnew_body'] = '{POSTERNAME} ha aggiunto un elemento multimediale a un album che stai seguendo 
+$txt['notify_lgnew_subject'] = 'Nuovo elemento: {ITEMNAME}';
+$txt['notify_lgnew_body'] = '{POSTERNAME} ha aggiunto un elemento a un album che stai seguendo.
 
-Puoi visualizzare l\'elemento al seguente link:
+Puoi vedere l\'elemento a questo link:
 {ITEMLINK}
 
-Puoi anche annullare l\'iscrizione alle notifiche su questo album utilizzando il link:
+Puoi anche annullare l\'iscrizione alle notifiche di questo album con questo link:
 {UNSUBSCRIBELINK}
 
 {REGARDS}';
